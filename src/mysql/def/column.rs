@@ -15,13 +15,13 @@ pub enum ColumnFields {
 }
 
 #[derive(Debug)]
-pub struct Column {
-    name: String,
-    col_type: ColumnType,
-    key: ColumnKey,
-    default: ColumnDefault,
-    extra: ColumnExtra,
-    comment: String,
+pub struct ColumnInfo {
+    pub name: String,
+    pub col_type: ColumnType,
+    pub key: ColumnKey,
+    pub default: Option<ColumnDefault>,
+    pub extra: ColumnExtra,
+    pub comment: String,
 }
 
 pub type ColumnType = Type;
@@ -36,13 +36,13 @@ pub enum ColumnKey {
 
 #[derive(Debug)]
 pub struct ColumnDefault {
-    expr: String,
+    pub expr: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default, PartialEq)]
 pub struct ColumnExtra {
-    auto_increment: bool,
-    on_update_current_timestamp: bool,
-    generated: bool,
-    default_generated: bool,
+    pub auto_increment: bool,
+    pub on_update_current_timestamp: bool,
+    pub generated: bool,
+    pub default_generated: bool,
 }
