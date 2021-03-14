@@ -25,4 +25,4 @@ name = "sea_schema"
 path = "src/lib.rs"
 
 [dependencies]
-sea-query = { path = "../sea-query" }
+sea-query = { version = "0.8" }

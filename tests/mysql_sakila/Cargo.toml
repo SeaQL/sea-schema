@@ -6,7 +6,7 @@ edition = "2018"
 [dependencies]
 async-std = "1.8"
 sea-schema = { path = "../../" }
-sea-query = { path = "../../../sea-query", features = ["sqlx-mysql"] }
+sea-query = { version = "*", features = ["sqlx-mysql"] }
 
 [dependencies.sqlx]
 version = "0.5"
