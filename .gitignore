@@ -1,1 +1,4 @@
-/vendor
+target
+Cargo.lock
+*.sublime*
+.vscode
