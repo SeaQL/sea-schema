@@ -1,14 +1,11 @@
 use std::rc::Rc;
 use async_std::task;
 use sea_query::{Alias, Iden, MysqlQueryBuilder};
-use sea_schema::mysql::query::SchemaQuery;
+use sea_schema::mysql::query::{SchemaQuery, ColumnQueryResult};
 use sqlx::MySqlPool;
 
 sea_query::sea_query_driver_mysql!();
 use sea_query_driver_mysql::bind_query;
-
-sea_schema::from_mysql_rows!();
-use from_mysql_rows::*;
 
 fn main() {
 
@@ -30,7 +27,7 @@ fn main() {
     });
 
     for row in rows.iter() {
-        let column = column_from_mysql_row(row);
+        let column: ColumnQueryResult = row.into();
         println!("{:?}", column);
     }
     println!();

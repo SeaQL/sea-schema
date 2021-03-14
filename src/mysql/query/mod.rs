@@ -1,4 +1,6 @@
 use std::rc::Rc;
+#[cfg(feature="sqlx-mysql")]
+use sqlx::{Row, mysql::MySqlRow};
 use sea_query::{Expr, Iden, Order, Query, SelectStatement};
 use super::def::*;
 
@@ -13,28 +15,6 @@ pub struct ColumnQueryResult {
     pub column_default: Option<String>,
     pub extra: String,
     pub column_comment: String,
-}
-
-#[macro_export]
-macro_rules! from_mysql_rows {
-    () => {
-        mod from_mysql_rows {
-            use sqlx::{Row, mysql::MySqlRow};
-            use sea_schema::mysql::query::ColumnQueryResult;
-
-            pub fn column_from_mysql_row(row: &MySqlRow) -> ColumnQueryResult {
-                ColumnQueryResult {
-                    column_name: row.get(0),
-                    column_type: row.get(1),
-                    is_nullable: row.get(2),
-                    column_key: row.get(3),
-                    column_default: row.get(4),
-                    extra: row.get(5),
-                    column_comment: row.get(6),
-                }
-            }
-        }
-    }
 }
 
 impl SchemaQuery {
@@ -65,5 +45,20 @@ impl SchemaQuery {
             .and_where(Expr::col(ColumnFields::TableName).eq(table.to_string()))
             .order_by(ColumnFields::OrdinalPosition, Order::Asc)
             .take()
+    }
+}
+
+#[cfg(feature="sqlx-mysql")]
+impl From<&MySqlRow> for ColumnQueryResult {
+    fn from(row: &MySqlRow) -> Self {
+        Self {
+            column_name: row.get(0),
+            column_type: row.get(1),
+            is_nullable: row.get(2),
+            column_key: row.get(3),
+            column_default: row.get(4),
+            extra: row.get(5),
+            column_comment: row.get(6),
+        }
     }
 }

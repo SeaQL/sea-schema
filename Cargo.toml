@@ -26,3 +26,14 @@ path = "src/lib.rs"
 
 [dependencies]
 sea-query = { version = "0.8" }
+sqlx = { version = "0.5", optional = true }
+
+[features]
+sqlx-mysql = [ "sqlx/mysql" ]
+sqlx-postgres = [ "sqlx/postgres" ]
+runtime-actix-native-tls = [ "sqlx/runtime-actix-native-tls" ]
+runtime-async-std-native-tls = [ "sqlx/runtime-async-std-native-tls" ]
+runtime-tokio-native-tls = [ "sqlx/runtime-tokio-native-tls" ]
+runtime-actix-rustls = [ "sqlx/runtime-actix-rustls" ]
+runtime-async-std-rustls = [ "sqlx/runtime-async-std-rustls" ]
+runtime-tokio-rustls = [ "sqlx/runtime-tokio-rustls" ]
