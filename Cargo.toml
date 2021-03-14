@@ -1,6 +1,7 @@
 [workspace]
 members = [
     ".",
+    "tests/mysql_sakila",
 ]
 
 [package]
@@ -24,4 +25,4 @@ name = "sea_schema"
 path = "src/lib.rs"
 
 [dependencies]
-sea-query = { version = "0" }
+sea-query = { path = "../sea-query" }

@@ -1,0 +1,19 @@
+[package]
+name = "sea-schema-mysql-sakila-test"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+async-std = "1.8"
+sea-schema = { path = "../../" }
+sea-query = { path = "../../../sea-query", features = ["sqlx-mysql"] }
+
+[dependencies.sqlx]
+version = "0.5"
+default-features = false
+features = [
+    "runtime-async-std-native-tls",
+    "macros",
+    "mysql",
+    "tls",
+]
