@@ -25,7 +25,7 @@ name = "sea_schema"
 path = "src/lib.rs"
 
 [dependencies]
-sea-query = { version = "0.8" }
+sea-query = { version = "0.8.1" }
 sqlx = { version = "0.5", optional = true }
 
 [features]
