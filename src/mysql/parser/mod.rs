@@ -1,4 +1,4 @@
-use sea_query::{Token, Tokenizer};
+use sea_query::{Token, Tokenizer, unescape_string};
 use super::def::*;
 use super::query::ColumnQueryResult;
 
@@ -96,36 +96,42 @@ pub fn parse_type_name(type_name: &str) -> Type {
 
 fn parse_numeric_attributes(mut tokens: Vec<Token>, mut ctype: ColumnType) -> ColumnType {
     if tokens.is_empty() { return ctype; }
-    let tok = tokens.pop().unwrap();
+    let mut tok = tokens.pop().unwrap();
 
     if tok.is_punctuation() && tok.as_str() == "(" {
         if tokens.is_empty() { return ctype; }
-        let tok = tokens.pop().unwrap();
+        tok = tokens.pop().unwrap();
 
         if tok.is_unquoted() && tok.as_str().parse::<u32>().is_ok() {
             ctype.get_numeric_attr_mut().maximum = Some(tok.as_str().parse::<u32>().unwrap());
         }
 
         if tokens.is_empty() { return ctype; }
-        let tok = tokens.pop().unwrap();
+        tok = tokens.pop().unwrap();
 
         if tok.is_punctuation() && tok.as_str() == "," {
             if tokens.is_empty() { return ctype; }
-            let tok = tokens.pop().unwrap();
+            tok = tokens.pop().unwrap();
 
             if tok.is_unquoted() && tok.as_str().parse::<u32>().is_ok() {
                 ctype.get_numeric_attr_mut().decimal = Some(tok.as_str().parse::<u32>().unwrap());
             }
+
+            if tokens.is_empty() { return ctype; }
+            tok = tokens.pop().unwrap();
         }
 
-        if tokens.is_empty() { return ctype; }
-        let tok = tokens.pop().unwrap();
-
         if !(tok.is_punctuation() && tok.as_str() == ")") { return ctype; }
+
+        if tokens.is_empty() { return ctype; }
+        tok = tokens.pop().unwrap();
     }
 
     if tok.is_unquoted() && tok.as_str().to_lowercase() == "unsigned" {
         ctype.get_numeric_attr_mut().unsigned = Some(true);
+
+        if tokens.is_empty() { return ctype; }
+        tok = tokens.pop().unwrap();
     }
 
     if tok.is_unquoted() && tok.as_str().to_lowercase() == "zerofill" {
@@ -137,18 +143,18 @@ fn parse_numeric_attributes(mut tokens: Vec<Token>, mut ctype: ColumnType) -> Co
 
 fn parse_time_attributes(mut tokens: Vec<Token>, mut ctype: ColumnType) -> ColumnType {
     if tokens.is_empty() { return ctype; }
-    let tok = tokens.pop().unwrap();
+    let mut tok = tokens.pop().unwrap();
 
     if tok.is_punctuation() && tok.as_str() == "(" {
         if tokens.is_empty() { return ctype; }
-        let tok = tokens.pop().unwrap();
+        tok = tokens.pop().unwrap();
 
         if tok.is_unquoted() && tok.as_str().parse::<u32>().is_ok() {
             ctype.get_time_attr_mut().fractional = Some(tok.as_str().parse::<u32>().unwrap());
         }
 
         if tokens.is_empty() { return ctype; }
-        let tok = tokens.pop().unwrap();
+        tok = tokens.pop().unwrap();
 
         if !(tok.is_punctuation() && tok.as_str() == ")") { return ctype; }
     }
@@ -158,69 +164,69 @@ fn parse_time_attributes(mut tokens: Vec<Token>, mut ctype: ColumnType) -> Colum
 
 fn parse_string_attributes(mut tokens: Vec<Token>, mut ctype: ColumnType) -> ColumnType {
     if tokens.is_empty() { return ctype; }
-    let tok = tokens.pop().unwrap();
+    let mut tok = tokens.pop().unwrap();
 
     if tok.is_punctuation() && tok.as_str() == "(" {
         if tokens.is_empty() { return ctype; }
-        let tok = tokens.pop().unwrap();
+        tok = tokens.pop().unwrap();
 
         if tok.is_unquoted() && tok.as_str().parse::<u32>().is_ok() {
             ctype.get_string_attr_mut().length = Some(tok.as_str().parse::<u32>().unwrap());
         }
 
         if tokens.is_empty() { return ctype; }
-        let tok = tokens.pop().unwrap();
+        tok = tokens.pop().unwrap();
 
         if !(tok.is_punctuation() && tok.as_str() == ")") { return ctype; }
+
+        if tokens.is_empty() { return ctype; }
+        tok = tokens.pop().unwrap();
     }
-    
-    parse_charset_collate(tokens, ctype.get_string_attr_mut());
+
+    parse_charset_collate(tok, tokens, ctype.get_string_attr_mut());
 
     return ctype;
 }
 
-fn parse_charset_collate(mut tokens: Vec<Token>, str_attr: &mut StringAttr) {
-    if tokens.is_empty() { return; }
-    let tok = tokens.pop().unwrap();
+fn parse_charset_collate(mut tok: Token, mut tokens: Vec<Token>, str_attr: &mut StringAttr) {
 
     if tok.is_unquoted() && tok.as_str().to_lowercase() == "character" {
         if tokens.is_empty() { return; }
-        let tok = tokens.pop().unwrap();
+        tok = tokens.pop().unwrap();
 
         if tok.is_unquoted() && tok.as_str().to_lowercase() == "set" {
             if tokens.is_empty() { return; }
-            let tok = tokens.pop().unwrap();
+            tok = tokens.pop().unwrap();
 
-            if tok.is_unquoted() {
-                str_attr.charset_name = Some(tok.as_str().to_owned());
-            }
+            str_attr.charset_name = Some(tok.as_str().to_owned());
+
+            if tokens.is_empty() { return; }
+            tok = tokens.pop().unwrap();
         }
     }
 
     if tok.is_unquoted() && tok.as_str().to_lowercase() == "collate" {
         if tokens.is_empty() { return; }
-        let tok = tokens.pop().unwrap();
+        tok = tokens.pop().unwrap();
 
-        if tok.is_unquoted() {
-            str_attr.collation_name = Some(tok.as_str().to_owned());
-        }
+        str_attr.collation_name = Some(tok.as_str().to_owned());
     }
 }
 
 fn parse_blob_attributes(mut tokens: Vec<Token>, mut ctype: ColumnType) -> ColumnType {
     if tokens.is_empty() { return ctype; }
-    let tok = tokens.pop().unwrap();
+    let mut tok = tokens.pop().unwrap();
 
     if tok.is_punctuation() && tok.as_str() == "(" {
         if tokens.is_empty() { return ctype; }
-        let tok = tokens.pop().unwrap();
+        tok = tokens.pop().unwrap();
 
         if tok.is_unquoted() && tok.as_str().parse::<u32>().is_ok() {
             ctype.get_blob_attr_mut().length = Some(tok.as_str().parse::<u32>().unwrap());
         }
 
         if tokens.is_empty() { return ctype; }
-        let tok = tokens.pop().unwrap();
+        tok = tokens.pop().unwrap();
 
         if !(tok.is_punctuation() && tok.as_str() == ")") { return ctype; }
     }
@@ -230,57 +236,63 @@ fn parse_blob_attributes(mut tokens: Vec<Token>, mut ctype: ColumnType) -> Colum
 
 fn parse_enum_definition(mut tokens: Vec<Token>, mut ctype: ColumnType) -> ColumnType {
     if tokens.is_empty() { return ctype; }
-    let tok = tokens.pop().unwrap();
+    let mut tok = tokens.pop().unwrap();
 
     if tok.is_punctuation() && tok.as_str() == "(" {
         while !tokens.is_empty() {
-            let tok = tokens.pop().unwrap();
+            tok = tokens.pop().unwrap();
             if tok.is_quoted() {
-                ctype.get_enum_def_mut().values.push(Tokenizer::unquote(tok.as_str()));
+                ctype.get_enum_def_mut().values.push(unescape_string(tok.unquote().unwrap().as_str()));
             }
         }
 
         if tokens.is_empty() { return ctype; }
-        let tok = tokens.pop().unwrap();
+        tok = tokens.pop().unwrap();
 
         if !(tok.is_punctuation() && tok.as_str() == ")") { return ctype; }
+
+        if tokens.is_empty() { return ctype; }
+        tok = tokens.pop().unwrap();
     }
 
-    parse_charset_collate(tokens, &mut ctype.get_enum_def_mut().attr);
+    parse_charset_collate(tok, tokens, &mut ctype.get_enum_def_mut().attr);
 
     return ctype;
 }
 
 fn parse_set_definition(mut tokens: Vec<Token>, mut ctype: ColumnType) -> ColumnType {
     if tokens.is_empty() { return ctype; }
-    let tok = tokens.pop().unwrap();
+    let mut tok = tokens.pop().unwrap();
 
     if tok.is_punctuation() && tok.as_str() == "(" {
         while !tokens.is_empty() {
-            let tok = tokens.pop().unwrap();
+            tok = tokens.pop().unwrap();
             if tok.is_quoted() {
-                ctype.get_set_def_mut().members.push(Tokenizer::unquote(tok.as_str()));
+                ctype.get_set_def_mut().members.push(unescape_string(tok.unquote().unwrap().as_str()));
             }
         }
 
         if tokens.is_empty() { return ctype; }
-        let tok = tokens.pop().unwrap();
+        tok = tokens.pop().unwrap();
 
         if !(tok.is_punctuation() && tok.as_str() == ")") { return ctype; }
+
+        if tokens.is_empty() { return ctype; }
+        tok = tokens.pop().unwrap();
     }
 
-    parse_charset_collate(tokens, &mut ctype.get_set_def_mut().attr);
+    parse_charset_collate(tok, tokens, &mut ctype.get_set_def_mut().attr);
 
     return ctype;
 }
 
 fn parse_geometry_attributes(mut tokens: Vec<Token>, mut ctype: ColumnType) -> ColumnType {
     if tokens.is_empty() { return ctype; }
-    let tok = tokens.pop().unwrap();
+    let mut tok = tokens.pop().unwrap();
 
     if tok.is_unquoted() && tok.as_str().to_lowercase() == "srid" {
         if tokens.is_empty() { return ctype; }
-        let tok = tokens.pop().unwrap();
+        tok = tokens.pop().unwrap();
 
         if tok.is_unquoted() && tok.as_str().parse::<u32>().is_ok() {
             ctype.get_geometry_attr_mut().srid = Some(tok.as_str().parse::<u32>().unwrap());
@@ -352,6 +364,32 @@ mod tests {
     #[test]
     fn test_0() {
         assert_eq!(
+            parse_column_extra("".to_owned()),
+            ColumnExtra {
+                auto_increment: false,
+                on_update_current_timestamp: false,
+                generated: false,
+                default_generated: false,
+            }
+        );
+    }
+
+    #[test]
+    fn test_1() {
+        assert_eq!(
+            parse_column_extra("DEFAULT_GENERATED".to_owned()),
+            ColumnExtra {
+                auto_increment: false,
+                on_update_current_timestamp: false,
+                generated: false,
+                default_generated: true,
+            }
+        );
+    }
+
+    #[test]
+    fn test_2() {
+        assert_eq!(
             parse_column_extra("DEFAULT_GENERATED on update CURRENT_TIMESTAMP".to_owned()),
             ColumnExtra {
                 auto_increment: false,
@@ -359,6 +397,256 @@ mod tests {
                 generated: false,
                 default_generated: true,
             }
+        );
+    }
+
+    #[test]
+    fn test_3() {
+        assert_eq!(
+            parse_column_type("smallint unsigned".to_owned()),
+            ColumnType::SmallInt(NumericAttr {
+                maximum: None,
+                decimal: None,
+                unsigned: Some(true),
+                zero_fill: None,
+            })
+        );
+    }
+
+    #[test]
+    fn test_4() {
+        assert_eq!(
+            parse_column_type("smallint unsigned zerofill".to_owned()),
+            ColumnType::SmallInt(NumericAttr {
+                maximum: None,
+                decimal: None,
+                unsigned: Some(true),
+                zero_fill: Some(true),
+            })
+        );
+    }
+
+    #[test]
+    fn test_5() {
+        assert_eq!(
+            parse_column_type("decimal(4,2)".to_owned()),
+            ColumnType::Decimal(NumericAttr {
+                maximum: Some(4),
+                decimal: Some(2),
+                unsigned: None,
+                zero_fill: None,
+            })
+        );
+    }
+
+    #[test]
+    fn test_6() {
+        assert_eq!(
+            parse_column_type("decimal(18,4) zerofill".to_owned()),
+            ColumnType::Decimal(NumericAttr {
+                maximum: Some(18),
+                decimal: Some(4),
+                unsigned: None,
+                zero_fill: Some(true),
+            })
+        );
+    }
+
+    #[test]
+    fn test_7() {
+        assert_eq!(
+            parse_column_type("decimal(18,4) unsigned".to_owned()),
+            ColumnType::Decimal(NumericAttr {
+                maximum: Some(18),
+                decimal: Some(4),
+                unsigned: Some(true),
+                zero_fill: None,
+            })
+        );
+    }
+
+    #[test]
+    fn test_8() {
+        assert_eq!(
+            parse_column_type("decimal(18,4) unsigned zerofill".to_owned()),
+            ColumnType::Decimal(NumericAttr {
+                maximum: Some(18),
+                decimal: Some(4),
+                unsigned: Some(true),
+                zero_fill: Some(true),
+            })
+        );
+    }
+
+    #[test]
+    fn test_9() {
+        assert_eq!(
+            parse_column_type("smallint(8) unsigned zerofill".to_owned()),
+            ColumnType::SmallInt(NumericAttr {
+                maximum: Some(8),
+                decimal: None,
+                unsigned: Some(true),
+                zero_fill: Some(true),
+            })
+        );
+    }
+
+    #[test]
+    fn test_10() {
+        assert_eq!(
+            parse_column_type("DATETIME".to_owned()),
+            ColumnType::DateTime(TimeAttr {
+                fractional: None,
+            })
+        );
+    }
+
+    #[test]
+    fn test_11() {
+        assert_eq!(
+            parse_column_type("DATETIME(6)".to_owned()),
+            ColumnType::DateTime(TimeAttr {
+                fractional: Some(6),
+            })
+        );
+    }
+
+    #[test]
+    fn test_12() {
+        assert_eq!(
+            parse_column_type("TIMESTAMP(0)".to_owned()),
+            ColumnType::Timestamp(TimeAttr {
+                fractional: Some(0),
+            })
+        );
+    }
+
+    #[test]
+    fn test_13() {
+        assert_eq!(
+            parse_column_type("varchar(20)".to_owned()),
+            ColumnType::Varchar(StringAttr {
+                length: Some(20),
+                charset_name: None,
+                collation_name: None,
+            })
+        );
+    }
+
+    #[test]
+    fn test_14() {
+        assert_eq!(
+            parse_column_type("TEXT".to_owned()),
+            ColumnType::Text(StringAttr {
+                length: None,
+                charset_name: None,
+                collation_name: None,
+            })
+        );
+    }
+
+    #[test]
+    fn test_15() {
+        assert_eq!(
+            parse_column_type("TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin".to_owned()),
+            ColumnType::Text(StringAttr {
+                length: None,
+                charset_name: Some("utf8mb4".to_owned()),
+                collation_name: Some("utf8mb4_bin".to_owned()),
+            })
+        );
+    }
+
+    #[test]
+    fn test_16() {
+        assert_eq!(
+            parse_column_type("TEXT CHARACTER SET latin1".to_owned()),
+            ColumnType::Text(StringAttr {
+                length: None,
+                charset_name: Some("latin1".to_owned()),
+                collation_name: None,
+            })
+        );
+    }
+
+    #[test]
+    fn test_17() {
+        assert_eq!(
+            parse_column_type("BLOB".to_owned()),
+            ColumnType::Blob(BlobAttr {
+                length: None,
+            })
+        );
+    }
+
+    #[test]
+    fn test_18() {
+        assert_eq!(
+            parse_column_type("BLOB(256)".to_owned()),
+            ColumnType::Blob(BlobAttr {
+                length: Some(256),
+            })
+        );
+    }
+
+    #[test]
+    fn test_19() {
+        assert_eq!(
+            parse_column_type("enum('G','PG','PG-13','R','NC-17')".to_owned()),
+            ColumnType::Enum(EnumDef {
+                values: vec![
+                    "G".to_owned(),
+                    "PG".to_owned(),
+                    "PG-13".to_owned(),
+                    "R".to_owned(),
+                    "NC-17".to_owned(),
+                ],
+                attr: StringAttr {
+                    length: None,
+                    charset_name: None,
+                    collation_name: None,
+                }
+            })
+        );
+    }
+
+    #[test]
+    fn test_20() {
+        assert_eq!(
+            parse_column_type("set('Trailers','Commentaries','Deleted Scenes','Behind the Scenes')".to_owned()),
+            ColumnType::Set(SetDef {
+                members: vec![
+                    "Trailers".to_owned(),
+                    "Commentaries".to_owned(),
+                    "Deleted Scenes".to_owned(),
+                    "Behind the Scenes".to_owned(),
+                ],
+                attr: StringAttr {
+                    length: None,
+                    charset_name: None,
+                    collation_name: None,
+                }
+            })
+        );
+    }
+
+    #[test]
+    fn test_21() {
+        assert_eq!(
+            parse_column_type("GEOMETRY".to_owned()),
+            ColumnType::Geometry(GeometryAttr {
+                srid: None,
+            })
+        );
+    }
+
+    #[test]
+    fn test_22() {
+        assert_eq!(
+            parse_column_type("GEOMETRY SRID 4326".to_owned()),
+            ColumnType::Geometry(GeometryAttr {
+                srid: Some(4326),
+            })
         );
     }
 }

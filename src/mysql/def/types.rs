@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Type {
     Serial(NumericAttr),
     Bit(NumericAttr),
@@ -44,7 +44,7 @@ pub enum Type {
     Unknown(String),
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq)]
 pub struct NumericAttr {
     pub maximum: Option<u32>,
     pub decimal: Option<u32>,
@@ -52,36 +52,36 @@ pub struct NumericAttr {
     pub zero_fill: Option<bool>,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq)]
 pub struct TimeAttr {
     pub fractional: Option<u32>,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq)]
 pub struct StringAttr {
     pub length: Option<u32>,
     pub charset_name: Option<String>,
     pub collation_name: Option<String>,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq)]
 pub struct BlobAttr {
     pub length: Option<u32>,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq)]
 pub struct EnumDef {
     pub values: Vec<String>,
     pub attr: StringAttr,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq)]
 pub struct SetDef {
     pub members: Vec<String>,
     pub attr: StringAttr,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq)]
 pub struct GeometryAttr {
     pub srid: Option<u32>,
 }
