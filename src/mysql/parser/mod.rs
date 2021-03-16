@@ -1,4 +1,5 @@
 use sea_query::{Token, Tokenizer, unescape_string};
+use crate::parser::Parser;
 use super::def::*;
 use super::query::ColumnQueryResult;
 
@@ -8,7 +9,7 @@ pub fn parse_column_query_result(result: ColumnQueryResult) -> ColumnInfo {
         col_type: parse_column_type(into_tokens(&result.column_type)),
         key: parse_column_key(into_tokens(&result.column_key)),
         default: parse_column_default(result.column_default),
-        extra: parse_column_extra(result.extra),
+        extra: parse_column_extra(&mut Parser::new(&result.extra)),
         comment: result.column_comment,
     }
 }
@@ -332,34 +333,59 @@ pub fn parse_column_default(column_default: Option<String>) -> Option<ColumnDefa
     }
 }
 
-pub fn parse_column_extra(expr: String) -> ColumnExtra {
+pub fn parse_column_extra(parser: &mut Parser) -> ColumnExtra {
     let mut extra = ColumnExtra::default();
-    let words: Vec<&str> = expr.split(" ").collect();
 
-    let mut i = 0;
-    while i < words.len() {
-        let word = &words[i];
-        match word.to_lowercase().as_str() {
-            "auto_increment" => { extra.auto_increment = true },
-            "on" => {
-                if i + 2 < words.len() && words[i + 1] == "update" && words[i + 2].to_lowercase() == "current_timestamp" {
-                    i += 2;
-                    extra.on_update_current_timestamp = true;
+    if let Some(tok) = parser.curr() {
+        if tok.is_unquoted() && tok.as_str().to_lowercase() == "auto_increment" {
+            parser.next();
+
+            extra.auto_increment = true;
+        }
+    }
+
+    if let Some(tok) = parser.curr() {
+        if tok.is_unquoted() && tok.as_str().to_lowercase() == "default_generated" {
+            parser.next();
+
+            extra.default_generated = true;
+        }
+    }
+
+    if let Some(tok) = parser.curr() {
+        if tok.is_unquoted() && tok.as_str().to_lowercase() == "on" {
+            parser.next();
+
+            if let Some(tok) = parser.curr() {
+                if tok.is_unquoted() && tok.as_str().to_lowercase() == "update" {
+                    parser.next();
+
+                    if let Some(tok) = parser.curr() {
+                        if tok.is_unquoted() && tok.as_str().to_lowercase() == "current_timestamp" {
+                            parser.next();
+
+                            extra.on_update_current_timestamp = true;
+                        }
+                    }
                 }
-            },
-            "stored" | "virtual" => {
-                if i + 1 < words.len() && words[i + 1].to_lowercase() == "generated" {
-                    i += 1;
+            }
+        }
+    }
+
+    if let Some(tok) = parser.curr() {
+        if tok.is_unquoted() && matches!(tok.as_str().to_lowercase().as_str(), "stored" | "virtual") {
+            parser.next();
+
+            if let Some(tok) = parser.curr() {
+                if tok.is_unquoted() && tok.as_str().to_lowercase() == "generated" {
+                    parser.next();
+
                     extra.generated = true;
                 }
-            },
-            "default_generated" => {
-                extra.default_generated = true;
-            },
-            _ => {},
+            }
         }
-        i += 1;
     }
+
     extra
 }
 
@@ -370,7 +396,7 @@ mod tests {
     #[test]
     fn test_0() {
         assert_eq!(
-            parse_column_extra("".to_owned()),
+            parse_column_extra(&mut Parser::new("")),
             ColumnExtra {
                 auto_increment: false,
                 on_update_current_timestamp: false,
@@ -383,7 +409,7 @@ mod tests {
     #[test]
     fn test_1() {
         assert_eq!(
-            parse_column_extra("DEFAULT_GENERATED".to_owned()),
+            parse_column_extra(&mut Parser::new("DEFAULT_GENERATED")),
             ColumnExtra {
                 auto_increment: false,
                 on_update_current_timestamp: false,
@@ -396,7 +422,7 @@ mod tests {
     #[test]
     fn test_2() {
         assert_eq!(
-            parse_column_extra("DEFAULT_GENERATED on update CURRENT_TIMESTAMP".to_owned()),
+            parse_column_extra(&mut Parser::new("DEFAULT_GENERATED on update CURRENT_TIMESTAMP")),
             ColumnExtra {
                 auto_increment: false,
                 on_update_current_timestamp: true,
