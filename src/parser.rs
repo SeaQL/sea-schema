@@ -35,4 +35,14 @@ impl Parser {
         }
         self.tok.as_ref()
     }
+
+    pub fn next_if_unquoted(&mut self, word: &str) -> bool {
+        if let Some(tok) = self.curr() {
+            if tok.is_unquoted() && tok.as_str().to_lowercase() == word {
+                self.next();
+                return true;
+            }
+        }
+        false
+    }
 }

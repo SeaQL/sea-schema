@@ -336,52 +336,32 @@ pub fn parse_column_default(column_default: Option<String>) -> Option<ColumnDefa
 pub fn parse_column_extra(parser: &mut Parser) -> ColumnExtra {
     let mut extra = ColumnExtra::default();
 
-    if let Some(tok) = parser.curr() {
-        if tok.is_unquoted() && tok.as_str().to_lowercase() == "auto_increment" {
-            parser.next();
-
-            extra.auto_increment = true;
-        }
-    }
-
-    if let Some(tok) = parser.curr() {
-        if tok.is_unquoted() && tok.as_str().to_lowercase() == "default_generated" {
-            parser.next();
-
-            extra.default_generated = true;
-        }
-    }
-
-    if let Some(tok) = parser.curr() {
-        if tok.is_unquoted() && tok.as_str().to_lowercase() == "on" {
-            parser.next();
-
-            if let Some(tok) = parser.curr() {
-                if tok.is_unquoted() && tok.as_str().to_lowercase() == "update" {
-                    parser.next();
-
-                    if let Some(tok) = parser.curr() {
-                        if tok.is_unquoted() && tok.as_str().to_lowercase() == "current_timestamp" {
-                            parser.next();
-
-                            extra.on_update_current_timestamp = true;
-                        }
-                    }
+    for _ in 0..5 { // order does not matter; and there are 5 things below
+        if parser.next_if_unquoted("on") {
+            if parser.next_if_unquoted("update") {
+                if parser.next_if_unquoted("current_timestamp") {
+                    extra.on_update_current_timestamp = true;
                 }
             }
         }
-    }
 
-    if let Some(tok) = parser.curr() {
-        if tok.is_unquoted() && matches!(tok.as_str().to_lowercase().as_str(), "stored" | "virtual") {
-            parser.next();
+        if parser.next_if_unquoted("auto_increment") {
+            extra.auto_increment = true;
+        }
 
-            if let Some(tok) = parser.curr() {
-                if tok.is_unquoted() && tok.as_str().to_lowercase() == "generated" {
-                    parser.next();
+        if parser.next_if_unquoted("default_generated") {
+            extra.default_generated = true;
+        }
 
-                    extra.generated = true;
-                }
+        if parser.next_if_unquoted("stored") {
+            if parser.next_if_unquoted("generated") {
+                extra.generated = true;
+            }
+        }
+
+        if parser.next_if_unquoted("virtual") {
+            if parser.next_if_unquoted("generated") {
+                extra.generated = true;
             }
         }
     }
