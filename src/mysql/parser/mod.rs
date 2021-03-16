@@ -1,4 +1,4 @@
-use sea_query::{Token, Tokenizer, unescape_string};
+use sea_query::unescape_string;
 use crate::parser::Parser;
 use super::def::*;
 use super::query::ColumnQueryResult;
@@ -6,46 +6,37 @@ use super::query::ColumnQueryResult;
 pub fn parse_column_query_result(result: ColumnQueryResult) -> ColumnInfo {
     ColumnInfo {
         name: result.column_name,
-        col_type: parse_column_type(into_tokens(&result.column_type)),
-        key: parse_column_key(into_tokens(&result.column_key)),
+        col_type: parse_column_type(&mut Parser::new(&result.column_type)),
+        key: parse_column_key(&mut Parser::new(&result.column_key)),
         default: parse_column_default(result.column_default),
         extra: parse_column_extra(&mut Parser::new(&result.extra)),
         comment: result.column_comment,
     }
 }
 
-fn into_tokens(string: &str) -> Vec<Token> {
-    let tokenizer = Tokenizer::new(string);
-    let tokens: Vec<Token> = tokenizer.iter()
-        .filter(|x| !x.is_space()) // retains non-space tokens
-        .collect::<Vec<_>>().into_iter().rev().collect(); // reverse the vector so pop() is actually at front
-    tokens
-}
-
-pub fn parse_column_type(mut tokens: Vec<Token>) -> ColumnType {
+pub fn parse_column_type(parser: &mut Parser) -> ColumnType {
     let mut type_name = "";
-    if tokens.is_empty() {
+    if parser.curr().is_none() {
         return Type::Unknown(type_name.to_owned());
     }
-    let tok = tokens.pop().unwrap();
-    if tok.is_unquoted() {
-        type_name = tok.as_str();
+    if let Some(word) = parser.next_if_unquoted_any() {
+        type_name = word.as_str();
     }
     let ctype = parse_type_name(type_name);
     if ctype.is_numeric() {
-        parse_numeric_attributes(tokens, ctype)
+        parse_numeric_attributes(parser, ctype)
     } else if ctype.is_time() {
-        parse_time_attributes(tokens, ctype)
+        parse_time_attributes(parser, ctype)
     } else if ctype.is_string() {
-        parse_string_attributes(tokens, ctype)
+        parse_string_attributes(parser, ctype)
     } else if ctype.is_free_size_blob() {
-        parse_blob_attributes(tokens, ctype)
+        parse_blob_attributes(parser, ctype)
     } else if ctype.is_enum() {
-        parse_enum_definition(tokens, ctype)
+        parse_enum_definition(parser, ctype)
     } else if ctype.is_set() {
-        parse_set_definition(tokens, ctype)
+        parse_set_definition(parser, ctype)
     } else if ctype.is_geometry() {
-        parse_geometry_attributes(tokens, ctype)
+        parse_geometry_attributes(parser, ctype)
     } else {
         ctype
     }
@@ -98,224 +89,158 @@ pub fn parse_type_name(type_name: &str) -> Type {
     }
 }
 
-fn parse_numeric_attributes(mut tokens: Vec<Token>, mut ctype: ColumnType) -> ColumnType {
-    if tokens.is_empty() { return ctype; }
-    let mut tok = tokens.pop().unwrap();
-
-    if tok.is_punctuation() && tok.as_str() == "(" {
-        if tokens.is_empty() { return ctype; }
-        tok = tokens.pop().unwrap();
-
-        if tok.is_unquoted() && tok.as_str().parse::<u32>().is_ok() {
-            ctype.get_numeric_attr_mut().maximum = Some(tok.as_str().parse::<u32>().unwrap());
-        }
-
-        if tokens.is_empty() { return ctype; }
-        tok = tokens.pop().unwrap();
-
-        if tok.is_punctuation() && tok.as_str() == "," {
-            if tokens.is_empty() { return ctype; }
-            tok = tokens.pop().unwrap();
-
-            if tok.is_unquoted() && tok.as_str().parse::<u32>().is_ok() {
-                ctype.get_numeric_attr_mut().decimal = Some(tok.as_str().parse::<u32>().unwrap());
+fn parse_numeric_attributes(parser: &mut Parser, mut ctype: ColumnType) -> ColumnType {
+    if parser.next_if_punctuation("(") {
+        if let Some(word) = parser.next_if_unquoted_any() {
+            if let Ok(number) = word.as_str().parse::<u32>() {
+                ctype.get_numeric_attr_mut().maximum = Some(number);
             }
-
-            if tokens.is_empty() { return ctype; }
-            tok = tokens.pop().unwrap();
         }
 
-        if !(tok.is_punctuation() && tok.as_str() == ")") { return ctype; }
+        if parser.next_if_punctuation(",") {
+            if let Some(word) = parser.next_if_unquoted_any() {
+                if let Ok(number) = word.as_str().parse::<u32>() {
+                    ctype.get_numeric_attr_mut().decimal = Some(number);
+                }
+            }
+        }
 
-        if tokens.is_empty() { return ctype; }
-        tok = tokens.pop().unwrap();
+        parser.next_if_punctuation(")");
     }
 
-    if tok.is_unquoted() && tok.as_str().to_lowercase() == "unsigned" {
+    if parser.next_if_unquoted("unsigned") {
         ctype.get_numeric_attr_mut().unsigned = Some(true);
-
-        if tokens.is_empty() { return ctype; }
-        tok = tokens.pop().unwrap();
     }
 
-    if tok.is_unquoted() && tok.as_str().to_lowercase() == "zerofill" {
+    if parser.next_if_unquoted("zerofill") {
         ctype.get_numeric_attr_mut().zero_fill = Some(true);
     }
 
     return ctype;
 }
 
-fn parse_time_attributes(mut tokens: Vec<Token>, mut ctype: ColumnType) -> ColumnType {
-    if tokens.is_empty() { return ctype; }
-    let mut tok = tokens.pop().unwrap();
-
-    if tok.is_punctuation() && tok.as_str() == "(" {
-        if tokens.is_empty() { return ctype; }
-        tok = tokens.pop().unwrap();
-
-        if tok.is_unquoted() && tok.as_str().parse::<u32>().is_ok() {
-            ctype.get_time_attr_mut().fractional = Some(tok.as_str().parse::<u32>().unwrap());
-        }
-
-        if tokens.is_empty() { return ctype; }
-        tok = tokens.pop().unwrap();
-
-        if !(tok.is_punctuation() && tok.as_str() == ")") { return ctype; }
-    }
-
-    return ctype;
-}
-
-fn parse_string_attributes(mut tokens: Vec<Token>, mut ctype: ColumnType) -> ColumnType {
-    if tokens.is_empty() { return ctype; }
-    let mut tok = tokens.pop().unwrap();
-
-    if tok.is_punctuation() && tok.as_str() == "(" {
-        if tokens.is_empty() { return ctype; }
-        tok = tokens.pop().unwrap();
-
-        if tok.is_unquoted() && tok.as_str().parse::<u32>().is_ok() {
-            ctype.get_string_attr_mut().length = Some(tok.as_str().parse::<u32>().unwrap());
-        }
-
-        if tokens.is_empty() { return ctype; }
-        tok = tokens.pop().unwrap();
-
-        if !(tok.is_punctuation() && tok.as_str() == ")") { return ctype; }
-
-        if tokens.is_empty() { return ctype; }
-        tok = tokens.pop().unwrap();
-    }
-
-    parse_charset_collate(tok, tokens, ctype.get_string_attr_mut());
-
-    return ctype;
-}
-
-fn parse_charset_collate(mut tok: Token, mut tokens: Vec<Token>, str_attr: &mut StringAttr) {
-
-    if tok.is_unquoted() && tok.as_str().to_lowercase() == "character" {
-        if tokens.is_empty() { return; }
-        tok = tokens.pop().unwrap();
-
-        if tok.is_unquoted() && tok.as_str().to_lowercase() == "set" {
-            if tokens.is_empty() { return; }
-            tok = tokens.pop().unwrap();
-
-            str_attr.charset_name = Some(tok.as_str().to_owned());
-
-            if tokens.is_empty() { return; }
-            tok = tokens.pop().unwrap();
-        }
-    }
-
-    if tok.is_unquoted() && tok.as_str().to_lowercase() == "collate" {
-        if tokens.is_empty() { return; }
-        tok = tokens.pop().unwrap();
-
-        str_attr.collation_name = Some(tok.as_str().to_owned());
-    }
-}
-
-fn parse_blob_attributes(mut tokens: Vec<Token>, mut ctype: ColumnType) -> ColumnType {
-    if tokens.is_empty() { return ctype; }
-    let mut tok = tokens.pop().unwrap();
-
-    if tok.is_punctuation() && tok.as_str() == "(" {
-        if tokens.is_empty() { return ctype; }
-        tok = tokens.pop().unwrap();
-
-        if tok.is_unquoted() && tok.as_str().parse::<u32>().is_ok() {
-            ctype.get_blob_attr_mut().length = Some(tok.as_str().parse::<u32>().unwrap());
-        }
-
-        if tokens.is_empty() { return ctype; }
-        tok = tokens.pop().unwrap();
-
-        if !(tok.is_punctuation() && tok.as_str() == ")") { return ctype; }
-    }
-
-    return ctype;
-}
-
-fn parse_enum_definition(mut tokens: Vec<Token>, mut ctype: ColumnType) -> ColumnType {
-    if tokens.is_empty() { return ctype; }
-    let mut tok = tokens.pop().unwrap();
-
-    if tok.is_punctuation() && tok.as_str() == "(" {
-        while !tokens.is_empty() {
-            tok = tokens.pop().unwrap();
-            if tok.is_quoted() {
-                ctype.get_enum_def_mut().values.push(unescape_string(tok.unquote().unwrap().as_str()));
+fn parse_time_attributes(parser: &mut Parser, mut ctype: ColumnType) -> ColumnType {
+    if parser.next_if_punctuation("(") {
+        if let Some(word) = parser.next_if_unquoted_any() {
+            if let Ok(number) = word.as_str().parse::<u32>() {
+                ctype.get_time_attr_mut().fractional = Some(number);
             }
         }
-
-        if tokens.is_empty() { return ctype; }
-        tok = tokens.pop().unwrap();
-
-        if !(tok.is_punctuation() && tok.as_str() == ")") { return ctype; }
-
-        if tokens.is_empty() { return ctype; }
-        tok = tokens.pop().unwrap();
+        parser.next_if_punctuation(")");
     }
-
-    parse_charset_collate(tok, tokens, &mut ctype.get_enum_def_mut().attr);
 
     return ctype;
 }
 
-fn parse_set_definition(mut tokens: Vec<Token>, mut ctype: ColumnType) -> ColumnType {
-    if tokens.is_empty() { return ctype; }
-    let mut tok = tokens.pop().unwrap();
+fn parse_string_attributes(parser: &mut Parser, mut ctype: ColumnType) -> ColumnType {
 
-    if tok.is_punctuation() && tok.as_str() == "(" {
-        while !tokens.is_empty() {
-            tok = tokens.pop().unwrap();
-            if tok.is_quoted() {
-                ctype.get_set_def_mut().members.push(unescape_string(tok.unquote().unwrap().as_str()));
+    if parser.next_if_punctuation("(") {
+        if let Some(word) = parser.next_if_unquoted_any() {
+            if let Ok(number) = word.as_str().parse::<u32>() {
+                ctype.get_string_attr_mut().length = Some(number);
             }
         }
-
-        if tokens.is_empty() { return ctype; }
-        tok = tokens.pop().unwrap();
-
-        if !(tok.is_punctuation() && tok.as_str() == ")") { return ctype; }
-
-        if tokens.is_empty() { return ctype; }
-        tok = tokens.pop().unwrap();
+        parser.next_if_punctuation(")");
     }
 
-    parse_charset_collate(tok, tokens, &mut ctype.get_set_def_mut().attr);
+    parse_charset_collate(parser, ctype.get_string_attr_mut());
 
     return ctype;
 }
 
-fn parse_geometry_attributes(mut tokens: Vec<Token>, mut ctype: ColumnType) -> ColumnType {
-    if tokens.is_empty() { return ctype; }
-    let mut tok = tokens.pop().unwrap();
+fn parse_charset_collate(parser: &mut Parser, str_attr: &mut StringAttr) {
 
-    if tok.is_unquoted() && tok.as_str().to_lowercase() == "srid" {
-        if tokens.is_empty() { return ctype; }
-        tok = tokens.pop().unwrap();
-
-        if tok.is_unquoted() && tok.as_str().parse::<u32>().is_ok() {
-            ctype.get_geometry_attr_mut().srid = Some(tok.as_str().parse::<u32>().unwrap());
+    if parser.next_if_unquoted("character") {
+        if parser.next_if_unquoted("set") {
+            if let Some(word) = parser.next_if_unquoted_any() {
+                str_attr.charset_name = Some(word.as_str().to_owned());
+            }
         }
     }
 
+    if parser.next_if_unquoted("collate") {
+        if let Some(word) = parser.next_if_unquoted_any() {
+            str_attr.collation_name = Some(word.as_str().to_owned());
+        }
+    }
+}
+
+fn parse_blob_attributes(parser: &mut Parser, mut ctype: ColumnType) -> ColumnType {
+    if parser.next_if_punctuation("(") {
+        if let Some(word) = parser.next_if_unquoted_any() {
+            if let Ok(number) = word.as_str().parse::<u32>() {
+                ctype.get_blob_attr_mut().length = Some(number);
+            }
+        }
+        parser.next_if_punctuation(")");
+    }
+
     return ctype;
 }
 
-pub fn parse_column_key(mut tokens: Vec<Token>) -> ColumnKey {
-    if tokens.is_empty() { return ColumnKey::Null; }
-    let tok = tokens.pop().unwrap();
-
-    match tok.as_str() {
-        "PRI" => ColumnKey::Primary,
-        "UNI" => ColumnKey::Unique,
-        "MUL" => ColumnKey::Multiple,
-        _ => ColumnKey::Null,
+fn parse_enum_definition(parser: &mut Parser, mut ctype: ColumnType) -> ColumnType {
+    if parser.next_if_punctuation("(") {
+        while parser.curr().is_some() {
+            if let Some(word) = parser.next_if_quoted_any() {
+                ctype.get_enum_def_mut().values.push(unescape_string(word.unquote().unwrap().as_str()));
+                parser.next_if_punctuation(",");
+            } else if parser.curr_is_unquoted() {
+                todo!("there can actually be numeric enum values but is very confusing");
+            }
+            if parser.next_if_punctuation(")") {
+                break;
+            }
+        }
     }
+
+    parse_charset_collate(parser, &mut ctype.get_enum_def_mut().attr);
+
+    return ctype;
+}
+
+fn parse_set_definition(parser: &mut Parser, mut ctype: ColumnType) -> ColumnType {
+    if parser.next_if_punctuation("(") {
+        while parser.curr().is_some() {
+            if let Some(word) = parser.next_if_quoted_any() {
+                ctype.get_set_def_mut().members.push(unescape_string(word.unquote().unwrap().as_str()));
+                parser.next_if_punctuation(",");
+            } else if parser.curr_is_unquoted() {
+                todo!("there can actually be numeric set values but is very confusing");
+            }
+            if parser.next_if_punctuation(")") {
+                break;
+            }
+        }
+    }
+
+    parse_charset_collate(parser, &mut ctype.get_set_def_mut().attr);
+
+    return ctype;
+}
+
+fn parse_geometry_attributes(parser: &mut Parser, mut ctype: ColumnType) -> ColumnType {
+    if parser.next_if_unquoted("srid") {
+        if let Some(word) = parser.next_if_unquoted_any() {
+            if let Ok(number) = word.as_str().parse::<u32>() {
+                ctype.get_geometry_attr_mut().srid = Some(number);
+            }
+        }
+        parser.next_if_punctuation(")");
+    }
+
+    return ctype;
+}
+
+pub fn parse_column_key(parser: &mut Parser) -> ColumnKey {
+    if let Some(tok) = parser.curr() {
+        return match tok.as_str() {
+            "PRI" => ColumnKey::Primary,
+            "UNI" => ColumnKey::Unique,
+            "MUL" => ColumnKey::Multiple,
+            _ => ColumnKey::Null,
+        }
+    }
+    ColumnKey::Null
 }
 
 pub fn parse_column_default(column_default: Option<String>) -> Option<ColumnDefault> {
@@ -415,7 +340,7 @@ mod tests {
     #[test]
     fn test_3() {
         assert_eq!(
-            parse_column_type(into_tokens("smallint unsigned")),
+            parse_column_type(&mut Parser::new("smallint unsigned")),
             ColumnType::SmallInt(NumericAttr {
                 maximum: None,
                 decimal: None,
@@ -428,7 +353,7 @@ mod tests {
     #[test]
     fn test_4() {
         assert_eq!(
-            parse_column_type(into_tokens("smallint unsigned zerofill")),
+            parse_column_type(&mut Parser::new("smallint unsigned zerofill")),
             ColumnType::SmallInt(NumericAttr {
                 maximum: None,
                 decimal: None,
@@ -441,7 +366,7 @@ mod tests {
     #[test]
     fn test_5() {
         assert_eq!(
-            parse_column_type(into_tokens("decimal(4,2)")),
+            parse_column_type(&mut Parser::new("decimal(4,2)")),
             ColumnType::Decimal(NumericAttr {
                 maximum: Some(4),
                 decimal: Some(2),
@@ -454,7 +379,7 @@ mod tests {
     #[test]
     fn test_6() {
         assert_eq!(
-            parse_column_type(into_tokens("decimal(18,4) zerofill")),
+            parse_column_type(&mut Parser::new("decimal(18,4) zerofill")),
             ColumnType::Decimal(NumericAttr {
                 maximum: Some(18),
                 decimal: Some(4),
@@ -467,7 +392,7 @@ mod tests {
     #[test]
     fn test_7() {
         assert_eq!(
-            parse_column_type(into_tokens("decimal(18,4) unsigned")),
+            parse_column_type(&mut Parser::new("decimal(18,4) unsigned")),
             ColumnType::Decimal(NumericAttr {
                 maximum: Some(18),
                 decimal: Some(4),
@@ -480,7 +405,7 @@ mod tests {
     #[test]
     fn test_8() {
         assert_eq!(
-            parse_column_type(into_tokens("decimal(18,4) unsigned zerofill")),
+            parse_column_type(&mut Parser::new("decimal(18,4) unsigned zerofill")),
             ColumnType::Decimal(NumericAttr {
                 maximum: Some(18),
                 decimal: Some(4),
@@ -493,7 +418,7 @@ mod tests {
     #[test]
     fn test_9() {
         assert_eq!(
-            parse_column_type(into_tokens("smallint(8) unsigned zerofill")),
+            parse_column_type(&mut Parser::new("smallint(8) unsigned zerofill")),
             ColumnType::SmallInt(NumericAttr {
                 maximum: Some(8),
                 decimal: None,
@@ -506,7 +431,7 @@ mod tests {
     #[test]
     fn test_10() {
         assert_eq!(
-            parse_column_type(into_tokens("DATETIME")),
+            parse_column_type(&mut Parser::new("DATETIME")),
             ColumnType::DateTime(TimeAttr {
                 fractional: None,
             })
@@ -516,7 +441,7 @@ mod tests {
     #[test]
     fn test_11() {
         assert_eq!(
-            parse_column_type(into_tokens("DATETIME(6)")),
+            parse_column_type(&mut Parser::new("DATETIME(6)")),
             ColumnType::DateTime(TimeAttr {
                 fractional: Some(6),
             })
@@ -526,7 +451,7 @@ mod tests {
     #[test]
     fn test_12() {
         assert_eq!(
-            parse_column_type(into_tokens("TIMESTAMP(0)")),
+            parse_column_type(&mut Parser::new("TIMESTAMP(0)")),
             ColumnType::Timestamp(TimeAttr {
                 fractional: Some(0),
             })
@@ -536,7 +461,7 @@ mod tests {
     #[test]
     fn test_13() {
         assert_eq!(
-            parse_column_type(into_tokens("varchar(20)")),
+            parse_column_type(&mut Parser::new("varchar(20)")),
             ColumnType::Varchar(StringAttr {
                 length: Some(20),
                 charset_name: None,
@@ -548,7 +473,7 @@ mod tests {
     #[test]
     fn test_14() {
         assert_eq!(
-            parse_column_type(into_tokens("TEXT")),
+            parse_column_type(&mut Parser::new("TEXT")),
             ColumnType::Text(StringAttr {
                 length: None,
                 charset_name: None,
@@ -560,7 +485,7 @@ mod tests {
     #[test]
     fn test_15() {
         assert_eq!(
-            parse_column_type(into_tokens("TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin")),
+            parse_column_type(&mut Parser::new("TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin")),
             ColumnType::Text(StringAttr {
                 length: None,
                 charset_name: Some("utf8mb4".to_owned()),
@@ -572,7 +497,7 @@ mod tests {
     #[test]
     fn test_16() {
         assert_eq!(
-            parse_column_type(into_tokens("TEXT CHARACTER SET latin1")),
+            parse_column_type(&mut Parser::new("TEXT CHARACTER SET latin1")),
             ColumnType::Text(StringAttr {
                 length: None,
                 charset_name: Some("latin1".to_owned()),
@@ -584,7 +509,7 @@ mod tests {
     #[test]
     fn test_17() {
         assert_eq!(
-            parse_column_type(into_tokens("BLOB")),
+            parse_column_type(&mut Parser::new("BLOB")),
             ColumnType::Blob(BlobAttr {
                 length: None,
             })
@@ -594,7 +519,7 @@ mod tests {
     #[test]
     fn test_18() {
         assert_eq!(
-            parse_column_type(into_tokens("BLOB(256)")),
+            parse_column_type(&mut Parser::new("BLOB(256)")),
             ColumnType::Blob(BlobAttr {
                 length: Some(256),
             })
@@ -604,7 +529,7 @@ mod tests {
     #[test]
     fn test_19() {
         assert_eq!(
-            parse_column_type(into_tokens("enum('G','PG','PG-13','R','NC-17')")),
+            parse_column_type(&mut Parser::new("enum('G','PG','PG-13','R','NC-17')")),
             ColumnType::Enum(EnumDef {
                 values: vec![
                     "G".to_owned(),
@@ -625,7 +550,7 @@ mod tests {
     #[test]
     fn test_20() {
         assert_eq!(
-            parse_column_type(into_tokens("set('Trailers','Commentaries','Deleted Scenes','Behind the Scenes')")),
+            parse_column_type(&mut Parser::new("set('Trailers','Commentaries','Deleted Scenes','Behind the Scenes')")),
             ColumnType::Set(SetDef {
                 members: vec![
                     "Trailers".to_owned(),
@@ -645,7 +570,7 @@ mod tests {
     #[test]
     fn test_21() {
         assert_eq!(
-            parse_column_type(into_tokens("GEOMETRY")),
+            parse_column_type(&mut Parser::new("GEOMETRY")),
             ColumnType::Geometry(GeometryAttr {
                 srid: None,
             })
@@ -655,7 +580,7 @@ mod tests {
     #[test]
     fn test_22() {
         assert_eq!(
-            parse_column_type(into_tokens("GEOMETRY SRID 4326")),
+            parse_column_type(&mut Parser::new("GEOMETRY SRID 4326")),
             ColumnType::Geometry(GeometryAttr {
                 srid: Some(4326),
             })
