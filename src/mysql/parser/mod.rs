@@ -5,23 +5,26 @@ use super::query::ColumnQueryResult;
 pub fn parse_column_query_result(result: ColumnQueryResult) -> ColumnInfo {
     ColumnInfo {
         name: result.column_name,
-        col_type: parse_column_type(result.column_type),
-        key: parse_column_key(result.column_key),
+        col_type: parse_column_type(into_tokens(&result.column_type)),
+        key: parse_column_key(into_tokens(&result.column_key)),
         default: parse_column_default(result.column_default),
         extra: parse_column_extra(result.extra),
         comment: result.column_comment,
     }
 }
 
-pub fn parse_column_type(column_type: String) -> ColumnType {
-    let tokenizer = Tokenizer::new(column_type.as_str());
-    let mut tokens: Vec<Token> = tokenizer.iter()
+fn into_tokens(string: &str) -> Vec<Token> {
+    let tokenizer = Tokenizer::new(string);
+    let tokens: Vec<Token> = tokenizer.iter()
         .filter(|x| !x.is_space()) // retains non-space tokens
         .collect::<Vec<_>>().into_iter().rev().collect(); // reverse the vector so pop() is actually at front
+    tokens
+}
 
+pub fn parse_column_type(mut tokens: Vec<Token>) -> ColumnType {
     let mut type_name = "";
     if tokens.is_empty() {
-        return Type::Unknown(column_type);
+        return Type::Unknown(type_name.to_owned());
     }
     let tok = tokens.pop().unwrap();
     if tok.is_unquoted() {
@@ -302,8 +305,11 @@ fn parse_geometry_attributes(mut tokens: Vec<Token>, mut ctype: ColumnType) -> C
     return ctype;
 }
 
-pub fn parse_column_key(column_key: String) -> ColumnKey {
-    match column_key.as_str() {
+pub fn parse_column_key(mut tokens: Vec<Token>) -> ColumnKey {
+    if tokens.is_empty() { return ColumnKey::Null; }
+    let tok = tokens.pop().unwrap();
+
+    match tok.as_str() {
         "PRI" => ColumnKey::Primary,
         "UNI" => ColumnKey::Unique,
         "MUL" => ColumnKey::Multiple,
@@ -403,7 +409,7 @@ mod tests {
     #[test]
     fn test_3() {
         assert_eq!(
-            parse_column_type("smallint unsigned".to_owned()),
+            parse_column_type(into_tokens("smallint unsigned")),
             ColumnType::SmallInt(NumericAttr {
                 maximum: None,
                 decimal: None,
@@ -416,7 +422,7 @@ mod tests {
     #[test]
     fn test_4() {
         assert_eq!(
-            parse_column_type("smallint unsigned zerofill".to_owned()),
+            parse_column_type(into_tokens("smallint unsigned zerofill")),
             ColumnType::SmallInt(NumericAttr {
                 maximum: None,
                 decimal: None,
@@ -429,7 +435,7 @@ mod tests {
     #[test]
     fn test_5() {
         assert_eq!(
-            parse_column_type("decimal(4,2)".to_owned()),
+            parse_column_type(into_tokens("decimal(4,2)")),
             ColumnType::Decimal(NumericAttr {
                 maximum: Some(4),
                 decimal: Some(2),
@@ -442,7 +448,7 @@ mod tests {
     #[test]
     fn test_6() {
         assert_eq!(
-            parse_column_type("decimal(18,4) zerofill".to_owned()),
+            parse_column_type(into_tokens("decimal(18,4) zerofill")),
             ColumnType::Decimal(NumericAttr {
                 maximum: Some(18),
                 decimal: Some(4),
@@ -455,7 +461,7 @@ mod tests {
     #[test]
     fn test_7() {
         assert_eq!(
-            parse_column_type("decimal(18,4) unsigned".to_owned()),
+            parse_column_type(into_tokens("decimal(18,4) unsigned")),
             ColumnType::Decimal(NumericAttr {
                 maximum: Some(18),
                 decimal: Some(4),
@@ -468,7 +474,7 @@ mod tests {
     #[test]
     fn test_8() {
         assert_eq!(
-            parse_column_type("decimal(18,4) unsigned zerofill".to_owned()),
+            parse_column_type(into_tokens("decimal(18,4) unsigned zerofill")),
             ColumnType::Decimal(NumericAttr {
                 maximum: Some(18),
                 decimal: Some(4),
@@ -481,7 +487,7 @@ mod tests {
     #[test]
     fn test_9() {
         assert_eq!(
-            parse_column_type("smallint(8) unsigned zerofill".to_owned()),
+            parse_column_type(into_tokens("smallint(8) unsigned zerofill")),
             ColumnType::SmallInt(NumericAttr {
                 maximum: Some(8),
                 decimal: None,
@@ -494,7 +500,7 @@ mod tests {
     #[test]
     fn test_10() {
         assert_eq!(
-            parse_column_type("DATETIME".to_owned()),
+            parse_column_type(into_tokens("DATETIME")),
             ColumnType::DateTime(TimeAttr {
                 fractional: None,
             })
@@ -504,7 +510,7 @@ mod tests {
     #[test]
     fn test_11() {
         assert_eq!(
-            parse_column_type("DATETIME(6)".to_owned()),
+            parse_column_type(into_tokens("DATETIME(6)")),
             ColumnType::DateTime(TimeAttr {
                 fractional: Some(6),
             })
@@ -514,7 +520,7 @@ mod tests {
     #[test]
     fn test_12() {
         assert_eq!(
-            parse_column_type("TIMESTAMP(0)".to_owned()),
+            parse_column_type(into_tokens("TIMESTAMP(0)")),
             ColumnType::Timestamp(TimeAttr {
                 fractional: Some(0),
             })
@@ -524,7 +530,7 @@ mod tests {
     #[test]
     fn test_13() {
         assert_eq!(
-            parse_column_type("varchar(20)".to_owned()),
+            parse_column_type(into_tokens("varchar(20)")),
             ColumnType::Varchar(StringAttr {
                 length: Some(20),
                 charset_name: None,
@@ -536,7 +542,7 @@ mod tests {
     #[test]
     fn test_14() {
         assert_eq!(
-            parse_column_type("TEXT".to_owned()),
+            parse_column_type(into_tokens("TEXT")),
             ColumnType::Text(StringAttr {
                 length: None,
                 charset_name: None,
@@ -548,7 +554,7 @@ mod tests {
     #[test]
     fn test_15() {
         assert_eq!(
-            parse_column_type("TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin".to_owned()),
+            parse_column_type(into_tokens("TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin")),
             ColumnType::Text(StringAttr {
                 length: None,
                 charset_name: Some("utf8mb4".to_owned()),
@@ -560,7 +566,7 @@ mod tests {
     #[test]
     fn test_16() {
         assert_eq!(
-            parse_column_type("TEXT CHARACTER SET latin1".to_owned()),
+            parse_column_type(into_tokens("TEXT CHARACTER SET latin1")),
             ColumnType::Text(StringAttr {
                 length: None,
                 charset_name: Some("latin1".to_owned()),
@@ -572,7 +578,7 @@ mod tests {
     #[test]
     fn test_17() {
         assert_eq!(
-            parse_column_type("BLOB".to_owned()),
+            parse_column_type(into_tokens("BLOB")),
             ColumnType::Blob(BlobAttr {
                 length: None,
             })
@@ -582,7 +588,7 @@ mod tests {
     #[test]
     fn test_18() {
         assert_eq!(
-            parse_column_type("BLOB(256)".to_owned()),
+            parse_column_type(into_tokens("BLOB(256)")),
             ColumnType::Blob(BlobAttr {
                 length: Some(256),
             })
@@ -592,7 +598,7 @@ mod tests {
     #[test]
     fn test_19() {
         assert_eq!(
-            parse_column_type("enum('G','PG','PG-13','R','NC-17')".to_owned()),
+            parse_column_type(into_tokens("enum('G','PG','PG-13','R','NC-17')")),
             ColumnType::Enum(EnumDef {
                 values: vec![
                     "G".to_owned(),
@@ -613,7 +619,7 @@ mod tests {
     #[test]
     fn test_20() {
         assert_eq!(
-            parse_column_type("set('Trailers','Commentaries','Deleted Scenes','Behind the Scenes')".to_owned()),
+            parse_column_type(into_tokens("set('Trailers','Commentaries','Deleted Scenes','Behind the Scenes')")),
             ColumnType::Set(SetDef {
                 members: vec![
                     "Trailers".to_owned(),
@@ -633,7 +639,7 @@ mod tests {
     #[test]
     fn test_21() {
         assert_eq!(
-            parse_column_type("GEOMETRY".to_owned()),
+            parse_column_type(into_tokens("GEOMETRY")),
             ColumnType::Geometry(GeometryAttr {
                 srid: None,
             })
@@ -643,7 +649,7 @@ mod tests {
     #[test]
     fn test_22() {
         assert_eq!(
-            parse_column_type("GEOMETRY SRID 4326".to_owned()),
+            parse_column_type(into_tokens("GEOMETRY SRID 4326")),
             ColumnType::Geometry(GeometryAttr {
                 srid: Some(4326),
             })
