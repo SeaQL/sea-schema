@@ -1,3 +1,5 @@
+//! To support querying MySQL's INFORMATION_SCHEMA
+
 use std::rc::Rc;
 #[cfg(feature="sqlx-mysql")]
 use sqlx::{Row, mysql::MySqlRow};

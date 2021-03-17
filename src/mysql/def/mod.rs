@@ -1,3 +1,5 @@
+//! MySQL schema defined in Rust types
+
 mod column;
 mod schema;
 mod types;

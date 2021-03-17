@@ -1,3 +1,5 @@
+//! To parse mysqldump's schema output
+
 use sea_query::unescape_string;
 use crate::parser::Parser;
 use super::def::*;

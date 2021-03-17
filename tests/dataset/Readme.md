@@ -1,3 +1,7 @@
+# Import
+
+First import the the sakila dataset
+
 # Install
 
 First install necessary PHP extensions
@@ -14,4 +18,13 @@ composer install
 
 ```sh
 php index.php > schema.json
+```
+
+# Dump
+
+I can't seem to be able to reproduce the original .sql
+The best I got is
+
+```sh
+mysqldump sakila --no-data --skip-opt --skip-quote-names --skip-set-charset
 ```
