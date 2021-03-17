@@ -261,33 +261,28 @@ pub fn parse_column_default(column_default: Option<String>) -> Option<ColumnDefa
 pub fn parse_column_extra(parser: &mut Parser) -> ColumnExtra {
     let mut extra = ColumnExtra::default();
 
-    for _ in 0..5 { // order does not matter; and there are 5 things below
+    while parser.curr().is_some() {
+        // order does not matter
         if parser.next_if_unquoted("on") {
             if parser.next_if_unquoted("update") {
                 if parser.next_if_unquoted("current_timestamp") {
                     extra.on_update_current_timestamp = true;
                 }
             }
-        }
-
-        if parser.next_if_unquoted("auto_increment") {
+        } else if parser.next_if_unquoted("auto_increment") {
             extra.auto_increment = true;
-        }
-
-        if parser.next_if_unquoted("default_generated") {
+        } else if parser.next_if_unquoted("default_generated") {
             extra.default_generated = true;
-        }
-
-        if parser.next_if_unquoted("stored") {
+        } else if parser.next_if_unquoted("stored") {
             if parser.next_if_unquoted("generated") {
                 extra.generated = true;
             }
-        }
-
-        if parser.next_if_unquoted("virtual") {
+        } else if parser.next_if_unquoted("virtual") {
             if parser.next_if_unquoted("generated") {
                 extra.generated = true;
             }
+        } else {
+            parser.next();
         }
     }
 
@@ -312,9 +307,48 @@ mod tests {
     }
 
     #[test]
+    fn test_0b() {
+        assert_eq!(
+            parse_column_extra(&mut Parser::new("NOTHING matters")),
+            ColumnExtra {
+                auto_increment: false,
+                on_update_current_timestamp: false,
+                generated: false,
+                default_generated: false,
+            }
+        );
+    }
+
+    #[test]
     fn test_1() {
         assert_eq!(
             parse_column_extra(&mut Parser::new("DEFAULT_GENERATED")),
+            ColumnExtra {
+                auto_increment: false,
+                on_update_current_timestamp: false,
+                generated: false,
+                default_generated: true,
+            }
+        );
+    }
+
+    #[test]
+    fn test_1b() {
+        assert_eq!(
+            parse_column_extra(&mut Parser::new("DEFAULT_GENERATED garbage")),
+            ColumnExtra {
+                auto_increment: false,
+                on_update_current_timestamp: false,
+                generated: false,
+                default_generated: true,
+            }
+        );
+    }
+
+    #[test]
+    fn test_1c() {
+        assert_eq!(
+            parse_column_extra(&mut Parser::new("garbage DEFAULT_GENERATED")),
             ColumnExtra {
                 auto_increment: false,
                 on_update_current_timestamp: false,
