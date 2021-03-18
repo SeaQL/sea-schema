@@ -3,4 +3,5 @@ pub enum InformationSchema {
     #[iden = "information_schema"]
     Schema,
     Columns,
+    Statistics,
 }

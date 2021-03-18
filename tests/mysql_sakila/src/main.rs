@@ -16,7 +16,7 @@ fn main() {
     let mut pool = connection.try_acquire().unwrap();
 
     let schema: Rc<dyn Iden> = Rc::new(Alias::new("sakila"));
-    let table: Rc<dyn Iden> = Rc::new(Alias::new("actor"));
+    let table: Rc<dyn Iden> = Rc::new(Alias::new("film_category"));
     let (sql, values) = SchemaQuery::query_columns(schema.clone(), table.clone()).build(MysqlQueryBuilder);
     println!("{}", sql);
 

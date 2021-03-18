@@ -2,16 +2,28 @@ use super::Type;
 
 #[derive(Debug, sea_query::Iden)]
 pub enum ColumnFields {
-    ColumnName,
-    ColumnType,
-    IsNullable,
-    ColumnKey,
-    ColumnDefault,
-    Extra,
-    ColumnComment,
+    TableCatalog,
     TableSchema,
     TableName,
+    ColumnName,
     OrdinalPosition,
+    ColumnDefault,
+    IsNullable,
+    DataType,
+    CharacterMaximumLength,
+    CharacterOctetLength,
+    NumericPrecision,
+    NumericScale,
+    DatetimePrecision,
+    CharacterSetName,
+    CollationName,
+    ColumnType,
+    ColumnKey,
+    Extra,
+    Privileges,
+    ColumnComment,
+    GenerationExpression,
+    SrsId,
 }
 
 #[derive(Debug)]

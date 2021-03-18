@@ -1,0 +1,21 @@
+#[derive(Debug, sea_query::Iden)]
+pub enum StatisticsFields {
+    TableCatalog,
+    TableSchema,
+    TableName,
+    NonUnique,
+    IndexSchema,
+    IndexName,
+    SeqInIndex,
+    ColumnName,
+    Collation,
+    Cardinality,
+    SubPart,
+    Packed,
+    Nullable,
+    IndexType,
+    Comment,
+    IndexComment,
+    IsVisible,
+    Expression,
+}
