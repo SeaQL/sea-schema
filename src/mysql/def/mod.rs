@@ -1,11 +1,11 @@
-//! MySQL schema defined in Rust types
+//! MySQL schema definition represented in Rust types
 
 mod column;
 mod schema;
-mod statistics;
+mod index;
 mod types;
 
 pub use column::*;
 pub use schema::*;
-pub use statistics::*;
+pub use index::*;
 pub use types::*;
