@@ -20,7 +20,7 @@ pub enum StatisticsFields {
     Expression,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct IndexInfo {
     /// Does this index requires unique values
     pub unique: bool,
@@ -42,14 +42,14 @@ pub struct IndexInfo {
     pub functional: bool,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum IndexOrder {
     Ascending,
     Descending,
     Unordered,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum IndexType {
     BTree,
     FullText,

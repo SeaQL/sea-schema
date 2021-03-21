@@ -83,3 +83,94 @@ pub fn parse_index_query_result(mut result: IndexQueryResult) -> IndexInfo {
         functional: result.expression.is_some(),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_1() {
+        assert_eq!(
+            parse_index_query_results(Box::new(vec![
+                IndexQueryResult { non_unique: 0, index_name: "PRIMARY".to_owned(), column_name: Some("film_id".to_owned()), collation: Some("A".to_owned()), sub_part: None, nullable: "".to_owned(), index_type: "BTREE".to_owned(), index_comment: "".to_owned(), expression: None }
+            ].into_iter())).collect::<Vec<IndexInfo>>(),
+            vec![IndexInfo {
+                unique: true,
+                name: "PRIMARY".to_owned(),
+                columns: vec!["film_id".to_owned()],
+                order: IndexOrder::Ascending,
+                sub_part: None,
+                nullable: false,
+                idx_type: IndexType::BTree,
+                comment: "".to_owned(),
+                functional: false,
+            }]
+        );
+    }
+
+    #[test]
+    fn test_2() {
+        assert_eq!(
+            parse_index_query_results(Box::new(vec![
+                IndexQueryResult { non_unique: 1, index_name: "idx_title".to_owned(), column_name: Some("title".to_owned()), collation: Some("A".to_owned()), sub_part: None, nullable: "".to_owned(), index_type: "BTREE".to_owned(), index_comment: "".to_owned(), expression: None }
+            ].into_iter())).collect::<Vec<IndexInfo>>(),
+            vec![IndexInfo {
+                unique: false,
+                name: "idx_title".to_owned(),
+                columns: vec!["title".to_owned()],
+                order: IndexOrder::Ascending,
+                sub_part: None,
+                nullable: false,
+                idx_type: IndexType::BTree,
+                comment: "".to_owned(),
+                functional: false,
+            }]
+        );
+    }
+
+    #[test]
+    fn test_3() {
+        assert_eq!(
+            parse_index_query_results(Box::new(vec![
+                IndexQueryResult { non_unique: 0, index_name: "rental_date".to_owned(), column_name: Some("rental_date".to_owned()), collation: Some("A".to_owned()), sub_part: None, nullable: "".to_owned(), index_type: "BTREE".to_owned(), index_comment: "".to_owned(), expression: None },
+                IndexQueryResult { non_unique: 0, index_name: "rental_date".to_owned(), column_name: Some("inventory_id".to_owned()), collation: Some("A".to_owned()), sub_part: None, nullable: "".to_owned(), index_type: "BTREE".to_owned(), index_comment: "".to_owned(), expression: None },
+                IndexQueryResult { non_unique: 0, index_name: "rental_date".to_owned(), column_name: Some("customer_id".to_owned()), collation: Some("A".to_owned()), sub_part: None, nullable: "".to_owned(), index_type: "BTREE".to_owned(), index_comment: "".to_owned(), expression: None },
+            ].into_iter())).collect::<Vec<IndexInfo>>(),
+            vec![IndexInfo {
+                unique: true,
+                name: "rental_date".to_owned(),
+                columns: vec![
+                    "rental_date".to_owned(),
+                    "inventory_id".to_owned(),
+                    "customer_id".to_owned(),
+                ],
+                order: IndexOrder::Ascending,
+                sub_part: None,
+                nullable: false,
+                idx_type: IndexType::BTree,
+                comment: "".to_owned(),
+                functional: false
+            }]
+        );
+    }
+
+    #[test]
+    fn test_4() {
+        assert_eq!(
+            parse_index_query_results(Box::new(vec![
+                IndexQueryResult { non_unique: 1, index_name: "idx_location".to_owned(), column_name: Some("location".to_owned()), collation: Some("A".to_owned()), sub_part: Some(32), nullable: "".to_owned(), index_type: "SPATIAL".to_owned(), index_comment: "".to_owned(), expression: None }
+            ].into_iter())).collect::<Vec<IndexInfo>>(),
+            vec![IndexInfo {
+                unique: false,
+                name: "idx_location".to_owned(),
+                columns: vec!["location".to_owned()],
+                order: IndexOrder::Ascending,
+                sub_part: Some(32),
+                nullable: false,
+                idx_type: IndexType::Spatial,
+                comment: "".to_owned(),
+                functional: false,
+            }]
+        );
+    }
+}
