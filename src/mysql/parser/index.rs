@@ -23,6 +23,7 @@ impl Iterator for IndexQueryResultParser {
         while let Some(result) = self.results.next() {
             let mut index = parse_index_query_result(result);
             if let Some(curr) = &mut self.curr {
+                // group by `index.name`, consolidate to `index.columns`
                 if curr.name == index.name {
                     curr.columns.push(index.columns.pop().unwrap());
                 } else {
