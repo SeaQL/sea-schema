@@ -67,10 +67,7 @@ pub fn parse_index_query_result(mut result: IndexQueryResult) -> IndexInfo {
             Some(v) => Some(v as u32),
             None => None,
         },
-        nullable: match result.nullable.as_str() {
-            "YES" => true,
-            _ => false,
-        },
+        nullable: matches!(result.nullable.as_str(), "YES"),
         idx_type: match result.index_type.as_str() {
             "BTREE" => IndexType::BTree,
             "FULLTEXT" => IndexType::FullText,

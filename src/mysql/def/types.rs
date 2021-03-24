@@ -88,112 +88,101 @@ pub struct GeometryAttr {
 
 impl Type {
     pub fn is_numeric(&self) -> bool {
-        match self {
-            Type::Serial(_) => true,
-            Type::Bit(_) => true,
-            Type::TinyInt(_) => true,
-            Type::Bool(_) => true,
-            Type::SmallInt(_) => true,
-            Type::MediumInt(_) => true,
-            Type::Int(_) => true,
-            Type::BigInt(_) => true,
-            Type::Decimal(_) => true,
-            Type::Float(_) => true,
-            Type::Double(_) => true,
-            _ => false,
-        }
+        matches!(self,
+            Type::Serial(_) |
+            Type::Bit(_) |
+            Type::TinyInt(_) |
+            Type::Bool(_) |
+            Type::SmallInt(_) |
+            Type::MediumInt(_) |
+            Type::Int(_) |
+            Type::BigInt(_) |
+            Type::Decimal(_) |
+            Type::Float(_) |
+            Type::Double(_)
+        )
     }
 
     pub fn is_date(&self) -> bool {
-        match self {
-            Type::Date => true,
-            Type::Year => true,
-            _ => false,
-        }
+        matches!(self,
+            Type::Date |
+            Type::Year
+        )
     }
 
     pub fn is_time(&self) -> bool {
-        match self {
-            Type::Time(_) => true,
-            Type::DateTime(_) => true,
-            Type::Timestamp(_) => true,
-            _ => false,
-        }
+        matches!(self,
+            Type::Time(_) |
+            Type::DateTime(_) |
+            Type::Timestamp(_)
+        )
     }
 
     pub fn is_string(&self) -> bool {
-        match self {
-            Type::Char(_) => true,
-            Type::NChar(_) => true,
-            Type::Varchar(_) => true,
-            Type::NVarchar(_) => true,
-            Type::Binary(_) => true,
-            Type::Varbinary(_) => true,
-            Type::Text(_) => true,
-            Type::TinyText(_) => true,
-            Type::MediumText(_) => true,
-            Type::LongText(_) => true,
-            _ => false,
-        }
+        matches!(self,
+            Type::Char(_) |
+            Type::NChar(_) |
+            Type::Varchar(_) |
+            Type::NVarchar(_) |
+            Type::Binary(_) |
+            Type::Varbinary(_) |
+            Type::Text(_) |
+            Type::TinyText(_) |
+            Type::MediumText(_) |
+            Type::LongText(_)
+        )
     }
 
     pub fn is_blob(&self) -> bool {
-        match self {
-            Type::Blob(_) => true,
-            Type::TinyBlob => true,
-            Type::MediumBlob => true,
-            Type::LongBlob => true,
-            _ => false,
-        }
+        matches!(self,
+            Type::Blob(_) |
+            Type::TinyBlob |
+            Type::MediumBlob |
+            Type::LongBlob
+        )
     }
 
     pub fn is_free_size_blob(&self) -> bool {
-        match self {
-            Type::Blob(_) => true,
-            _ => false,
-        }
+        matches!(self,
+            Type::Blob(_)
+        )
     }
 
     pub fn is_geometry(&self) -> bool {
-        match self {
-            Type::Geometry(_) => true,
-            Type::Point(_) => true,
-            Type::LineString(_) => true,
-            Type::Polygon(_) => true,
-            Type::MultiPoint(_) => true,
-            Type::MultiLineString(_) => true,
-            Type::MultiPolygon(_) => true,
-            Type::GeometryCollection(_) => true,
-            _ => false,
-        }
+        matches!(self,
+            Type::Geometry(_) |
+            Type::Point(_) |
+            Type::LineString(_) |
+            Type::Polygon(_) |
+            Type::MultiPoint(_) |
+            Type::MultiLineString(_) |
+            Type::MultiPolygon(_) |
+            Type::GeometryCollection(_)
+        )
     }
 
     pub fn is_enum(&self) -> bool {
-        match self {
-            Type::Enum(_) => true,
-            _ => false,
-        }
+        matches!(self,
+            Type::Enum(_)
+        )
     }
 
     pub fn is_set(&self) -> bool {
-        match self {
-            Type::Set(_) => true,
-            _ => false,
-        }
+        matches!(self,
+            Type::Set(_)
+        )
     }
 
     pub fn is_other(&self) -> bool {
-        match self {
-            Type::Json => true,
-            _ => false,
-        }
+        matches!(self,
+            Type::Json
+        )
     }
 
     pub fn is_unknown(&self) -> bool {
-        match self {
-            Type::Unknown(_) => true,
-            _ => false,
-        }
+        matches!(self,
+            Type::Unknown(_)
+        )
     }
 
     pub fn get_numeric_attr_mut(&mut self) -> &mut NumericAttr {
