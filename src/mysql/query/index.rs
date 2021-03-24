@@ -30,7 +30,7 @@ impl SchemaQuery {
                 StatisticsFields::Nullable,
                 StatisticsFields::IndexType,
                 StatisticsFields::IndexComment,
-                StatisticsFields::Expression,
+                // StatisticsFields::Expression,
             ])
             .from_schema(InformationSchema::Schema, InformationSchema::Statistics)
             .and_where(Expr::col(StatisticsFields::TableSchema).eq(schema.to_string()))
@@ -53,7 +53,7 @@ impl From<&MySqlRow> for IndexQueryResult {
             nullable: row.get(5),
             index_type: row.get(6),
             index_comment: row.get(7),
-            expression: row.get(8),
+            expression: None, // row.get(8),
         }
     }
 }

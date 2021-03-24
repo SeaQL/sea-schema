@@ -13,7 +13,7 @@ pub struct ColumnQueryResult {
     pub column_key: String,
     pub column_default: Option<String>,
     pub extra: String,
-    pub generation_expression: String,
+    pub generation_expression: Option<String>,
     pub column_comment: String,
 }
 

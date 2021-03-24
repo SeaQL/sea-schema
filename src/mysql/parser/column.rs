@@ -13,7 +13,10 @@ pub fn parse_column_query_result(result: ColumnQueryResult) -> ColumnInfo {
         key: parse_column_key(&result.column_key),
         default: parse_column_default(result.column_default),
         extra: parse_column_extra(&mut Parser::new(&result.extra)),
-        expression: parse_generation_expression(result.generation_expression),
+        expression: match result.generation_expression {
+            Some(generation_expression) => parse_generation_expression(generation_expression),
+            None => None,
+        },
         comment: result.column_comment,
     }
 }
