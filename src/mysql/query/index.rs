@@ -19,7 +19,7 @@ pub struct IndexQueryResult {
 }
 
 impl SchemaQuery {
-    pub fn query_indexes(schema: Rc<dyn Iden>, table: Rc<dyn Iden>) -> SelectStatement {
+    pub fn query_indexes(&self, schema: Rc<dyn Iden>, table: Rc<dyn Iden>) -> SelectStatement {
         Query::select()
             .columns(vec![
                 StatisticsFields::NonUnique,

@@ -18,7 +18,7 @@ pub struct ColumnQueryResult {
 }
 
 impl SchemaQuery {
-    pub fn query_columns(schema: Rc<dyn Iden>, table: Rc<dyn Iden>) -> SelectStatement {
+    pub fn query_columns(&self, schema: Rc<dyn Iden>, table: Rc<dyn Iden>) -> SelectStatement {
         Query::select()
             .columns(vec![
                 ColumnFields::ColumnName,

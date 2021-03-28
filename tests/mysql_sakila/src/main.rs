@@ -1,8 +1,8 @@
 use std::rc::Rc;
 use async_std::task;
 use sea_query::{Alias, Iden, MysqlQueryBuilder};
-use sea_schema::mysql::query::{SchemaQuery, ColumnQueryResult, IndexQueryResult};
-use sea_schema::mysql::parser::{parse_column_query_result, parse_index_query_results};
+use sea_schema::mysql::query::{SchemaQuery, ColumnQueryResult, IndexQueryResult, VersionQueryResult};
+use sea_schema::mysql::parser::{parse_column_query_result, parse_index_query_results, parse_version_query_result};
 use sqlx::MySqlPool;
 
 sea_query::sea_query_driver_mysql!();
@@ -15,12 +15,37 @@ fn main() {
     });
     let mut pool = connection.try_acquire().unwrap();
 
+    let mut schema_query = SchemaQuery::default();
+
+    // Version
+
+    let (sql, values) = SchemaQuery::query_version().build(MysqlQueryBuilder);
+    println!("{}", sql);
+    println!();
+
+    let rows = task::block_on(async {
+        bind_query(sqlx::query(&sql), &values)
+            .fetch_all(&mut pool)
+            .await
+            .unwrap()
+    });
+
+    for row in rows.iter() {
+        let result: VersionQueryResult = row.into();
+        println!("{:?}", result);
+        let version = parse_version_query_result(result);
+        println!("{:?}", version);
+        schema_query = SchemaQuery::new(version);
+        break;
+    }
+    println!();
+
     let schema: Rc<dyn Iden> = Rc::new(Alias::new("sakila"));
     let table: Rc<dyn Iden> = Rc::new(Alias::new("film"));
 
     // Columns
 
-    let (sql, values) = SchemaQuery::query_columns(schema.clone(), table.clone()).build(MysqlQueryBuilder);
+    let (sql, values) = schema_query.query_columns(schema.clone(), table.clone()).build(MysqlQueryBuilder);
     println!("{}", sql);
     println!();
 
@@ -41,7 +66,7 @@ fn main() {
 
     // Indexes
 
-    let (sql, values) = SchemaQuery::query_indexes(schema.clone(), table.clone()).build(MysqlQueryBuilder);
+    let (sql, values) = schema_query.query_indexes(schema.clone(), table.clone()).build(MysqlQueryBuilder);
     println!("{}", sql);
     println!();
 

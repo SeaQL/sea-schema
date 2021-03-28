@@ -1,4 +1,5 @@
 #[derive(Debug, PartialEq)]
+/// All built-in types of MySQL, excluding synonyms
 pub enum Type {
     Serial(NumericAttr),
     Bit(NumericAttr),
