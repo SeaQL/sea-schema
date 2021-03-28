@@ -1,7 +1,7 @@
 use std::rc::Rc;
 #[cfg(feature="sqlx-mysql")]
 use sqlx::{Row, mysql::MySqlRow};
-use sea_query::{Expr, Iden, Order, Query, SelectStatement};
+use sea_query::{Expr, Iden, Order, Query, Value, SelectStatement};
 use crate::mysql::def::*;
 use super::SchemaQuery;
 
@@ -30,8 +30,12 @@ impl SchemaQuery {
                 StatisticsFields::Nullable,
                 StatisticsFields::IndexType,
                 StatisticsFields::IndexComment,
-                // StatisticsFields::Expression,
             ])
+            .conditions(
+                self.version.number >= 80013,
+                |q| { q.column(StatisticsFields::Expression); },
+                |q| { q.expr(Expr::val(Value::Null)); }
+            )
             .from_schema(InformationSchema::Schema, InformationSchema::Statistics)
             .and_where(Expr::col(StatisticsFields::TableSchema).eq(schema.to_string()))
             .and_where(Expr::col(StatisticsFields::TableName).eq(table.to_string()))
@@ -53,7 +57,7 @@ impl From<&MySqlRow> for IndexQueryResult {
             nullable: row.get(5),
             index_type: row.get(6),
             index_comment: row.get(7),
-            expression: None, // row.get(8),
+            expression: row.get(8),
         }
     }
 }
