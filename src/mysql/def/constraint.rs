@@ -1,6 +1,6 @@
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-key-column-usage-table.html
-pub enum KeyColumnUsage {
+pub enum KeyColumnUsageFields {
     ConstraintSchema,
     ConstraintName,
     TableSchema,
@@ -15,7 +15,7 @@ pub enum KeyColumnUsage {
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-referential-constraints-table.html
-pub enum ReferentialConstraints {
+pub enum ReferentialConstraintsFields {
     ConstraintSchema,
     ConstraintName,
     UniqueConstraintSchema,

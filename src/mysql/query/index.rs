@@ -36,7 +36,7 @@ impl SchemaQuery {
                 |q| { q.column(StatisticsFields::Expression); },
                 |q| { q.expr(Expr::val(Value::Null)); }
             )
-            .from_schema(InformationSchema::Schema, InformationSchema::Statistics)
+            .from((InformationSchema::Schema, InformationSchema::Statistics))
             .and_where(Expr::col(StatisticsFields::TableSchema).eq(schema.to_string()))
             .and_where(Expr::col(StatisticsFields::TableName).eq(table.to_string()))
             .order_by(StatisticsFields::IndexName, Order::Asc)

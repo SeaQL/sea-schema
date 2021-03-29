@@ -1,7 +1,7 @@
 use std::rc::Rc;
 use async_std::task;
 use sea_query::{Alias, Iden, MysqlQueryBuilder};
-use sea_schema::mysql::query::{SchemaQuery, ColumnQueryResult, IndexQueryResult, VersionQueryResult};
+use sea_schema::mysql::query::{SchemaQuery, ColumnQueryResult, ConstraintQueryResult, IndexQueryResult, VersionQueryResult};
 use sea_schema::mysql::parser::{parse_column_query_result, parse_index_query_results, parse_version_query_result};
 use sqlx::MySqlPool;
 
@@ -87,6 +87,26 @@ fn main() {
     for index in parse_index_query_results(Box::new(results.into_iter())) {
         println!("{:?}", index);
     }
+    println!();
+
+    // Constraints
+
+    let (sql, values) = schema_query.query_constraints(schema.clone(), table.clone()).build(MysqlQueryBuilder);
+    println!("{}", sql);
+    println!();
+
+    let rows = task::block_on(async {
+        bind_query(sqlx::query(&sql), &values)
+            .fetch_all(&mut pool)
+            .await
+            .unwrap()
+    });
+
+    let results: Vec<ConstraintQueryResult> = rows.iter().map(|row| {
+        let result = row.into();
+        println!("{:?}", result);
+        return result;
+    }).collect();
     println!();
 
 }
