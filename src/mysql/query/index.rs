@@ -32,7 +32,7 @@ impl SchemaQuery {
                 StatisticsFields::IndexComment,
             ])
             .conditions(
-                self.version.number >= 80013,
+                self.version.is_mysql() && self.version.number >= 80013,
                 |q| { q.column(StatisticsFields::Expression); },
                 |q| { q.expr(Expr::val(Value::Null)); }
             )
