@@ -1,5 +1,3 @@
-//! To parse mysql's foreign key schema
-
 use crate::mysql::def::*;
 use crate::mysql::query::ConstraintQueryResult;
 

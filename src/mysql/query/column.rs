@@ -2,8 +2,34 @@ use std::rc::Rc;
 #[cfg(feature="sqlx-mysql")]
 use sqlx::{Row, mysql::MySqlRow};
 use sea_query::{Expr, Iden, Order, Query, SelectStatement};
-use crate::mysql::def::*;
-use super::SchemaQuery;
+use super::{InformationSchema, SchemaQuery};
+
+#[derive(Debug, sea_query::Iden)]
+/// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-columns-table.html
+pub enum ColumnFields {
+    TableCatalog,
+    TableSchema,
+    TableName,
+    ColumnName,
+    OrdinalPosition,
+    ColumnDefault,
+    IsNullable,
+    DataType,
+    CharacterMaximumLength,
+    CharacterOctetLength,
+    NumericPrecision,
+    NumericScale,
+    DatetimePrecision,
+    CharacterSetName,
+    CollationName,
+    ColumnType,
+    ColumnKey,
+    Extra,
+    Privileges,
+    ColumnComment,
+    GenerationExpression,
+    SrsId,
+}
 
 #[derive(Debug)]
 pub struct ColumnQueryResult {

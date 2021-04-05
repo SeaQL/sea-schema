@@ -2,8 +2,35 @@ use std::rc::Rc;
 #[cfg(feature="sqlx-mysql")]
 use sqlx::{Row, mysql::MySqlRow};
 use sea_query::{Expr, Iden, Order, Query, SelectStatement};
-use crate::mysql::def::*;
-use super::SchemaQuery;
+use super::{InformationSchema, SchemaQuery};
+
+#[derive(Debug, sea_query::Iden)]
+/// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-key-column-usage-table.html
+pub enum KeyColumnUsageFields {
+    ConstraintSchema,
+    ConstraintName,
+    TableSchema,
+    TableName,
+    ColumnName,
+    OrdinalPosition,
+    PositionInUniqueConstraint,
+    ReferencedTableSchema,
+    ReferencedTableName,
+    ReferencedColumnName,
+}
+
+#[derive(Debug, sea_query::Iden)]
+/// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-referential-constraints-table.html
+pub enum ReferentialConstraintsFields {
+    ConstraintSchema,
+    ConstraintName,
+    UniqueConstraintSchema,
+    UniqueConstraintName,
+    UpdateRule,
+    DeleteRule,
+    TableName,
+    ReferencedTableName,
+}
 
 #[derive(Debug)]
 pub struct ConstraintQueryResult {

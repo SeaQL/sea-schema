@@ -1,5 +1,3 @@
-//! To parse mysql's column schema
-
 use sea_query::unescape_string;
 use crate::parser::Parser;
 use crate::mysql::def::*;

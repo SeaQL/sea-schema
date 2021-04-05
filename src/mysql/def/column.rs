@@ -1,32 +1,5 @@
 use super::Type;
 
-#[derive(Debug, sea_query::Iden)]
-/// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-columns-table.html
-pub enum ColumnFields {
-    TableCatalog,
-    TableSchema,
-    TableName,
-    ColumnName,
-    OrdinalPosition,
-    ColumnDefault,
-    IsNullable,
-    DataType,
-    CharacterMaximumLength,
-    CharacterOctetLength,
-    NumericPrecision,
-    NumericScale,
-    DatetimePrecision,
-    CharacterSetName,
-    CollationName,
-    ColumnType,
-    ColumnKey,
-    Extra,
-    Privileges,
-    ColumnComment,
-    GenerationExpression,
-    SrsId,
-}
-
 #[derive(Debug)]
 pub struct ColumnInfo {
     /// The name of the column

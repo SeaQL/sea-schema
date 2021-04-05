@@ -1,26 +1,13 @@
-//! To support querying MySQL's INFORMATION_SCHEMA
-
-use crate::mysql::def::Version;
-
-#[derive(Debug, Default)]
-pub struct SchemaQuery {
-    version: Version,
-}
+//! To query MySQL's INFORMATION_SCHEMA
 
 mod column;
 mod constraint;
 mod index;
+mod schema;
 mod version;
 
 pub use column::*;
 pub use constraint::*;
 pub use index::*;
+pub use schema::*;
 pub use version::*;
-
-impl SchemaQuery {
-    pub fn new(version: Version) -> Self {
-        Self {
-            version
-        }
-    }
-}

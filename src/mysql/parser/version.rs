@@ -1,5 +1,3 @@
-//! To parse mysql's version string
-
 use crate::mysql::def::*;
 use crate::mysql::query::VersionQueryResult;
 

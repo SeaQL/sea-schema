@@ -2,8 +2,30 @@ use std::rc::Rc;
 #[cfg(feature="sqlx-mysql")]
 use sqlx::{Row, mysql::MySqlRow};
 use sea_query::{Expr, Iden, Order, Query, Value, SelectStatement};
-use crate::mysql::def::*;
-use super::SchemaQuery;
+use super::{InformationSchema, SchemaQuery};
+
+#[derive(Debug, sea_query::Iden)]
+/// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-statistics-table.html
+pub enum StatisticsFields {
+    TableCatalog,
+    TableSchema,
+    TableName,
+    NonUnique,
+    IndexSchema,
+    IndexName,
+    SeqInIndex,
+    ColumnName,
+    Collation,
+    Cardinality,
+    SubPart,
+    Packed,
+    Nullable,
+    IndexType,
+    Comment,
+    IndexComment,
+    IsVisible,
+    Expression,
+}
 
 #[derive(Debug)]
 pub struct IndexQueryResult {

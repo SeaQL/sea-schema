@@ -1,5 +1,3 @@
-//! To parse mysql's index schema
-
 use crate::mysql::def::*;
 use crate::mysql::query::IndexQueryResult;
 

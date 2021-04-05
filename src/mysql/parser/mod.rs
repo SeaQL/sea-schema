@@ -1,3 +1,5 @@
+//! To parse MySQL's INFORMATION_SCHEMA
+
 mod column;
 mod constraint;
 mod index;
