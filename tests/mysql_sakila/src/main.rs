@@ -1,6 +1,7 @@
 use std::rc::Rc;
 use async_std::task;
 use sea_query::{Alias, Iden, MysqlQueryBuilder};
+use sea_schema::mysql::schema::Schema;
 use sea_schema::mysql::query::{SchemaQuery, ColumnQueryResult, ConstraintQueryResult, IndexQueryResult, VersionQueryResult};
 use sea_schema::mysql::parser::{parse_column_query_result, parse_index_query_results, parse_version_query_result, parse_constraint_query_results};
 use sqlx::MySqlPool;
@@ -19,26 +20,11 @@ fn main() {
 
     // Version
 
-    let (sql, values) = SchemaQuery::query_version().build(MysqlQueryBuilder);
-    println!("{}", sql);
-    println!();
-
-    let rows = task::block_on(async {
-        bind_query(sqlx::query(&sql), &values)
-            .fetch_all(&mut pool)
-            .await
-            .unwrap()
+    task::block_on(async {
+        Schema::discover(&mut pool).await;
     });
 
-    for row in rows.iter() {
-        let result: VersionQueryResult = row.into();
-        println!("{:?}", result);
-        let version = parse_version_query_result(result);
-        println!("{:?}", version);
-        schema_query = SchemaQuery::new(version);
-        break;
-    }
-    println!();
+    panic!("bye");
 
     let schema: Rc<dyn Iden> = Rc::new(Alias::new("sakila"));
     let table: Rc<dyn Iden> = Rc::new(Alias::new("film"));

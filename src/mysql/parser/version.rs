@@ -1,6 +1,12 @@
 use crate::mysql::def::*;
 use crate::mysql::query::VersionQueryResult;
 
+impl VersionQueryResult {
+    pub fn parse(self) -> Version {
+        parse_version_query_result(self)
+    }
+}
+
 pub fn parse_version_query_result(result: VersionQueryResult) -> Version {
     parse_version_string(result.version.as_str())
 }

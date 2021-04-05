@@ -14,7 +14,7 @@ pub struct VersionQueryResult {
 }
 
 impl SchemaQuery {
-    pub fn query_version() -> SelectStatement {
+    pub fn query_version(&self) -> SelectStatement {
         Query::select()
             .expr(Func::cust(MysqlFunc::Version).into_simple_expr())
             .take()

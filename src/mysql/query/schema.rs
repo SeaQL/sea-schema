@@ -18,6 +18,7 @@ impl SchemaQuery {
 pub enum InformationSchema {
     #[iden = "information_schema"]
     Schema,
+    Tables,
     Columns,
     Statistics,
     KeyColumnUsage,
