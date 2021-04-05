@@ -39,3 +39,11 @@ IndexInfo { unique: false, name: "idx_fk_original_language_id", columns: ["origi
 IndexInfo { unique: false, name: "idx_title", columns: ["title"], order: Ascending, sub_part: None, nullable: false, idx_type: BTree, comment: "", functional: false }
 IndexInfo { unique: true, name: "PRIMARY", columns: ["film_id"], order: Ascending, sub_part: None, nullable: false, idx_type: BTree, comment: "", functional: false }
 
+SELECT `key_column_usage`.`constraint_name`, `key_column_usage`.`column_name`, `key_column_usage`.`referenced_table_name`, `key_column_usage`.`referenced_column_name`, `referential_constraints`.`update_rule`, `referential_constraints`.`delete_rule` FROM `information_schema`.`key_column_usage` INNER JOIN `information_schema`.`referential_constraints` ON (`key_column_usage`.`constraint_schema` = `referential_constraints`.`constraint_schema`) AND (`key_column_usage`.`constraint_name` = `referential_constraints`.`constraint_name`) WHERE `key_column_usage`.`constraint_schema` = ? AND `key_column_usage`.`table_name` = ? ORDER BY `constraint_name` ASC, `ordinal_position` ASC
+
+ConstraintQueryResult { constraint_name: "fk_film_language", column_name: "language_id", referenced_table_name: "language", referenced_column_name: "language_id", update_rule: "CASCADE", delete_rule: "RESTRICT" }
+ConstraintQueryResult { constraint_name: "fk_film_language_original", column_name: "original_language_id", referenced_table_name: "language", referenced_column_name: "language_id", update_rule: "CASCADE", delete_rule: "RESTRICT" }
+
+ForeignKeyInfo { name: "fk_film_language", columns: ["language_id"], referenced_table: "language", referenced_columns: ["language_id"], on_update: Cascade, on_delete: Restrict }
+ForeignKeyInfo { name: "fk_film_language_original", columns: ["original_language_id"], referenced_table: "language", referenced_columns: ["language_id"], on_update: Cascade, on_delete: Restrict }
+

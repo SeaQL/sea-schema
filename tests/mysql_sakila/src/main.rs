@@ -2,7 +2,7 @@ use std::rc::Rc;
 use async_std::task;
 use sea_query::{Alias, Iden, MysqlQueryBuilder};
 use sea_schema::mysql::query::{SchemaQuery, ColumnQueryResult, ConstraintQueryResult, IndexQueryResult, VersionQueryResult};
-use sea_schema::mysql::parser::{parse_column_query_result, parse_index_query_results, parse_version_query_result};
+use sea_schema::mysql::parser::{parse_column_query_result, parse_index_query_results, parse_version_query_result, parse_constraint_query_results};
 use sqlx::MySqlPool;
 
 sea_query::sea_query_driver_mysql!();
@@ -89,7 +89,7 @@ fn main() {
     }
     println!();
 
-    // Constraints
+    // Foreign Key
 
     let (sql, values) = schema_query.query_constraints(schema.clone(), table.clone()).build(MysqlQueryBuilder);
     println!("{}", sql);
@@ -107,6 +107,11 @@ fn main() {
         println!("{:?}", result);
         return result;
     }).collect();
+    println!();
+
+    for index in parse_constraint_query_results(Box::new(results.into_iter())) {
+        println!("{:?}", index);
+    }
     println!();
 
 }
