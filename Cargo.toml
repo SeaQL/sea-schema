@@ -26,6 +26,7 @@ name = "sea_schema"
 path = "src/lib.rs"
 
 [dependencies]
+sea-schema-derive = { version = "0", path = "sea-schema-derive" }
 sea-query = { version = "0.9.1" }
 sqlx = { version = "0.5", optional = true }
 

@@ -237,7 +237,7 @@ impl CharSet {
     pub fn unknown_to_string(&self) -> &String {
         match self {
             Self::Unknown(custom) => custom,
-            _ => panic!("not CharSet::Unknown"),
+            _ => panic!("not Unknown"),
         }
     }
 }
@@ -246,7 +246,7 @@ impl Collation {
     pub fn unknown_to_string(&self) -> &String {
         match self {
             Self::Unknown(custom) => custom,
-            _ => panic!("not Collation::Unknown"),
+            _ => panic!("not Unknown"),
         }
     }
 }
