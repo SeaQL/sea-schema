@@ -1,3 +1,5 @@
+use crate as sea_schema;
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct ForeignKeyInfo {
     /// The name of the foreign key
@@ -14,11 +16,11 @@ pub struct ForeignKeyInfo {
     pub on_delete: ForeignKeyAction,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, sea_schema_derive::Name)]
 pub enum ForeignKeyAction {
-    Cascade,
-    SetNull,
-    SetDefault,
-    Restrict,
-    NoAction,
+    #[name = "CASCADE"] Cascade,
+    #[name = "SET NULL"] SetNull,
+    #[name = "SET DEFAULT"] SetDefault,
+    #[name = "RESTRICT"] Restrict,
+    #[name = "NO ACTION"] NoAction,
 }

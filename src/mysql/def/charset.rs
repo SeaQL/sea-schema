@@ -1,4 +1,6 @@
-#[derive(Clone, Debug, PartialEq, sea_query::Iden)]
+use crate as sea_schema;
+
+#[derive(Clone, Debug, PartialEq, sea_query::Iden, sea_schema_derive::Name)]
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/charset-charsets.html
 pub enum CharSet {
     #[iden = "armscii8"] Armscii8,
@@ -45,7 +47,7 @@ pub enum CharSet {
     #[method = "unknown_to_string"] Unknown(String),
 }
 
-#[derive(Clone, Debug, PartialEq, sea_query::Iden)]
+#[derive(Clone, Debug, PartialEq, sea_query::Iden, sea_schema_derive::Name)]
 /// This list is not exhaustive
 pub enum Collation {
     #[iden = "armscii8_general_ci"] Armscii8GeneralCi,

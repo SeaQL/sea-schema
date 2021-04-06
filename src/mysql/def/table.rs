@@ -4,8 +4,8 @@ use super::{Collation, StorageEngine};
 pub struct TableInfo {
     /// The name of the table
     pub name: String,
-    pub engine: String,
-    pub auto_increment: StorageEngine,
+    pub engine: StorageEngine,
+    pub auto_increment: Option<u64>,
     pub collation: Collation,
     pub comment: String,
 }

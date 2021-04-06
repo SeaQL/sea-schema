@@ -1,5 +1,6 @@
 use crate::mysql::def::*;
 use crate::mysql::query::IndexQueryResult;
+use crate::Name;
 
 pub struct IndexQueryResultParser {
     curr: Option<IndexInfo>,
@@ -67,14 +68,7 @@ pub fn parse_index_query_result(mut result: IndexQueryResult) -> IndexInfo {
             None => None,
         },
         nullable: matches!(result.nullable.as_str(), "YES"),
-        idx_type: match result.index_type.as_str() {
-            "BTREE" => IndexType::BTree,
-            "FULLTEXT" => IndexType::FullText,
-            "HASH" => IndexType::Hash,
-            "RTREE" => IndexType::RTree,
-            "SPATIAL" => IndexType::Spatial,
-            _ => unimplemented!(),
-        },
+        idx_type: IndexType::from_str(result.index_type.as_str()).unwrap(),
         comment: result.index_comment,
         functional: result.expression.is_some(),
     }

@@ -1,3 +1,5 @@
+use crate as sea_schema;
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct IndexInfo {
     /// Does this index requires unique values
@@ -27,11 +29,11 @@ pub enum IndexOrder {
     Unordered,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, sea_schema_derive::Name)]
 pub enum IndexType {
-    BTree,
-    FullText,
-    Hash,
-    RTree,
-    Spatial,
+    #[name = "BTREE"] BTree,
+    #[name = "FULLTEXT"] FullText,
+    #[name = "HASH"] Hash,
+    #[name = "RTREE"] RTree,
+    #[name = "SPATIAL"] Spatial,
 }

@@ -10,7 +10,8 @@ fn get_iden_attr(attrs: &[Attribute]) -> Option<syn::Lit> {
             Ok(Meta::NameValue(nv)) => nv,
             _ => continue,
         };
-        if name_value.path.is_ident("iden") {
+        if name_value.path.is_ident("iden") || // interoperate with sea_query_derive Iden
+            name_value.path.is_ident("name") {
             return Some(name_value.lit);
         }
     }
@@ -30,7 +31,7 @@ fn get_catch_attr(attrs: &[Attribute]) -> Option<syn::Lit> {
     None
 }
 
-#[proc_macro_derive(Name, attributes(iden, catch))]
+#[proc_macro_derive(Name, attributes(iden, name, catch))]
 pub fn derive_iden(input: TokenStream) -> TokenStream {
     let DeriveInput {
         ident, data, attrs, ..

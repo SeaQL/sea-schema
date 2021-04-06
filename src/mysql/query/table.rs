@@ -43,7 +43,7 @@ pub enum TableType {
 pub struct TableQueryResult {
     pub table_name: String,
     pub engine: String,
-    pub auto_increment: i32,
+    pub auto_increment: Option<u64>,
     pub table_collation: String,
     pub table_comment: String,
     pub create_options: String,

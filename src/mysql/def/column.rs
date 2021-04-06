@@ -1,6 +1,6 @@
 use super::Type;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ColumnInfo {
     /// The name of the column
     pub name: String,
@@ -34,7 +34,7 @@ pub enum ColumnKey {
     Multiple,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ColumnDefault {
     /// default value expression
     pub expr: String,

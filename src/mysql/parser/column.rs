@@ -3,6 +3,12 @@ use crate::parser::Parser;
 use crate::mysql::def::*;
 use crate::mysql::query::ColumnQueryResult;
 
+impl ColumnQueryResult {
+    pub fn parse(self) -> ColumnInfo {
+        parse_column_query_result(self)
+    }
+}
+
 pub fn parse_column_query_result(result: ColumnQueryResult) -> ColumnInfo {
     ColumnInfo {
         name: result.column_name,

@@ -1,5 +1,6 @@
 use crate::mysql::def::*;
 use crate::mysql::query::ConstraintQueryResult;
+use crate::Name;
 
 pub struct ConstraintQueryResultParser {
     curr: Option<ForeignKeyInfo>,
@@ -50,14 +51,7 @@ pub fn parse_constraint_query_result(result: ConstraintQueryResult) -> ForeignKe
 }
 
 pub fn parse_foreign_key_action(string: &str) -> ForeignKeyAction {
-    match string {
-        "CASCADE" => ForeignKeyAction::Cascade,
-        "SET NULL" => ForeignKeyAction::SetNull,
-        "SET DEFAULT" => ForeignKeyAction::SetDefault,
-        "RESTRICT" => ForeignKeyAction::Restrict,
-        "NO ACTION" => ForeignKeyAction::NoAction,
-        _ => unimplemented!(),
-    }
+    ForeignKeyAction::from_str(string).unwrap()
 }
 
 #[cfg(test)]
