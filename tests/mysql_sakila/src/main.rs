@@ -1,8 +1,8 @@
 use std::rc::Rc;
 use async_std::task;
 use sea_query::{Alias, Iden, MysqlQueryBuilder};
-use sea_schema::mysql::schema::Schema;
-use sea_schema::mysql::query::{SchemaQuery, ColumnQueryResult, ConstraintQueryResult, IndexQueryResult, VersionQueryResult};
+use sea_schema::mysql::schema::SchemaDiscovery;
+use sea_schema::mysql::query::{SchemaQueryBuilder, ColumnQueryResult, ConstraintQueryResult, IndexQueryResult, VersionQueryResult};
 use sea_schema::mysql::parser::{parse_column_query_result, parse_index_query_results, parse_version_query_result, parse_constraint_query_results};
 use sqlx::MySqlPool;
 
@@ -14,90 +14,87 @@ fn main() {
     let connection = task::block_on(async {
         MySqlPool::connect("mysql://sea:sea@localhost/sakila").await.unwrap()
     });
-    let mut pool = connection.try_acquire().unwrap();
 
-    let mut schema_query = SchemaQuery::default();
-
-    // Version
+    let mut schema = SchemaDiscovery::new(connection);
 
     task::block_on(async {
-        Schema::discover(&mut pool).await;
+        schema.discover().await
     });
 
     panic!("bye");
 
-    let schema: Rc<dyn Iden> = Rc::new(Alias::new("sakila"));
-    let table: Rc<dyn Iden> = Rc::new(Alias::new("film"));
+    // let schema: Rc<dyn Iden> = Rc::new(Alias::new("sakila"));
+    // let table: Rc<dyn Iden> = Rc::new(Alias::new("film"));
 
-    // Columns
+    // // Columns
 
-    let (sql, values) = schema_query.query_columns(schema.clone(), table.clone()).build(MysqlQueryBuilder);
-    println!("{}", sql);
-    println!();
+    // let (sql, values) = schema_query.query_columns(schema.clone(), table.clone()).build(MysqlQueryBuilder);
+    // println!("{}", sql);
+    // println!();
 
-    let rows = task::block_on(async {
-        bind_query(sqlx::query(&sql), &values)
-            .fetch_all(&mut pool)
-            .await
-            .unwrap()
-    });
+    // let rows = task::block_on(async {
+    //     bind_query(sqlx::query(&sql), &values)
+    //         .fetch_all(&mut pool)
+    //         .await
+    //         .unwrap()
+    // });
 
-    for row in rows.iter() {
-        let result: ColumnQueryResult = row.into();
-        println!("{:?}", result);
-        let column = parse_column_query_result(result);
-        println!("{:?}", column);
-    }
-    println!();
+    // for row in rows.iter() {
+    //     let result: ColumnQueryResult = row.into();
+    //     println!("{:?}", result);
+    //     let column = parse_column_query_result(result);
+    //     println!("{:?}", column);
+    // }
+    // println!();
 
-    // Indexes
+    // // Indexes
 
-    let (sql, values) = schema_query.query_indexes(schema.clone(), table.clone()).build(MysqlQueryBuilder);
-    println!("{}", sql);
-    println!();
+    // let (sql, values) = schema_query.query_indexes(schema.clone(), table.clone()).build(MysqlQueryBuilder);
+    // println!("{}", sql);
+    // println!();
 
-    let rows = task::block_on(async {
-        bind_query(sqlx::query(&sql), &values)
-            .fetch_all(&mut pool)
-            .await
-            .unwrap()
-    });
+    // let rows = task::block_on(async {
+    //     bind_query(sqlx::query(&sql), &values)
+    //         .fetch_all(&mut pool)
+    //         .await
+    //         .unwrap()
+    // });
 
-    let results: Vec<IndexQueryResult> = rows.iter().map(|row| {
-        let result = row.into();
-        println!("{:?}", result);
-        return result;
-    }).collect();
-    println!();
+    // let results: Vec<IndexQueryResult> = rows.iter().map(|row| {
+    //     let result = row.into();
+    //     println!("{:?}", result);
+    //     return result;
+    // }).collect();
+    // println!();
 
-    for index in parse_index_query_results(Box::new(results.into_iter())) {
-        println!("{:?}", index);
-    }
-    println!();
+    // for index in parse_index_query_results(Box::new(results.into_iter())) {
+    //     println!("{:?}", index);
+    // }
+    // println!();
 
-    // Foreign Key
+    // // Foreign Key
 
-    let (sql, values) = schema_query.query_constraints(schema.clone(), table.clone()).build(MysqlQueryBuilder);
-    println!("{}", sql);
-    println!();
+    // let (sql, values) = schema_query.query_constraints(schema.clone(), table.clone()).build(MysqlQueryBuilder);
+    // println!("{}", sql);
+    // println!();
 
-    let rows = task::block_on(async {
-        bind_query(sqlx::query(&sql), &values)
-            .fetch_all(&mut pool)
-            .await
-            .unwrap()
-    });
+    // let rows = task::block_on(async {
+    //     bind_query(sqlx::query(&sql), &values)
+    //         .fetch_all(&mut pool)
+    //         .await
+    //         .unwrap()
+    // });
 
-    let results: Vec<ConstraintQueryResult> = rows.iter().map(|row| {
-        let result = row.into();
-        println!("{:?}", result);
-        return result;
-    }).collect();
-    println!();
+    // let results: Vec<ConstraintQueryResult> = rows.iter().map(|row| {
+    //     let result = row.into();
+    //     println!("{:?}", result);
+    //     return result;
+    // }).collect();
+    // println!();
 
-    for index in parse_constraint_query_results(Box::new(results.into_iter())) {
-        println!("{:?}", index);
-    }
-    println!();
+    // for index in parse_constraint_query_results(Box::new(results.into_iter())) {
+    //     println!("{:?}", index);
+    // }
+    // println!();
 
 }

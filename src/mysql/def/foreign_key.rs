@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ForeignKeyInfo {
     /// The name of the foreign key
     pub name: String,
@@ -14,7 +14,7 @@ pub struct ForeignKeyInfo {
     pub on_delete: ForeignKeyAction,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum ForeignKeyAction {
     Cascade,
     SetNull,

@@ -2,7 +2,7 @@ use std::rc::Rc;
 #[cfg(feature="sqlx-mysql")]
 use sqlx::{Row, mysql::MySqlRow};
 use sea_query::{Expr, Iden, Order, Query, Value, SelectStatement};
-use super::{InformationSchema, SchemaQuery};
+use super::{InformationSchema, SchemaQueryBuilder};
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-statistics-table.html
@@ -40,7 +40,7 @@ pub struct IndexQueryResult {
     pub expression: Option<String>,
 }
 
-impl SchemaQuery {
+impl SchemaQueryBuilder {
     pub fn query_indexes(&self, schema: Rc<dyn Iden>, table: Rc<dyn Iden>) -> SelectStatement {
         Query::select()
             .columns(vec![
@@ -54,7 +54,7 @@ impl SchemaQuery {
                 StatisticsFields::IndexComment,
             ])
             .conditions(
-                self.version.is_mysql() && self.version.number >= 80013,
+                self.system.is_mysql() && self.system.version >= 80013,
                 |q| { q.column(StatisticsFields::Expression); },
                 |q| { q.expr(Expr::val(Value::Null)); }
             )

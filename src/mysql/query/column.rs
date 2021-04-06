@@ -2,7 +2,7 @@ use std::rc::Rc;
 #[cfg(feature="sqlx-mysql")]
 use sqlx::{Row, mysql::MySqlRow};
 use sea_query::{Expr, Iden, Order, Query, SelectStatement};
-use super::{InformationSchema, SchemaQuery};
+use super::{InformationSchema, SchemaQueryBuilder};
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-columns-table.html
@@ -43,7 +43,7 @@ pub struct ColumnQueryResult {
     pub column_comment: String,
 }
 
-impl SchemaQuery {
+impl SchemaQueryBuilder {
     pub fn query_columns(&self, schema: Rc<dyn Iden>, table: Rc<dyn Iden>) -> SelectStatement {
         Query::select()
             .columns(vec![

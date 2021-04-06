@@ -1,6 +1,6 @@
 use super::Collation;
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct TableInfo {
     /// The name of the table
     pub name: String,

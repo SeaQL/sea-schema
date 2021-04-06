@@ -2,27 +2,27 @@ use crate::mysql::def::*;
 use crate::mysql::query::VersionQueryResult;
 
 impl VersionQueryResult {
-    pub fn parse(self) -> Version {
+    pub fn parse(self) -> SystemInfo {
         parse_version_query_result(self)
     }
 }
 
-pub fn parse_version_query_result(result: VersionQueryResult) -> Version {
+pub fn parse_version_query_result(result: VersionQueryResult) -> SystemInfo {
     parse_version_string(result.version.as_str())
 }
 
-pub fn parse_version_string(string: &str) -> Version {
-    let mut version = Version::default();
+pub fn parse_version_string(string: &str) -> SystemInfo {
+    let mut system = SystemInfo::default();
     for (i, part) in string.split("-").enumerate() {
         if i == 0 {
-            version.number = parse_version_number(part);
+            system.version = parse_version_number(part);
         } else if i == 1 {
-            version.system = part.to_owned();
+            system.system = part.to_owned();
         } else {
-            version.suffix.push(part.to_owned());
+            system.suffix.push(part.to_owned());
         }
     }
-    version
+    system
 }
 
 pub fn parse_version_number(string: &str) -> u32 {
@@ -56,8 +56,8 @@ mod tests {
 
     #[test]
     fn test_2() {
-        assert_eq!(parse_version_string("8.0.23-0ubuntu0.20.04.1"), Version {
-            number: 80023,
+        assert_eq!(parse_version_string("8.0.23-0ubuntu0.20.04.1"), SystemInfo {
+            version: 80023,
             system: "0ubuntu0.20.04.1".to_owned(),
             suffix: vec![],
         })
@@ -65,8 +65,8 @@ mod tests {
 
     #[test]
     fn test_3() {
-        assert_eq!(parse_version_string("10.2.31-MariaDB"), Version {
-            number: 100231,
+        assert_eq!(parse_version_string("10.2.31-MariaDB"), SystemInfo {
+            version: 100231,
             system: "MariaDB".to_owned(),
             suffix: vec![],
         })
@@ -74,8 +74,8 @@ mod tests {
 
     #[test]
     fn test_4() {
-        assert_eq!(parse_version_string("10.2.31-MariaDB-debug"), Version {
-            number: 100231,
+        assert_eq!(parse_version_string("10.2.31-MariaDB-debug"), SystemInfo {
+            version: 100231,
             system: "MariaDB".to_owned(),
             suffix: vec!["debug".to_owned()],
         })

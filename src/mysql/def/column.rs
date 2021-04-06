@@ -1,6 +1,6 @@
 use super::Type;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct ColumnInfo {
     /// The name of the column
     pub name: String,
@@ -22,7 +22,7 @@ pub struct ColumnInfo {
 
 pub type ColumnType = Type;
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum ColumnKey {
     /// This column is not the first column of any key
     NotKey,
@@ -34,13 +34,13 @@ pub enum ColumnKey {
     Multiple,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct ColumnDefault {
     /// default value expression
     pub expr: String,
 }
 
-#[derive(Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub struct ColumnExtra {
     /// Auto increment
     pub auto_increment: bool,

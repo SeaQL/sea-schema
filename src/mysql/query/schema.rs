@@ -1,14 +1,14 @@
-use crate::mysql::def::Version;
+use crate::mysql::def::SystemInfo;
 
 #[derive(Debug, Default)]
-pub struct SchemaQuery {
-    pub version: Version,
+pub struct SchemaQueryBuilder {
+    pub system: SystemInfo,
 }
 
-impl SchemaQuery {
-    pub fn new(version: Version) -> Self {
+impl SchemaQueryBuilder {
+    pub fn new(system: SystemInfo) -> Self {
         Self {
-            version
+            system
         }
     }
 }

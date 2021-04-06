@@ -2,7 +2,7 @@ use std::rc::Rc;
 #[cfg(feature="sqlx-mysql")]
 use sqlx::{Row, mysql::MySqlRow};
 use sea_query::{Expr, Iden, Order, Query, SelectStatement};
-use super::{InformationSchema, SchemaQuery};
+use super::{InformationSchema, SchemaQueryBuilder};
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-key-column-usage-table.html
@@ -42,7 +42,7 @@ pub struct ConstraintQueryResult {
     pub delete_rule: String,
 }
 
-impl SchemaQuery {
+impl SchemaQueryBuilder {
     pub fn query_constraints(&self, schema: Rc<dyn Iden>, table: Rc<dyn Iden>) -> SelectStatement {
         type Schema = InformationSchema;
         type Key = KeyColumnUsageFields;
