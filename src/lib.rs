@@ -1,8 +1,9 @@
 pub mod mysql;
 pub mod name;
-pub mod parser;
-pub mod util;
+pub(crate) mod parser;
+pub(crate) mod util;
 
+// pub use mysql::*;
 pub use name::*;
 pub use parser::*;
 pub use util::*;
