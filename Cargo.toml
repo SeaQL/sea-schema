@@ -9,13 +9,12 @@ name = "sea-schema"
 version = "0.1.0"
 authors = [ "Chris Tsang <tyt2y7@gmail.com>" ]
 edition = "2018"
-description = "A schema discovery and conversion tool"
+description = "Database schema definition, discovery and conversion"
 license = "MIT OR Apache-2.0"
 documentation = "https://docs.rs/sea-schema"
 repository = "https://github.com/SeaQL/sea-schema"
 categories = [ "database" ]
 keywords = [ "database", "sql", "mysql", "postgres" ]
-publish = false
 
 [package.metadata.docs.rs]
 all-features = true
