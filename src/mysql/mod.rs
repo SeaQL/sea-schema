@@ -3,4 +3,3 @@ pub mod def;
 pub mod discovery;
 pub mod parser;
 pub mod query;
-pub mod schema;

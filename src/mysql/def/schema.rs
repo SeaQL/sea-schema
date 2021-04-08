@@ -1,4 +1,4 @@
-use crate::mysql::def::*;
+use super::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Schema {
