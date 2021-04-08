@@ -8,9 +8,9 @@
     <strong>Database schema definition, discovery and conversion</strong>
   </p>
 
-  [![crate](https://img.shields.io/crates/v/sea-query.svg)](https://crates.io/crates/sea-query)
-  [![docs](https://docs.rs/sea-query/badge.svg)](https://docs.rs/sea-query)
-  [![build status](https://github.com/SeaQL/sea-query/actions/workflows/rust.yml/badge.svg)](https://github.com/SeaQL/sea-query/actions/workflows/rust.yml)
+  [![crate](https://img.shields.io/crates/v/sea-schema.svg)](https://crates.io/crates/sea-schema)
+  [![docs](https://docs.rs/sea-schema/badge.svg)](https://docs.rs/sea-schema)
+  [![build status](https://github.com/SeaQL/sea-schema/actions/workflows/rust.yml/badge.svg)](https://github.com/SeaQL/sea-schema/actions/workflows/rust.yml)
 
   <sub>Built with ❤️ by 🌊🦀🐚</sub>
 
