@@ -29,14 +29,16 @@ support schema conversion between MySQL and Postgres.
 Take the MySQL Sakila Sample Database as example, given the following table:
 
 ```SQL
-CREATE TABLE actor (
-  actor_id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  first_name VARCHAR(45) NOT NULL,
-  last_name VARCHAR(45) NOT NULL,
+CREATE TABLE film_actor (
+  actor_id SMALLINT UNSIGNED NOT NULL,
+  film_id SMALLINT UNSIGNED NOT NULL,
   last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY  (actor_id),
-  KEY idx_actor_last_name (last_name)
+  PRIMARY KEY  (actor_id,film_id),
+  KEY idx_fk_film_id (`film_id`),
+  CONSTRAINT fk_film_actor_actor FOREIGN KEY (actor_id) REFERENCES actor (actor_id) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT fk_film_actor_film FOREIGN KEY (film_id) REFERENCES film (film_id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 ```
 
 The discovered schema by querying INFORMATION_SCHEMA results in:
@@ -44,7 +46,7 @@ The discovered schema by querying INFORMATION_SCHEMA results in:
 ```rust
 TableDef {
     info: TableInfo {
-        name: "actor",
+        name: "film_actor",
         engine: InnoDb,
         auto_increment: None,
         collation: Utf8Mb40900AiCi,
@@ -67,29 +69,6 @@ TableDef {
             key: Primary,
             default: None,
             extra: ColumnExtra {
-                auto_increment: true,
-                on_update_current_timestamp: false,
-                generated: false,
-                default_generated: false,
-            },
-            expression: None,
-            comment: "",
-        },
-        ColumnInfo {
-            name: "first_name",
-            col_type: Varchar(
-                StringAttr {
-                    length: Some(
-                        45,
-                    ),
-                    charset_name: None,
-                    collation_name: None,
-                },
-            ),
-            null: false,
-            key: NotKey,
-            default: None,
-            extra: ColumnExtra {
                 auto_increment: false,
                 on_update_current_timestamp: false,
                 generated: false,
@@ -99,18 +78,19 @@ TableDef {
             comment: "",
         },
         ColumnInfo {
-            name: "last_name",
-            col_type: Varchar(
-                StringAttr {
-                    length: Some(
-                        45,
+            name: "film_id",
+            col_type: SmallInt(
+                NumericAttr {
+                    maximum: None,
+                    decimal: None,
+                    unsigned: Some(
+                        true,
                     ),
-                    charset_name: None,
-                    collation_name: None,
+                    zero_fill: None,
                 },
             ),
             null: false,
-            key: Multiple,
+            key: Primary,
             default: None,
             extra: ColumnExtra {
                 auto_increment: false,
@@ -148,9 +128,9 @@ TableDef {
     indexes: [
         IndexInfo {
             unique: false,
-            name: "idx_actor_last_name",
+            name: "idx_fk_film_id",
             columns: [
-                "last_name",
+                "film_id",
             ],
             order: Ascending,
             sub_part: None,
@@ -164,6 +144,7 @@ TableDef {
             name: "PRIMARY",
             columns: [
                 "actor_id",
+                "film_id",
             ],
             order: Ascending,
             sub_part: None,
@@ -173,6 +154,31 @@ TableDef {
             functional: false,
         },
     ],
-    foreign_keys: [],
+    foreign_keys: [
+        ForeignKeyInfo {
+            name: "fk_film_actor_actor",
+            columns: [
+                "actor_id",
+            ],
+            referenced_table: "actor",
+            referenced_columns: [
+                "actor_id",
+            ],
+            on_update: Cascade,
+            on_delete: Restrict,
+        },
+        ForeignKeyInfo {
+            name: "fk_film_actor_film",
+            columns: [
+                "film_id",
+            ],
+            referenced_table: "film",
+            referenced_columns: [
+                "film_id",
+            ],
+            on_update: Cascade,
+            on_delete: Restrict,
+        },
+    ],
 },
 ```
