@@ -93,11 +93,8 @@ pub fn derive_iden(input: TokenStream) -> TokenStream {
     let variant = variants
         .iter()
         .filter(|v| {
-            !get_catch_attr(&v.attrs).is_some() &&
-            match v.fields {
-                Fields::Unit => true,
-                _ => false, // ignore non unit tuple variant
-            }
+            get_catch_attr(&v.attrs).is_none() &&
+            matches!(v.fields, Fields::Unit)
         })
         .map(|Variant { ident, fields, .. }| {
             match fields {
