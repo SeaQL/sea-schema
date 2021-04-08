@@ -127,7 +127,7 @@ fn parse_numeric_attributes(parser: &mut Parser, mut ctype: ColumnType) -> Colum
         ctype.get_numeric_attr_mut().zero_fill = Some(true);
     }
 
-    return ctype;
+    ctype
 }
 
 fn parse_time_attributes(parser: &mut Parser, mut ctype: ColumnType) -> ColumnType {
@@ -140,7 +140,7 @@ fn parse_time_attributes(parser: &mut Parser, mut ctype: ColumnType) -> ColumnTy
         parser.next_if_punctuation(")");
     }
 
-    return ctype;
+    ctype
 }
 
 fn parse_string_attributes(parser: &mut Parser, mut ctype: ColumnType) -> ColumnType {
@@ -156,16 +156,15 @@ fn parse_string_attributes(parser: &mut Parser, mut ctype: ColumnType) -> Column
 
     parse_charset_collate(parser, ctype.get_string_attr_mut());
 
-    return ctype;
+    ctype
 }
 
 fn parse_charset_collate(parser: &mut Parser, str_attr: &mut StringAttr) {
 
-    if parser.next_if_unquoted("character") {
-        if parser.next_if_unquoted("set") {
-            if let Some(word) = parser.next_if_unquoted_any() {
-                str_attr.charset_name = Some(word.as_str().to_owned());
-            }
+    if  parser.next_if_unquoted("character") &&
+        parser.next_if_unquoted("set") {
+        if let Some(word) = parser.next_if_unquoted_any() {
+            str_attr.charset_name = Some(word.as_str().to_owned());
         }
     }
 
@@ -186,7 +185,7 @@ fn parse_blob_attributes(parser: &mut Parser, mut ctype: ColumnType) -> ColumnTy
         parser.next_if_punctuation(")");
     }
 
-    return ctype;
+    ctype
 }
 
 fn parse_enum_definition(parser: &mut Parser, mut ctype: ColumnType) -> ColumnType {
@@ -206,7 +205,7 @@ fn parse_enum_definition(parser: &mut Parser, mut ctype: ColumnType) -> ColumnTy
 
     parse_charset_collate(parser, &mut ctype.get_enum_def_mut().attr);
 
-    return ctype;
+    ctype
 }
 
 fn parse_set_definition(parser: &mut Parser, mut ctype: ColumnType) -> ColumnType {
@@ -226,7 +225,7 @@ fn parse_set_definition(parser: &mut Parser, mut ctype: ColumnType) -> ColumnTyp
 
     parse_charset_collate(parser, &mut ctype.get_set_def_mut().attr);
 
-    return ctype;
+    ctype
 }
 
 fn parse_geometry_attributes(parser: &mut Parser, mut ctype: ColumnType) -> ColumnType {
@@ -239,14 +238,11 @@ fn parse_geometry_attributes(parser: &mut Parser, mut ctype: ColumnType) -> Colu
         parser.next_if_punctuation(")");
     }
 
-    return ctype;
+    ctype
 }
 
 pub fn parse_column_null(string: &str) -> bool {
-    match string.to_uppercase().as_str() {
-        "YES" => true,
-        _ => false,
-    }
+    matches!(string.to_uppercase().as_str(), "YES")
 }
 
 pub fn parse_column_key(string: &str) -> ColumnKey {
@@ -287,20 +283,16 @@ pub fn parse_column_extra(parser: &mut Parser) -> ColumnExtra {
     while parser.curr().is_some() {
         // order does not matter
         if parser.next_if_unquoted("on") {
-            if parser.next_if_unquoted("update") {
-                if parser.next_if_unquoted("current_timestamp") {
-                    extra.on_update_current_timestamp = true;
-                }
+            if  parser.next_if_unquoted("update") &&
+                parser.next_if_unquoted("current_timestamp") {
+                extra.on_update_current_timestamp = true;
             }
         } else if parser.next_if_unquoted("auto_increment") {
             extra.auto_increment = true;
         } else if parser.next_if_unquoted("default_generated") {
             extra.default_generated = true;
-        } else if parser.next_if_unquoted("stored") {
-            if parser.next_if_unquoted("generated") {
-                extra.generated = true;
-            }
-        } else if parser.next_if_unquoted("virtual") {
+        } else if parser.next_if_unquoted("stored") ||
+                  parser.next_if_unquoted("virtual") {
             if parser.next_if_unquoted("generated") {
                 extra.generated = true;
             }

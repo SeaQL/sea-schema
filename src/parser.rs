@@ -27,6 +27,7 @@ impl Parser {
         self.last.as_ref()
     }
 
+    #[allow(clippy::should_implement_trait)]
     pub fn next(&mut self) -> Option<&Token> {
         if self.curr.is_some() {
             self.last = std::mem::take(&mut self.curr);

@@ -13,7 +13,7 @@ pub fn parse_version_query_result(result: VersionQueryResult) -> SystemInfo {
 
 pub fn parse_version_string(string: &str) -> SystemInfo {
     let mut system = SystemInfo::default();
-    for (i, part) in string.split("-").enumerate() {
+    for (i, part) in string.split('-').enumerate() {
         if i == 0 {
             system.version = parse_version_number(part);
         } else if i == 1 {
@@ -28,6 +28,7 @@ pub fn parse_version_string(string: &str) -> SystemInfo {
 pub fn parse_version_number(string: &str) -> u32 {
     let mut number: u32 = 0;
     let numbers: Vec<&str> = string.split('.').collect();
+    #[allow(clippy::len_zero)]
     if numbers.len() > 0 {
         number += numbers[0].parse::<u32>().unwrap() * 10000
     }
