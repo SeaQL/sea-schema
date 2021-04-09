@@ -1,7 +1,8 @@
 use crate as sea_schema;
 
-#[derive(Clone, Debug, PartialEq, sea_query::Iden, sea_schema_derive::Name)]
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/charset-charsets.html
+#[derive(Clone, Debug, PartialEq, sea_query::Iden, sea_schema_derive::Name)]
+#[catch = "string_to_unknown"]
 pub enum CharSet {
     #[iden = "armscii8"] Armscii8,
     #[iden = "ascii"] Ascii,
@@ -47,8 +48,9 @@ pub enum CharSet {
     #[method = "unknown_to_string"] Unknown(String),
 }
 
+/// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-collation-character-set-applicability-table.html
 #[derive(Clone, Debug, PartialEq, sea_query::Iden, sea_schema_derive::Name)]
-/// This list is not exhaustive
+#[catch = "string_to_unknown"]
 pub enum Collation {
     #[iden = "armscii8_general_ci"] Armscii8GeneralCi,
     #[iden = "ascii_general_ci"] AsciiGeneralCi,
@@ -242,6 +244,10 @@ impl CharSet {
             _ => panic!("not Unknown"),
         }
     }
+
+    pub fn string_to_unknown(string: &str) -> Option<Self> {
+        Some(Self::Unknown(string.to_string()))
+    }
 }
 
 impl Collation {
@@ -250,5 +256,9 @@ impl Collation {
             Self::Unknown(custom) => custom,
             _ => panic!("not Unknown"),
         }
+    }
+
+    pub fn string_to_unknown(string: &str) -> Option<Self> {
+        Some(Self::Unknown(string.to_string()))
     }
 }
