@@ -7,7 +7,7 @@ pub struct ConstraintQueryResultParser {
     results: Box<dyn Iterator<Item = ConstraintQueryResult>>,
 }
 
-/// ConstraintQueryResult must be sorted by (TableName, IndexName, SeqInIndex)
+/// ConstraintQueryResult must be sorted by (TableName, ConstraintName, OrdinalPosition)
 pub fn parse_constraint_query_results(results: Box<dyn Iterator<Item = ConstraintQueryResult>>) -> impl Iterator<Item = ForeignKeyInfo> {
     ConstraintQueryResultParser {
         curr: None,
