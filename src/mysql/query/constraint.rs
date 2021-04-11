@@ -1,7 +1,6 @@
 use std::rc::Rc;
-#[cfg(feature="sqlx-mysql")]
-use sqlx::{Row, mysql::MySqlRow};
 use sea_query::{Expr, Iden, Order, Query, SelectStatement};
+use crate::sqlx_types::{Row, mysql::MySqlRow};
 use super::{InformationSchema, SchemaQueryBuilder};
 
 #[derive(Debug, sea_query::Iden)]
@@ -32,7 +31,7 @@ pub enum ReferentialConstraintsFields {
     ReferencedTableName,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct ConstraintQueryResult {
     pub constraint_name: String,
     pub column_name: String,
@@ -87,5 +86,12 @@ impl From<&MySqlRow> for ConstraintQueryResult {
             update_rule: row.get(4),
             delete_rule: row.get(5),
         }
+    }
+}
+
+#[cfg(not(feature="sqlx-mysql"))]
+impl From<&MySqlRow> for ConstraintQueryResult {
+    fn from(row: &MySqlRow) -> Self {
+        Self::default()
     }
 }

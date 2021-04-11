@@ -1,7 +1,6 @@
 use std::rc::Rc;
-#[cfg(feature="sqlx-mysql")]
-use sqlx::{Row, mysql::MySqlRow};
 use sea_query::{Expr, Iden, Order, Query, SelectStatement};
+use crate::sqlx_types::{Row, mysql::MySqlRow};
 use super::{InformationSchema, SchemaQueryBuilder};
 
 #[derive(Debug, sea_query::Iden)]
@@ -31,7 +30,7 @@ pub enum ColumnFields {
     SrsId,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct ColumnQueryResult {
     pub column_name: String,
     pub column_type: String,
@@ -77,5 +76,12 @@ impl From<&MySqlRow> for ColumnQueryResult {
             generation_expression: row.get(6),
             column_comment: row.get(7),
         }
+    }
+}
+
+#[cfg(not(feature="sqlx-mysql"))]
+impl From<&MySqlRow> for ColumnQueryResult {
+    fn from(row: &MySqlRow) -> Self {
+        Self::default()
     }
 }

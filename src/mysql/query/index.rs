@@ -1,7 +1,6 @@
 use std::rc::Rc;
-#[cfg(feature="sqlx-mysql")]
-use sqlx::{Row, mysql::MySqlRow};
 use sea_query::{Expr, Iden, Order, Query, Value, SelectStatement};
+use crate::sqlx_types::{Row, mysql::MySqlRow};
 use super::{InformationSchema, SchemaQueryBuilder};
 
 #[derive(Debug, sea_query::Iden)]
@@ -27,7 +26,7 @@ pub enum StatisticsFields {
     Expression,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct IndexQueryResult {
     pub non_unique: i32,
     pub index_name: String,
@@ -81,5 +80,12 @@ impl From<&MySqlRow> for IndexQueryResult {
             index_comment: row.get(7),
             expression: row.get(8),
         }
+    }
+}
+
+#[cfg(not(feature="sqlx-mysql"))]
+impl From<&MySqlRow> for IndexQueryResult {
+    fn from(row: &MySqlRow) -> Self {
+        Self::default()
     }
 }

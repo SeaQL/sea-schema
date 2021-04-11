@@ -1,3 +1,5 @@
+//! To query & parse MySQL's INFORMATION_SCHEMA and construct a `Schema`
+
 use std::rc::Rc;
 use futures::future;
 use sea_query::{Alias, Iden, IntoIden};
@@ -7,8 +9,7 @@ use crate::mysql::def::*;
 use crate::debug_print;
 
 mod executor;
-
-use executor::*;
+pub use executor::*;
 
 pub struct SchemaDiscovery {
     pub query: SchemaQueryBuilder,
