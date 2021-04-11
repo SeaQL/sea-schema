@@ -26,7 +26,7 @@ support schema conversion between MySQL and Postgres.
 
 ## Example
 
-Take the MySQL Sakila Sample Database as example, given the following table:
+Take the MySQL [Sakila Sample Database](tests/dataset/sakila-schema.sql) as example, given the following table:
 
 ```SQL
 CREATE TABLE film_actor (
@@ -41,7 +41,7 @@ CREATE TABLE film_actor (
 
 ```
 
-The discovered schema by querying INFORMATION_SCHEMA results in:
+The discovered schema by querying INFORMATION_SCHEMA [results](tests/mysql_sakila/schema.rs) in:
 
 ```rust
 TableDef {
@@ -49,6 +49,7 @@ TableDef {
         name: "film_actor",
         engine: InnoDb,
         auto_increment: None,
+        char_set: Utf8Mb4,
         collation: Utf8Mb40900AiCi,
         comment: "",
     },
