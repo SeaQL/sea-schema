@@ -1,4 +1,4 @@
-//! To query & parse MySQL's INFORMATION_SCHEMA and construct a `Schema`
+//! To query & parse MySQL's INFORMATION_SCHEMA and construct a [`Schema`]
 
 use std::rc::Rc;
 use futures::future;

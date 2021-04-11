@@ -1,3 +1,5 @@
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
 pub mod mysql;
 pub(crate) mod sqlx_types;
 pub mod name;
