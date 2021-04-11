@@ -1,6 +1,6 @@
 use async_std::task;
 use sea_query::Alias;
-use sea_schema::mysql::schema::SchemaDiscovery;
+use sea_schema::mysql::discovery::SchemaDiscovery;
 use sqlx::MySqlPool;
 
 fn main() {

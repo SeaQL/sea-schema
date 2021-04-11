@@ -4,7 +4,6 @@ use sea_query::{Alias, Iden, IntoIden};
 use crate::mysql::query::{SchemaQueryBuilder, ColumnQueryResult, ConstraintQueryResult, IndexQueryResult, TableQueryResult, VersionQueryResult};
 use crate::mysql::parser::{parse_constraint_query_results, parse_index_query_results};
 use crate::mysql::def::*;
-use crate::mysql::schema::*;
 use crate::debug_print;
 
 mod executor;
