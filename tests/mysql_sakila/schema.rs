@@ -12,6 +12,7 @@ Schema {
                 auto_increment: Some(
                     200,
                 ),
+                char_set: Utf8Mb4,
                 collation: Utf8Mb40900AiCi,
                 comment: "",
             },
@@ -147,6 +148,7 @@ Schema {
                 auto_increment: Some(
                     605,
                 ),
+                char_set: Utf8Mb4,
                 collation: Utf8Mb40900AiCi,
                 comment: "",
             },
@@ -422,6 +424,7 @@ Schema {
                 auto_increment: Some(
                     16,
                 ),
+                char_set: Utf8Mb4,
                 collation: Utf8Mb40900AiCi,
                 comment: "",
             },
@@ -521,6 +524,7 @@ Schema {
                 auto_increment: Some(
                     600,
                 ),
+                char_set: Utf8Mb4,
                 collation: Utf8Mb40900AiCi,
                 comment: "",
             },
@@ -670,6 +674,7 @@ Schema {
                 auto_increment: Some(
                     109,
                 ),
+                char_set: Utf8Mb4,
                 collation: Utf8Mb40900AiCi,
                 comment: "",
             },
@@ -769,6 +774,7 @@ Schema {
                 auto_increment: Some(
                     599,
                 ),
+                char_set: Utf8Mb4,
                 collation: Utf8Mb40900AiCi,
                 comment: "",
             },
@@ -1073,6 +1079,7 @@ Schema {
                 auto_increment: Some(
                     1000,
                 ),
+                char_set: Utf8Mb4,
                 collation: Utf8Mb40900AiCi,
                 comment: "",
             },
@@ -1493,6 +1500,7 @@ Schema {
                 name: "film_actor",
                 engine: InnoDb,
                 auto_increment: None,
+                char_set: Utf8Mb4,
                 collation: Utf8Mb40900AiCi,
                 comment: "",
             },
@@ -1630,6 +1638,7 @@ Schema {
                 name: "film_category",
                 engine: InnoDb,
                 auto_increment: None,
+                char_set: Utf8Mb4,
                 collation: Utf8Mb40900AiCi,
                 comment: "",
             },
@@ -1767,6 +1776,7 @@ Schema {
                 name: "film_text",
                 engine: InnoDb,
                 auto_increment: None,
+                char_set: Utf8Mb4,
                 collation: Utf8Mb40900AiCi,
                 comment: "",
             },
@@ -1876,6 +1886,7 @@ Schema {
                 auto_increment: Some(
                     4581,
                 ),
+                char_set: Utf8Mb4,
                 collation: Utf8Mb40900AiCi,
                 comment: "",
             },
@@ -2052,6 +2063,7 @@ Schema {
                 auto_increment: Some(
                     6,
                 ),
+                char_set: Utf8Mb4,
                 collation: Utf8Mb40900AiCi,
                 comment: "",
             },
@@ -2151,6 +2163,7 @@ Schema {
                 auto_increment: Some(
                     16049,
                 ),
+                char_set: Utf8Mb4,
                 collation: Utf8Mb40900AiCi,
                 comment: "",
             },
@@ -2418,6 +2431,7 @@ Schema {
                 auto_increment: Some(
                     16049,
                 ),
+                char_set: Utf8Mb4,
                 collation: Utf8Mb40900AiCi,
                 comment: "",
             },
@@ -2693,6 +2707,7 @@ Schema {
                 auto_increment: Some(
                     2,
                 ),
+                char_set: Utf8Mb4,
                 collation: Utf8Mb40900AiCi,
                 comment: "",
             },
@@ -3030,6 +3045,7 @@ Schema {
                 auto_increment: Some(
                     2,
                 ),
+                char_set: Utf8Mb4,
                 collation: Utf8Mb40900AiCi,
                 comment: "",
             },

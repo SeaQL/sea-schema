@@ -9,11 +9,14 @@ impl TableQueryResult {
 }
 
 pub fn parse_table_query_result(result: TableQueryResult) -> TableInfo {
+    let collation = parse_table_collation(result.table_collation.as_str());
+
     TableInfo {
         name: result.table_name,
         engine: parse_table_engine(result.engine.as_str()),
         auto_increment: result.auto_increment,
-        collation: parse_table_collation(result.table_collation.as_str()),
+        char_set: collation.char_set(),
+        collation,
         comment: result.table_comment,
     }
 }
