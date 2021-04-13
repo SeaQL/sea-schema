@@ -25,6 +25,6 @@ impl Executor {
         debug_print!("{}, {:?}", sql, values);
         debug_print!();
 
-        Vec::new()
+        panic!("This is a mock Executor");
     }
 }
