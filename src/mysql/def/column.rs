@@ -1,6 +1,9 @@
+#[cfg(feature="with-serde")] use serde::{Serialize, Deserialize};
+
 use super::Type;
 
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct ColumnInfo {
     /// The name of the column
     pub name: String,
@@ -23,6 +26,7 @@ pub struct ColumnInfo {
 pub type ColumnType = Type;
 
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub enum ColumnKey {
     /// This column is not the first column of any key
     NotKey,
@@ -35,12 +39,14 @@ pub enum ColumnKey {
 }
 
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct ColumnDefault {
     /// default value expression
     pub expr: String,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct ColumnExtra {
     /// Auto increment
     pub auto_increment: bool,

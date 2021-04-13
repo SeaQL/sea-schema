@@ -15,5 +15,7 @@ fn main() {
         schema_discovery.discover().await
     });
 
+    // println!("{}", serde_json::to_string_pretty(&schema).unwrap());
+
     println!("{:#?}", schema);
 }

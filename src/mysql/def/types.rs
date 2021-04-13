@@ -1,4 +1,7 @@
+#[cfg(feature="with-serde")] use serde::{Serialize, Deserialize};
+
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 /// All built-in types of MySQL, excluding synonyms
 pub enum Type {
     Serial(NumericAttr),
@@ -46,6 +49,7 @@ pub enum Type {
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct NumericAttr {
     /// For integer types, M is the maximum display width (deprecated).
     /// For decimal types, M is the total number of digits.
@@ -59,11 +63,13 @@ pub struct NumericAttr {
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct TimeAttr {
     pub fractional: Option<u32>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct StringAttr {
     pub length: Option<u32>,
     pub charset_name: Option<String>,
@@ -71,23 +77,27 @@ pub struct StringAttr {
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct BlobAttr {
     pub length: Option<u32>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct EnumDef {
     pub values: Vec<String>,
     pub attr: StringAttr,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct SetDef {
     pub members: Vec<String>,
     pub attr: StringAttr,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct GeometryAttr {
     pub srid: Option<u32>,
 }

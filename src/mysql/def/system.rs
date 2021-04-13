@@ -1,4 +1,7 @@
+#[cfg(feature="with-serde")] use serde::{Serialize, Deserialize};
+
 #[derive(Clone, Debug, Default, PartialEq)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct SystemInfo {
     /// The version number converted to integer using the following formula:
     /// major_version * 10000 + minor_version * 100 + sub_version
@@ -32,15 +35,13 @@ mod tests {
 
     #[test]
     fn test_0() {
-        let mut system = SystemInfo::default();
-        system.version = 50110;
+        let system = SystemInfo { version: 50110, ..Default::default() };
         assert_eq!(system.version_string(), "5.1.10".to_owned());
     }
 
     #[test]
     fn test_1() {
-        let mut system = SystemInfo::default();
-        system.version = 80023;
+        let system = SystemInfo { version: 80023, ..Default::default() };
         assert_eq!(system.version_string(), "8.0.23".to_owned());
     }
 }

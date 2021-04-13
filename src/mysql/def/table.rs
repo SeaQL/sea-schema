@@ -1,6 +1,9 @@
+#[cfg(feature="with-serde")] use serde::{Serialize, Deserialize};
+
 use super::{CharSet, Collation, StorageEngine};
 
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct TableInfo {
     /// The name of the table
     pub name: String,

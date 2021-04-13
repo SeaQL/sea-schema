@@ -1,6 +1,9 @@
+#[cfg(feature="with-serde")] use serde::{Serialize, Deserialize};
+
 use crate as sea_schema;
 
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct IndexInfo {
     /// Does this index requires unique values
     pub unique: bool,
@@ -23,6 +26,7 @@ pub struct IndexInfo {
 }
 
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub enum IndexOrder {
     Ascending,
     Descending,
@@ -30,6 +34,7 @@ pub enum IndexOrder {
 }
 
 #[derive(Clone, Debug, PartialEq, sea_schema_derive::Name)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub enum IndexType {
     #[name = "BTREE"] BTree,
     #[name = "FULLTEXT"] FullText,
