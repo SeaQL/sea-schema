@@ -19,10 +19,21 @@
 ## Introduction
 
 SeaSchema is a library to help you manage database schema. It provides data structures for 
-representing schema definition and query helpers to discover such schema from INFORMATION_SCHEMA.
+representing schema definitions and tools to discover and manipulate them.
 
 For now, MySQL support is almost done and Postgres support is in progress. At the end, we'd want to 
 support schema conversion between MySQL and Postgres.
+
+## Architecture
+
+You can use SeaSchema for many purposes, so the crate is divided into 4 features:
+
++ `def`: type definitions
++ `query`: query builder for querying information_schema
++ `parser`: for parsing information_schema (parsing sqldump is WIP)
++ `discovery`: query, parse and construct a `Schema`
+
+JSON de/serialize on type definitions can be enabled with `with-serde`.
 
 ## Example
 
@@ -41,7 +52,7 @@ CREATE TABLE film_actor (
 
 ```
 
-The discovered schema by querying INFORMATION_SCHEMA [results](tests/mysql_sakila/schema.rs) in:
+The [discovered schema result](tests/mysql_sakila/schema.rs):
 
 ```rust
 TableDef {
