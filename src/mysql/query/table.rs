@@ -1,7 +1,7 @@
 use std::rc::Rc;
 use sea_query::{Expr, Iden, Order, Query, SelectStatement};
 use crate::sqlx_types::{Row, mysql::MySqlRow};
-use super::{InformationSchema, SchemaQueryBuilder};
+use super::{InformationSchema, SchemaQueryBuilder, CharacterSetFields};
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-tables-table.html
@@ -43,6 +43,7 @@ pub struct TableQueryResult {
     pub table_name: String,
     pub engine: String,
     pub auto_increment: Option<u64>,
+    pub table_char_set: String,
     pub table_collation: String,
     pub table_comment: String,
     pub create_options: String,
@@ -50,6 +51,7 @@ pub struct TableQueryResult {
 
 impl SchemaQueryBuilder {
     pub fn query_tables(&self, schema: Rc<dyn Iden>) -> SelectStatement {
+        type Schema = InformationSchema;
         Query::select()
             .columns(vec![
                 TablesFields::TableName,
@@ -59,7 +61,13 @@ impl SchemaQueryBuilder {
                 TablesFields::TableComment,
                 TablesFields::CreateOptions,
             ])
-            .from((InformationSchema::Schema, InformationSchema::Tables))
+            .column((Schema::CollationCharacterSet, CharacterSetFields::CharacterSetName))
+            .from((Schema::Schema, Schema::Tables))
+            .left_join(
+                (Schema::Schema, Schema::CollationCharacterSet),
+                Expr::tbl(Schema::CollationCharacterSet, CharacterSetFields::CollationName)
+                    .equals(Schema::Tables, TablesFields::TableCollation)
+            )
             .and_where(Expr::col(TablesFields::TableSchema).eq(schema.to_string()))
             .and_where(Expr::col(TablesFields::TableType).eq(TableType::BaseTable.to_string()))
             .order_by(TablesFields::TableName, Order::Asc)
@@ -77,6 +85,7 @@ impl From<&MySqlRow> for TableQueryResult {
             table_collation: row.get(3),
             table_comment: row.get(4),
             create_options: row.get(5),
+            table_char_set: row.get(6),
         }
     }
 }

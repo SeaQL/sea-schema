@@ -9,22 +9,12 @@ impl TableQueryResult {
 }
 
 pub fn parse_table_query_result(result: TableQueryResult) -> TableInfo {
-    let collation = parse_table_collation(result.table_collation.as_str());
-
     TableInfo {
         name: result.table_name,
-        engine: parse_table_engine(result.engine.as_str()),
+        engine: StorageEngine::from_str(result.engine.as_str()).unwrap(),
         auto_increment: result.auto_increment,
-        char_set: collation.char_set(),
-        collation,
+        char_set: CharSet::from_str(result.table_char_set.as_str()).unwrap(),
+        collation: Collation::from_str(result.table_collation.as_str()).unwrap(),
         comment: result.table_comment,
     }
-}
-
-pub fn parse_table_engine(string: &str) -> StorageEngine {
-    StorageEngine::from_str(string).unwrap()
-}
-
-pub fn parse_table_collation(string: &str) -> Collation {
-    Collation::from_str(string).unwrap()
 }

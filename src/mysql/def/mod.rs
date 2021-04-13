@@ -1,6 +1,6 @@
 //! To represent MySQL's schema definitions
 
-mod charset;
+mod char_set;
 mod column;
 mod foreign_key;
 mod index;
@@ -10,7 +10,7 @@ mod system;
 mod table;
 mod types;
 
-pub use charset::*;
+pub use char_set::*;
 pub use column::*;
 pub use foreign_key::*;
 pub use index::*;

@@ -47,9 +47,14 @@ pub enum Type {
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct NumericAttr {
+    /// For integer types, M is the maximum display width (deprecated).
+    /// For decimal types, M is the total number of digits.
     pub maximum: Option<u32>,
+    /// Number of decimal digits.
     pub decimal: Option<u32>,
+    /// Whether this number is unsigned
     pub unsigned: Option<bool>,
+    /// Deprecated. Prefix 0 up to Z number of digits.
     pub zero_fill: Option<bool>,
 }
 

@@ -27,14 +27,14 @@ path = "src/lib.rs"
 [dependencies]
 futures = { version = "0.3", optional = true }
 sea-schema-derive = { version = "0.1.0", path = "sea-schema-derive" }
-sea-query = { version = "0.9.1" }
+sea-query = { version = "0.9.3" }
 sqlx = { version = "0.5", optional = true }
 
 [features]
-debug_print = []
+debug-print = []
 default = [ "discovery" ]
 def = [ ]
-discovery = [ "futures", "def", "parser", "query" ]
+discovery = [ "futures", "parser" ]
 parser = [ "def", "query" ]
 query = [ ]
 sqlx-dep = [ "sqlx" ]

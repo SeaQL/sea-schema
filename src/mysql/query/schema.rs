@@ -23,4 +23,6 @@ pub enum InformationSchema {
     Statistics,
     KeyColumnUsage,
     ReferentialConstraints,
+    #[iden = "collation_character_set_applicability"]
+    CollationCharacterSet,
 }
