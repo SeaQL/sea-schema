@@ -13,3 +13,7 @@ pub mod parser;
 #[cfg(feature="query")]
 #[cfg_attr(docsrs, doc(cfg(feature = "query")))]
 pub mod query;
+
+#[cfg(feature="writer")]
+#[cfg_attr(docsrs, doc(cfg(feature = "writer")))]
+pub mod writer;

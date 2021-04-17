@@ -6,10 +6,10 @@ use super::{CharSet, Collation};
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 /// All built-in types of MySQL, excluding synonyms
 pub enum Type {
-    Serial(NumericAttr),
+    Serial,
     Bit(NumericAttr),
     TinyInt(NumericAttr),
-    Bool(NumericAttr),
+    Bool,
     SmallInt(NumericAttr),
     MediumInt(NumericAttr),
     Int(NumericAttr),
@@ -107,10 +107,10 @@ pub struct GeometryAttr {
 impl Type {
     pub fn is_numeric(&self) -> bool {
         matches!(self,
-            Type::Serial(_) |
+            Type::Serial |
             Type::Bit(_) |
             Type::TinyInt(_) |
-            Type::Bool(_) |
+            Type::Bool |
             Type::SmallInt(_) |
             Type::MediumInt(_) |
             Type::Int(_) |
@@ -205,10 +205,10 @@ impl Type {
 
     pub fn get_numeric_attr_mut(&mut self) -> &mut NumericAttr {
         match self {
-            Type::Serial(attr) => attr,
+            Type::Serial => panic!("SERIAL has no attr"),
             Type::Bit(attr) => attr,
             Type::TinyInt(attr) => attr,
-            Type::Bool(attr) => attr,
+            Type::Bool => panic!("BOOL has no attr"),
             Type::SmallInt(attr) => attr,
             Type::MediumInt(attr) => attr,
             Type::Int(attr) => attr,
@@ -277,6 +277,79 @@ impl Type {
             Type::MultiPolygon(attr) => attr,
             Type::GeometryCollection(attr) => attr,
             _ => panic!("type error"),
+        }
+    }
+}
+
+impl NumericAttr {
+    pub fn m(m: u32) -> Self {
+        Self {
+            maximum: Some(m),
+            decimal: None,
+            unsigned: None,
+            zero_fill: None,
+        }
+    }
+
+    pub fn m_d(m: u32, d: u32) -> Self {
+        Self {
+            maximum: Some(m),
+            decimal: Some(d),
+            unsigned: None,
+            zero_fill: None,
+        }
+    }
+
+    pub fn unsigned(&mut self) -> &mut Self {
+        self.unsigned = Some(true);
+        self
+    }
+
+    pub fn zero_fill(&mut self) -> &mut Self {
+        self.zero_fill = Some(true);
+        self
+    }
+
+    pub fn take(&self) -> Self {
+        Self {
+            maximum: self.maximum,
+            decimal: self.decimal,
+            unsigned: self.unsigned,
+            zero_fill: self.zero_fill,
+        }
+    }
+}
+
+impl TimeAttr {
+    pub fn fsp(fsp: u32) -> Self {
+        Self {
+            fractional: Some(fsp),
+        }
+    }
+}
+
+impl StringAttr {
+    pub fn length(l: u32) -> Self {
+        Self {
+            length: Some(l),
+            charset: None,
+            collation: None,
+        }
+    }
+}
+
+impl BlobAttr {
+    pub fn length(l: u32) -> Self {
+        Self {
+            length: Some(l),
+        }
+    }
+}
+
+impl GeometryAttr {
+    pub fn srid(id: u32) -> Self {
+        Self {
+            srid: Some(id),
         }
     }
 }

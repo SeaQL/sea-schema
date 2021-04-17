@@ -55,15 +55,18 @@ pub fn parse_column_type(parser: &mut Parser) -> ColumnType {
 
 pub fn parse_type_name(type_name: &str) -> Type {
     match type_name.to_lowercase().as_str() {
-        "serial" => Type::Serial(NumericAttr::default()),
+        "serial" => Type::Serial,
         "bit" => Type::Bit(NumericAttr::default()),
         "tinyint" => Type::TinyInt(NumericAttr::default()),
-        "bool" => Type::Bool(NumericAttr::default()),
+        "bool" => Type::Bool,
         "smallint" => Type::SmallInt(NumericAttr::default()),
         "mediumint" => Type::MediumInt(NumericAttr::default()),
         "int" => Type::Int(NumericAttr::default()),
+        "integer" => Type::Int(NumericAttr::default()),
         "bigint" => Type::BigInt(NumericAttr::default()),
         "decimal" => Type::Decimal(NumericAttr::default()),
+        "dec" => Type::Decimal(NumericAttr::default()),
+        "fixed" => Type::Decimal(NumericAttr::default()),
         "float" => Type::Float(NumericAttr::default()),
         "double" => Type::Double(NumericAttr::default()),
         "date" => Type::Date,

@@ -33,11 +33,12 @@ sqlx = { version = "^0", optional = true }
 
 [features]
 debug-print = []
-default = [ "discovery" ]
+default = [ "discovery", "writer" ]
 def = [ ]
 discovery = [ "futures", "parser" ]
 parser = [ "def", "query" ]
 query = [ ]
+writer = [ ]
 sqlx-dep = [ "sqlx" ]
 sqlx-mysql = [ "futures", "sqlx-dep", "sea-query/sqlx-mysql", "sqlx/mysql" ]
 sqlx-postgres = [ "futures", "sqlx-dep", "sea-query/sqlx-postgres", "sqlx/postgres" ]
