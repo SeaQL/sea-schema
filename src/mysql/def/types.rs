@@ -1,5 +1,7 @@
 #[cfg(feature="with-serde")] use serde::{Serialize, Deserialize};
 
+use super::{CharSet, Collation};
+
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 /// All built-in types of MySQL, excluding synonyms
@@ -72,8 +74,8 @@ pub struct TimeAttr {
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct StringAttr {
     pub length: Option<u32>,
-    pub charset_name: Option<String>,
-    pub collation_name: Option<String>,
+    pub charset: Option<CharSet>,
+    pub collation: Option<Collation>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]

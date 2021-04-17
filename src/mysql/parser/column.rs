@@ -1,5 +1,5 @@
 use sea_query::unescape_string;
-use crate::parser::Parser;
+use crate::{Name, parser::Parser};
 use crate::mysql::def::*;
 use crate::mysql::query::ColumnQueryResult;
 
@@ -164,13 +164,13 @@ fn parse_charset_collate(parser: &mut Parser, str_attr: &mut StringAttr) {
     if  parser.next_if_unquoted("character") &&
         parser.next_if_unquoted("set") {
         if let Some(word) = parser.next_if_unquoted_any() {
-            str_attr.charset_name = Some(word.as_str().to_owned());
+            str_attr.charset = CharSet::from_str(word.as_str());
         }
     }
 
     if parser.next_if_unquoted("collate") {
         if let Some(word) = parser.next_if_unquoted_any() {
-            str_attr.collation_name = Some(word.as_str().to_owned());
+            str_attr.collation = Collation::from_str(word.as_str());
         }
     }
 }
@@ -513,8 +513,8 @@ mod tests {
             parse_column_type(&mut Parser::new("varchar(20)")),
             ColumnType::Varchar(StringAttr {
                 length: Some(20),
-                charset_name: None,
-                collation_name: None,
+                charset: None,
+                collation: None,
             })
         );
     }
@@ -525,8 +525,8 @@ mod tests {
             parse_column_type(&mut Parser::new("TEXT")),
             ColumnType::Text(StringAttr {
                 length: None,
-                charset_name: None,
-                collation_name: None,
+                charset: None,
+                collation: None,
             })
         );
     }
@@ -537,8 +537,8 @@ mod tests {
             parse_column_type(&mut Parser::new("TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin")),
             ColumnType::Text(StringAttr {
                 length: None,
-                charset_name: Some("utf8mb4".to_owned()),
-                collation_name: Some("utf8mb4_bin".to_owned()),
+                charset: Some(CharSet::Utf8Mb4),
+                collation: Some(Collation::Utf8Mb4Bin),
             })
         );
     }
@@ -549,8 +549,8 @@ mod tests {
             parse_column_type(&mut Parser::new("TEXT CHARACTER SET latin1")),
             ColumnType::Text(StringAttr {
                 length: None,
-                charset_name: Some("latin1".to_owned()),
-                collation_name: None,
+                charset: Some(CharSet::Latin1),
+                collation: None,
             })
         );
     }
@@ -589,8 +589,8 @@ mod tests {
                 ],
                 attr: StringAttr {
                     length: None,
-                    charset_name: None,
-                    collation_name: None,
+                    charset: None,
+                    collation: None,
                 }
             })
         );
@@ -609,8 +609,8 @@ mod tests {
                 ],
                 attr: StringAttr {
                     length: None,
-                    charset_name: None,
-                    collation_name: None,
+                    charset: None,
+                    collation: None,
                 }
             })
         );
