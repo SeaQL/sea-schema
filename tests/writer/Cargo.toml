@@ -1,5 +1,5 @@
 [package]
-name = "sea-schema-mysql-sakila-test"
+name = "sea-schema-writer-test"
 version = "0.1.0"
 edition = "2018"
 publish = false

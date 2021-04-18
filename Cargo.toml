@@ -1,7 +1,8 @@
 [workspace]
 members = [
     ".",
-    "tests/mysql_sakila",
+    "tests/discovery",
+    "tests/writer",
 ]
 
 [package]
