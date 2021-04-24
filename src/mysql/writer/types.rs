@@ -1,4 +1,4 @@
-use sea_query::Iden;
+use sea_query::{Iden, escape_string};
 use crate::mysql::def::{BlobAttr, EnumDef, GeometryAttr, NumericAttr, SetDef, StringAttr, TimeAttr, Type};
 
 impl Iden for Type {
@@ -107,7 +107,7 @@ impl Type {
             if i > 0 {
                 write!(s, ", ").unwrap();
             }
-            write!(s, "\'{}\'", sea_query::escape_string(val.as_str())).unwrap();
+            write!(s, "\'{}\'", escape_string(val.as_str())).unwrap();
         }
         write!(s, ")").unwrap();
         Self::write_string_attr(s, &def.attr);
@@ -119,7 +119,7 @@ impl Type {
             if i > 0 {
                 write!(s, ", ").unwrap();
             }
-            write!(s, "\'{}\'", sea_query::escape_string(val.as_str())).unwrap();
+            write!(s, "\'{}\'", escape_string(val.as_str())).unwrap();
         }
         write!(s, ")").unwrap();
         Self::write_string_attr(s, &def.attr);

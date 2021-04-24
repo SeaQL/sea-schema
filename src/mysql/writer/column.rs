@@ -1,5 +1,5 @@
 use std::fmt::Write;
-use sea_query::{Alias, ColumnDef};
+use sea_query::{Alias, ColumnDef, escape_string};
 use crate::mysql::def::ColumnInfo;
 
 impl ColumnInfo {
@@ -19,6 +19,11 @@ impl ColumnInfo {
         }
         if self.extra.on_update_current_timestamp {
             extras.push("ON UPDATE CURRENT_TIMESTAMP".to_owned());
+        }
+        if !self.comment.is_empty() {
+            let mut string = "".to_owned();
+            write!(&mut string, "COMMENT '{}'", escape_string(&self.comment)).unwrap();
+            extras.push(string);
         }
         if !extras.is_empty() {
             col_def = col_def.extra(extras.join(" "));

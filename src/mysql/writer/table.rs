@@ -58,7 +58,7 @@ mod tests {
                         default_generated: false,
                     },
                     expression: None,
-                    comment: "".to_owned(),
+                    comment: "Actor ID".to_owned(),
                 },
                 ColumnInfo {
                     name: "first_name".to_owned(),
@@ -135,18 +135,14 @@ mod tests {
         }.write(&mut statements);
 
         assert_eq!(
-            if let SchemaStatement::TableStatement(statement) = &statements[0] {
-                if let TableStatement::Create(statement) = statement {
-                    statement.to_string(MysqlQueryBuilder)
-                } else {
-                    "".to_owned()
-                }
+            if let SchemaStatement::TableStatement(TableStatement::Create(statement)) = &statements[0] {
+                statement.to_string(MysqlQueryBuilder)
             } else {
                 "".to_owned()
             },
             vec![
                 "CREATE TABLE `actor` (",
-                    "`actor_id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,",
+                    "`actor_id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Actor ID',",
                     "`first_name` VARCHAR(45) NOT NULL,",
                     "`last_name` VARCHAR(45) NOT NULL,",
                     "`last_update` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
