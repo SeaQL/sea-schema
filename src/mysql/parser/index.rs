@@ -22,9 +22,10 @@ impl Iterator for IndexQueryResultParser {
         while let Some(result) = self.results.next() {
             let mut index = parse_index_query_result(result);
             if let Some(curr) = &mut self.curr {
-                // group by `index.name`, consolidate to `index.columns`
+                // group by `index.name`, consolidate to `index.parts`
                 if curr.name == index.name {
-                    curr.columns.push(index.columns.pop().unwrap());
+                    curr.parts.push(index.parts.pop().unwrap());
+                    curr.functional |= index.functional;
                 } else {
                     let prev = self.curr.take();
                     self.curr = Some(index);
@@ -46,27 +47,30 @@ pub fn parse_index_query_result(mut result: IndexQueryResult) -> IndexInfo {
             _ => unimplemented!(),
         },
         name: result.index_name,
-        columns: vec![
-            if result.column_name.is_some() {
-                result.column_name.take().unwrap()
-            } else if result.expression.is_some() {
-                result.expression.take().unwrap()
-            } else {
-                panic!("index column error")
+        parts: vec![
+            IndexPart {
+                column: 
+                    if result.column_name.is_some() {
+                        result.column_name.take().unwrap()
+                    } else if result.expression.is_some() {
+                        result.expression.take().unwrap()
+                    } else {
+                        panic!("index column error")
+                    },
+                order: match result.collation {
+                    Some(collation) => match collation.as_str() {
+                        "A" => IndexOrder::Ascending,
+                        "D" => IndexOrder::Descending,
+                        _ => unimplemented!(),
+                    },
+                    None => IndexOrder::Unordered,
+                },
+                sub_part: match result.sub_part {
+                    Some(v) => Some(v as u32),
+                    None => None,
+                },
             }
         ],
-        order: match result.collation {
-            Some(collation) => match collation.as_str() {
-                "A" => IndexOrder::Ascending,
-                "D" => IndexOrder::Descending,
-                _ => unimplemented!(),
-            },
-            None => IndexOrder::Unordered,
-        },
-        sub_part: match result.sub_part {
-            Some(v) => Some(v as u32),
-            None => None,
-        },
         nullable: matches!(result.nullable.as_str(), "YES"),
         idx_type: IndexType::from_str(result.index_type.as_str()).unwrap(),
         comment: result.index_comment,
@@ -87,9 +91,13 @@ mod tests {
             vec![IndexInfo {
                 unique: true,
                 name: "PRIMARY".to_owned(),
-                columns: vec!["film_id".to_owned()],
-                order: IndexOrder::Ascending,
-                sub_part: None,
+                parts: vec![
+                    IndexPart {
+                        column: "film_id".to_owned(),
+                        order: IndexOrder::Ascending,
+                        sub_part: None,
+                    },
+                ],
                 nullable: false,
                 idx_type: IndexType::BTree,
                 comment: "".to_owned(),
@@ -107,9 +115,13 @@ mod tests {
             vec![IndexInfo {
                 unique: false,
                 name: "idx_title".to_owned(),
-                columns: vec!["title".to_owned()],
-                order: IndexOrder::Ascending,
-                sub_part: None,
+                parts: vec![
+                    IndexPart {
+                        column: "title".to_owned(),
+                        order: IndexOrder::Ascending,
+                        sub_part: None,
+                    },
+                ],
                 nullable: false,
                 idx_type: IndexType::BTree,
                 comment: "".to_owned(),
@@ -123,19 +135,29 @@ mod tests {
         assert_eq!(
             parse_index_query_results(Box::new(vec![
                 IndexQueryResult { non_unique: 0, index_name: "rental_date".to_owned(), column_name: Some("rental_date".to_owned()), collation: Some("A".to_owned()), sub_part: None, nullable: "".to_owned(), index_type: "BTREE".to_owned(), index_comment: "".to_owned(), expression: None },
-                IndexQueryResult { non_unique: 0, index_name: "rental_date".to_owned(), column_name: Some("inventory_id".to_owned()), collation: Some("A".to_owned()), sub_part: None, nullable: "".to_owned(), index_type: "BTREE".to_owned(), index_comment: "".to_owned(), expression: None },
+                IndexQueryResult { non_unique: 0, index_name: "rental_date".to_owned(), column_name: Some("inventory_id".to_owned()), collation: Some("D".to_owned()), sub_part: None, nullable: "".to_owned(), index_type: "BTREE".to_owned(), index_comment: "".to_owned(), expression: None },
                 IndexQueryResult { non_unique: 0, index_name: "rental_date".to_owned(), column_name: Some("customer_id".to_owned()), collation: Some("A".to_owned()), sub_part: None, nullable: "".to_owned(), index_type: "BTREE".to_owned(), index_comment: "".to_owned(), expression: None },
             ].into_iter())).collect::<Vec<IndexInfo>>(),
             vec![IndexInfo {
                 unique: true,
                 name: "rental_date".to_owned(),
-                columns: vec![
-                    "rental_date".to_owned(),
-                    "inventory_id".to_owned(),
-                    "customer_id".to_owned(),
+                parts: vec![
+                    IndexPart {
+                        column: "rental_date".to_owned(),
+                        order: IndexOrder::Ascending,
+                        sub_part: None,
+                    },
+                    IndexPart {
+                        column: "inventory_id".to_owned(),
+                        order: IndexOrder::Descending,
+                        sub_part: None,
+                    },
+                    IndexPart {
+                        column: "customer_id".to_owned(),
+                        order: IndexOrder::Ascending,
+                        sub_part: None,
+                    },
                 ],
-                order: IndexOrder::Ascending,
-                sub_part: None,
                 nullable: false,
                 idx_type: IndexType::BTree,
                 comment: "".to_owned(),
@@ -153,9 +175,13 @@ mod tests {
             vec![IndexInfo {
                 unique: false,
                 name: "idx_location".to_owned(),
-                columns: vec!["location".to_owned()],
-                order: IndexOrder::Ascending,
-                sub_part: Some(32),
+                parts: vec![
+                    IndexPart {
+                        column: "location".to_owned(),
+                        order: IndexOrder::Ascending,
+                        sub_part: Some(32),
+                    },
+                ],
                 nullable: false,
                 idx_type: IndexType::Spatial,
                 comment: "".to_owned(),
