@@ -16,7 +16,7 @@
 
 </div>
 
-## Introduction
+## About
 
 SeaSchema is a library to help you manage database schema. It provides data structures for 
 representing schema definitions and tools to discover and manipulate them.
@@ -26,11 +26,12 @@ support schema conversion between MySQL and Postgres.
 
 ## Architecture
 
-You can use SeaSchema for many purposes, so the crate is divided into 4 features:
+You can use SeaSchema for many purposes, so the crate is divided into 5 features:
 
 + `def`: type definitions
 + `query`: query builder for querying information_schema
 + `parser`: for parsing information_schema (parsing sqldump is WIP)
++ `writer`: for writing `Schema` as `TableStatement` and SQL
 + `discovery`: query, parse and construct a `Schema`
 
 JSON de/serialize on type definitions can be enabled with `with-serde`.

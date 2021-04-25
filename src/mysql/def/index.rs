@@ -40,12 +40,12 @@ pub enum IndexOrder {
     Unordered,
 }
 
-#[derive(Clone, Debug, PartialEq, sea_schema_derive::Name)]
+#[derive(Clone, Debug, PartialEq, sea_query::Iden, sea_schema_derive::Name)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub enum IndexType {
-    #[name = "BTREE"] BTree,
-    #[name = "FULLTEXT"] FullText,
-    #[name = "HASH"] Hash,
-    #[name = "RTREE"] RTree,
-    #[name = "SPATIAL"] Spatial,
+    #[iden = "BTREE"] BTree,
+    #[iden = "FULLTEXT"] FullText,
+    #[iden = "HASH"] Hash,
+    #[iden = "RTREE"] RTree,
+    #[iden = "SPATIAL"] Spatial,
 }
