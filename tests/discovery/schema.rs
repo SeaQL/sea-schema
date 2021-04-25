@@ -48,8 +48,8 @@ Schema {
                             length: Some(
                                 45,
                             ),
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: false,
@@ -71,8 +71,8 @@ Schema {
                             length: Some(
                                 45,
                             ),
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: false,
@@ -115,11 +115,13 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "idx_actor_last_name",
-                    columns: [
-                        "last_name",
+                    parts: [
+                        IndexPart {
+                            column: "last_name",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -128,11 +130,13 @@ Schema {
                 IndexInfo {
                     unique: true,
                     name: "PRIMARY",
-                    columns: [
-                        "actor_id",
+                    parts: [
+                        IndexPart {
+                            column: "actor_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -184,8 +188,8 @@ Schema {
                             length: Some(
                                 50,
                             ),
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: false,
@@ -207,8 +211,8 @@ Schema {
                             length: Some(
                                 50,
                             ),
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: true,
@@ -230,8 +234,8 @@ Schema {
                             length: Some(
                                 20,
                             ),
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: false,
@@ -277,8 +281,8 @@ Schema {
                             length: Some(
                                 10,
                             ),
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: true,
@@ -300,8 +304,8 @@ Schema {
                             length: Some(
                                 20,
                             ),
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: false,
@@ -363,11 +367,13 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "idx_fk_city_id",
-                    columns: [
-                        "city_id",
+                    parts: [
+                        IndexPart {
+                            column: "city_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -376,13 +382,15 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "idx_location",
-                    columns: [
-                        "location",
+                    parts: [
+                        IndexPart {
+                            column: "location",
+                            order: Ascending,
+                            sub_part: Some(
+                                32,
+                            ),
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: Some(
-                        32,
-                    ),
                     nullable: false,
                     idx_type: Spatial,
                     comment: "",
@@ -391,11 +399,13 @@ Schema {
                 IndexInfo {
                     unique: true,
                     name: "PRIMARY",
-                    columns: [
-                        "address_id",
+                    parts: [
+                        IndexPart {
+                            column: "address_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -460,8 +470,8 @@ Schema {
                             length: Some(
                                 25,
                             ),
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: false,
@@ -504,11 +514,13 @@ Schema {
                 IndexInfo {
                     unique: true,
                     name: "PRIMARY",
-                    columns: [
-                        "category_id",
+                    parts: [
+                        IndexPart {
+                            column: "category_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -560,8 +572,8 @@ Schema {
                             length: Some(
                                 50,
                             ),
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: false,
@@ -628,11 +640,13 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "idx_fk_country_id",
-                    columns: [
-                        "country_id",
+                    parts: [
+                        IndexPart {
+                            column: "country_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -641,11 +655,13 @@ Schema {
                 IndexInfo {
                     unique: true,
                     name: "PRIMARY",
-                    columns: [
-                        "city_id",
+                    parts: [
+                        IndexPart {
+                            column: "city_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -710,8 +726,8 @@ Schema {
                             length: Some(
                                 50,
                             ),
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: false,
@@ -754,11 +770,13 @@ Schema {
                 IndexInfo {
                     unique: true,
                     name: "PRIMARY",
-                    columns: [
-                        "country_id",
+                    parts: [
+                        IndexPart {
+                            column: "country_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -834,8 +852,8 @@ Schema {
                             length: Some(
                                 45,
                             ),
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: false,
@@ -857,8 +875,8 @@ Schema {
                             length: Some(
                                 45,
                             ),
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: false,
@@ -880,8 +898,8 @@ Schema {
                             length: Some(
                                 50,
                             ),
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: true,
@@ -995,11 +1013,13 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "idx_fk_address_id",
-                    columns: [
-                        "address_id",
+                    parts: [
+                        IndexPart {
+                            column: "address_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -1008,11 +1028,13 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "idx_fk_store_id",
-                    columns: [
-                        "store_id",
+                    parts: [
+                        IndexPart {
+                            column: "store_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -1021,11 +1043,13 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "idx_last_name",
-                    columns: [
-                        "last_name",
+                    parts: [
+                        IndexPart {
+                            column: "last_name",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -1034,11 +1058,13 @@ Schema {
                 IndexInfo {
                     unique: true,
                     name: "PRIMARY",
-                    columns: [
-                        "customer_id",
+                    parts: [
+                        IndexPart {
+                            column: "customer_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -1115,8 +1141,8 @@ Schema {
                             length: Some(
                                 128,
                             ),
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: false,
@@ -1136,8 +1162,8 @@ Schema {
                     col_type: Text(
                         StringAttr {
                             length: None,
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: true,
@@ -1340,8 +1366,8 @@ Schema {
                             ],
                             attr: StringAttr {
                                 length: None,
-                                charset_name: None,
-                                collation_name: None,
+                                charset: None,
+                                collation: None,
                             },
                         },
                     ),
@@ -1373,8 +1399,8 @@ Schema {
                             ],
                             attr: StringAttr {
                                 length: None,
-                                charset_name: None,
-                                collation_name: None,
+                                charset: None,
+                                collation: None,
                             },
                         },
                     ),
@@ -1418,11 +1444,13 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "idx_fk_language_id",
-                    columns: [
-                        "language_id",
+                    parts: [
+                        IndexPart {
+                            column: "language_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -1431,11 +1459,13 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "idx_fk_original_language_id",
-                    columns: [
-                        "original_language_id",
+                    parts: [
+                        IndexPart {
+                            column: "original_language_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: true,
                     idx_type: BTree,
                     comment: "",
@@ -1444,11 +1474,13 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "idx_title",
-                    columns: [
-                        "title",
+                    parts: [
+                        IndexPart {
+                            column: "title",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -1457,11 +1489,13 @@ Schema {
                 IndexInfo {
                     unique: true,
                     name: "PRIMARY",
-                    columns: [
-                        "film_id",
+                    parts: [
+                        IndexPart {
+                            column: "film_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -1581,11 +1615,13 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "idx_fk_film_id",
-                    columns: [
-                        "film_id",
+                    parts: [
+                        IndexPart {
+                            column: "film_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -1594,12 +1630,18 @@ Schema {
                 IndexInfo {
                     unique: true,
                     name: "PRIMARY",
-                    columns: [
-                        "actor_id",
-                        "film_id",
+                    parts: [
+                        IndexPart {
+                            column: "actor_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
+                        IndexPart {
+                            column: "film_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -1719,11 +1761,13 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "fk_film_category_category",
-                    columns: [
-                        "category_id",
+                    parts: [
+                        IndexPart {
+                            column: "category_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -1732,12 +1776,18 @@ Schema {
                 IndexInfo {
                     unique: true,
                     name: "PRIMARY",
-                    columns: [
-                        "film_id",
-                        "category_id",
+                    parts: [
+                        IndexPart {
+                            column: "film_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
+                        IndexPart {
+                            column: "category_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -1810,8 +1860,8 @@ Schema {
                             length: Some(
                                 255,
                             ),
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: false,
@@ -1831,8 +1881,8 @@ Schema {
                     col_type: Text(
                         StringAttr {
                             length: None,
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: true,
@@ -1852,12 +1902,18 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "idx_title_description",
-                    columns: [
-                        "title",
-                        "description",
+                    parts: [
+                        IndexPart {
+                            column: "title",
+                            order: Unordered,
+                            sub_part: None,
+                        },
+                        IndexPart {
+                            column: "description",
+                            order: Unordered,
+                            sub_part: None,
+                        },
                     ],
-                    order: Unordered,
-                    sub_part: None,
                     nullable: false,
                     idx_type: FullText,
                     comment: "",
@@ -1866,11 +1922,13 @@ Schema {
                 IndexInfo {
                     unique: true,
                     name: "PRIMARY",
-                    columns: [
-                        "film_id",
+                    parts: [
+                        IndexPart {
+                            column: "film_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -1991,11 +2049,13 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "idx_fk_film_id",
-                    columns: [
-                        "film_id",
+                    parts: [
+                        IndexPart {
+                            column: "film_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -2004,12 +2064,18 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "idx_store_id_film_id",
-                    columns: [
-                        "store_id",
-                        "film_id",
+                    parts: [
+                        IndexPart {
+                            column: "store_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
+                        IndexPart {
+                            column: "film_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -2018,11 +2084,13 @@ Schema {
                 IndexInfo {
                     unique: true,
                     name: "PRIMARY",
-                    columns: [
-                        "inventory_id",
+                    parts: [
+                        IndexPart {
+                            column: "inventory_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -2099,8 +2167,8 @@ Schema {
                             length: Some(
                                 20,
                             ),
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: false,
@@ -2143,11 +2211,13 @@ Schema {
                 IndexInfo {
                     unique: true,
                     name: "PRIMARY",
-                    columns: [
-                        "language_id",
+                    parts: [
+                        IndexPart {
+                            column: "language_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -2335,11 +2405,13 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "fk_payment_rental",
-                    columns: [
-                        "rental_id",
+                    parts: [
+                        IndexPart {
+                            column: "rental_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: true,
                     idx_type: BTree,
                     comment: "",
@@ -2348,11 +2420,13 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "idx_fk_customer_id",
-                    columns: [
-                        "customer_id",
+                    parts: [
+                        IndexPart {
+                            column: "customer_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -2361,11 +2435,13 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "idx_fk_staff_id",
-                    columns: [
-                        "staff_id",
+                    parts: [
+                        IndexPart {
+                            column: "staff_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -2374,11 +2450,13 @@ Schema {
                 IndexInfo {
                     unique: true,
                     name: "PRIMARY",
-                    columns: [
-                        "payment_id",
+                    parts: [
+                        IndexPart {
+                            column: "payment_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -2596,11 +2674,13 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "idx_fk_customer_id",
-                    columns: [
-                        "customer_id",
+                    parts: [
+                        IndexPart {
+                            column: "customer_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -2609,11 +2689,13 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "idx_fk_inventory_id",
-                    columns: [
-                        "inventory_id",
+                    parts: [
+                        IndexPart {
+                            column: "inventory_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -2622,11 +2704,13 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "idx_fk_staff_id",
-                    columns: [
-                        "staff_id",
+                    parts: [
+                        IndexPart {
+                            column: "staff_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -2635,11 +2719,13 @@ Schema {
                 IndexInfo {
                     unique: true,
                     name: "PRIMARY",
-                    columns: [
-                        "rental_id",
+                    parts: [
+                        IndexPart {
+                            column: "rental_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -2648,13 +2734,23 @@ Schema {
                 IndexInfo {
                     unique: true,
                     name: "rental_date",
-                    columns: [
-                        "rental_date",
-                        "inventory_id",
-                        "customer_id",
+                    parts: [
+                        IndexPart {
+                            column: "rental_date",
+                            order: Ascending,
+                            sub_part: None,
+                        },
+                        IndexPart {
+                            column: "inventory_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
+                        IndexPart {
+                            column: "customer_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -2743,8 +2839,8 @@ Schema {
                             length: Some(
                                 45,
                             ),
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: false,
@@ -2766,8 +2862,8 @@ Schema {
                             length: Some(
                                 45,
                             ),
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: false,
@@ -2832,8 +2928,8 @@ Schema {
                             length: Some(
                                 50,
                             ),
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: true,
@@ -2907,8 +3003,8 @@ Schema {
                             length: Some(
                                 16,
                             ),
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: false,
@@ -2930,8 +3026,8 @@ Schema {
                             length: Some(
                                 40,
                             ),
-                            charset_name: None,
-                            collation_name: None,
+                            charset: None,
+                            collation: None,
                         },
                     ),
                     null: true,
@@ -2974,11 +3070,13 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "idx_fk_address_id",
-                    columns: [
-                        "address_id",
+                    parts: [
+                        IndexPart {
+                            column: "address_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -2987,11 +3085,13 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "idx_fk_store_id",
-                    columns: [
-                        "store_id",
+                    parts: [
+                        IndexPart {
+                            column: "store_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -3000,11 +3100,13 @@ Schema {
                 IndexInfo {
                     unique: true,
                     name: "PRIMARY",
-                    columns: [
-                        "staff_id",
+                    parts: [
+                        IndexPart {
+                            column: "staff_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -3150,11 +3252,13 @@ Schema {
                 IndexInfo {
                     unique: false,
                     name: "idx_fk_address_id",
-                    columns: [
-                        "address_id",
+                    parts: [
+                        IndexPart {
+                            column: "address_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -3163,11 +3267,13 @@ Schema {
                 IndexInfo {
                     unique: true,
                     name: "idx_unique_manager",
-                    columns: [
-                        "manager_staff_id",
+                    parts: [
+                        IndexPart {
+                            column: "manager_staff_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",
@@ -3176,11 +3282,13 @@ Schema {
                 IndexInfo {
                     unique: true,
                     name: "PRIMARY",
-                    columns: [
-                        "store_id",
+                    parts: [
+                        IndexPart {
+                            column: "store_id",
+                            order: Ascending,
+                            sub_part: None,
+                        },
                     ],
-                    order: Ascending,
-                    sub_part: None,
                     nullable: false,
                     idx_type: BTree,
                     comment: "",

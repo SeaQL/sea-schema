@@ -141,11 +141,13 @@ TableDef {
         IndexInfo {
             unique: false,
             name: "idx_fk_film_id",
-            columns: [
-                "film_id",
+            parts: [
+                IndexPart {
+                    column: "film_id",
+                    order: Ascending,
+                    sub_part: None,
+                },
             ],
-            order: Ascending,
-            sub_part: None,
             nullable: false,
             idx_type: BTree,
             comment: "",
@@ -154,12 +156,18 @@ TableDef {
         IndexInfo {
             unique: true,
             name: "PRIMARY",
-            columns: [
-                "actor_id",
-                "film_id",
+            parts: [
+                IndexPart {
+                    column: "actor_id",
+                    order: Ascending,
+                    sub_part: None,
+                },
+                IndexPart {
+                    column: "film_id",
+                    order: Ascending,
+                    sub_part: None,
+                },
             ],
-            order: Ascending,
-            sub_part: None,
             nullable: false,
             idx_type: BTree,
             comment: "",
@@ -192,5 +200,5 @@ TableDef {
             on_delete: Restrict,
         },
     ],
-},
+}
 ```
