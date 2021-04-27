@@ -14,9 +14,9 @@ impl TableDef {
         for idx in self.indexes.iter() {
             table.index(idx.write());
         }
-        // for key in self.foreign_keys.iter() {
-        //     table.foreign_key(key.write());
-        // }
+        for key in self.foreign_keys.iter() {
+            table.foreign_key(key.write());
+        }
         TableStatement::Create(table)
     }
 }
@@ -270,7 +270,32 @@ mod tests {
                         functional: false,
                     },
                 ],
-                foreign_keys: vec![],
+                foreign_keys: vec![
+                    ForeignKeyInfo {
+                        name: "fk_film_actor_actor".to_owned(),
+                        columns: vec![
+                            "actor_id".to_owned(),
+                        ],
+                        referenced_table: "actor".to_owned(),
+                        referenced_columns: vec![
+                            "actor_id".to_owned(),
+                        ],
+                        on_delete: ForeignKeyAction::Restrict,
+                        on_update: ForeignKeyAction::Cascade,
+                    },
+                    ForeignKeyInfo {
+                        name: "fk_film_actor_film".to_owned(),
+                        columns: vec![
+                            "film_id".to_owned(),
+                        ],
+                        referenced_table: "film".to_owned(),
+                        referenced_columns: vec![
+                            "film_id".to_owned(),
+                        ],
+                        on_delete: ForeignKeyAction::Restrict,
+                        on_update: ForeignKeyAction::Cascade,
+                    },
+                ],
             }.write().to_string(MysqlQueryBuilder),
             vec![
                 "CREATE TABLE `film_actor` (",
@@ -278,7 +303,13 @@ mod tests {
                     "`film_id` SMALLINT UNSIGNED NOT NULL,",
                     "`last_update` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
                     "PRIMARY KEY (`actor_id`, `film_id`),",
-                    "KEY `idx_fk_film_id` (`film_id`)",
+                    "KEY `idx_fk_film_id` (`film_id`),",
+                    "CONSTRAINT `fk_film_actor_actor`",
+                        "FOREIGN KEY `fk_film_actor_actor` (`actor_id`) REFERENCES `actor` (`actor_id`)",
+                        "ON DELETE RESTRICT ON UPDATE CASCADE,",
+                    "CONSTRAINT `fk_film_actor_film`",
+                        "FOREIGN KEY `fk_film_actor_film` (`film_id`) REFERENCES `film` (`film_id`)",
+                        "ON DELETE RESTRICT ON UPDATE CASCADE",
                 ")",
                 "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci",
             ].join(" ")
