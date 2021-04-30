@@ -14,16 +14,28 @@ impl IndexInfo {
             }
         }
         for part in self.parts.iter() {
-            index = index.col(Alias::new(&part.column));
-            if part.sub_part.is_some() {
-                todo!();
-            }
-            if self.parts.len() == 1 {
+            let pre = if let Some(pre) = part.sub_part {
+                Some(pre)
+            } else {
+                None
+            };
+            let ord = if self.parts.len() == 1 {
                 match part.order {
-                    IndexOrder::Ascending => {},
-                    IndexOrder::Descending => todo!(),
-                    IndexOrder::Unordered => {},
+                    IndexOrder::Ascending => None,
+                    IndexOrder::Descending => Some(sea_query::IndexOrder::Desc),
+                    IndexOrder::Unordered => None,
                 }
+            } else {
+                None
+            };
+            if pre.is_none() && ord.is_none() {
+                index = index.col(Alias::new(&part.column));
+            } else if pre.is_none() && ord.is_some() {
+                index = index.col((Alias::new(&part.column), ord.unwrap()));
+            } else if pre.is_some() && ord.is_none() {
+                index = index.col((Alias::new(&part.column), pre.unwrap()));
+            } else {
+                index = index.col((Alias::new(&part.column), pre.unwrap(), ord.unwrap()));
             }
         }
         match self.idx_type {
