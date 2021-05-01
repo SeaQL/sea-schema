@@ -18,11 +18,11 @@ pub struct SchemaDiscovery {
 }
 
 impl SchemaDiscovery {
-    pub fn new<E, S>(executor: E, schema: S) -> Self where E: IntoExecutor, S: IntoIden {
+    pub fn new<E>(executor: E, schema: &str) -> Self where E: IntoExecutor {
         Self {
             query: SchemaQueryBuilder::default(),
             executor: executor.into_executor(),
-            schema: schema.into_iden(),
+            schema: Alias::new(schema).into_iden(),
         }
     }
 
@@ -34,6 +34,7 @@ impl SchemaDiscovery {
         ).await;
 
         Schema {
+            schema: self.schema.to_string(),
             system: self.query.system,
             tables,
         }

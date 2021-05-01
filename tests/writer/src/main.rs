@@ -1,21 +1,18 @@
-use async_std::task;
-use sea_query::Alias;
+use sea_query::{MysqlQueryBuilder};
 use sea_schema::mysql::discovery::SchemaDiscovery;
 use sqlx::MySqlPool;
 
-fn main() {
+#[async_std::main]
+async fn main() {
 
-    let connection = task::block_on(async {
-        MySqlPool::connect("mysql://sea:sea@localhost/sakila").await.unwrap()
-    });
+    let connection = MySqlPool::connect("mysql://sea:sea@localhost/sakila").await.unwrap();
 
-    let schema_discovery = SchemaDiscovery::new(connection, Alias::new("sakila"));
+    let schema_discovery = SchemaDiscovery::new(connection, "sakila");
 
-    let schema = task::block_on(async {
-        schema_discovery.discover().await
-    });
+    let schema = schema_discovery.discover().await;
 
-    // println!("{}", serde_json::to_string_pretty(&schema).unwrap());
-
-    println!("{:#?}", schema);
+    for table in schema.tables.iter() {
+    	println!("{};", table.write().to_string(MysqlQueryBuilder));
+    	println!();
+    }
 }
