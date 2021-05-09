@@ -8,5 +8,5 @@ macro_rules! debug_print {
 // Non-debug version
 #[cfg(not(feature = "debug-print"))]
 macro_rules! debug_print {
-    ($( $args:expr ),*) => {}
+    ($( $args:expr ),*) => { true; }
 }
