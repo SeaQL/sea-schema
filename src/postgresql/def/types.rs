@@ -1,0 +1,136 @@
+#[cfg(feature="with-serde")] use serde::{Serialize, Deserialize};
+
+#[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
+/// All built-in types of PostgreSQL, excluding synonyms
+pub enum Type {
+    // Numeric types
+    /// 16 bit integer
+	SmallInt,
+	/// 32 bit integer
+	Integer,
+	/// 64 bit integer
+	BigInt,
+	/// User-specified precision number
+	Decimal,
+	/// User-specified precision number
+	Numeric,
+	/// 32 bit floating-point
+	Real,
+	/// 64 bit floating-point
+	DoublePrecision,
+	/// 16 bit autoincrementing integer
+	SmallSerial,
+	/// 32 bit autoincrementing integer
+	Serial,
+	/// 64 bit autoincrementing integer
+	BigSerial,
+
+	/// Currency amount; 64 bits with a fractional precision determined by the database's lc_monetary
+	/// setting
+	Money,
+
+	// Character types
+	/// Variable-length character array with limit
+	Varchar,
+	/// Fixed-length character array; blank padded
+	Char,
+	/// Variable, unlimited length character array
+	Text,
+
+	/// Variable length binary string
+	Bytea,
+
+	// Date/Time types
+	/// Date and time
+	Timestamp,
+	/// Date without time of day
+	Date,
+	/// Time without date
+	Time,
+	/// Time interval
+	Interval,
+
+	/// One byte boolean value
+	Boolean,
+
+	/// A type comprised of a static, ordered set of values
+	Enum,
+
+	// Geometric types
+	/// Point on a plane
+	Point,
+	/// Infinite line
+	Line,
+	/// Finite line segment
+	Lseg,
+	/// Rectangular box
+	Box,
+	/// Closed or open path
+	Path,
+	/// Polygon (similar to a closed path)
+	Polygon,
+	/// Circle composed of a center point and radius
+	Circle,
+
+	// Network address types
+	/// IPv4 and IPv6 networks
+	Cidr,
+	/// IPPv4 and IPv6 hosts and networks
+	Inet,
+	/// 6 byte MAC address
+	MacAddr,
+	/// 8 byte MAC address in EUI-64 format
+	MacAddr8,
+
+	/// Fixed length bit string
+	Bit,
+
+	// Text search types
+	/// A sorted list of distincp lexemes which are words that have been normalized to merge different
+	/// variants of the same word
+	TsVector,
+	/// A list of lexemes that are to be searched for, and can be combined using Boolean operators AND,
+	/// OR, and NOT, as well as a phrase search operation
+	TsQuery,
+
+	/// A universally unique identifier as defined by RFC 4122, ISO 9834-8:2005, and related standards
+	Uuid,
+
+	/// XML data checked for well-formedness and with additonal support functions
+	Xml,
+
+	/// JSON data checked for validity and with additional functions
+	Json,
+
+	/// Variable-length multidimensional array
+	Array,
+
+	/// The structure of a row or record; a list of field names and types
+	Composite,
+
+	// Range types
+	/// Range of an integer
+	Int4Range,
+	/// Range of a bigint
+	Int8Range,
+	/// Range of a numeric
+	NumRange,
+	/// Range of a timestamp without time zone
+	TsRange,
+	/// Range of a timestamp with time zone
+	TsTzRange,
+	/// Range of a date
+	DateRange,
+
+	/// A user-defined data type that is based on another underlying type with optional constraints
+	/// that restrict valid values
+	Domain,
+
+	// TODO: Object identifier types?
+	
+	/// A log sequence number
+	PgLsn,
+
+	// TODO: Pseudo-types?
+}
