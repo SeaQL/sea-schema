@@ -12,9 +12,9 @@ pub enum Type {
 	/// 64 bit integer
 	BigInt,
 	/// User-specified precision number
-	Decimal,
+	Decimal(ArbitraryPrecisionNumericAttr),
 	/// User-specified precision number
-	Numeric,
+	Numeric(ArbitraryPrecisionNumericAttr),
 	/// 32 bit floating-point
 	Real,
 	/// 64 bit floating-point
@@ -54,8 +54,9 @@ pub enum Type {
 	/// One byte boolean value
 	Boolean,
 
-	/// A type comprised of a static, ordered set of values
-	Enum,
+	// TODO:
+	// /// A type comprised of a static, ordered set of values
+	// Enum,
 
 	// Geometric types
 	/// Point on a plane
@@ -106,8 +107,9 @@ pub enum Type {
 	/// Variable-length multidimensional array
 	Array,
 
-	/// The structure of a row or record; a list of field names and types
-	Composite,
+	// TODO:
+	// /// The structure of a row or record; a list of field names and types
+	// Composite,
 
 	// Range types
 	/// Range of an integer
@@ -123,14 +125,27 @@ pub enum Type {
 	/// Range of a date
 	DateRange,
 
-	/// A user-defined data type that is based on another underlying type with optional constraints
-	/// that restrict valid values
-	Domain,
+	// TODO:
+	// /// A user-defined data type that is based on another underlying type with optional constraints
+	// /// that restrict valid values
+	// Domain,
 
-	// TODO: Object identifier types?
+	// TODO: Object identifier types
 	
 	/// A log sequence number
 	PgLsn,
 
-	// TODO: Pseudo-types?
+	// TODO: Pseudo-types
+}
+
+#[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
+/// The precision (number of significan digits) and scale (the number of digits in the fractional
+/// portion) of an arbitrary precision number (numeric or decimal). When both the precision and
+/// scale are not set, any precision or scale up to the implementation limit may be stored.
+pub struct ArbitraryPrecisionNumericAttr {
+    /// The number of significant digits in the number; a maximum of 1000 when specified
+	pub precision: Option<u16>,
+	/// The count of decimal digits in the fractional part; integers have a scale of 0
+	pub scale: Option<u16>,
 }
