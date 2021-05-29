@@ -1,7 +1,7 @@
-use std::rc::Rc;
-use sea_query::{Expr, Iden, Order, Query, Value, SelectStatement};
-use crate::sqlx_types::{Row, mysql::MySqlRow};
 use super::{InformationSchema, SchemaQueryBuilder};
+use crate::sqlx_types::{mysql::MySqlRow, Row};
+use sea_query::{Expr, Iden, Order, Query, SelectStatement, Value};
+use std::rc::Rc;
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-statistics-table.html
@@ -54,8 +54,12 @@ impl SchemaQueryBuilder {
             ])
             .conditions(
                 self.system.is_mysql() && self.system.version >= 80013,
-                |q| { q.column(StatisticsFields::Expression); },
-                |q| { q.expr(Expr::val(Value::Null)); }
+                |q| {
+                    q.column(StatisticsFields::Expression);
+                },
+                |q| {
+                    q.expr(Expr::val(Value::Null));
+                },
             )
             .from((InformationSchema::Schema, InformationSchema::Statistics))
             .and_where(Expr::col(StatisticsFields::TableSchema).eq(schema.to_string()))
@@ -66,7 +70,7 @@ impl SchemaQueryBuilder {
     }
 }
 
-#[cfg(feature="sqlx-mysql")]
+#[cfg(feature = "sqlx-mysql")]
 impl From<&MySqlRow> for IndexQueryResult {
     fn from(row: &MySqlRow) -> Self {
         Self {
@@ -83,7 +87,7 @@ impl From<&MySqlRow> for IndexQueryResult {
     }
 }
 
-#[cfg(not(feature="sqlx-mysql"))]
+#[cfg(not(feature = "sqlx-mysql"))]
 impl From<&MySqlRow> for IndexQueryResult {
     fn from(row: &MySqlRow) -> Self {
         Self::default()

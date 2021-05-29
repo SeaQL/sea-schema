@@ -7,9 +7,7 @@ pub struct SchemaQueryBuilder {
 
 impl SchemaQueryBuilder {
     pub fn new(system: SystemInfo) -> Self {
-        Self {
-            system
-        }
+        Self { system }
     }
 }
 

@@ -3,8 +3,9 @@ use sqlx::MySqlPool;
 
 #[async_std::main]
 async fn main() {
-
-    let connection = MySqlPool::connect("mysql://sea:sea@localhost/sakila").await.unwrap();
+    let connection = MySqlPool::connect("mysql://sea:sea@localhost/sakila")
+        .await
+        .unwrap();
 
     let schema_discovery = SchemaDiscovery::new(connection, "sakila");
 

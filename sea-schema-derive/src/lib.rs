@@ -2,7 +2,10 @@ use heck::SnakeCase;
 use proc_macro::{self, TokenStream};
 use proc_macro2::Span;
 use quote::{quote, quote_spanned};
-use syn::{parse_macro_input, Attribute, DataEnum, DataStruct, DeriveInput, Fields, Ident, Lit, Meta, Variant};
+use syn::{
+    parse_macro_input, Attribute, DataEnum, DataStruct, DeriveInput, Fields, Ident, Lit, Meta,
+    Variant,
+};
 
 fn get_iden_attr(attrs: &[Attribute]) -> Option<syn::Lit> {
     for attr in attrs {
@@ -11,7 +14,8 @@ fn get_iden_attr(attrs: &[Attribute]) -> Option<syn::Lit> {
             _ => continue,
         };
         if name_value.path.is_ident("iden") || // interoperate with sea_query_derive Iden
-            name_value.path.is_ident("name") {
+            name_value.path.is_ident("name")
+        {
             return Some(name_value.lit);
         }
     }
@@ -54,10 +58,10 @@ pub fn derive_iden(input: TokenStream) -> TokenStream {
             let method = Ident::new(name.as_str(), Span::call_site());
 
             quote! { #ident::#method(string) }
-        },
+        }
         None => {
             quote! { None }
-        },
+        }
     };
 
     // Currently we only support enums and unit structs
@@ -80,10 +84,11 @@ pub fn derive_iden(input: TokenStream) -> TokenStream {
                     }
                 }
                 .into()
-            },
+            }
             _ => return quote_spanned! {
                 ident.span() => compile_error!("you can only derive Name on enums or unit structs");
-            }.into(),
+            }
+            .into(),
         };
 
     if variants.is_empty() {
@@ -92,19 +97,14 @@ pub fn derive_iden(input: TokenStream) -> TokenStream {
 
     let variant = variants
         .iter()
-        .filter(|v| {
-            get_catch_attr(&v.attrs).is_none() &&
-            matches!(v.fields, Fields::Unit)
-        })
-        .map(|Variant { ident, fields, .. }| {
-            match fields {
-                Fields::Unit => quote! { #ident },
-                _ => panic!(),
-            }
+        .filter(|v| get_catch_attr(&v.attrs).is_none() && matches!(v.fields, Fields::Unit))
+        .map(|Variant { ident, fields, .. }| match fields {
+            Fields::Unit => quote! { #ident },
+            _ => panic!(),
         });
 
     let name = variants.iter().map(|v| {
-        if let Some(lit) = get_iden_attr(&v.attrs) {    
+        if let Some(lit) = get_iden_attr(&v.attrs) {
             // If the user supplied a name, just use it
             quote! { #lit }
         } else if v.ident == "Table" {

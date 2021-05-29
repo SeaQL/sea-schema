@@ -57,28 +57,37 @@ mod tests {
 
     #[test]
     fn test_2() {
-        assert_eq!(parse_version_string("8.0.23-0ubuntu0.20.04.1"), SystemInfo {
-            version: 80023,
-            system: "0ubuntu0.20.04.1".to_owned(),
-            suffix: vec![],
-        })
+        assert_eq!(
+            parse_version_string("8.0.23-0ubuntu0.20.04.1"),
+            SystemInfo {
+                version: 80023,
+                system: "0ubuntu0.20.04.1".to_owned(),
+                suffix: vec![],
+            }
+        )
     }
 
     #[test]
     fn test_3() {
-        assert_eq!(parse_version_string("10.2.31-MariaDB"), SystemInfo {
-            version: 100231,
-            system: "MariaDB".to_owned(),
-            suffix: vec![],
-        })
+        assert_eq!(
+            parse_version_string("10.2.31-MariaDB"),
+            SystemInfo {
+                version: 100231,
+                system: "MariaDB".to_owned(),
+                suffix: vec![],
+            }
+        )
     }
 
     #[test]
     fn test_4() {
-        assert_eq!(parse_version_string("10.2.31-MariaDB-debug"), SystemInfo {
-            version: 100231,
-            system: "MariaDB".to_owned(),
-            suffix: vec!["debug".to_owned()],
-        })
+        assert_eq!(
+            parse_version_string("10.2.31-MariaDB-debug"),
+            SystemInfo {
+                version: 100231,
+                system: "MariaDB".to_owned(),
+                suffix: vec!["debug".to_owned()],
+            }
+        )
     }
 }

@@ -1,4 +1,5 @@
-#[cfg(feature="with-serde")] use serde::{Serialize, Deserialize};
+#[cfg(feature = "with-serde")]
+use serde::{Deserialize, Serialize};
 
 use super::{CharSet, Collation};
 
@@ -106,101 +107,85 @@ pub struct GeometryAttr {
 
 impl Type {
     pub fn is_numeric(&self) -> bool {
-        matches!(self,
-            Type::Serial |
-            Type::Bit(_) |
-            Type::TinyInt(_) |
-            Type::Bool |
-            Type::SmallInt(_) |
-            Type::MediumInt(_) |
-            Type::Int(_) |
-            Type::BigInt(_) |
-            Type::Decimal(_) |
-            Type::Float(_) |
-            Type::Double(_)
+        matches!(
+            self,
+            Type::Serial
+                | Type::Bit(_)
+                | Type::TinyInt(_)
+                | Type::Bool
+                | Type::SmallInt(_)
+                | Type::MediumInt(_)
+                | Type::Int(_)
+                | Type::BigInt(_)
+                | Type::Decimal(_)
+                | Type::Float(_)
+                | Type::Double(_)
         )
     }
 
     pub fn is_date(&self) -> bool {
-        matches!(self,
-            Type::Date |
-            Type::Year
-        )
+        matches!(self, Type::Date | Type::Year)
     }
 
     pub fn is_time(&self) -> bool {
-        matches!(self,
-            Type::Time(_) |
-            Type::DateTime(_) |
-            Type::Timestamp(_)
-        )
+        matches!(self, Type::Time(_) | Type::DateTime(_) | Type::Timestamp(_))
     }
 
     pub fn is_string(&self) -> bool {
-        matches!(self,
-            Type::Char(_) |
-            Type::NChar(_) |
-            Type::Varchar(_) |
-            Type::NVarchar(_) |
-            Type::Binary(_) |
-            Type::Varbinary(_) |
-            Type::Text(_) |
-            Type::TinyText(_) |
-            Type::MediumText(_) |
-            Type::LongText(_)
+        matches!(
+            self,
+            Type::Char(_)
+                | Type::NChar(_)
+                | Type::Varchar(_)
+                | Type::NVarchar(_)
+                | Type::Binary(_)
+                | Type::Varbinary(_)
+                | Type::Text(_)
+                | Type::TinyText(_)
+                | Type::MediumText(_)
+                | Type::LongText(_)
         )
     }
 
     pub fn is_blob(&self) -> bool {
-        matches!(self,
-            Type::Blob(_) |
-            Type::TinyBlob |
-            Type::MediumBlob |
-            Type::LongBlob
+        matches!(
+            self,
+            Type::Blob(_) | Type::TinyBlob | Type::MediumBlob | Type::LongBlob
         )
     }
 
     pub fn is_free_size_blob(&self) -> bool {
-        matches!(self,
-            Type::Blob(_)
-        )
+        matches!(self, Type::Blob(_))
     }
 
     pub fn is_geometry(&self) -> bool {
-        matches!(self,
-            Type::Geometry(_) |
-            Type::Point(_) |
-            Type::LineString(_) |
-            Type::Polygon(_) |
-            Type::MultiPoint(_) |
-            Type::MultiLineString(_) |
-            Type::MultiPolygon(_) |
-            Type::GeometryCollection(_)
+        matches!(
+            self,
+            Type::Geometry(_)
+                | Type::Point(_)
+                | Type::LineString(_)
+                | Type::Polygon(_)
+                | Type::MultiPoint(_)
+                | Type::MultiLineString(_)
+                | Type::MultiPolygon(_)
+                | Type::GeometryCollection(_)
         )
     }
 
     pub fn is_enum(&self) -> bool {
-        matches!(self,
-            Type::Enum(_)
-        )
+        matches!(self, Type::Enum(_))
     }
 
     pub fn is_set(&self) -> bool {
-        matches!(self,
-            Type::Set(_)
-        )
+        matches!(self, Type::Set(_))
     }
 
     pub fn is_other(&self) -> bool {
-        matches!(self,
-            Type::Json
-        )
+        matches!(self, Type::Json)
     }
 
     pub fn is_unknown(&self) -> bool {
-        matches!(self,
-            Type::Unknown(_)
-        )
+        matches!(self, Type::Unknown(_))
     }
 
     pub fn get_numeric_attr_mut(&mut self) -> &mut NumericAttr {
@@ -340,16 +325,12 @@ impl StringAttr {
 
 impl BlobAttr {
     pub fn length(l: u32) -> Self {
-        Self {
-            length: Some(l),
-        }
+        Self { length: Some(l) }
     }
 }
 
 impl GeometryAttr {
     pub fn srid(id: u32) -> Self {
-        Self {
-            srid: Some(id),
-        }
+        Self { srid: Some(id) }
     }
 }

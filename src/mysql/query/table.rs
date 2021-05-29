@@ -1,7 +1,7 @@
-use std::rc::Rc;
+use super::{CharacterSetFields, InformationSchema, SchemaQueryBuilder};
+use crate::sqlx_types::{mysql::MySqlRow, Row};
 use sea_query::{Expr, Iden, Order, Query, SelectStatement};
-use crate::sqlx_types::{Row, mysql::MySqlRow};
-use super::{InformationSchema, SchemaQueryBuilder, CharacterSetFields};
+use std::rc::Rc;
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-tables-table.html
@@ -61,12 +61,18 @@ impl SchemaQueryBuilder {
                 TablesFields::TableComment,
                 TablesFields::CreateOptions,
             ])
-            .column((Schema::CollationCharacterSet, CharacterSetFields::CharacterSetName))
+            .column((
+                Schema::CollationCharacterSet,
+                CharacterSetFields::CharacterSetName,
+            ))
             .from((Schema::Schema, Schema::Tables))
             .left_join(
                 (Schema::Schema, Schema::CollationCharacterSet),
-                Expr::tbl(Schema::CollationCharacterSet, CharacterSetFields::CollationName)
-                    .equals(Schema::Tables, TablesFields::TableCollation)
+                Expr::tbl(
+                    Schema::CollationCharacterSet,
+                    CharacterSetFields::CollationName,
+                )
+                .equals(Schema::Tables, TablesFields::TableCollation),
             )
             .and_where(Expr::col(TablesFields::TableSchema).eq(schema.to_string()))
             .and_where(Expr::col(TablesFields::TableType).eq(TableType::BaseTable.to_string()))
@@ -75,7 +81,7 @@ impl SchemaQueryBuilder {
     }
 }
 
-#[cfg(feature="sqlx-mysql")]
+#[cfg(feature = "sqlx-mysql")]
 impl From<&MySqlRow> for TableQueryResult {
     fn from(row: &MySqlRow) -> Self {
         Self {
@@ -90,7 +96,7 @@ impl From<&MySqlRow> for TableQueryResult {
     }
 }
 
-#[cfg(not(feature="sqlx-mysql"))]
+#[cfg(not(feature = "sqlx-mysql"))]
 impl From<&MySqlRow> for TableQueryResult {
     fn from(row: &MySqlRow) -> Self {
         Self::default()

@@ -1,4 +1,5 @@
-#[cfg(feature="with-serde")] use serde::{Serialize, Deserialize};
+#[cfg(feature = "with-serde")]
+use serde::{Deserialize, Serialize};
 
 use crate as sea_schema;
 
@@ -22,9 +23,14 @@ pub struct ForeignKeyInfo {
 #[derive(Clone, Debug, PartialEq, sea_schema_derive::Name)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub enum ForeignKeyAction {
-    #[name = "CASCADE"] Cascade,
-    #[name = "SET NULL"] SetNull,
-    #[name = "SET DEFAULT"] SetDefault,
-    #[name = "RESTRICT"] Restrict,
-    #[name = "NO ACTION"] NoAction,
+    #[name = "CASCADE"]
+    Cascade,
+    #[name = "SET NULL"]
+    SetNull,
+    #[name = "SET DEFAULT"]
+    SetDefault,
+    #[name = "RESTRICT"]
+    Restrict,
+    #[name = "NO ACTION"]
+    NoAction,
 }

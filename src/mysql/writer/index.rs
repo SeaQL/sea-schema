@@ -1,6 +1,6 @@
-use std::rc::Rc;
-use sea_query::{Alias, Iden, Index, IndexCreateStatement};
 use crate::mysql::def::{IndexInfo, IndexOrder, IndexType};
+use sea_query::{Alias, Iden, Index, IndexCreateStatement};
+use std::rc::Rc;
 
 impl IndexInfo {
     pub fn write(&self) -> IndexCreateStatement {
@@ -39,11 +39,19 @@ impl IndexInfo {
             }
         }
         match self.idx_type {
-            IndexType::BTree => {},
-            IndexType::FullText => { index = index.index_type(sea_query::IndexType::FullText) },
-            IndexType::Hash => { index = index.index_type(sea_query::IndexType::Hash) },
-            IndexType::RTree => { index = index.index_type(sea_query::IndexType::Custom(Rc::new(Alias::new(&self.idx_type.to_string())))) },
-            IndexType::Spatial => { index = index.index_type(sea_query::IndexType::Custom(Rc::new(Alias::new(&self.idx_type.to_string())))) },
+            IndexType::BTree => {}
+            IndexType::FullText => index = index.index_type(sea_query::IndexType::FullText),
+            IndexType::Hash => index = index.index_type(sea_query::IndexType::Hash),
+            IndexType::RTree => {
+                index = index.index_type(sea_query::IndexType::Custom(Rc::new(Alias::new(
+                    &self.idx_type.to_string(),
+                ))))
+            }
+            IndexType::Spatial => {
+                index = index.index_type(sea_query::IndexType::Custom(Rc::new(Alias::new(
+                    &self.idx_type.to_string(),
+                ))))
+            }
         }
         index
     }
