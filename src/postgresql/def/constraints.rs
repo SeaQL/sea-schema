@@ -1,19 +1,27 @@
+#[cfg(feature = "with-serde")]
+use serde::{Serialize, Deserialize};
+
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 /// An enum consisting of all constraints
 pub enum Constraint {
-	Check(Check),
-	NotNull(NotNull),
-	Unique(Unique),
-	PrimaryKey(PrimaryKey),
-	References(References),
-	Exclusion(Exclusion),
+    Check(Check),
+    NotNull(NotNull),
+    Unique(Unique),
+    PrimaryKey(PrimaryKey),
+    References(References),
+    Exclusion(Exclusion),
 }
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 /// A constraint which staes that a value must satisfy the following Boolean expression
-pub struct Check(String);
+pub struct Check {
+    /// The Boolean expression that must be satisfied
+    pub expr: String,
+    /// If marked with NO INHERIT, the constraint will not propogate to child tables
+    pub no_inherit: bool,
+}
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
@@ -34,10 +42,10 @@ pub struct PrimaryKey(Vec<String>);
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 /// A constraint that column references the values appearing in the row of another table
-pub struct References{
-	columns: Vec<String>,
-	table: String,
-	foreign_columns: Vec<String>,
+pub struct References {
+    columns: Vec<String>,
+    table: String,
+    foreign_columns: Vec<String>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -46,7 +54,7 @@ pub struct References{
 /// expressions using the specified operators, at least one of these operator comparisons returns
 /// false or null
 pub struct Exclusion {
-	using: String,
-	columns: Vec<String>,
-	operation: String,
+    using: String,
+    columns: Vec<String>,
+    operation: String,
 }
