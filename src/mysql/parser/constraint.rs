@@ -8,7 +8,9 @@ pub struct ConstraintQueryResultParser {
 }
 
 /// ConstraintQueryResult must be sorted by (TableName, ConstraintName, OrdinalPosition)
-pub fn parse_constraint_query_results(results: Box<dyn Iterator<Item = ConstraintQueryResult>>) -> impl Iterator<Item = ForeignKeyInfo> {
+pub fn parse_constraint_query_results(
+    results: Box<dyn Iterator<Item = ConstraintQueryResult>>,
+) -> impl Iterator<Item = ForeignKeyInfo> {
     ConstraintQueryResultParser {
         curr: None,
         results,
@@ -25,7 +27,8 @@ impl Iterator for ConstraintQueryResultParser {
                 // group by `constraint.name`
                 if curr.name == constraint.name {
                     curr.columns.push(constraint.columns.pop().unwrap());
-                    curr.referenced_columns.push(constraint.referenced_columns.pop().unwrap());
+                    curr.referenced_columns
+                        .push(constraint.referenced_columns.pop().unwrap());
                 } else {
                     let prev = self.curr.take();
                     self.curr = Some(constraint);
@@ -61,24 +64,28 @@ mod tests {
     #[test]
     fn test_1() {
         assert_eq!(
-            parse_constraint_query_results(Box::new(vec![
-                ConstraintQueryResult {
-                    constraint_name: "fk-cat-dog".to_owned(),
-                    column_name: "d1".to_owned(),
-                    referenced_table_name: "cat".to_owned(),
-                    referenced_column_name: "c1".to_owned(),
-                    update_rule: "CASCADE".to_owned(),
-                    delete_rule: "NO ACTION".to_owned(),
-                },
-                ConstraintQueryResult {
-                    constraint_name: "fk-cat-dog".to_owned(),
-                    column_name: "d2".to_owned(),
-                    referenced_table_name: "cat".to_owned(),
-                    referenced_column_name: "c2".to_owned(),
-                    update_rule: "CASCADE".to_owned(),
-                    delete_rule: "NO ACTION".to_owned(),
-                },
-            ].into_iter())).collect::<Vec<ForeignKeyInfo>>(),
+            parse_constraint_query_results(Box::new(
+                vec![
+                    ConstraintQueryResult {
+                        constraint_name: "fk-cat-dog".to_owned(),
+                        column_name: "d1".to_owned(),
+                        referenced_table_name: "cat".to_owned(),
+                        referenced_column_name: "c1".to_owned(),
+                        update_rule: "CASCADE".to_owned(),
+                        delete_rule: "NO ACTION".to_owned(),
+                    },
+                    ConstraintQueryResult {
+                        constraint_name: "fk-cat-dog".to_owned(),
+                        column_name: "d2".to_owned(),
+                        referenced_table_name: "cat".to_owned(),
+                        referenced_column_name: "c2".to_owned(),
+                        update_rule: "CASCADE".to_owned(),
+                        delete_rule: "NO ACTION".to_owned(),
+                    },
+                ]
+                .into_iter()
+            ))
+            .collect::<Vec<ForeignKeyInfo>>(),
             vec![ForeignKeyInfo {
                 name: "fk-cat-dog".to_owned(),
                 columns: vec!["d1".to_owned(), "d2".to_owned()],

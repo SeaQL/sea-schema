@@ -1,7 +1,7 @@
-use sea_query::unescape_string;
-use crate::{Name, parser::Parser};
 use crate::mysql::def::*;
 use crate::mysql::query::ColumnQueryResult;
+use crate::{parser::Parser, Name};
+use sea_query::unescape_string;
 
 impl ColumnQueryResult {
     pub fn parse(self) -> ColumnInfo {
@@ -147,7 +147,6 @@ fn parse_time_attributes(parser: &mut Parser, mut ctype: ColumnType) -> ColumnTy
 }
 
 fn parse_string_attributes(parser: &mut Parser, mut ctype: ColumnType) -> ColumnType {
-
     if parser.next_if_punctuation("(") {
         if let Some(word) = parser.next_if_unquoted_any() {
             if let Ok(number) = word.as_str().parse::<u32>() {
@@ -163,9 +162,7 @@ fn parse_string_attributes(parser: &mut Parser, mut ctype: ColumnType) -> Column
 }
 
 fn parse_charset_collate(parser: &mut Parser, str_attr: &mut StringAttr) {
-
-    if  parser.next_if_unquoted("character") &&
-        parser.next_if_unquoted("set") {
+    if parser.next_if_unquoted("character") && parser.next_if_unquoted("set") {
         if let Some(word) = parser.next_if_unquoted_any() {
             str_attr.charset = CharSet::from_str(word.as_str());
         }
@@ -195,7 +192,10 @@ fn parse_enum_definition(parser: &mut Parser, mut ctype: ColumnType) -> ColumnTy
     if parser.next_if_punctuation("(") {
         while parser.curr().is_some() {
             if let Some(word) = parser.next_if_quoted_any() {
-                ctype.get_enum_def_mut().values.push(unescape_string(word.unquote().unwrap().as_str()));
+                ctype
+                    .get_enum_def_mut()
+                    .values
+                    .push(unescape_string(word.unquote().unwrap().as_str()));
                 parser.next_if_punctuation(",");
             } else if parser.curr_is_unquoted() {
                 todo!("there can actually be numeric enum values but is very confusing");
@@ -215,7 +215,10 @@ fn parse_set_definition(parser: &mut Parser, mut ctype: ColumnType) -> ColumnTyp
     if parser.next_if_punctuation("(") {
         while parser.curr().is_some() {
             if let Some(word) = parser.next_if_quoted_any() {
-                ctype.get_set_def_mut().members.push(unescape_string(word.unquote().unwrap().as_str()));
+                ctype
+                    .get_set_def_mut()
+                    .members
+                    .push(unescape_string(word.unquote().unwrap().as_str()));
                 parser.next_if_punctuation(",");
             } else if parser.curr_is_unquoted() {
                 todo!("there can actually be numeric set values but is very confusing");
@@ -261,13 +264,11 @@ pub fn parse_column_default(column_default: Option<String>) -> Option<ColumnDefa
     match column_default {
         Some(default) => {
             if !default.is_empty() {
-                Some(ColumnDefault {
-                    expr: default
-                })
+                Some(ColumnDefault { expr: default })
             } else {
                 None
             }
-        },
+        }
         None => None,
     }
 }
@@ -286,16 +287,14 @@ pub fn parse_column_extra(parser: &mut Parser) -> ColumnExtra {
     while parser.curr().is_some() {
         // order does not matter
         if parser.next_if_unquoted("on") {
-            if  parser.next_if_unquoted("update") &&
-                parser.next_if_unquoted("current_timestamp") {
+            if parser.next_if_unquoted("update") && parser.next_if_unquoted("current_timestamp") {
                 extra.on_update_current_timestamp = true;
             }
         } else if parser.next_if_unquoted("auto_increment") {
             extra.auto_increment = true;
         } else if parser.next_if_unquoted("default_generated") {
             extra.default_generated = true;
-        } else if parser.next_if_unquoted("stored") ||
-                  parser.next_if_unquoted("virtual") {
+        } else if parser.next_if_unquoted("stored") || parser.next_if_unquoted("virtual") {
             if parser.next_if_unquoted("generated") {
                 extra.generated = true;
             }
@@ -379,7 +378,9 @@ mod tests {
     #[test]
     fn test_2() {
         assert_eq!(
-            parse_column_extra(&mut Parser::new("DEFAULT_GENERATED on update CURRENT_TIMESTAMP")),
+            parse_column_extra(&mut Parser::new(
+                "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+            )),
             ColumnExtra {
                 auto_increment: false,
                 on_update_current_timestamp: true,
@@ -484,9 +485,7 @@ mod tests {
     fn test_10() {
         assert_eq!(
             parse_column_type(&mut Parser::new("DATETIME")),
-            ColumnType::DateTime(TimeAttr {
-                fractional: None,
-            })
+            ColumnType::DateTime(TimeAttr { fractional: None })
         );
     }
 
@@ -537,7 +536,9 @@ mod tests {
     #[test]
     fn test_15() {
         assert_eq!(
-            parse_column_type(&mut Parser::new("TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin")),
+            parse_column_type(&mut Parser::new(
+                "TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin"
+            )),
             ColumnType::Text(StringAttr {
                 length: None,
                 charset: Some(CharSet::Utf8Mb4),
@@ -562,9 +563,7 @@ mod tests {
     fn test_17() {
         assert_eq!(
             parse_column_type(&mut Parser::new("BLOB")),
-            ColumnType::Blob(BlobAttr {
-                length: None,
-            })
+            ColumnType::Blob(BlobAttr { length: None })
         );
     }
 
@@ -572,9 +571,7 @@ mod tests {
     fn test_18() {
         assert_eq!(
             parse_column_type(&mut Parser::new("BLOB(256)")),
-            ColumnType::Blob(BlobAttr {
-                length: Some(256),
-            })
+            ColumnType::Blob(BlobAttr { length: Some(256) })
         );
     }
 
@@ -602,7 +599,9 @@ mod tests {
     #[test]
     fn test_20() {
         assert_eq!(
-            parse_column_type(&mut Parser::new("set('Trailers','Commentaries','Deleted Scenes','Behind the Scenes')")),
+            parse_column_type(&mut Parser::new(
+                "set('Trailers','Commentaries','Deleted Scenes','Behind the Scenes')"
+            )),
             ColumnType::Set(SetDef {
                 members: vec![
                     "Trailers".to_owned(),
@@ -623,9 +622,7 @@ mod tests {
     fn test_21() {
         assert_eq!(
             parse_column_type(&mut Parser::new("GEOMETRY")),
-            ColumnType::Geometry(GeometryAttr {
-                srid: None,
-            })
+            ColumnType::Geometry(GeometryAttr { srid: None })
         );
     }
 
@@ -633,41 +630,21 @@ mod tests {
     fn test_22() {
         assert_eq!(
             parse_column_type(&mut Parser::new("GEOMETRY SRID 4326")),
-            ColumnType::Geometry(GeometryAttr {
-                srid: Some(4326),
-            })
+            ColumnType::Geometry(GeometryAttr { srid: Some(4326) })
         );
     }
 
     #[test]
     fn test_23() {
-        assert_eq!(
-            parse_column_key("pri"),
-            ColumnKey::Primary
-        );
-        assert_eq!(
-            parse_column_key("uni"),
-            ColumnKey::Unique
-        );
-        assert_eq!(
-            parse_column_key("mul"),
-            ColumnKey::Multiple
-        );
-        assert_eq!(
-            parse_column_key(""),
-            ColumnKey::NotKey
-        );
+        assert_eq!(parse_column_key("pri"), ColumnKey::Primary);
+        assert_eq!(parse_column_key("uni"), ColumnKey::Unique);
+        assert_eq!(parse_column_key("mul"), ColumnKey::Multiple);
+        assert_eq!(parse_column_key(""), ColumnKey::NotKey);
     }
 
     #[test]
     fn test_24() {
-        assert_eq!(
-            parse_column_null("yes"),
-            true
-        );
-        assert_eq!(
-            parse_column_null("no"),
-            false
-        );
+        assert_eq!(parse_column_null("yes"), true);
+        assert_eq!(parse_column_null("no"), false);
     }
 }

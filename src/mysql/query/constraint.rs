@@ -1,7 +1,7 @@
-use std::rc::Rc;
-use sea_query::{Expr, Iden, Order, Query, SelectStatement};
-use crate::sqlx_types::{Row, mysql::MySqlRow};
 use super::{InformationSchema, SchemaQueryBuilder};
+use crate::sqlx_types::{mysql::MySqlRow, Row};
+use sea_query::{Expr, Iden, Order, Query, SelectStatement};
+use std::rc::Rc;
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-key-column-usage-table.html
@@ -64,10 +64,12 @@ impl SchemaQueryBuilder {
                     .equals(Schema::ReferentialConstraints, Ref::ConstraintSchema)
                     .and(
                         Expr::tbl(Schema::KeyColumnUsage, Key::ConstraintName)
-                            .equals(Schema::ReferentialConstraints, Ref::ConstraintName)
-                    )
+                            .equals(Schema::ReferentialConstraints, Ref::ConstraintName),
+                    ),
             )
-            .and_where(Expr::tbl(Schema::KeyColumnUsage, Key::ConstraintSchema).eq(schema.to_string()))
+            .and_where(
+                Expr::tbl(Schema::KeyColumnUsage, Key::ConstraintSchema).eq(schema.to_string()),
+            )
             .and_where(Expr::tbl(Schema::KeyColumnUsage, Key::TableName).eq(table.to_string()))
             .order_by(Key::ConstraintName, Order::Asc)
             .order_by(Key::OrdinalPosition, Order::Asc)
@@ -75,7 +77,7 @@ impl SchemaQueryBuilder {
     }
 }
 
-#[cfg(feature="sqlx-mysql")]
+#[cfg(feature = "sqlx-mysql")]
 impl From<&MySqlRow> for ConstraintQueryResult {
     fn from(row: &MySqlRow) -> Self {
         Self {
@@ -89,7 +91,7 @@ impl From<&MySqlRow> for ConstraintQueryResult {
     }
 }
 
-#[cfg(not(feature="sqlx-mysql"))]
+#[cfg(not(feature = "sqlx-mysql"))]
 impl From<&MySqlRow> for ConstraintQueryResult {
     fn from(row: &MySqlRow) -> Self {
         Self::default()

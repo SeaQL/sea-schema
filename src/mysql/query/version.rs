@@ -1,6 +1,6 @@
-use sea_query::{Func, Query, SelectStatement};
-use crate::sqlx_types::{Row, mysql::MySqlRow};
 use super::SchemaQueryBuilder;
+use crate::sqlx_types::{mysql::MySqlRow, Row};
+use sea_query::{Func, Query, SelectStatement};
 
 #[derive(sea_query::Iden)]
 enum MysqlFunc {
@@ -20,7 +20,7 @@ impl SchemaQueryBuilder {
     }
 }
 
-#[cfg(feature="sqlx-mysql")]
+#[cfg(feature = "sqlx-mysql")]
 impl From<&MySqlRow> for VersionQueryResult {
     fn from(row: &MySqlRow) -> Self {
         Self {
@@ -29,7 +29,7 @@ impl From<&MySqlRow> for VersionQueryResult {
     }
 }
 
-#[cfg(not(feature="sqlx-mysql"))]
+#[cfg(not(feature = "sqlx-mysql"))]
 impl From<&MySqlRow> for VersionQueryResult {
     fn from(row: &MySqlRow) -> Self {
         Self::default()

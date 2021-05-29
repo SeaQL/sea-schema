@@ -1,5 +1,5 @@
-use sea_query::{Alias, Iden, Table, TableStatement};
 use crate::mysql::def::TableDef;
+use sea_query::{Alias, Iden, Table, TableStatement};
 
 impl TableDef {
     pub fn write(&self) -> TableStatement {
@@ -23,8 +23,8 @@ impl TableDef {
 
 #[cfg(test)]
 mod tests {
-    use sea_query::{MysqlQueryBuilder};
     use crate::mysql::def::*;
+    use sea_query::MysqlQueryBuilder;
 
     #[test]
     fn test_1() {
@@ -329,31 +329,30 @@ mod tests {
                     comment: "".to_owned(),
                 },
                 columns: vec![],
-                indexes: vec![
-                    IndexInfo {
-                        unique: false,
-                        name: "idx_fk_film_id".to_owned(),
-                        parts: vec![
-                            IndexPart {
-                                column: "film_id".to_owned(),
-                                order: IndexOrder::Ascending,
-                                sub_part: Some(32),
-                            },
-                        ],
-                        nullable: false,
-                        idx_type: IndexType::BTree,
-                        comment: "".to_owned(),
-                        functional: false,
-                    },
-                ],
+                indexes: vec![IndexInfo {
+                    unique: false,
+                    name: "idx_fk_film_id".to_owned(),
+                    parts: vec![IndexPart {
+                        column: "film_id".to_owned(),
+                        order: IndexOrder::Ascending,
+                        sub_part: Some(32),
+                    },],
+                    nullable: false,
+                    idx_type: IndexType::BTree,
+                    comment: "".to_owned(),
+                    functional: false,
+                },],
                 foreign_keys: vec![],
-            }.write().to_string(MysqlQueryBuilder),
+            }
+            .write()
+            .to_string(MysqlQueryBuilder),
             vec![
                 "CREATE TABLE `film_actor` (",
-                    "KEY `idx_fk_film_id` (`film_id` (32))",
+                "KEY `idx_fk_film_id` (`film_id` (32))",
                 ")",
                 "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci",
-            ].join(" ")
+            ]
+            .join(" ")
         );
     }
 
@@ -370,31 +369,30 @@ mod tests {
                     comment: "".to_owned(),
                 },
                 columns: vec![],
-                indexes: vec![
-                    IndexInfo {
-                        unique: false,
-                        name: "idx_fk_film_id".to_owned(),
-                        parts: vec![
-                            IndexPart {
-                                column: "film_id".to_owned(),
-                                order: IndexOrder::Descending,
-                                sub_part: None,
-                            },
-                        ],
-                        nullable: false,
-                        idx_type: IndexType::BTree,
-                        comment: "".to_owned(),
-                        functional: false,
-                    },
-                ],
+                indexes: vec![IndexInfo {
+                    unique: false,
+                    name: "idx_fk_film_id".to_owned(),
+                    parts: vec![IndexPart {
+                        column: "film_id".to_owned(),
+                        order: IndexOrder::Descending,
+                        sub_part: None,
+                    },],
+                    nullable: false,
+                    idx_type: IndexType::BTree,
+                    comment: "".to_owned(),
+                    functional: false,
+                },],
                 foreign_keys: vec![],
-            }.write().to_string(MysqlQueryBuilder),
+            }
+            .write()
+            .to_string(MysqlQueryBuilder),
             vec![
                 "CREATE TABLE `film_actor` (",
-                    "KEY `idx_fk_film_id` (`film_id` DESC)",
+                "KEY `idx_fk_film_id` (`film_id` DESC)",
                 ")",
                 "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci",
-            ].join(" ")
+            ]
+            .join(" ")
         );
     }
 }

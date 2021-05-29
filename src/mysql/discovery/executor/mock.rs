@@ -1,5 +1,5 @@
+use crate::sqlx_types::{mysql::MySqlRow, MySqlPool};
 use sea_query::{MysqlQueryBuilder, SelectStatement};
-use crate::sqlx_types::{MySqlPool, mysql::MySqlRow};
 
 use crate::debug_print;
 
@@ -13,9 +13,7 @@ pub trait IntoExecutor {
 
 impl IntoExecutor for MySqlPool {
     fn into_executor(self) -> Executor {
-        Executor {
-            pool: self
-        }
+        Executor { pool: self }
     }
 }
 

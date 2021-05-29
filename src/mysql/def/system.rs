@@ -1,4 +1,5 @@
-#[cfg(feature="with-serde")] use serde::{Serialize, Deserialize};
+#[cfg(feature = "with-serde")]
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Default, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
@@ -25,7 +26,12 @@ impl SystemInfo {
 
     /// Return the version version as string. e.g. 8.0.1
     pub fn version_string(&self) -> String {
-        format!("{}.{}.{}", self.version / 10000, self.version / 100 % 100, self.version % 100)
+        format!(
+            "{}.{}.{}",
+            self.version / 10000,
+            self.version / 100 % 100,
+            self.version % 100
+        )
     }
 }
 
@@ -35,13 +41,19 @@ mod tests {
 
     #[test]
     fn test_0() {
-        let system = SystemInfo { version: 50110, ..Default::default() };
+        let system = SystemInfo {
+            version: 50110,
+            ..Default::default()
+        };
         assert_eq!(system.version_string(), "5.1.10".to_owned());
     }
 
     #[test]
     fn test_1() {
-        let system = SystemInfo { version: 80023, ..Default::default() };
+        let system = SystemInfo {
+            version: 80023,
+            ..Default::default()
+        };
         assert_eq!(system.version_string(), "8.0.23".to_owned());
     }
 }

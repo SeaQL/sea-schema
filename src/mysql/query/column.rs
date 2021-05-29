@@ -1,7 +1,7 @@
-use std::rc::Rc;
-use sea_query::{Expr, Iden, Order, Query, SelectStatement};
-use crate::sqlx_types::{Row, mysql::MySqlRow};
 use super::{InformationSchema, SchemaQueryBuilder};
+use crate::sqlx_types::{mysql::MySqlRow, Row};
+use sea_query::{Expr, Iden, Order, Query, SelectStatement};
+use std::rc::Rc;
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-columns-table.html
@@ -63,7 +63,7 @@ impl SchemaQueryBuilder {
     }
 }
 
-#[cfg(feature="sqlx-mysql")]
+#[cfg(feature = "sqlx-mysql")]
 impl From<&MySqlRow> for ColumnQueryResult {
     fn from(row: &MySqlRow) -> Self {
         Self {
@@ -79,7 +79,7 @@ impl From<&MySqlRow> for ColumnQueryResult {
     }
 }
 
-#[cfg(not(feature="sqlx-mysql"))]
+#[cfg(not(feature = "sqlx-mysql"))]
 impl From<&MySqlRow> for ColumnQueryResult {
     fn from(row: &MySqlRow) -> Self {
         Self::default()

@@ -1,4 +1,5 @@
-#[cfg(feature="with-serde")] use serde::{Serialize, Deserialize};
+#[cfg(feature = "with-serde")]
+use serde::{Deserialize, Serialize};
 
 use super::{CharSet, Collation, StorageEngine};
 

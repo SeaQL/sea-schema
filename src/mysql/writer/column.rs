@@ -1,10 +1,11 @@
-use std::fmt::Write;
-use sea_query::{Alias, ColumnDef, escape_string};
 use crate::mysql::def::ColumnInfo;
+use sea_query::{escape_string, Alias, ColumnDef};
+use std::fmt::Write;
 
 impl ColumnInfo {
     pub fn write(&self) -> ColumnDef {
-        let mut col_def = ColumnDef::new(Alias::new(self.name.as_str())).custom(self.col_type.clone());
+        let mut col_def =
+            ColumnDef::new(Alias::new(self.name.as_str())).custom(self.col_type.clone());
         if !self.null {
             col_def = col_def.not_null();
         }

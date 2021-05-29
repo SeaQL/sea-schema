@@ -12,8 +12,8 @@ pub use index::*;
 pub use table::*;
 pub use types::*;
 
-use sea_query::SchemaStatement;
 use super::def::Schema;
+use sea_query::SchemaStatement;
 
 impl Schema {
     pub fn write(&self) -> Vec<SchemaStatement> {

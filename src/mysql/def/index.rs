@@ -1,4 +1,5 @@
-#[cfg(feature="with-serde")] use serde::{Serialize, Deserialize};
+#[cfg(feature = "with-serde")]
+use serde::{Deserialize, Serialize};
 
 use crate as sea_schema;
 
@@ -43,9 +44,14 @@ pub enum IndexOrder {
 #[derive(Clone, Debug, PartialEq, sea_query::Iden, sea_schema_derive::Name)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub enum IndexType {
-    #[iden = "BTREE"] BTree,
-    #[iden = "FULLTEXT"] FullText,
-    #[iden = "HASH"] Hash,
-    #[iden = "RTREE"] RTree,
-    #[iden = "SPATIAL"] Spatial,
+    #[iden = "BTREE"]
+    BTree,
+    #[iden = "FULLTEXT"]
+    FullText,
+    #[iden = "HASH"]
+    Hash,
+    #[iden = "RTREE"]
+    RTree,
+    #[iden = "SPATIAL"]
+    Spatial,
 }

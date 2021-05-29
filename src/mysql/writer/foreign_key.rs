@@ -1,5 +1,5 @@
+use crate::mysql::def::{ForeignKeyAction, ForeignKeyInfo};
 use sea_query::{Alias, ForeignKey, ForeignKeyCreateStatement};
-use crate::mysql::def::{ForeignKeyInfo, ForeignKeyAction};
 
 impl ForeignKeyInfo {
     pub fn write(&self) -> ForeignKeyCreateStatement {
