@@ -16,5 +16,6 @@ pub struct TableDef {
     pub info: TableInfo,
     pub columns: Vec<ColumnInfo>,
     pub constraints: Vec<Constraint>,
+    pub of_type: Option<Type>,
     pub inherets: Vec<String>,
 }
