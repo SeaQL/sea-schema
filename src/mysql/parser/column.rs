@@ -273,11 +273,11 @@ pub fn parse_column_default(column_default: Option<String>) -> Option<ColumnDefa
     }
 }
 
-pub fn parse_generation_expression(string: String) -> Option<String> {
+pub fn parse_generation_expression(string: String) -> Option<ColumnExpression> {
     if string.is_empty() {
         None
     } else {
-        Some(string)
+        Some(ColumnExpression{ expr: string })
     }
 }
 
