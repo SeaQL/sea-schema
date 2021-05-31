@@ -10,7 +10,7 @@ name = "sea-schema"
 version = "0.2.1"
 authors = [ "Chris Tsang <tyt2y7@gmail.com>" ]
 edition = "2018"
-description = "Database schema definition, discovery and conversion"
+description = "Database schema definition and discovery"
 license = "MIT OR Apache-2.0"
 documentation = "https://docs.rs/sea-schema"
 repository = "https://github.com/SeaQL/sea-schema"
@@ -34,15 +34,17 @@ sqlx = { version = "^0", optional = true }
 
 [features]
 debug-print = []
-default = [ "discovery", "writer" ]
-def = [ ]
+default = [ "mysql", "postgres", "discovery", "writer" ]
+mysql = []
+postgres = []
+def = []
 discovery = [ "futures", "parser" ]
 parser = [ "query" ]
 query = [ "def" ]
 writer = [ "def" ]
 sqlx-dep = [ "sqlx" ]
-sqlx-mysql = [ "futures", "sqlx-dep", "sea-query/sqlx-mysql", "sqlx/mysql" ]
-sqlx-postgres = [ "futures", "sqlx-dep", "sea-query/sqlx-postgres", "sqlx/postgres" ]
+sqlx-mysql = [ "mysql", "futures", "sqlx-dep", "sea-query/sqlx-mysql", "sqlx/mysql" ]
+sqlx-postgres = [ "postgres", "futures", "sqlx-dep", "sea-query/sqlx-postgres", "sqlx/postgres" ]
 runtime-actix-native-tls = [ "sqlx/runtime-actix-native-tls" ]
 runtime-async-std-native-tls = [ "sqlx/runtime-async-std-native-tls" ]
 runtime-tokio-native-tls = [ "sqlx/runtime-tokio-native-tls" ]
