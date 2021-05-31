@@ -5,7 +5,7 @@
   <h1>SeaSchema</h1>
 
   <p>
-    <strong>Database schema definition, discovery and conversion</strong>
+    <strong>Database schema definition and discovery</strong>
   </p>
 
   [![crate](https://img.shields.io/crates/v/sea-schema.svg)](https://crates.io/crates/sea-schema)
@@ -21,7 +21,7 @@
 SeaSchema is a library to help you manage database schema. It provides data structures for 
 representing schema definitions and tools to discover and manipulate them.
 
-For now, MySQL support is almost done and Postgres support is in progress. At the end, we'd want to 
+For now, MySQL support is done and Postgres support is in progress. At the end, we'd want to 
 support schema conversion between MySQL and Postgres.
 
 ## Architecture
