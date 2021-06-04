@@ -1,4 +1,4 @@
-use crate::mysql::def::ColumnInfo;
+use crate::mysql::def::{ColumnInfo, ColumnKey};
 use sea_query::{escape_string, Alias, ColumnDef};
 use std::fmt::Write;
 
@@ -11,6 +11,9 @@ impl ColumnInfo {
         }
         if self.extra.auto_increment {
             col_def = col_def.auto_increment();
+        }
+        if self.key.eq(&ColumnKey::Primary) {
+            col_def = col_def.primary_key();
         }
         let mut extras = Vec::new();
         if let Some(default) = self.default.as_ref() {
