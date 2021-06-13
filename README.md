@@ -5,7 +5,7 @@
   <h1>SeaSchema</h1>
 
   <p>
-    <strong>Database schema definition and discovery</strong>
+    <strong>🌿 SQL schema definition and discovery</strong>
   </p>
 
   [![crate](https://img.shields.io/crates/v/sea-schema.svg)](https://crates.io/crates/sea-schema)
