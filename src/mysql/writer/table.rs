@@ -138,10 +138,10 @@ mod tests {
             }.write().to_string(MysqlQueryBuilder),
             vec![
                 "CREATE TABLE `actor` (",
-                    "`actor_id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Actor ID',",
-                    "`first_name` VARCHAR(45) NOT NULL,",
-                    "`last_name` VARCHAR(45) NOT NULL,",
-                    "`last_update` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
+                    "`actor_id` smallint UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Actor ID',",
+                    "`first_name` varchar(45) NOT NULL,",
+                    "`last_name` varchar(45) NOT NULL,",
+                    "`last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
                 ")",
                 "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci",
             ].join(" ")
@@ -299,9 +299,9 @@ mod tests {
             }.write().to_string(MysqlQueryBuilder),
             vec![
                 "CREATE TABLE `film_actor` (",
-                    "`actor_id` SMALLINT UNSIGNED NOT NULL,",
-                    "`film_id` SMALLINT UNSIGNED NOT NULL,",
-                    "`last_update` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
+                    "`actor_id` smallint UNSIGNED NOT NULL,",
+                    "`film_id` smallint UNSIGNED NOT NULL,",
+                    "`last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,",
                     "PRIMARY KEY (`actor_id`, `film_id`),",
                     "KEY `idx_fk_film_id` (`film_id`),",
                     "CONSTRAINT `fk_film_actor_actor`",
