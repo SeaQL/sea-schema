@@ -7,6 +7,6 @@ publish = false
 [dependencies]
 async-std = { version = "1.8", features = [ "attributes" ] }
 sea-schema = { path = "../../", default-features = false, features = [ "sqlx-mysql", "runtime-async-std-native-tls", "discovery", "writer" ] }
-sea-query = { version = "^0.10", features = [ ] }
+sea-query = { version = "^0.12" }
 serde_json = { version = "^1" }
 sqlx = { version = "^0" }
