@@ -15,7 +15,7 @@ pub enum Constraint {
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
-/// A constraint which staes that a value must satisfy the following Boolean expression
+/// A constraint which states that a value must satisfy the following Boolean expression
 pub struct Check {
     /// The Boolean expression that must be satisfied
     pub expr: String,
