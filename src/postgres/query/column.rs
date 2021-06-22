@@ -1,4 +1,4 @@
-use super::{InformationSchema, SchemaQueryBuilder};
+use super::{InformationSchema, KeyColumnUsage, SchemaQueryBuilder, TableConstraints};
 use crate::sqlx_types::{postgres::PgRow, Row};
 use sea_query::{Expr, Iden, Query, SelectStatement};
 use std::rc::Rc;
@@ -54,18 +54,21 @@ pub struct ColumnQueryResult {
     // Declared or implicit parameters of numeric types; null for other data types
     pub numeric_precision: Option<i32>,
     pub numeric_precision_radix: Option<i32>,
-    pub numberic_scale: Option<i32>,
+    pub numeric_scale: Option<i32>,
 }
 
 impl SchemaQueryBuilder {
     pub fn query_columns(&self, schema: Rc<dyn Iden>, table: Rc<dyn Iden>) -> SelectStatement {
         Query::select()
             .columns(vec![
-                ColumnsField::ColumnName,
-                ColumnsField::DataType,
-                ColumnsField::ColumnDefault,
-                ColumnsField::GeneratedExpression,
-                ColumnsField::IsNullable,
+                (InformationSchema::Columns, ColumnsField::ColumnName),
+                (InformationSchema::Columns, ColumnsField::DataType),
+                (InformationSchema::Columns, ColumnsField::ColumnDefault),
+                (
+                    InformationSchema::Columns,
+                    ColumnsField::GeneratedExpression,
+                ),
+                (InformationSchema::Columns, ColumnsField::IsNullable),
             ])
             .from((InformationSchema::Schema, InformationSchema::Columns))
             .and_where(Expr::col(ColumnsField::TableSchema).eq(schema.to_string()))

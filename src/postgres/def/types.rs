@@ -135,9 +135,10 @@ pub enum Type {
     /// A log sequence number
     PgLsn,
     // TODO: Pseudo-types
+    Unknown(String),
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Default)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 /// The precision (number of significan digits) and scale (the number of digits in the fractional
 /// portion) of an arbitrary precision number (numeric or decimal). When both the precision and
@@ -147,4 +148,10 @@ pub struct ArbitraryPrecisionNumericAttr {
     pub precision: Option<u16>,
     /// The count of decimal digits in the fractional part; integers have a scale of 0
     pub scale: Option<u16>,
+}
+
+impl Type {
+    pub fn has_numeric_attr(&self) -> bool {
+        matches!(self, Type::Numeric(_) | Type::Decimal(_))
+    }
 }

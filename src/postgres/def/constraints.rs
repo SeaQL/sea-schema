@@ -27,6 +27,15 @@ pub struct Check {
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 /// The constraint that a value must not be null
 pub struct NotNull;
+impl NotNull {
+    pub fn from_bool(boolean: bool) -> Option<NotNull> {
+        if boolean {
+            Some(NotNull)
+        } else {
+            None
+        }
+    }
+}
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
