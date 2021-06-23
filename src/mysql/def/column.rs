@@ -18,7 +18,7 @@ pub struct ColumnInfo {
     pub default: Option<ColumnDefault>,
     /// Extra definitions for this column, e.g. auto_increment
     pub extra: ColumnExtra,
-    /// The generation expression if this is a generated column 
+    /// The generation expression if this is a generated column
     pub expression: Option<ColumnExpression>,
     /// User comments
     pub comment: String,
@@ -60,7 +60,7 @@ pub struct ColumnExtra {
     pub auto_increment: bool,
     /// Only applies to timestamp or datetime
     pub on_update_current_timestamp: bool,
-    /// This is a generated column 
+    /// This is a generated column
     pub generated: bool,
     /// This column has a default value expression
     pub default_generated: bool,

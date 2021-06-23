@@ -56,9 +56,7 @@ impl SchemaQueryBuilder {
             .and_where(
                 Expr::tbl(Schema::KeyColumnUsage, KcuField::TableSchema).eq(schema.to_string()),
             )
-            .and_where(
-                Expr::tbl(Schema::KeyColumnUsage, KcuField::TableName).eq(table.to_string()),
-            )
+            .and_where(Expr::tbl(Schema::KeyColumnUsage, KcuField::TableName).eq(table.to_string()))
             .take();
 
         if let Some(column) = column {
