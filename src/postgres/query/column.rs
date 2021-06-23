@@ -1,4 +1,4 @@
-use super::{InformationSchema, KeyColumnUsage, SchemaQueryBuilder, TableConstraints};
+use super::{InformationSchema, SchemaQueryBuilder};
 use crate::sqlx_types::{postgres::PgRow, Row};
 use sea_query::{Expr, Iden, Query, SelectStatement};
 use std::rc::Rc;
@@ -61,14 +61,14 @@ impl SchemaQueryBuilder {
     pub fn query_columns(&self, schema: Rc<dyn Iden>, table: Rc<dyn Iden>) -> SelectStatement {
         Query::select()
             .columns(vec![
-                (InformationSchema::Columns, ColumnsField::ColumnName),
-                (InformationSchema::Columns, ColumnsField::DataType),
-                (InformationSchema::Columns, ColumnsField::ColumnDefault),
-                (
-                    InformationSchema::Columns,
-                    ColumnsField::GeneratedExpression,
-                ),
-                (InformationSchema::Columns, ColumnsField::IsNullable),
+                ColumnsField::ColumnName,
+                ColumnsField::DataType,
+                ColumnsField::ColumnDefault,
+                ColumnsField::GeneratedExpression,
+                ColumnsField::IsNullable,
+                ColumnsField::NumericPrecision,
+                ColumnsField::NumericPrecisionRadix,
+                ColumnsField::NumericScale,
             ])
             .from((InformationSchema::Schema, InformationSchema::Columns))
             .and_where(Expr::col(ColumnsField::TableSchema).eq(schema.to_string()))
@@ -86,6 +86,9 @@ impl From<&PgRow> for ColumnQueryResult {
             column_default: row.get(2),
             column_generated: row.get(3),
             is_nullable: row.get(4),
+            numeric_precision: row.get(5),
+            numeric_precision_radix: row.get(6),
+            numeric_scale: row.get(7),
         }
     }
 }

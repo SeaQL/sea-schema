@@ -19,13 +19,15 @@ pub struct ColumnInfo {
     pub not_null: Option<constraints::NotNull>,
 
     /// A constraint that ensures the value of a column is unique among all other rows in the table
-    pub unique: Option<constraints::Unique>,
-    /// A constraint that states that the column is the unique identifier or part of the unique
-    /// identifier of each row for this table
-    pub primary_key: Option<constraints::PrimaryKey>,
-    /// A constraint that ensures that the value of this column must refer to a unique key in another
-    /// table
-    pub references: Option<constraints::References>,
+    pub unique: Option<Vec<constraints::Unique>>,
+    // TODO:
+    // /// A constraint that states that the column is the unique identifier or part of the unique
+    // /// identifier of each row for this table
+    // pub primary_key: Option<constraints::PrimaryKey>,
+    // /// A constraint that ensures that the value of this column must refer to a unique key in another
+    // /// table
+    // pub references: Option<constraints::References>,
+
     // FIXME: Include if there's a convenient way to look for this
     // /// Comments on the column made by the user
     // pub comment: String,

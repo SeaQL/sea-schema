@@ -28,11 +28,11 @@ impl SchemaQueryBuilder {
     pub fn query_constriants(schema: Rc<dyn Iden>, table: Rc<dyn Iden>) -> SelectStatement {
         Query::select()
             .columns(vec![
-                TableConstraints::ConstriantSchema,
-                TableConstraints::ConstraintName,
-                TableConstraints::ConstraintType,
-                TableConstraints::IsDeferrable,
-                TableConstraints::InitiallyDeferred,
+                TableConstraintsField::ConstriantSchema,
+                TableConstraintsField::ConstraintName,
+                TableConstraintsField::ConstraintType,
+                TableConstraintsField::IsDeferrable,
+                TableConstraintsField::InitiallyDeferred,
             ])
             .from((
                 InformationSchema::Schema,
