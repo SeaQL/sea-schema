@@ -4,6 +4,7 @@ require_once 'vendor/autoload.php';
 
 $connectionParams = array(
     'url' => 'mysql://sea:sea@localhost/sakila',
+    // 'url' => 'postgres://sea:sea@localhost/sakila',
 );
 $conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams);
 
@@ -11,6 +12,8 @@ $sm = $conn->getSchemaManager();
 
 $sm->getDatabasePlatform()->registerDoctrineTypeMapping('geometry', 'string');
 $sm->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
+$sm->getDatabasePlatform()->registerDoctrineTypeMapping('mpaa_rating', 'string');
+$sm->getDatabasePlatform()->registerDoctrineTypeMapping('_text', 'string');
 
 echo json_encode(getSchema($sm), JSON_PRETTY_PRINT)."\n";
 
