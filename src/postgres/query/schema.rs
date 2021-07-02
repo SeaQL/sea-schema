@@ -9,6 +9,7 @@ pub enum InformationSchema {
     Columns,
     CheckConstraints,
     KeyColumnUsage,
+    ReferentialConstraints,
     Tables,
     TableConstraints,
 }

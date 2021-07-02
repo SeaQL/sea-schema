@@ -17,10 +17,9 @@ pub struct ColumnInfo {
     /// The generation expression for this column, if it is a generated colum
     pub generated: Option<ColumnExpression>,
     pub not_null: Option<constraints::NotNull>,
-
-    /// A constraint that ensures the value of a column is unique among all other rows in the table
-    pub unique: Option<Vec<constraints::Unique>>,
     // TODO:
+    // /// A constraint that ensures the value of a column is unique among all other rows in the table
+    // pub unique: Option<Vec<constraints::Unique>>,
     // /// A constraint that states that the column is the unique identifier or part of the unique
     // /// identifier of each row for this table
     // pub primary_key: Option<constraints::PrimaryKey>,

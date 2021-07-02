@@ -10,37 +10,19 @@ use crate::{
 
 use std::convert::TryFrom;
 
-pub fn parse_column_query_reulst(
-    result: ColumnQueryResult,
+impl ColumnQueryResult {
+    pub fn parse(self) -> ColumnInfo {
+        parse_column_query_result(self)
+    }
+}
 
-    // A Vec of Vecs as one column can be a part of several constraints, and each constraint has
-    // one or more elements
-    unique_results: Vec<Vec<constraints::UniqueQueryResult>>,
-) -> ColumnInfo {
+pub fn parse_column_query_result(result: ColumnQueryResult) -> ColumnInfo {
     ColumnInfo {
         name: result.column_name.clone(),
         col_type: parse_column_type(&result),
         default: ColumnExpression::from_option_string(result.column_default),
         generated: ColumnExpression::from_option_string(result.column_generated),
         not_null: NotNull::from_bool(yes_or_no_to_bool(&result.is_nullable)),
-        unique: parse_unique_query_result_vecs(unique_results),
-    }
-}
-
-fn parse_unique_query_result_vecs(
-    results: Vec<Vec<constraints::UniqueQueryResult>>,
-) -> Option<Vec<Unique>> {
-    let mut out = Vec::new();
-    for result in results {
-        if let Ok(unique) = super::constraints::parse_unique_query_results(result) {
-            out.push(unique);
-        }
-    }
-
-    if out.is_empty() {
-        None
-    } else {
-        Some(out)
     }
 }
 

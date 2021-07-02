@@ -1,3 +1,4 @@
+use super::*;
 #[cfg(feature = "with-serde")]
 use serde::{Deserialize, Serialize};
 
@@ -6,5 +7,8 @@ use serde::{Deserialize, Serialize};
 /// Information relating to the table as a whole
 pub struct TableInfo {
     pub name: String,
+    pub check_constraints: Vec<Check>,
+    pub unique_keys: Vec<Unique>,
+    pub references: Vec<References>,
     pub comment: String,
 }
