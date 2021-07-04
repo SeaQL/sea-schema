@@ -10,7 +10,7 @@ pub use table_constraints::*;
 
 use super::{InformationSchema, SchemaQueryBuilder};
 use crate::sqlx_types::{postgres::PgRow, Row};
-use sea_query::{Expr, Iden, JoinType, Order, Query, SelectStatement};
+use sea_query::{Alias, Expr, Iden, JoinType, Order, Query, SelectStatement};
 use std::rc::Rc;
 
 #[derive(Debug, Default)]
@@ -38,6 +38,11 @@ pub struct TableConstraintsQueriesResult {
     match_option: Option<String>,
     update_rule: Option<String>,
     delete_rule: Option<String>,
+
+    // From key_column_usage as part of subquery involving referential_constraints
+    referential_key_table_name: Option<String>,
+    referential_key_column_name: Option<String>,
+    referential_key_ordinal_pos: Option<i32>,
 }
 
 impl SchemaQueryBuilder {
@@ -47,6 +52,8 @@ impl SchemaQueryBuilder {
         type Cf = CheckConstraintsFields;
         type Kcuf = KeyColumnUsageFields;
         type RefC = ReferentialConstraintsFields;
+
+        let rcsq = Alias::new("referential_constraints_subquery");
 
         Query::select()
             .columns(vec![
@@ -63,11 +70,16 @@ impl SchemaQueryBuilder {
                 (Schema::KeyColumnUsage, Kcuf::PositionInUniqueConstraint),
             ])
             .columns(vec![
-                (Schema::ReferentialConstraints, RefC::UniqueConstraintSchema),
-                (Schema::ReferentialConstraints, RefC::UniqueConstraintName),
-                (Schema::ReferentialConstraints, RefC::MatchOption),
-                (Schema::ReferentialConstraints, RefC::UpdateRule),
-                (Schema::ReferentialConstraints, RefC::DeleteRule),
+                (rcsq.clone(), RefC::UniqueConstraintSchema),
+                (rcsq.clone(), RefC::UniqueConstraintName),
+                (rcsq.clone(), RefC::MatchOption),
+                (rcsq.clone(), RefC::UpdateRule),
+                (rcsq.clone(), RefC::DeleteRule),
+            ])
+            .columns(vec![
+                (rcsq.clone(), Kcuf::TableName),
+                (rcsq.clone(), Kcuf::ColumnName),
+                (rcsq.clone(), Kcuf::OrdinalPosition),
             ])
             .from((Schema::Schema, InformationSchema::TableConstraints))
             .join(
@@ -82,18 +94,41 @@ impl SchemaQueryBuilder {
                 Expr::tbl(Schema::TableConstraints, Tcf::ConstraintName)
                     .equals(Schema::KeyColumnUsage, Kcuf::ConstraintName),
             )
-            .join(
+            .join_subquery(
                 JoinType::LeftJoin,
-                (Schema::Schema, Schema::ReferentialConstraints),
+                Query::select()
+                    .columns(vec![
+                        (Schema::ReferentialConstraints, RefC::ConstraintName),
+                        (Schema::ReferentialConstraints, RefC::UniqueConstraintSchema),
+                        (Schema::ReferentialConstraints, RefC::UniqueConstraintName),
+                        (Schema::ReferentialConstraints, RefC::MatchOption),
+                        (Schema::ReferentialConstraints, RefC::UpdateRule),
+                        (Schema::ReferentialConstraints, RefC::DeleteRule),
+                    ])
+                    .columns(vec![
+                        (Schema::KeyColumnUsage, Kcuf::TableName),
+                        (Schema::KeyColumnUsage, Kcuf::ColumnName),
+                        (Schema::KeyColumnUsage, Kcuf::OrdinalPosition),
+                    ])
+                    .from((Schema::Schema, Schema::ReferentialConstraints))
+                    .left_join(
+                        (Schema::Schema, Schema::KeyColumnUsage),
+                        Expr::tbl(Schema::ReferentialConstraints, RefC::UniqueConstraintName)
+                            .equals(Schema::KeyColumnUsage, Kcuf::ConstraintName),
+                    )
+                    .take(),
+                rcsq.clone(),
                 Expr::tbl(Schema::TableConstraints, Tcf::ConstraintName)
-                    .equals(Schema::ReferentialConstraints, RefC::ConstraintName),
+                    .equals(rcsq.clone(), RefC::ConstraintName),
             )
             .and_where(
                 Expr::col((Schema::TableConstraints, Tcf::TableSchema)).eq(schema.to_string()),
             )
             .and_where(Expr::col((Schema::TableConstraints, Tcf::TableName)).eq(table.to_string()))
-            .order_by(Tcf::ConstraintName, Order::Asc)
-            .order_by(Kcuf::OrdinalPosition, Order::Asc)
+            .order_by((Schema::TableConstraints, Tcf::ConstraintName), Order::Asc)
+            .order_by((Schema::KeyColumnUsage, Kcuf::OrdinalPosition), Order::Asc)
+            .order_by((rcsq.clone(), RefC::UniqueConstraintName), Order::Asc)
+            .order_by((rcsq.clone(), Tcf::ConstraintName), Order::Asc)
             .take()
     }
 }
@@ -113,7 +148,7 @@ impl From<&PgRow> for TableConstraintsQueriesResult {
 
 #[cfg(not(feature = "sqlx-postres"))]
 impl From<&PgRow> for TableConstraintsQueriesResult {
-    fn from(row: &PgRow) -> Self {
+    fn from(_row: &PgRow) -> Self {
         Self::default()
     }
 }
