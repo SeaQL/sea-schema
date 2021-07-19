@@ -34,9 +34,9 @@ pub fn parse_column_type(result: &ColumnQueryResult) -> ColumnType {
     }
 
     let ctype = if let Some(word) = parser_type.next_if_unquoted_any() {
-        parse_type_name(word.as_str())
+        Type::from_str(word.as_str())
     } else {
-        parse_type_name("")
+        Type::from_str("")
     };
 
     if ctype.has_numeric_attr() {
@@ -48,23 +48,6 @@ pub fn parse_column_type(result: &ColumnQueryResult) -> ColumnType {
         )
     } else {
         ctype
-    }
-}
-
-pub fn parse_type_name(type_name: &str) -> Type {
-    match type_name.to_lowercase().as_str() {
-        "smallint" | "int2" => Type::SmallInt,
-        "integer" | "int" | "int4" => Type::Integer,
-        "bigint" | "int8" => Type::BigInt,
-        "decimal" => Type::Decimal(ArbitraryPrecisionNumericAttr::default()),
-        "numeric" => Type::Numeric(ArbitraryPrecisionNumericAttr::default()),
-        "real" | "float4" => Type::Real,
-        "double precision" | "double" | "float8" => Type::DoublePrecision,
-        "smallserial" | "serial2" => Type::SmallSerial,
-        "serial" | "serial4" => Type::Serial,
-        "bigserial" | "serial8" => Type::BigSerial,
-
-        _ => Type::Unknown(format!("{} is unknown or unimplemented", type_name)),
     }
 }
 
