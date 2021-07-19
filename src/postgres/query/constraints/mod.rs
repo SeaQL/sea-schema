@@ -14,35 +14,35 @@ use sea_query::{Alias, Expr, Iden, JoinType, Order, Query, SelectStatement};
 use std::rc::Rc;
 
 #[derive(Debug, Default)]
-pub struct TableConstraintsQueriesResult {
+pub struct TableConstraintsQueryResult {
     // From table_constraints
-    constraint_schema: String,
-    constraint_name: String,
-    table_schema: String,
-    table_name: String,
-    constraint_type: String,
-    is_deferrable: String,
-    initially_deferred: String,
+    pub constraint_schema: String,
+    pub constraint_name: String,
+    pub table_schema: String,
+    pub table_name: String,
+    pub constraint_type: String,
+    pub is_deferrable: String,
+    pub initially_deferred: String,
 
     // From check_constraints
-    check_clause: Option<String>,
+    pub check_clause: Option<String>,
 
     // From key_column_usage
-    column_name: Option<String>,
-    ordinal_position: Option<i32>,
-    position_in_unique_constraint: Option<i32>,
+    pub column_name: Option<String>,
+    pub ordinal_position: Option<i32>,
+    pub position_in_unique_constraint: Option<i32>,
 
     // From referential_constraints
-    unique_constraint_schema: Option<String>,
-    unique_constraint_name: Option<String>,
-    match_option: Option<String>,
-    update_rule: Option<String>,
-    delete_rule: Option<String>,
+    pub unique_constraint_schema: Option<String>,
+    pub unique_constraint_name: Option<String>,
+    pub match_option: Option<String>,
+    pub update_rule: Option<String>,
+    pub delete_rule: Option<String>,
 
     // From key_column_usage as part of subquery involving referential_constraints
-    referential_key_table_name: Option<String>,
-    referential_key_column_name: Option<String>,
-    referential_key_ordinal_pos: Option<i32>,
+    pub referential_key_table_name: Option<String>,
+    pub referential_key_column_name: Option<String>,
+    pub referential_key_ordinal_pos: Option<i32>,
 }
 
 impl SchemaQueryBuilder {
@@ -134,7 +134,7 @@ impl SchemaQueryBuilder {
 }
 
 #[cfg(feature = "sqlx-postres")]
-impl From<&PgRow> for TableConstraintsQueriesResult {
+impl From<&PgRow> for TableConstraintsQueryResult {
     fn from(row: &PgRow) -> Self {
         Self {
             constraint_schema: row.get(0),
@@ -147,7 +147,7 @@ impl From<&PgRow> for TableConstraintsQueriesResult {
 }
 
 #[cfg(not(feature = "sqlx-postres"))]
-impl From<&PgRow> for TableConstraintsQueriesResult {
+impl From<&PgRow> for TableConstraintsQueryResult {
     fn from(_row: &PgRow) -> Self {
         Self::default()
     }
