@@ -15,7 +15,12 @@ pub struct Schema {
 pub struct TableDef {
     pub info: TableInfo,
     pub columns: Vec<ColumnInfo>,
-    pub constraints: Vec<Constraint>,
+
+    pub check_constraints: Vec<Check>,
+    pub unique_keys: Vec<Unique>,
+    pub references: Vec<References>,
+
     pub of_type: Option<Type>,
-    pub inherets: Vec<String>,
+	// TODO:
+    // pub inherets: Vec<String>,
 }

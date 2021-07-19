@@ -138,6 +138,26 @@ pub enum Type {
     Unknown(String),
 }
 
+impl Type {
+    // TODO: Support more types
+	pub fn from_str(name: &str) -> Type {
+        match name.to_lowercase().as_str() {
+            "smallint" | "int2" => Type::SmallInt,
+            "integer" | "int" | "int4" => Type::Integer,
+            "bigint" | "int8" => Type::BigInt,
+            "decimal" => Type::Decimal(ArbitraryPrecisionNumericAttr::default()),
+            "numeric" => Type::Numeric(ArbitraryPrecisionNumericAttr::default()),
+            "real" | "float4" => Type::Real,
+            "double precision" | "double" | "float8" => Type::DoublePrecision,
+            "smallserial" | "serial2" => Type::SmallSerial,
+            "serial" | "serial4" => Type::Serial,
+            "bigserial" | "serial8" => Type::BigSerial,
+
+            _ => Type::Unknown(format!("{} is unknown or unimplemented", name)),
+        }
+	}
+}
+
 #[derive(Clone, Debug, PartialEq, Default)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 /// The precision (number of significan digits) and scale (the number of digits in the fractional
