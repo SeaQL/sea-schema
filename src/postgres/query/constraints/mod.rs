@@ -42,7 +42,6 @@ pub struct TableConstraintsQueryResult {
     // From key_column_usage as part of subquery involving referential_constraints
     pub referential_key_table_name: Option<String>,
     pub referential_key_column_name: Option<String>,
-    pub referential_key_ordinal_pos: Option<i32>,
 }
 
 impl SchemaQueryBuilder {
@@ -79,7 +78,6 @@ impl SchemaQueryBuilder {
             .columns(vec![
                 (rcsq.clone(), Kcuf::TableName),
                 (rcsq.clone(), Kcuf::ColumnName),
-                (rcsq.clone(), Kcuf::OrdinalPosition),
             ])
             .from((Schema::Schema, InformationSchema::TableConstraints))
             .join(
@@ -108,7 +106,6 @@ impl SchemaQueryBuilder {
                     .columns(vec![
                         (Schema::KeyColumnUsage, Kcuf::TableName),
                         (Schema::KeyColumnUsage, Kcuf::ColumnName),
-                        (Schema::KeyColumnUsage, Kcuf::OrdinalPosition),
                     ])
                     .from((Schema::Schema, Schema::ReferentialConstraints))
                     .left_join(
@@ -139,9 +136,26 @@ impl From<&PgRow> for TableConstraintsQueryResult {
         Self {
             constraint_schema: row.get(0),
             constraint_name: row.get(1),
-            constraint_type: row.get(2),
-            is_deferrable: row.get(3),
-            initially_deferred: row.get(4),
+            table_schema: row.get(2),
+            table_name: row.get(3),
+            constraint_type: row.get(4),
+            is_deferrable: row.get(5),
+            initially_deferred: row.get(6),
+
+            check_clause: row.get(7),
+
+            column_name: row.get(8),
+            ordinal_position: row.get(9),
+            position_in_unique_constraint: row.get(10),
+
+            unique_constraint_schema: row.get(11),
+            unique_constraint_name: row.get(12),
+            match_option: row.get(13),
+            update_rule: row.get(14),
+            delete_rule: row.get(15),
+
+            referential_key_table_name: row.get(16),
+            referential_key_column_name: row.get(17),
         }
     }
 }
