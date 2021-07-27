@@ -21,6 +21,6 @@ pub struct TableDef {
     pub references: Vec<References>,
 
     pub of_type: Option<Type>,
-	// TODO:
+    // TODO:
     // pub inherets: Vec<String>,
 }

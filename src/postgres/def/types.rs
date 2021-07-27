@@ -140,7 +140,7 @@ pub enum Type {
 
 impl Type {
     // TODO: Support more types
-	pub fn from_str(name: &str) -> Type {
+    pub fn from_str(name: &str) -> Type {
         match name.to_lowercase().as_str() {
             "smallint" | "int2" => Type::SmallInt,
             "integer" | "int" | "int4" => Type::Integer,
@@ -155,7 +155,7 @@ impl Type {
 
             _ => Type::Unknown(format!("{} is unknown or unimplemented", name)),
         }
-	}
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Default)]

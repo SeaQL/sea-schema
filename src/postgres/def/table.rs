@@ -9,7 +9,6 @@ use serde::{Deserialize, Serialize};
 pub struct TableInfo {
     pub name: String,
     pub of_type: Option<Type>,
-
     // TODO:
     // pub comment: String
 }
