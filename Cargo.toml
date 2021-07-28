@@ -2,6 +2,7 @@
 members = [
     ".",
     "tests/discovery/mysql",
+    "tests/discovery/postgres",
     "tests/writer",
 ]
 

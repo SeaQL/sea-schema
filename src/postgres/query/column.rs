@@ -39,7 +39,7 @@ pub enum ColumnsField {
     IdentityMinimum,
     IdentityCycle,
     IsGenerated,
-    GeneratedExpression,
+    GenerationExpression,
     IsUpdatable,
 }
 
@@ -64,7 +64,7 @@ impl SchemaQueryBuilder {
                 ColumnsField::ColumnName,
                 ColumnsField::DataType,
                 ColumnsField::ColumnDefault,
-                ColumnsField::GeneratedExpression,
+                ColumnsField::GenerationExpression,
                 ColumnsField::IsNullable,
                 ColumnsField::NumericPrecision,
                 ColumnsField::NumericPrecisionRadix,
@@ -77,7 +77,7 @@ impl SchemaQueryBuilder {
     }
 }
 
-#[cfg(feature = "sqlx-postres")]
+#[cfg(feature = "sqlx-postgres")]
 impl From<&PgRow> for ColumnQueryResult {
     fn from(row: &PgRow) -> Self {
         Self {
@@ -93,7 +93,7 @@ impl From<&PgRow> for ColumnQueryResult {
     }
 }
 
-#[cfg(not(feature = "sqlx-postres"))]
+#[cfg(not(feature = "sqlx-postgres"))]
 impl From<&PgRow> for ColumnQueryResult {
     fn from(row: &PgRow) -> Self {
         Self::default()
