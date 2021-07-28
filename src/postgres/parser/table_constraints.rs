@@ -40,7 +40,7 @@ impl Iterator for TableConstraintsQueryResultParser {
                     no_inherit: false,
                 }))
             }
-            
+
             "FOREIGN KEY" => {
                 let mut columns = Vec::new();
                 let mut foreign_columns = Vec::new();
@@ -59,8 +59,8 @@ impl Iterator for TableConstraintsQueryResultParser {
                         }));
                     }
 
-					columns.push(result.column_name.unwrap());
-					foreign_columns.push(result.referential_key_column_name.unwrap());
+                    columns.push(result.column_name.unwrap());
+                    foreign_columns.push(result.referential_key_column_name.unwrap());
                 }
 
                 Some(Constraint::References(References {
@@ -69,43 +69,43 @@ impl Iterator for TableConstraintsQueryResultParser {
                     foreign_columns,
                 }))
             }
-            
+
             "PRIMARY KEY" => {
-            	let mut columns = Vec::new();
+                let mut columns = Vec::new();
 
-            	columns.push(result.column_name.unwrap());
+                columns.push(result.column_name.unwrap());
 
-            	while let Some(result) = self.results.next() {
-					if result.constraint_name != constriant_name {
-						self.curr = Some(result);
-						return Some(Constraint::PrimaryKey(PrimaryKey(columns)));
-					}
+                while let Some(result) = self.results.next() {
+                    if result.constraint_name != constriant_name {
+                        self.curr = Some(result);
+                        return Some(Constraint::PrimaryKey(PrimaryKey(columns)));
+                    }
 
-					columns.push(result.column_name.unwrap());
-            	}
+                    columns.push(result.column_name.unwrap());
+                }
 
-            	Some(Constraint::PrimaryKey(PrimaryKey(columns)))
+                Some(Constraint::PrimaryKey(PrimaryKey(columns)))
             }
-            
+
             "UNIQUE" => {
-            	let mut columns = Vec::new();
+                let mut columns = Vec::new();
 
-            	columns.push(result.column_name.unwrap());
+                columns.push(result.column_name.unwrap());
 
-            	while let Some(result) = self.results.next() {
-					if result.constraint_name != constriant_name {
-						self.curr = Some(result);
-						return Some(Constraint::PrimaryKey(PrimaryKey(columns)));
-					}
+                while let Some(result) = self.results.next() {
+                    if result.constraint_name != constriant_name {
+                        self.curr = Some(result);
+                        return Some(Constraint::PrimaryKey(PrimaryKey(columns)));
+                    }
 
-					columns.push(result.column_name.unwrap());
-            	}
+                    columns.push(result.column_name.unwrap());
+                }
 
-            	Some(Constraint::PrimaryKey(PrimaryKey(columns)))
+                Some(Constraint::PrimaryKey(PrimaryKey(columns)))
             }
             _ => {
-				// FIXME: Invalid input error handling
-				None
+                // FIXME: Invalid input error handling
+                None
             }
         }
     }
