@@ -6,7 +6,10 @@ pub struct SchemaQueryBuilder;
 pub enum InformationSchema {
     #[iden = "information_schema"]
     Schema,
+    Columns,
+    CheckConstraints,
+    KeyColumnUsage,
+    ReferentialConstraints,
     Tables,
     TableConstraints,
-    Columns,
 }

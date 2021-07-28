@@ -277,7 +277,7 @@ pub fn parse_generation_expression(string: String) -> Option<ColumnExpression> {
     if string.is_empty() {
         None
     } else {
-        Some(ColumnExpression{ expr: string })
+        Some(ColumnExpression { expr: string })
     }
 }
 

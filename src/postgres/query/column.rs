@@ -54,7 +54,7 @@ pub struct ColumnQueryResult {
     // Declared or implicit parameters of numeric types; null for other data types
     pub numeric_precision: Option<i32>,
     pub numeric_precision_radix: Option<i32>,
-    pub numberic_scale: Option<i32>,
+    pub numeric_scale: Option<i32>,
 }
 
 impl SchemaQueryBuilder {
@@ -66,6 +66,9 @@ impl SchemaQueryBuilder {
                 ColumnsField::ColumnDefault,
                 ColumnsField::GeneratedExpression,
                 ColumnsField::IsNullable,
+                ColumnsField::NumericPrecision,
+                ColumnsField::NumericPrecisionRadix,
+                ColumnsField::NumericScale,
             ])
             .from((InformationSchema::Schema, InformationSchema::Columns))
             .and_where(Expr::col(ColumnsField::TableSchema).eq(schema.to_string()))
@@ -83,6 +86,9 @@ impl From<&PgRow> for ColumnQueryResult {
             column_default: row.get(2),
             column_generated: row.get(3),
             is_nullable: row.get(4),
+            numeric_precision: row.get(5),
+            numeric_precision_radix: row.get(6),
+            numeric_scale: row.get(7),
         }
     }
 }

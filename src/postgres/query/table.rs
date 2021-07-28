@@ -10,7 +10,6 @@ pub enum TablesFields {
     TableSchema,
     TableName,
     TableType,
-    UserDefinedTypeCatalog,
     UserDefinedTypeSchema,
     UserDefinedTypeName,
     // IsInsertableInto is always true for BASE TABLEs

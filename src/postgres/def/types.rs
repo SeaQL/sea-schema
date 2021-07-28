@@ -135,9 +135,30 @@ pub enum Type {
     /// A log sequence number
     PgLsn,
     // TODO: Pseudo-types
+    Unknown(String),
 }
 
-#[derive(Clone, Debug, PartialEq)]
+impl Type {
+    // TODO: Support more types
+    pub fn from_str(name: &str) -> Type {
+        match name.to_lowercase().as_str() {
+            "smallint" | "int2" => Type::SmallInt,
+            "integer" | "int" | "int4" => Type::Integer,
+            "bigint" | "int8" => Type::BigInt,
+            "decimal" => Type::Decimal(ArbitraryPrecisionNumericAttr::default()),
+            "numeric" => Type::Numeric(ArbitraryPrecisionNumericAttr::default()),
+            "real" | "float4" => Type::Real,
+            "double precision" | "double" | "float8" => Type::DoublePrecision,
+            "smallserial" | "serial2" => Type::SmallSerial,
+            "serial" | "serial4" => Type::Serial,
+            "bigserial" | "serial8" => Type::BigSerial,
+
+            _ => Type::Unknown(format!("{} is unknown or unimplemented", name)),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Default)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 /// The precision (number of significan digits) and scale (the number of digits in the fractional
 /// portion) of an arbitrary precision number (numeric or decimal). When both the precision and
@@ -147,4 +168,10 @@ pub struct ArbitraryPrecisionNumericAttr {
     pub precision: Option<u16>,
     /// The count of decimal digits in the fractional part; integers have a scale of 0
     pub scale: Option<u16>,
+}
+
+impl Type {
+    pub fn has_numeric_attr(&self) -> bool {
+        matches!(self, Type::Numeric(_) | Type::Decimal(_))
+    }
 }
