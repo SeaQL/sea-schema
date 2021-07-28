@@ -1,7 +1,7 @@
 [workspace]
 members = [
     ".",
-    "tests/discovery",
+    "tests/discovery/mysql",
     "tests/writer",
 ]
 
