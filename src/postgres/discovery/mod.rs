@@ -2,6 +2,7 @@
 
 use crate::debug_print;
 use crate::postgres::def::*;
+use crate::postgres::parser::parse_table_constraint_query_results;
 use crate::postgres::query::{
     ColumnQueryResult, SchemaQueryBuilder, TableConstraintsQueryResult, TableQueryResult,
 };
@@ -122,23 +123,38 @@ impl SchemaDiscovery {
         schema: Rc<dyn Iden>,
         table: Rc<dyn Iden>,
     ) -> (Vec<Check>, Vec<Unique>, Vec<References>) {
-        // let rows = self
-        //     .executor
-        //     .fetch_all(self.query.discover_constraints(schema.clone(), table.clone()))
-        //     .await;
+        let rows = self
+            .executor
+            .fetch_all(self.query.query_table_constriants(schema.clone(), table.clone()))
+            .await;
 
-        // let constraints: Vec<Constraint> = rows
-        //     .iter()
-        //     .map(|row| {
-        //         let result: TableConstraintsQueryResult = row.into();
-        //         debug_print!("{:?}", result);
-        //         let constraint = result.parse();
-        //         debug_print!("{:?}", result);
-        //         constraint
-        //     })
-        //     .collect();
-        // debug_print!();
+        let results: Vec<TableConstraintsQueryResult> = rows
+            .iter()
+            .map(|row| {
+                let result = row.into();
+                debug_print!("{:?}", result);
+                result
+            })
+            .collect();
+        debug_print!();
 
-        (Vec::new(), Vec::new(), Vec::new())
+        let constraints = parse_table_constraint_query_results(Box::new(results.into_iter()))
+            .map(|index| {
+                debug_print!("{:?}", index);
+                index
+            })
+            .collect::<Vec<_>>();
+        debug_print!();
+
+        constraints.into_iter()
+            .fold((Vec::new(), Vec::new(), Vec::new()), |mut acc, constraint| {
+                match constraint {
+                    Constraint::Check(check) => acc.0.push(check),
+                    Constraint::Unique(unique) => acc.1.push(unique),
+                    Constraint::References(references) => acc.2.push(references),
+                    _ => {},
+                }
+                acc
+            })
     }
 }

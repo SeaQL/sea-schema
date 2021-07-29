@@ -48,7 +48,7 @@ pub struct TableConstraintsQueryResult {
 }
 
 impl SchemaQueryBuilder {
-    pub fn query_table_constriants(schema: Rc<dyn Iden>, table: Rc<dyn Iden>) -> SelectStatement {
+    pub fn query_table_constriants(&self, schema: Rc<dyn Iden>, table: Rc<dyn Iden>) -> SelectStatement {
         type Schema = InformationSchema;
         type Tcf = TableConstraintsField;
         type Cf = CheckConstraintsFields;
@@ -61,6 +61,8 @@ impl SchemaQueryBuilder {
             .columns(vec![
                 (Schema::TableConstraints, Tcf::ConstraintSchema),
                 (Schema::TableConstraints, Tcf::ConstraintName),
+                (Schema::TableConstraints, Tcf::TableSchema),
+                (Schema::TableConstraints, Tcf::TableName),
                 (Schema::TableConstraints, Tcf::ConstraintType),
                 (Schema::TableConstraints, Tcf::IsDeferrable),
                 (Schema::TableConstraints, Tcf::InitiallyDeferred),

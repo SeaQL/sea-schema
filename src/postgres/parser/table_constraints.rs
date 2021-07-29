@@ -103,6 +103,7 @@ impl Iterator for TableConstraintsQueryResultParser {
 
                 Some(Constraint::PrimaryKey(PrimaryKey(columns)))
             }
+
             _ => {
                 // FIXME: Invalid input error handling
                 None
