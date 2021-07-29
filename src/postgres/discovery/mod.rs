@@ -79,9 +79,21 @@ impl SchemaDiscovery {
         let columns = self
             .discover_columns(self.schema.clone(), table.clone())
             .await;
-        let (check_constraints, unique_keys, references) = self
+        let constraints = self
             .discover_constraints(self.schema.clone(), table.clone())
             .await;
+        let (check_constraints, unique_keys, references) = constraints.into_iter().fold(
+            (Vec::new(), Vec::new(), Vec::new()),
+            |mut acc, constraint| {
+                match constraint {
+                    Constraint::Check(check) => acc.0.push(check),
+                    Constraint::Unique(unique) => acc.1.push(unique),
+                    Constraint::References(references) => acc.2.push(references),
+                    _ => {}
+                }
+                acc
+            },
+        );
 
         TableDef {
             info,
@@ -122,10 +134,13 @@ impl SchemaDiscovery {
         &self,
         schema: Rc<dyn Iden>,
         table: Rc<dyn Iden>,
-    ) -> (Vec<Check>, Vec<Unique>, Vec<References>) {
+    ) -> Vec<Constraint> {
         let rows = self
             .executor
-            .fetch_all(self.query.query_table_constriants(schema.clone(), table.clone()))
+            .fetch_all(
+                self.query
+                    .query_table_constriants(schema.clone(), table.clone()),
+            )
             .await;
 
         let results: Vec<TableConstraintsQueryResult> = rows
@@ -146,15 +161,6 @@ impl SchemaDiscovery {
             .collect::<Vec<_>>();
         debug_print!();
 
-        constraints.into_iter()
-            .fold((Vec::new(), Vec::new(), Vec::new()), |mut acc, constraint| {
-                match constraint {
-                    Constraint::Check(check) => acc.0.push(check),
-                    Constraint::Unique(unique) => acc.1.push(unique),
-                    Constraint::References(references) => acc.2.push(references),
-                    _ => {},
-                }
-                acc
-            })
+        constraints
     }
 }

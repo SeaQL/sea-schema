@@ -31,7 +31,7 @@ impl Iterator for TableConstraintsQueryResultParser {
             return None;
         };
 
-        let constriant_name = result.constraint_name;
+        let constraint_name = result.constraint_name;
         match result.constraint_type.as_str() {
             "CHECK" => {
                 Some(Constraint::Check(Check {
@@ -50,7 +50,7 @@ impl Iterator for TableConstraintsQueryResultParser {
                 foreign_columns.push(result.referential_key_column_name.unwrap());
 
                 while let Some(result) = self.results.next() {
-                    if result.constraint_name != constriant_name {
+                    if result.constraint_name != constraint_name {
                         self.curr = Some(result);
                         return Some(Constraint::References(References {
                             columns,
@@ -76,7 +76,7 @@ impl Iterator for TableConstraintsQueryResultParser {
                 columns.push(result.column_name.unwrap());
 
                 while let Some(result) = self.results.next() {
-                    if result.constraint_name != constriant_name {
+                    if result.constraint_name != constraint_name {
                         self.curr = Some(result);
                         return Some(Constraint::PrimaryKey(PrimaryKey(columns)));
                     }
@@ -93,15 +93,15 @@ impl Iterator for TableConstraintsQueryResultParser {
                 columns.push(result.column_name.unwrap());
 
                 while let Some(result) = self.results.next() {
-                    if result.constraint_name != constriant_name {
+                    if result.constraint_name != constraint_name {
                         self.curr = Some(result);
-                        return Some(Constraint::PrimaryKey(PrimaryKey(columns)));
+                        return Some(Constraint::Unique(Unique(columns)));
                     }
 
                     columns.push(result.column_name.unwrap());
                 }
 
-                Some(Constraint::PrimaryKey(PrimaryKey(columns)))
+                Some(Constraint::Unique(Unique(columns)))
             }
 
             _ => {

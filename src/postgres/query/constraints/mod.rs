@@ -48,7 +48,11 @@ pub struct TableConstraintsQueryResult {
 }
 
 impl SchemaQueryBuilder {
-    pub fn query_table_constriants(&self, schema: Rc<dyn Iden>, table: Rc<dyn Iden>) -> SelectStatement {
+    pub fn query_table_constriants(
+        &self,
+        schema: Rc<dyn Iden>,
+        table: Rc<dyn Iden>,
+    ) -> SelectStatement {
         type Schema = InformationSchema;
         type Tcf = TableConstraintsField;
         type Cf = CheckConstraintsFields;

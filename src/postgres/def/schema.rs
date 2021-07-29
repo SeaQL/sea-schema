@@ -20,6 +20,7 @@ pub struct TableDef {
     pub unique_keys: Vec<Unique>,
     pub references: Vec<References>,
 
+    // FIXME: Duplication? TableInfo also have of_type
     pub of_type: Option<Type>,
     // TODO:
     // pub inherets: Vec<String>,
