@@ -1,8 +1,7 @@
 #[cfg(feature = "with-serde")]
 use serde::{Deserialize, Serialize};
 
-use super::constraints;
-use super::Type;
+use super::{NotNull, Type};
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
@@ -16,7 +15,7 @@ pub struct ColumnInfo {
     pub default: Option<ColumnExpression>,
     /// The generation expression for this column, if it is a generated colum
     pub generated: Option<ColumnExpression>,
-    pub not_null: Option<constraints::NotNull>,
+    pub not_null: Option<NotNull>,
     // TODO:
     // /// A constraint that ensures the value of a column is unique among all other rows in the table
     // pub unique: Option<Vec<constraints::Unique>>,
@@ -36,7 +35,7 @@ pub type ColumnType = Type;
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
-pub struct ColumnExpression(String);
+pub struct ColumnExpression(pub String);
 
 impl ColumnExpression {
     pub fn from_option_string(maybe_string: Option<String>) -> Option<ColumnExpression> {
