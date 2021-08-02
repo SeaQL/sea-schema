@@ -242,7 +242,6 @@ Schema {
                 },
             ],
             exclusion_constraints: [],
-            of_type: None,
         },
         TableDef {
             info: TableInfo {
@@ -410,7 +409,6 @@ Schema {
                 },
             ],
             exclusion_constraints: [],
-            of_type: None,
         },
         TableDef {
             info: TableInfo {
@@ -491,7 +489,6 @@ Schema {
             ],
             reference_constraints: [],
             exclusion_constraints: [],
-            of_type: None,
         },
         TableDef {
             info: TableInfo {
@@ -595,7 +592,6 @@ Schema {
                 },
             ],
             exclusion_constraints: [],
-            of_type: None,
         },
         TableDef {
             info: TableInfo {
@@ -676,7 +672,6 @@ Schema {
             ],
             reference_constraints: [],
             exclusion_constraints: [],
-            of_type: None,
         },
         TableDef {
             info: TableInfo {
@@ -869,7 +864,6 @@ Schema {
                 },
             ],
             exclusion_constraints: [],
-            of_type: None,
         },
         TableDef {
             info: TableInfo {
@@ -960,7 +954,6 @@ Schema {
                 },
             ],
             exclusion_constraints: [],
-            of_type: None,
         },
         TableDef {
             info: TableInfo {
@@ -1051,7 +1044,6 @@ Schema {
                 },
             ],
             exclusion_constraints: [],
-            of_type: None,
         },
         TableDef {
             info: TableInfo {
@@ -1158,7 +1150,6 @@ Schema {
                 },
             ],
             exclusion_constraints: [],
-            of_type: None,
         },
         TableDef {
             info: TableInfo {
@@ -1239,7 +1230,6 @@ Schema {
             ],
             reference_constraints: [],
             exclusion_constraints: [],
-            of_type: None,
         },
         TableDef {
             info: TableInfo {
@@ -1400,7 +1390,6 @@ Schema {
                 },
             ],
             exclusion_constraints: [],
-            of_type: None,
         },
         TableDef {
             info: TableInfo {
@@ -1614,7 +1603,6 @@ Schema {
                 },
             ],
             exclusion_constraints: [],
-            of_type: None,
         },
         TableDef {
             info: TableInfo {
@@ -1721,7 +1709,6 @@ Schema {
                 },
             ],
             exclusion_constraints: [],
-            of_type: None,
         },
         TableDef {
             info: TableInfo {
@@ -1868,7 +1855,6 @@ Schema {
                 },
             ],
             exclusion_constraints: [],
-            of_type: None,
         },
         TableDef {
             info: TableInfo {
@@ -2013,7 +1999,6 @@ Schema {
                 },
             ],
             exclusion_constraints: [],
-            of_type: None,
         },
         TableDef {
             info: TableInfo {
@@ -2158,7 +2143,6 @@ Schema {
                 },
             ],
             exclusion_constraints: [],
-            of_type: None,
         },
         TableDef {
             info: TableInfo {
@@ -2303,7 +2287,6 @@ Schema {
                 },
             ],
             exclusion_constraints: [],
-            of_type: None,
         },
         TableDef {
             info: TableInfo {
@@ -2448,7 +2431,6 @@ Schema {
                 },
             ],
             exclusion_constraints: [],
-            of_type: None,
         },
         TableDef {
             info: TableInfo {
@@ -2593,7 +2575,6 @@ Schema {
                 },
             ],
             exclusion_constraints: [],
-            of_type: None,
         },
         TableDef {
             info: TableInfo {
@@ -2738,7 +2719,6 @@ Schema {
                 },
             ],
             exclusion_constraints: [],
-            of_type: None,
         },
         TableDef {
             info: TableInfo {
@@ -2940,7 +2920,6 @@ Schema {
             ],
             reference_constraints: [],
             exclusion_constraints: [],
-            of_type: None,
         },
     ],
 }

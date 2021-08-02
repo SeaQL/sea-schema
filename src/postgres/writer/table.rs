@@ -8,15 +8,15 @@ impl TableDef {
         for col in self.columns.iter() {
             table.col(col.write());
         }
-        // table.engine(self.info.engine.to_string().as_str());
-        // table.character_set(self.info.char_set.to_string().as_str());
-        // table.collate(self.info.collation.to_string().as_str());
-        // for idx in self.indexes.iter() {
-        //     table.index(idx.write());
-        // }
-        // for key in self.foreign_keys.iter() {
-        //     table.foreign_key(key.write());
-        // }
+        for primary_key in self.primary_key_constraints.iter() {
+            table.primary_key(primary_key.write());
+        }
+        for unique in self.unique_constraints.iter() {
+            table.index(unique.write());
+        }
+        for reference in self.reference_constraints.iter() {
+            table.foreign_key(reference.write());
+        }
         TableStatement::Create(table)
     }
 }

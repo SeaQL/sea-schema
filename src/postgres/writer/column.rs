@@ -10,23 +10,12 @@ impl ColumnInfo {
         if self.not_null.is_some() {
             col_def = col_def.not_null();
         }
-        // if self.extra.auto_increment {
-        //     col_def = col_def.auto_increment();
-        // }
         let mut extras = Vec::new();
         if let Some(default) = self.default.as_ref() {
             let mut string = "".to_owned();
             write!(&mut string, "DEFAULT {}", default.0).unwrap();
             extras.push(string);
         }
-        // if self.extra.on_update_current_timestamp {
-        //     extras.push("ON UPDATE CURRENT_TIMESTAMP".to_owned());
-        // }
-        // if !self.comment.is_empty() {
-        //     let mut string = "".to_owned();
-        //     write!(&mut string, "COMMENT '{}'", escape_string(&self.comment)).unwrap();
-        //     extras.push(string);
-        // }
         if !extras.is_empty() {
             col_def = col_def.extra(extras.join(" "));
         }
@@ -54,7 +43,19 @@ impl ColumnInfo {
                     );
                 }
             }
-            Type::Numeric(num_attr) => {}
+            Type::Numeric(num_attr) => {
+                col_def = col_def.extra("numeric".to_owned());
+                if num_attr.precision.is_some() {
+                    col_def = col_def.extra("(".to_owned());
+                    if let Some(precision) = num_attr.precision {
+                        col_def = col_def.extra(format!("{}", precision));
+                    }
+                    if let Some(scale) = num_attr.scale {
+                        col_def = col_def.extra(format!(", {}", scale));
+                    }
+                    col_def = col_def.extra(")".to_owned());
+                }
+            }
             Type::Real => {
                 col_def = col_def.float();
             }
@@ -73,42 +74,138 @@ impl ColumnInfo {
             Type::Money => {
                 col_def = col_def.money();
             }
-            Type::Varchar(string_att) => {}
-            Type::Char(string_att) => {}
-            Type::Text => {}
-            Type::Bytea => {}
-            Type::Timestamp(time_att) => {}
-            Type::TimestampWithTimeZone(time_att) => {}
-            Type::Date => {}
-            Type::Time(time_att) => {}
-            Type::TimeWithTimeZone(time_att) => {}
-            Type::Interval(time_att) => {}
-            Type::Boolean => {}
-            Type::Point => {}
-            Type::Line => {}
-            Type::Lseg => {}
-            Type::Box => {}
-            Type::Path => {}
-            Type::Polygon => {}
-            Type::Circle => {}
-            Type::Cidr => {}
-            Type::Inet => {}
-            Type::MacAddr => {}
-            Type::MacAddr8 => {}
-            Type::Bit(bit_attr) => {}
-            Type::TsVector => {}
-            Type::TsQuery => {}
-            Type::Uuid => {}
-            Type::Xml => {}
-            Type::Json => {}
-            Type::Array => {}
-            Type::Int4Range => {}
-            Type::Int8Range => {}
-            Type::NumRange => {}
-            Type::TsRange => {}
-            Type::TsTzRange => {}
-            Type::DateRange => {}
-            Type::PgLsn => {}
+            Type::Varchar(string_attr) => {
+                col_def = match string_attr.length {
+                    Some(length) => col_def.string_len(length.into()),
+                    None => col_def.string(),
+                };
+            }
+            Type::Char(string_attr) => {
+                col_def = match string_attr.length {
+                    Some(length) => col_def.char_len(length.into()),
+                    None => col_def.char(),
+                };
+            }
+            Type::Text => {
+                col_def = col_def.text();
+            }
+            Type::Bytea => {
+                // col_def = col_def.binary();
+                col_def = col_def.extra("bytea".to_owned());
+            }
+            Type::Timestamp(time_attr) => {
+                col_def = match time_attr.precision {
+                    Some(precision) => col_def.timestamp_len(precision.into()),
+                    None => col_def.timestamp(),
+                };
+            }
+            Type::TimestampWithTimeZone(time_attr) => {
+                col_def = match time_attr.precision {
+                    Some(precision) => col_def.timestamp_len(precision.into()),
+                    None => col_def.timestamp(),
+                };
+            }
+            Type::Date => {
+                col_def = col_def.date();
+            }
+            Type::Time(time_attr) => {
+                col_def = match time_attr.precision {
+                    Some(precision) => col_def.time_len(precision.into()),
+                    None => col_def.time(),
+                };
+            }
+            Type::TimeWithTimeZone(time_attr) => {
+                col_def = match time_attr.precision {
+                    Some(precision) => col_def.time_len(precision.into()),
+                    None => col_def.time(),
+                };
+            }
+            Type::Interval(time_attr) => {}
+            Type::Boolean => {
+                col_def = col_def.boolean();
+            }
+            Type::Point => {
+                col_def = col_def.extra("point".to_owned());
+            }
+            Type::Line => {
+                col_def = col_def.extra("line".to_owned());
+            }
+            Type::Lseg => {
+                col_def = col_def.extra("lseg".to_owned());
+            }
+            Type::Box => {
+                col_def = col_def.extra("box".to_owned());
+            }
+            Type::Path => {
+                col_def = col_def.extra("path".to_owned());
+            }
+            Type::Polygon => {
+                col_def = col_def.extra("ploygon".to_owned());
+            }
+            Type::Circle => {
+                col_def = col_def.extra("circle".to_owned());
+            }
+            Type::Cidr => {
+                col_def = col_def.extra("cidr".to_owned());
+            }
+            Type::Inet => {
+                col_def = col_def.extra("inet".to_owned());
+            }
+            Type::MacAddr => {
+                col_def = col_def.extra("macaddr".to_owned());
+            }
+            Type::MacAddr8 => {
+                col_def = col_def.extra("macaddr8".to_owned());
+            }
+            Type::Bit(bit_attr) => {
+                col_def = col_def.extra("bit".to_owned());
+                if bit_attr.length.is_some() {
+                    col_def = col_def.extra("(".to_owned());
+                    if let Some(length) = bit_attr.length {
+                        col_def = col_def.extra(format!("{}", length));
+                    }
+                    col_def = col_def.extra(")".to_owned());
+                }
+            }
+            Type::TsVector => {
+                col_def = col_def.extra("tsvector".to_owned());
+            }
+            Type::TsQuery => {
+                col_def = col_def.extra("tsquery".to_owned());
+            }
+            Type::Uuid => {
+                col_def = col_def.extra("uuid".to_owned());
+            }
+            Type::Xml => {
+                col_def = col_def.extra("xml".to_owned());
+            }
+            Type::Json => {
+                col_def = col_def.extra("json".to_owned());
+            }
+            Type::Array => {
+                col_def = col_def.extra("array".to_owned());
+            }
+            Type::Int4Range => {
+                col_def = col_def.extra("int4range".to_owned());
+            }
+            Type::Int8Range => {
+                col_def = col_def.extra("int8range".to_owned());
+            }
+            Type::NumRange => {
+                col_def = col_def.extra("numrange".to_owned());
+            }
+            Type::TsRange => {
+                col_def = col_def.extra("tsrange".to_owned());
+            }
+            Type::TsTzRange => {
+                col_def = col_def.extra("tstzrange".to_owned());
+            }
+            Type::DateRange => {
+                col_def = col_def.extra("daterange".to_owned());
+            }
+            Type::PgLsn => {
+                col_def = col_def.extra("pg_lsn".to_owned());
+            }
             Type::Unknown(s) => {
                 col_def = col_def.custom(Alias::new(s));
             }

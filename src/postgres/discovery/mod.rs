@@ -120,7 +120,6 @@ impl SchemaDiscovery {
             primary_key_constraints,
             reference_constraints,
             exclusion_constraints,
-            of_type: None,
         }
     }
 
