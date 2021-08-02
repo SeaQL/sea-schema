@@ -12,6 +12,8 @@ async fn main() {
 
     let schema = schema_discovery.discover().await;
 
+    println!("{:#?}", schema);
+
     for table in schema.tables.iter() {
         println!("{};", table.write().to_string(PostgresQueryBuilder));
         println!();

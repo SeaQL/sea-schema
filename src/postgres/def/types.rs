@@ -33,9 +33,9 @@ pub enum Type {
 
     // Character types
     /// Variable-length character array with limit
-    Varchar,
+    Varchar(StringAttr),
     /// Fixed-length character array; blank padded
-    Char,
+    Char(StringAttr),
     /// Variable, unlimited length character array
     Text,
 
@@ -44,13 +44,15 @@ pub enum Type {
 
     // Date/Time types
     /// Date and time
-    Timestamp,
+    Timestamp(TimeAttr),
+    TimestampWithTimeZone(TimeAttr),
     /// Date without time of day
     Date,
     /// Time without date
-    Time,
+    Time(TimeAttr),
+    TimeWithTimeZone(TimeAttr),
     /// Time interval
-    Interval,
+    Interval(IntervalAttr),
 
     /// One byte boolean value
     Boolean,
@@ -86,7 +88,7 @@ pub enum Type {
     MacAddr8,
 
     /// Fixed length bit string
-    Bit,
+    Bit(BitAttr),
 
     // Text search types
     /// A sorted list of distincp lexemes which are words that have been normalized to merge different
@@ -152,8 +154,48 @@ impl Type {
             "smallserial" | "serial2" => Type::SmallSerial,
             "serial" | "serial4" => Type::Serial,
             "bigserial" | "serial8" => Type::BigSerial,
+            "money" => Type::Money,
+            "character varying" | "varchar" => Type::Varchar(StringAttr::default()),
+            "character" | "char" => Type::Char(StringAttr::default()),
+            "text" => Type::Text,
+            "bytea" => Type::Bytea,
+            "timestamp" | "timestamp without time zone" => Type::Timestamp(TimeAttr::default()),
+            "timestamp with time zone" => Type::TimestampWithTimeZone(TimeAttr::default()),
+            "date" => Type::Date,
+            "time" | "time without time zone" => Type::Time(TimeAttr::default()),
+            "time with time zone" => Type::TimeWithTimeZone(TimeAttr::default()),
+            "interval" => Type::Interval(IntervalAttr::default()),
+            "boolean" => Type::Boolean,
+            // "" => Type::Enum,
+            "point" => Type::Point,
+            "line" => Type::Line,
+            "lseg" => Type::Lseg,
+            "box" => Type::Box,
+            "path" => Type::Path,
+            "polygon" => Type::Polygon,
+            "circle" => Type::Circle,
+            "cidr" => Type::Cidr,
+            "inet" => Type::Inet,
+            "macaddr" => Type::MacAddr,
+            "macaddr8" => Type::MacAddr8,
+            "bit" => Type::Bit(BitAttr::default()),
+            "tsvector" => Type::TsVector,
+            "tsquery" => Type::TsQuery,
+            "uuid" => Type::Uuid,
+            "xml" => Type::Xml,
+            "json" => Type::Json,
+            "array" => Type::Array,
+            // "" => Type::Composite,
+            "int4range" => Type::Int4Range,
+            "int8range" => Type::Int8Range,
+            "numrange" => Type::NumRange,
+            "tsrange" => Type::TsRange,
+            "tstzrange" => Type::TsTzRange,
+            "daterange" => Type::DateRange,
+            // "" => Type::Domain,
+            "pg_lsn" => Type::PgLsn,
 
-            _ => Type::Unknown(format!("{} is unknown or unimplemented", name)),
+            _ => Type::Unknown(name.to_owned()),
         }
     }
 }
@@ -170,8 +212,55 @@ pub struct ArbitraryPrecisionNumericAttr {
     pub scale: Option<u16>,
 }
 
+#[derive(Clone, Debug, PartialEq, Default)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
+pub struct StringAttr {
+    pub length: Option<u16>,
+}
+
+#[derive(Clone, Debug, PartialEq, Default)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
+pub struct TimeAttr {
+    pub precision: Option<u16>,
+}
+
+#[derive(Clone, Debug, PartialEq, Default)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
+pub struct IntervalAttr {
+    pub field: Option<String>,
+    pub precision: Option<u16>,
+}
+
+#[derive(Clone, Debug, PartialEq, Default)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
+pub struct BitAttr {
+    pub length: Option<u16>,
+}
+
 impl Type {
     pub fn has_numeric_attr(&self) -> bool {
         matches!(self, Type::Numeric(_) | Type::Decimal(_))
+    }
+
+    pub fn has_string_attr(&self) -> bool {
+        matches!(self, Type::Varchar(_) | Type::Char(_))
+    }
+
+    pub fn has_time_attr(&self) -> bool {
+        matches!(
+            self,
+            Type::Timestamp(_)
+                | Type::TimestampWithTimeZone(_)
+                | Type::Time(_)
+                | Type::TimeWithTimeZone(_)
+        )
+    }
+
+    pub fn has_interval_attr(&self) -> bool {
+        matches!(self, Type::Interval(_))
+    }
+
+    pub fn has_bit_attr(&self) -> bool {
+        matches!(self, Type::Bit(_))
     }
 }

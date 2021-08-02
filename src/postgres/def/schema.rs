@@ -17,8 +17,11 @@ pub struct TableDef {
     pub columns: Vec<ColumnInfo>,
 
     pub check_constraints: Vec<Check>,
-    pub unique_keys: Vec<Unique>,
-    pub references: Vec<References>,
+    pub not_null_constraints: Vec<NotNull>,
+    pub unique_constraints: Vec<Unique>,
+    pub primary_key_constraints: Vec<PrimaryKey>,
+    pub reference_constraints: Vec<References>,
+    pub exclusion_constraints: Vec<Exclusion>,
 
     // FIXME: Duplication? TableInfo also have of_type
     pub of_type: Option<Type>,

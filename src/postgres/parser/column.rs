@@ -8,7 +8,7 @@ use crate::{
     Name,
 };
 
-use std::convert::TryFrom;
+use std::convert::{TryFrom, TryInto};
 
 impl ColumnQueryResult {
     pub fn parse(self) -> ColumnInfo {
@@ -22,7 +22,7 @@ pub fn parse_column_query_result(result: ColumnQueryResult) -> ColumnInfo {
         col_type: parse_column_type(&result),
         default: ColumnExpression::from_option_string(result.column_default),
         generated: ColumnExpression::from_option_string(result.column_generated),
-        not_null: NotNull::from_bool(yes_or_no_to_bool(&result.is_nullable)),
+        not_null: NotNull::from_bool(!yes_or_no_to_bool(&result.is_nullable)),
     }
 }
 
@@ -33,22 +33,34 @@ pub fn parse_column_type(result: &ColumnQueryResult) -> ColumnType {
         return Type::Unknown(String::default());
     }
 
-    let ctype = if let Some(word) = parser_type.next_if_unquoted_any() {
+    let mut ctype = if let Some(word) = parser_type.next_if_unquoted_any() {
         Type::from_str(word.as_str())
     } else {
         Type::from_str("")
     };
 
     if ctype.has_numeric_attr() {
-        parse_numeric_attributes(
+        ctype = parse_numeric_attributes(
             result.numeric_precision,
             result.numeric_precision_radix,
             result.numeric_scale,
             ctype,
-        )
-    } else {
-        ctype
+        );
     }
+    if ctype.has_string_attr() {
+        ctype = parse_string_attributes(result.character_maximum_length, ctype);
+    }
+    if ctype.has_time_attr() {
+        ctype = parse_time_attributes(result.datetime_precision, ctype);
+    }
+    if ctype.has_interval_attr() {
+        ctype = parse_interval_attributes(&result.interval_type, result.interval_precision, ctype);
+    }
+    if ctype.has_bit_attr() {
+        ctype = parse_bit_attributes(result.character_maximum_length, ctype);
+    }
+
+    ctype
 }
 
 pub fn parse_numeric_attributes(
@@ -85,6 +97,88 @@ pub fn parse_numeric_attributes(
             attr.scale = numeric_scale;
         }
         _ => panic!("parse_numeric_attributes(_) received a type other than Decimal or Numeric"),
+    };
+
+    ctype
+}
+
+pub fn parse_string_attributes(
+    character_maximum_length: Option<i32>,
+    mut ctype: ColumnType,
+) -> ColumnType {
+    match ctype {
+        Type::Varchar(ref mut attr) | Type::Char(ref mut attr) => {
+            attr.length = match character_maximum_length {
+                None => None,
+                Some(num) => match u16::try_from(num) {
+                    Ok(num) => Some(num),
+                    Err(e) => None,
+                },
+            };
+        }
+        _ => panic!("parse_string_attributes(_) received a type that does not have StringAttr"),
+    };
+
+    ctype
+}
+
+pub fn parse_time_attributes(datetime_precision: Option<i32>, mut ctype: ColumnType) -> ColumnType {
+    match ctype {
+        Type::Timestamp(ref mut attr)
+        | Type::TimestampWithTimeZone(ref mut attr)
+        | Type::Time(ref mut attr)
+        | Type::TimeWithTimeZone(ref mut attr) => {
+            attr.precision = match datetime_precision {
+                None => None,
+                Some(num) => match u16::try_from(num) {
+                    Ok(num) => Some(num),
+                    Err(e) => None,
+                },
+            };
+        }
+        _ => panic!("parse_time_attributes(_) received a type that does not have TimeAttr"),
+    };
+
+    ctype
+}
+
+pub fn parse_interval_attributes(
+    interval_type: &Option<String>,
+    interval_precision: Option<i32>,
+    mut ctype: ColumnType,
+) -> ColumnType {
+    match ctype {
+        Type::Interval(ref mut attr) => {
+            attr.field = interval_type.clone();
+            attr.precision = match interval_precision {
+                None => None,
+                Some(num) => match u16::try_from(num) {
+                    Ok(num) => Some(num),
+                    Err(e) => None,
+                },
+            };
+        }
+        _ => panic!("parse_interval_attributes(_) received a type that does not have IntervalAttr"),
+    };
+
+    ctype
+}
+
+pub fn parse_bit_attributes(
+    character_maximum_length: Option<i32>,
+    mut ctype: ColumnType,
+) -> ColumnType {
+    match ctype {
+        Type::Bit(ref mut attr) => {
+            attr.length = match character_maximum_length {
+                None => None,
+                Some(num) => match u16::try_from(num) {
+                    Ok(num) => Some(num),
+                    Err(e) => None,
+                },
+            };
+        }
+        _ => panic!("parse_bit_attributes(_) received a type that does not have BitAttr"),
     };
 
     ctype

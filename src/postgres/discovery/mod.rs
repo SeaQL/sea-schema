@@ -82,14 +82,30 @@ impl SchemaDiscovery {
         let constraints = self
             .discover_constraints(self.schema.clone(), table.clone())
             .await;
-        let (check_constraints, unique_keys, references) = constraints.into_iter().fold(
-            (Vec::new(), Vec::new(), Vec::new()),
+        let (
+            check_constraints,
+            not_null_constraints,
+            unique_constraints,
+            primary_key_constraints,
+            reference_constraints,
+            exclusion_constraints,
+        ) = constraints.into_iter().fold(
+            (
+                Vec::new(),
+                Vec::new(),
+                Vec::new(),
+                Vec::new(),
+                Vec::new(),
+                Vec::new(),
+            ),
             |mut acc, constraint| {
                 match constraint {
                     Constraint::Check(check) => acc.0.push(check),
-                    Constraint::Unique(unique) => acc.1.push(unique),
-                    Constraint::References(references) => acc.2.push(references),
-                    _ => {}
+                    Constraint::NotNull(not_null) => acc.1.push(not_null),
+                    Constraint::Unique(unique) => acc.2.push(unique),
+                    Constraint::PrimaryKey(primary_key) => acc.3.push(primary_key),
+                    Constraint::References(references) => acc.4.push(references),
+                    Constraint::Exclusion(exclusion) => acc.5.push(exclusion),
                 }
                 acc
             },
@@ -99,8 +115,11 @@ impl SchemaDiscovery {
             info,
             columns,
             check_constraints,
-            unique_keys,
-            references,
+            not_null_constraints,
+            unique_constraints,
+            primary_key_constraints,
+            reference_constraints,
+            exclusion_constraints,
             of_type: None,
         }
     }

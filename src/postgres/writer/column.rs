@@ -7,7 +7,7 @@ impl ColumnInfo {
     pub fn write(&self) -> ColumnDef {
         let mut col_def = ColumnDef::new(Alias::new(self.name.as_str()));
         col_def = self.write_col_type(col_def);
-        if !self.not_null.is_some() {
+        if self.not_null.is_some() {
             col_def = col_def.not_null();
         }
         // if self.extra.auto_increment {
@@ -73,14 +73,16 @@ impl ColumnInfo {
             Type::Money => {
                 col_def = col_def.money();
             }
-            Type::Varchar => {}
-            Type::Char => {}
+            Type::Varchar(string_att) => {}
+            Type::Char(string_att) => {}
             Type::Text => {}
             Type::Bytea => {}
-            Type::Timestamp => {}
+            Type::Timestamp(time_att) => {}
+            Type::TimestampWithTimeZone(time_att) => {}
             Type::Date => {}
-            Type::Time => {}
-            Type::Interval => {}
+            Type::Time(time_att) => {}
+            Type::TimeWithTimeZone(time_att) => {}
+            Type::Interval(time_att) => {}
             Type::Boolean => {}
             Type::Point => {}
             Type::Line => {}
@@ -93,7 +95,7 @@ impl ColumnInfo {
             Type::Inet => {}
             Type::MacAddr => {}
             Type::MacAddr8 => {}
-            Type::Bit => {}
+            Type::Bit(bit_attr) => {}
             Type::TsVector => {}
             Type::TsQuery => {}
             Type::Uuid => {}
