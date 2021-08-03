@@ -1,5 +1,5 @@
 # Run
 
 ```sh
-cargo run > schema.sql
+cargo run
 ```
