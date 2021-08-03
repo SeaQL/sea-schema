@@ -8,6 +8,8 @@ pub mod mysql;
 #[cfg_attr(docsrs, doc(cfg(feature = "postgres")))]
 pub mod postgres;
 
+pub use sea_query;
+
 pub(crate) mod parser;
 pub(crate) mod sqlx_types;
 pub(crate) mod util;

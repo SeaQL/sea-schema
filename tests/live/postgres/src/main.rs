@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use sea_query::{
+use sea_schema::sea_query::{
     Alias, ColumnDef, ForeignKey, Index, PostgresQueryBuilder, Table, TableCreateStatement,
 };
 use sea_schema::postgres::{def::TableDef, discovery::SchemaDiscovery};

@@ -1,4 +1,4 @@
-use sea_query::MysqlQueryBuilder;
+use sea_schema::sea_query::MysqlQueryBuilder;
 use sea_schema::mysql::discovery::SchemaDiscovery;
 use sqlx::MySqlPool;
 
