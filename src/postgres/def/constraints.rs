@@ -19,6 +19,7 @@ pub enum Constraint {
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 /// A constraint which states that a value must satisfy the following Boolean expression
 pub struct Check {
+    pub name: String,
     /// The Boolean expression that must be satisfied
     pub expr: String,
     /// If marked with NO INHERIT, the constraint will not propogate to child tables
@@ -43,18 +44,25 @@ impl NotNull {
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 /// That each set of values for these columns must be unique across the whole table
-pub struct Unique(pub Vec<String>);
+pub struct Unique {
+    pub name: String,
+    pub columns: Vec<String>,
+}
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 /// A constraint stating that the given columns act as a unique identifier for rows in the table.
 /// This implies that the columns are not null and are unique together
-pub struct PrimaryKey(pub Vec<String>);
+pub struct PrimaryKey {
+    pub name: String,
+    pub columns: Vec<String>,
+}
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 /// A constraint that column references the values appearing in the row of another table
 pub struct References {
+    pub name: String,
     pub columns: Vec<String>,
     pub table: String,
     pub foreign_columns: Vec<String>,
@@ -83,6 +91,7 @@ pub enum ForeignKeyAction {
 /// expressions using the specified operators, at least one of these operator comparisons returns
 /// false or null
 pub struct Exclusion {
+    pub name: String,
     pub using: String,
     pub columns: Vec<String>,
     pub operation: String,

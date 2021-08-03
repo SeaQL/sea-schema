@@ -90,7 +90,12 @@ fn create_bakery_table() -> TableCreateStatement {
         )
         .col(ColumnDef::new(Alias::new("name")).string())
         .col(ColumnDef::new(Alias::new("profit_margin")).double())
-        .primary_key(Index::create().primary().col(Alias::new("id")))
+        .primary_key(
+            Index::create()
+                .primary()
+                .name("bakery_pkey")
+                .col(Alias::new("id")),
+        )
         .to_owned()
 }
 
@@ -106,10 +111,15 @@ fn create_baker_table() -> TableCreateStatement {
         .col(ColumnDef::new(Alias::new("name")).string())
         .col(ColumnDef::new(Alias::new("contact_details")).json())
         .col(ColumnDef::new(Alias::new("bakery_id")).integer())
-        .primary_key(Index::create().primary().col(Alias::new("id")))
+        .primary_key(
+            Index::create()
+                .primary()
+                .name("baker_pkey")
+                .col(Alias::new("id")),
+        )
         .foreign_key(
             ForeignKey::create()
-                // .name("FK_baker_bakery")
+                .name("FK_baker_bakery")
                 .from(Alias::new("baker"), Alias::new("bakery_id"))
                 .to(Alias::new("bakery"), Alias::new("id"))
                 .on_delete(ForeignKeyAction::Cascade)
@@ -129,7 +139,12 @@ fn create_customer_table() -> TableCreateStatement {
         )
         .col(ColumnDef::new(Alias::new("name")).string())
         .col(ColumnDef::new(Alias::new("notes")).text())
-        .primary_key(Index::create().primary().col(Alias::new("id")))
+        .primary_key(
+            Index::create()
+                .primary()
+                .name("customer_pkey")
+                .col(Alias::new("id")),
+        )
         .to_owned()
 }
 
@@ -154,10 +169,15 @@ fn create_order_table() -> TableCreateStatement {
                 .timestamp_len(6)
                 .not_null(),
         )
-        .primary_key(Index::create().primary().col(Alias::new("id")))
+        .primary_key(
+            Index::create()
+                .primary()
+                .name("order_pkey")
+                .col(Alias::new("id")),
+        )
         .foreign_key(
             ForeignKey::create()
-                // .name("FK_order_bakery")
+                .name("FK_order_bakery")
                 .from(Alias::new("order"), Alias::new("bakery_id"))
                 .to(Alias::new("bakery"), Alias::new("id"))
                 .on_delete(ForeignKeyAction::Cascade)
@@ -165,7 +185,7 @@ fn create_order_table() -> TableCreateStatement {
         )
         .foreign_key(
             ForeignKey::create()
-                // .name("FK_order_customer")
+                .name("FK_order_customer")
                 .from(Alias::new("order"), Alias::new("customer_id"))
                 .to(Alias::new("customer"), Alias::new("id"))
                 .on_delete(ForeignKeyAction::Cascade)
@@ -187,10 +207,15 @@ fn create_lineitem_table() -> TableCreateStatement {
         .col(ColumnDef::new(Alias::new("quantity")).integer())
         .col(ColumnDef::new(Alias::new("order_id")).integer().not_null())
         .col(ColumnDef::new(Alias::new("cake_id")).integer().not_null())
-        .primary_key(Index::create().primary().col(Alias::new("id")))
+        .primary_key(
+            Index::create()
+                .primary()
+                .name("lineitem_pkey")
+                .col(Alias::new("id")),
+        )
         .foreign_key(
             ForeignKey::create()
-                // .name("FK_lineitem_cake")
+                .name("FK_lineitem_cake")
                 .from(Alias::new("lineitem"), Alias::new("cake_id"))
                 .to(Alias::new("cake"), Alias::new("id"))
                 .on_delete(ForeignKeyAction::Cascade)
@@ -198,7 +223,7 @@ fn create_lineitem_table() -> TableCreateStatement {
         )
         .foreign_key(
             ForeignKey::create()
-                // .name("FK_lineitem_order")
+                .name("FK_lineitem_order")
                 .from(Alias::new("lineitem"), Alias::new("order_id"))
                 .to(Alias::new("order"), Alias::new("id"))
                 .on_delete(ForeignKeyAction::Cascade)
@@ -214,6 +239,7 @@ fn create_cakes_bakers_table() -> TableCreateStatement {
         .col(ColumnDef::new(Alias::new("baker_id")).integer().not_null())
         .primary_key(
             Index::create()
+                .name("cakes_bakers_pkey")
                 .col(Alias::new("cake_id"))
                 .col(Alias::new("baker_id")),
         )
@@ -234,10 +260,15 @@ fn create_cake_table() -> TableCreateStatement {
         .col(ColumnDef::new(Alias::new("bakery_id")).integer().not_null())
         .col(ColumnDef::new(Alias::new("gluten_free")).boolean())
         .col(ColumnDef::new(Alias::new("serial")).uuid())
-        .primary_key(Index::create().primary().col(Alias::new("id")))
+        .primary_key(
+            Index::create()
+                .primary()
+                .name("cake_pkey")
+                .col(Alias::new("id")),
+        )
         .foreign_key(
             ForeignKey::create()
-                // .name("FK_cake_bakery")
+                .name("FK_cake_bakery")
                 .from(Alias::new("cake"), Alias::new("bakery_id"))
                 .to(Alias::new("bakery"), Alias::new("id"))
                 .on_delete(ForeignKeyAction::Cascade)
