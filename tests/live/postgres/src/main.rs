@@ -20,7 +20,6 @@ async fn main() {
 
     for (_, tbl_create_stmt) in tables.iter() {
         let sql = tbl_create_stmt.to_string(PostgresQueryBuilder);
-        let sql = replace_sql(sql);
         println!("{};", sql);
         println!();
         sqlx::query(&sql).execute(&mut executor).await.unwrap();
@@ -38,10 +37,8 @@ async fn main() {
 
     for (table, tbl_create_stmt) in tables.into_iter() {
         let expected_sql = tbl_create_stmt.to_string(PostgresQueryBuilder);
-        let expected_sql = replace_sql(expected_sql);
         let table = map.get(table).unwrap();
         let sql = table.write().to_string(PostgresQueryBuilder);
-        let sql = replace_sql(sql);
         println!("Expected SQL:");
         println!("{};", expected_sql);
         println!("Generated SQL:");
@@ -49,11 +46,6 @@ async fn main() {
         println!();
         assert_eq!(expected_sql, sql);
     }
-}
-
-pub fn replace_sql(sql: String) -> String {
-    sql.replace("UNIQUE KEY", "UNIQUE")
-        .replace("CONSTRAINT FOREIGN KEY", "FOREIGN KEY")
 }
 
 pub async fn setup(base_url: &str, db_name: &str) -> Pool<Postgres> {
