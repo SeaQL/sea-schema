@@ -1,20 +1,36 @@
 use crate::postgres::def::{ArbitraryPrecisionNumericAttr, ColumnInfo, Type};
 use core::num;
 use sea_query::{escape_string, Alias, ColumnDef, Iden};
-use std::fmt::Write;
+use std::{default, fmt::Write};
 
 impl ColumnInfo {
     pub fn write(&self) -> ColumnDef {
+        let mut self_copy = self.clone();
         let mut col_def = ColumnDef::new(Alias::new(self.name.as_str()));
-        col_def = self.write_col_type(col_def);
+        let mut extras: Vec<String> = Vec::new();
+        if let Some(default) = self.default.as_ref() {
+            if default.0.starts_with("nextval") {
+                match self.col_type {
+                    Type::SmallInt => {
+                        self_copy.col_type = Type::SmallSerial;
+                    }
+                    Type::Integer => {
+                        self_copy.col_type = Type::Serial;
+                    }
+                    Type::BigInt => {
+                        self_copy.col_type = Type::BigSerial;
+                    }
+                    _ => {}
+                }
+            } else {
+                let mut string = "".to_owned();
+                write!(&mut string, "DEFAULT {}", default.0).unwrap();
+                extras.push(string);
+            }
+        }
+        col_def = self_copy.write_col_type(col_def);
         if self.not_null.is_some() {
             col_def = col_def.not_null();
-        }
-        let mut extras = Vec::new();
-        if let Some(default) = self.default.as_ref() {
-            let mut string = "".to_owned();
-            write!(&mut string, "DEFAULT {}", default.0).unwrap();
-            extras.push(string);
         }
         if !extras.is_empty() {
             col_def = col_def.extra(extras.join(" "));
@@ -33,7 +49,7 @@ impl ColumnInfo {
             Type::BigInt => {
                 col_def = col_def.big_integer();
             }
-            Type::Decimal(num_attr) => {
+            Type::Decimal(num_attr) | Type::Numeric(num_attr) => {
                 if num_attr.precision.is_none() & num_attr.scale.is_none() {
                     col_def = col_def.decimal();
                 } else {
@@ -41,19 +57,6 @@ impl ColumnInfo {
                         num_attr.precision.unwrap_or(0) as u32,
                         num_attr.scale.unwrap_or(0) as u32,
                     );
-                }
-            }
-            Type::Numeric(num_attr) => {
-                col_def = col_def.extra("numeric".to_owned());
-                if num_attr.precision.is_some() {
-                    col_def = col_def.extra("(".to_owned());
-                    if let Some(precision) = num_attr.precision {
-                        col_def = col_def.extra(format!("{}", precision));
-                    }
-                    if let Some(scale) = num_attr.scale {
-                        col_def = col_def.extra(format!(", {}", scale));
-                    }
-                    col_def = col_def.extra(")".to_owned());
                 }
             }
             Type::Real => {
