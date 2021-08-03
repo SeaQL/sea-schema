@@ -29,14 +29,10 @@ pub fn parse_column_query_result(result: ColumnQueryResult) -> ColumnInfo {
 pub fn parse_column_type(result: &ColumnQueryResult) -> ColumnType {
     let mut parser_type = Parser::new(&result.column_type);
 
-    if parser_type.curr().is_none() {
+    let mut ctype = if parser_type.curr().is_none() {
         return Type::Unknown(String::default());
-    }
-
-    let mut ctype = if let Some(word) = parser_type.next_if_unquoted_any() {
-        Type::from_str(word.as_str())
     } else {
-        Type::from_str("")
+        Type::from_str(result.column_type.as_str())
     };
 
     if ctype.has_numeric_attr() {

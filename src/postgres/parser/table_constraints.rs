@@ -48,6 +48,10 @@ impl Iterator for TableConstraintsQueryResultParser {
                 columns.push(result.column_name.unwrap());
                 let table = result.referential_key_table_name.unwrap();
                 foreign_columns.push(result.referential_key_column_name.unwrap());
+                let on_update =
+                    ForeignKeyAction::from_str(&result.update_rule.clone().unwrap_or_default());
+                let on_delete =
+                    ForeignKeyAction::from_str(&result.delete_rule.clone().unwrap_or_default());
 
                 while let Some(result) = self.results.next() {
                     if result.constraint_name != constraint_name {
@@ -56,6 +60,8 @@ impl Iterator for TableConstraintsQueryResultParser {
                             columns,
                             table,
                             foreign_columns,
+                            on_update,
+                            on_delete,
                         }));
                     }
 
@@ -67,6 +73,8 @@ impl Iterator for TableConstraintsQueryResultParser {
                     columns,
                     table,
                     foreign_columns,
+                    on_update,
+                    on_delete,
                 }))
             }
 

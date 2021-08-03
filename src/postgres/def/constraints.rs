@@ -1,6 +1,8 @@
 #[cfg(feature = "with-serde")]
 use serde::{Deserialize, Serialize};
 
+use crate as sea_schema;
+
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 /// An enum consisting of all constraints
@@ -56,6 +58,23 @@ pub struct References {
     pub columns: Vec<String>,
     pub table: String,
     pub foreign_columns: Vec<String>,
+    pub on_update: Option<ForeignKeyAction>,
+    pub on_delete: Option<ForeignKeyAction>,
+}
+
+#[derive(Clone, Debug, PartialEq, sea_schema_derive::Name)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
+pub enum ForeignKeyAction {
+    #[name = "CASCADE"]
+    Cascade,
+    #[name = "SET NULL"]
+    SetNull,
+    #[name = "SET DEFAULT"]
+    SetDefault,
+    #[name = "RESTRICT"]
+    Restrict,
+    #[name = "NO ACTION"]
+    NoAction,
 }
 
 #[derive(Clone, Debug, PartialEq)]

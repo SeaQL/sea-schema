@@ -1,4 +1,4 @@
-use crate::postgres::def::{PrimaryKey, References, Unique};
+use crate::postgres::def::{ForeignKeyAction, PrimaryKey, References, Unique};
 use sea_query::{Alias, ForeignKey, ForeignKeyCreateStatement, Index, IndexCreateStatement};
 
 impl PrimaryKey {
@@ -31,20 +31,24 @@ impl References {
         for ref_col in self.foreign_columns.iter() {
             key = key.to_col(Alias::new(&ref_col));
         }
-        // key = key.on_update(match self.on_update {
-        //     ForeignKeyAction::Cascade => sea_query::ForeignKeyAction::Cascade,
-        //     ForeignKeyAction::SetNull => sea_query::ForeignKeyAction::SetNull,
-        //     ForeignKeyAction::SetDefault => sea_query::ForeignKeyAction::SetDefault,
-        //     ForeignKeyAction::Restrict => sea_query::ForeignKeyAction::Restrict,
-        //     ForeignKeyAction::NoAction => sea_query::ForeignKeyAction::NoAction,
-        // });
-        // key = key.on_delete(match self.on_delete {
-        //     ForeignKeyAction::Cascade => sea_query::ForeignKeyAction::Cascade,
-        //     ForeignKeyAction::SetNull => sea_query::ForeignKeyAction::SetNull,
-        //     ForeignKeyAction::SetDefault => sea_query::ForeignKeyAction::SetDefault,
-        //     ForeignKeyAction::Restrict => sea_query::ForeignKeyAction::Restrict,
-        //     ForeignKeyAction::NoAction => sea_query::ForeignKeyAction::NoAction,
-        // });
+        if let Some(on_update) = &self.on_update {
+            key = key.on_update(match on_update {
+                ForeignKeyAction::Cascade => sea_query::ForeignKeyAction::Cascade,
+                ForeignKeyAction::SetNull => sea_query::ForeignKeyAction::SetNull,
+                ForeignKeyAction::SetDefault => sea_query::ForeignKeyAction::SetDefault,
+                ForeignKeyAction::Restrict => sea_query::ForeignKeyAction::Restrict,
+                ForeignKeyAction::NoAction => sea_query::ForeignKeyAction::NoAction,
+            });
+        }
+        if let Some(on_delete) = &self.on_delete {
+            key = key.on_delete(match on_delete {
+                ForeignKeyAction::Cascade => sea_query::ForeignKeyAction::Cascade,
+                ForeignKeyAction::SetNull => sea_query::ForeignKeyAction::SetNull,
+                ForeignKeyAction::SetDefault => sea_query::ForeignKeyAction::SetDefault,
+                ForeignKeyAction::Restrict => sea_query::ForeignKeyAction::Restrict,
+                ForeignKeyAction::NoAction => sea_query::ForeignKeyAction::NoAction,
+            });
+        }
         key
     }
 }
