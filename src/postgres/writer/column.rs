@@ -93,8 +93,7 @@ impl ColumnInfo {
                 col_def = col_def.text();
             }
             Type::Bytea => {
-                // col_def = col_def.binary();
-                col_def = col_def.extra("bytea".to_owned());
+                col_def = col_def.binary();
             }
             Type::Timestamp(time_attr) => {
                 col_def = match time_attr.precision {
@@ -128,86 +127,88 @@ impl ColumnInfo {
                 col_def = col_def.boolean();
             }
             Type::Point => {
-                col_def = col_def.extra("point".to_owned());
+                col_def = col_def.custom(Alias::new("point"));
             }
             Type::Line => {
-                col_def = col_def.extra("line".to_owned());
+                col_def = col_def.custom(Alias::new("line"));
             }
             Type::Lseg => {
-                col_def = col_def.extra("lseg".to_owned());
+                col_def = col_def.custom(Alias::new("lseg"));
             }
             Type::Box => {
-                col_def = col_def.extra("box".to_owned());
+                col_def = col_def.custom(Alias::new("box"));
             }
             Type::Path => {
-                col_def = col_def.extra("path".to_owned());
+                col_def = col_def.custom(Alias::new("path"));
             }
             Type::Polygon => {
-                col_def = col_def.extra("ploygon".to_owned());
+                col_def = col_def.custom(Alias::new("ploygon"));
             }
             Type::Circle => {
-                col_def = col_def.extra("circle".to_owned());
+                col_def = col_def.custom(Alias::new("circle"));
             }
             Type::Cidr => {
-                col_def = col_def.extra("cidr".to_owned());
+                col_def = col_def.custom(Alias::new("cidr"));
             }
             Type::Inet => {
-                col_def = col_def.extra("inet".to_owned());
+                col_def = col_def.custom(Alias::new("inet"));
             }
             Type::MacAddr => {
-                col_def = col_def.extra("macaddr".to_owned());
+                col_def = col_def.custom(Alias::new("macaddr"));
             }
             Type::MacAddr8 => {
-                col_def = col_def.extra("macaddr8".to_owned());
+                col_def = col_def.custom(Alias::new("macaddr8"));
             }
             Type::Bit(bit_attr) => {
-                col_def = col_def.extra("bit".to_owned());
+                let mut str = String::new();
+                write!(str, "bit");
                 if bit_attr.length.is_some() {
-                    col_def = col_def.extra("(".to_owned());
+                    write!(str, "(");
                     if let Some(length) = bit_attr.length {
-                        col_def = col_def.extra(format!("{}", length));
+                        write!(str, "{}", length);
                     }
-                    col_def = col_def.extra(")".to_owned());
+                    write!(str, ")");
                 }
+                col_def = col_def.custom(Alias::new(&str));
             }
             Type::TsVector => {
-                col_def = col_def.extra("tsvector".to_owned());
+                col_def = col_def.custom(Alias::new("tsvector"));
             }
             Type::TsQuery => {
-                col_def = col_def.extra("tsquery".to_owned());
+                col_def = col_def.custom(Alias::new("tsquery"));
             }
             Type::Uuid => {
-                col_def = col_def.extra("uuid".to_owned());
+                col_def = col_def.custom(Alias::new("uuid"));
             }
             Type::Xml => {
-                col_def = col_def.extra("xml".to_owned());
+                col_def = col_def.custom(Alias::new("xml"));
             }
             Type::Json => {
-                col_def = col_def.extra("json".to_owned());
+                col_def = col_def.custom(Alias::new("json"));
             }
             Type::Array => {
-                col_def = col_def.extra("array".to_owned());
+                col_def = col_def.custom(Alias::new("array"));
             }
             Type::Int4Range => {
-                col_def = col_def.extra("int4range".to_owned());
+                col_def = col_def.custom(Alias::new("int4range"));
             }
             Type::Int8Range => {
-                col_def = col_def.extra("int8range".to_owned());
+                col_def = col_def.custom(Alias::new("int8range"));
             }
             Type::NumRange => {
-                col_def = col_def.extra("numrange".to_owned());
+                col_def = col_def.custom(Alias::new("numrange"));
             }
             Type::TsRange => {
-                col_def = col_def.extra("tsrange".to_owned());
+                col_def = col_def.custom(Alias::new("tsrange"));
             }
             Type::TsTzRange => {
-                col_def = col_def.extra("tstzrange".to_owned());
+                col_def = col_def.custom(Alias::new("tstzrange"));
             }
             Type::DateRange => {
-                col_def = col_def.extra("daterange".to_owned());
+                col_def = col_def.custom(Alias::new("daterange"));
             }
             Type::PgLsn => {
-                col_def = col_def.extra("pg_lsn".to_owned());
+                col_def = col_def.custom(Alias::new("pg_lsn"));
             }
             Type::Unknown(s) => {
                 col_def = col_def.custom(Alias::new(s));
