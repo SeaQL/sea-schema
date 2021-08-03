@@ -1,5 +1,5 @@
-use sea_schema::sea_query::MysqlQueryBuilder;
 use sea_schema::mysql::discovery::SchemaDiscovery;
+use sea_schema::sea_query::MysqlQueryBuilder;
 use sqlx::MySqlPool;
 
 #[async_std::main]

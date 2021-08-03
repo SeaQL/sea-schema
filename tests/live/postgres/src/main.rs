@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
+use sea_schema::postgres::{def::TableDef, discovery::SchemaDiscovery};
 use sea_schema::sea_query::{
     Alias, ColumnDef, ForeignKey, Index, PostgresQueryBuilder, Table, TableCreateStatement,
 };
-use sea_schema::postgres::{def::TableDef, discovery::SchemaDiscovery};
 use sqlx::{Executor, PgPool, Pool, Postgres};
 
 #[cfg_attr(test, async_std::test)]

@@ -1,5 +1,5 @@
-use sea_schema::sea_query::PostgresQueryBuilder;
 use sea_schema::postgres::discovery::SchemaDiscovery;
+use sea_schema::sea_query::PostgresQueryBuilder;
 use sqlx::{Executor, PgPool, Pool, Postgres};
 
 #[async_std::main]
