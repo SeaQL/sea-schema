@@ -27,13 +27,7 @@ pub fn parse_column_query_result(result: ColumnQueryResult) -> ColumnInfo {
 }
 
 pub fn parse_column_type(result: &ColumnQueryResult) -> ColumnType {
-    let mut parser_type = Parser::new(&result.column_type);
-
-    let mut ctype = if parser_type.curr().is_none() {
-        return Type::Unknown(String::default());
-    } else {
-        Type::from_str(result.column_type.as_str())
-    };
+    let mut ctype = Type::from_str(result.column_type.as_str());
 
     if ctype.has_numeric_attr() {
         ctype = parse_numeric_attributes(
