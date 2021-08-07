@@ -31,10 +31,11 @@ impl Iterator for TableConstraintsQueryResultParser {
             return None;
         };
 
-        let constriant_name = result.constraint_name;
+        let constraint_name = result.constraint_name;
         match result.constraint_type.as_str() {
             "CHECK" => {
                 Some(Constraint::Check(Check {
+                    name: constraint_name,
                     expr: result.check_clause.unwrap().to_string(),
                     // TODO: How to find?
                     no_inherit: false,
@@ -48,14 +49,21 @@ impl Iterator for TableConstraintsQueryResultParser {
                 columns.push(result.column_name.unwrap());
                 let table = result.referential_key_table_name.unwrap();
                 foreign_columns.push(result.referential_key_column_name.unwrap());
+                let on_update =
+                    ForeignKeyAction::from_str(&result.update_rule.clone().unwrap_or_default());
+                let on_delete =
+                    ForeignKeyAction::from_str(&result.delete_rule.clone().unwrap_or_default());
 
                 while let Some(result) = self.results.next() {
-                    if result.constraint_name != constriant_name {
+                    if result.constraint_name != constraint_name {
                         self.curr = Some(result);
                         return Some(Constraint::References(References {
+                            name: constraint_name,
                             columns,
                             table,
                             foreign_columns,
+                            on_update,
+                            on_delete,
                         }));
                     }
 
@@ -64,9 +72,12 @@ impl Iterator for TableConstraintsQueryResultParser {
                 }
 
                 Some(Constraint::References(References {
+                    name: constraint_name,
                     columns,
                     table,
                     foreign_columns,
+                    on_update,
+                    on_delete,
                 }))
             }
 
@@ -76,15 +87,21 @@ impl Iterator for TableConstraintsQueryResultParser {
                 columns.push(result.column_name.unwrap());
 
                 while let Some(result) = self.results.next() {
-                    if result.constraint_name != constriant_name {
+                    if result.constraint_name != constraint_name {
                         self.curr = Some(result);
-                        return Some(Constraint::PrimaryKey(PrimaryKey(columns)));
+                        return Some(Constraint::PrimaryKey(PrimaryKey {
+                            name: constraint_name,
+                            columns,
+                        }));
                     }
 
                     columns.push(result.column_name.unwrap());
                 }
 
-                Some(Constraint::PrimaryKey(PrimaryKey(columns)))
+                Some(Constraint::PrimaryKey(PrimaryKey {
+                    name: constraint_name,
+                    columns,
+                }))
             }
 
             "UNIQUE" => {
@@ -93,16 +110,23 @@ impl Iterator for TableConstraintsQueryResultParser {
                 columns.push(result.column_name.unwrap());
 
                 while let Some(result) = self.results.next() {
-                    if result.constraint_name != constriant_name {
+                    if result.constraint_name != constraint_name {
                         self.curr = Some(result);
-                        return Some(Constraint::PrimaryKey(PrimaryKey(columns)));
+                        return Some(Constraint::Unique(Unique {
+                            name: constraint_name,
+                            columns,
+                        }));
                     }
 
                     columns.push(result.column_name.unwrap());
                 }
 
-                Some(Constraint::PrimaryKey(PrimaryKey(columns)))
+                Some(Constraint::Unique(Unique {
+                    name: constraint_name,
+                    columns,
+                }))
             }
+
             _ => {
                 // FIXME: Invalid input error handling
                 None

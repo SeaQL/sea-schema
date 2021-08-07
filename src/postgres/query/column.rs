@@ -14,13 +14,14 @@ pub enum ColumnsField {
     ColumnDefault,
     IsNullable,
     DataType,
-    CharacterMaximumlength,
+    CharacterMaximumLength,
     CharacterOctetLength,
     NumericPrecision,
     NumericPrecisionRadix,
     NumericScale,
     DatetimePrecision,
     IntervalType,
+    IntervalPrecision,
     CollationCatalog,
     CollationSchema,
     CollationName,
@@ -39,7 +40,7 @@ pub enum ColumnsField {
     IdentityMinimum,
     IdentityCycle,
     IsGenerated,
-    GeneratedExpression,
+    GenerationExpression,
     IsUpdatable,
 }
 
@@ -55,6 +56,14 @@ pub struct ColumnQueryResult {
     pub numeric_precision: Option<i32>,
     pub numeric_precision_radix: Option<i32>,
     pub numeric_scale: Option<i32>,
+
+    pub character_maximum_length: Option<i32>,
+    pub character_octet_length: Option<i32>,
+
+    pub datetime_precision: Option<i32>,
+
+    pub interval_type: Option<String>,
+    pub interval_precision: Option<i32>,
 }
 
 impl SchemaQueryBuilder {
@@ -64,11 +73,16 @@ impl SchemaQueryBuilder {
                 ColumnsField::ColumnName,
                 ColumnsField::DataType,
                 ColumnsField::ColumnDefault,
-                ColumnsField::GeneratedExpression,
+                ColumnsField::GenerationExpression,
                 ColumnsField::IsNullable,
                 ColumnsField::NumericPrecision,
                 ColumnsField::NumericPrecisionRadix,
                 ColumnsField::NumericScale,
+                ColumnsField::CharacterMaximumLength,
+                ColumnsField::CharacterOctetLength,
+                ColumnsField::DatetimePrecision,
+                ColumnsField::IntervalType,
+                ColumnsField::IntervalPrecision,
             ])
             .from((InformationSchema::Schema, InformationSchema::Columns))
             .and_where(Expr::col(ColumnsField::TableSchema).eq(schema.to_string()))
@@ -77,7 +91,7 @@ impl SchemaQueryBuilder {
     }
 }
 
-#[cfg(feature = "sqlx-postres")]
+#[cfg(feature = "sqlx-postgres")]
 impl From<&PgRow> for ColumnQueryResult {
     fn from(row: &PgRow) -> Self {
         Self {
@@ -89,11 +103,16 @@ impl From<&PgRow> for ColumnQueryResult {
             numeric_precision: row.get(5),
             numeric_precision_radix: row.get(6),
             numeric_scale: row.get(7),
+            character_maximum_length: row.get(8),
+            character_octet_length: row.get(9),
+            datetime_precision: row.get(10),
+            interval_type: row.get(11),
+            interval_precision: row.get(12),
         }
     }
 }
 
-#[cfg(not(feature = "sqlx-postres"))]
+#[cfg(not(feature = "sqlx-postgres"))]
 impl From<&PgRow> for ColumnQueryResult {
     fn from(row: &PgRow) -> Self {
         Self::default()

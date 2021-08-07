@@ -51,7 +51,7 @@ impl SchemaQueryBuilder {
     }
 }
 
-#[cfg(feature = "sqlx-postres")]
+#[cfg(feature = "sqlx-postgres")]
 impl From<&PgRow> for TableQueryResult {
     fn from(row: &PgRow) -> Self {
         Self {
@@ -62,7 +62,7 @@ impl From<&PgRow> for TableQueryResult {
     }
 }
 
-#[cfg(not(feature = "sqlx-postres"))]
+#[cfg(not(feature = "sqlx-postgres"))]
 impl From<&PgRow> for TableQueryResult {
     fn from(row: &PgRow) -> Self {
         Self::default()

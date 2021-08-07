@@ -1,8 +1,11 @@
 [workspace]
 members = [
     ".",
-    "tests/discovery",
-    "tests/writer",
+    "tests/discovery/mysql",
+    "tests/discovery/postgres",
+    "tests/writer/mysql",
+    "tests/writer/postgres",
+    "tests/live/postgres",
 ]
 
 [package]
@@ -28,7 +31,7 @@ path = "src/lib.rs"
 [dependencies]
 futures = { version = "0.3", optional = true }
 sea-schema-derive = { version = "0.1.0", path = "sea-schema-derive" }
-sea-query = { version = "^0.12" }
+sea-query = { version = "^0.12", git = "https://github.com/SeaQL/sea-query.git" }
 serde = { version = "^1", features = ["derive"], optional = true }
 sqlx = { version = "^0", optional = true }
 

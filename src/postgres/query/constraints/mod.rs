@@ -9,7 +9,10 @@ pub use referential_constraints::*;
 pub use table_constraints::*;
 
 use super::{InformationSchema, SchemaQueryBuilder};
-use crate::sqlx_types::{postgres::PgRow, Row};
+use crate::{
+    postgres::def::Constraint,
+    sqlx_types::{postgres::PgRow, Row},
+};
 use sea_query::{Alias, Expr, Iden, JoinType, Order, Query, SelectStatement};
 use std::rc::Rc;
 
@@ -45,7 +48,11 @@ pub struct TableConstraintsQueryResult {
 }
 
 impl SchemaQueryBuilder {
-    pub fn query_table_constriants(schema: Rc<dyn Iden>, table: Rc<dyn Iden>) -> SelectStatement {
+    pub fn query_table_constriants(
+        &self,
+        schema: Rc<dyn Iden>,
+        table: Rc<dyn Iden>,
+    ) -> SelectStatement {
         type Schema = InformationSchema;
         type Tcf = TableConstraintsField;
         type Cf = CheckConstraintsFields;
@@ -58,6 +65,8 @@ impl SchemaQueryBuilder {
             .columns(vec![
                 (Schema::TableConstraints, Tcf::ConstraintSchema),
                 (Schema::TableConstraints, Tcf::ConstraintName),
+                (Schema::TableConstraints, Tcf::TableSchema),
+                (Schema::TableConstraints, Tcf::TableName),
                 (Schema::TableConstraints, Tcf::ConstraintType),
                 (Schema::TableConstraints, Tcf::IsDeferrable),
                 (Schema::TableConstraints, Tcf::InitiallyDeferred),
@@ -130,7 +139,7 @@ impl SchemaQueryBuilder {
     }
 }
 
-#[cfg(feature = "sqlx-postres")]
+#[cfg(feature = "sqlx-postgres")]
 impl From<&PgRow> for TableConstraintsQueryResult {
     fn from(row: &PgRow) -> Self {
         Self {
@@ -160,7 +169,7 @@ impl From<&PgRow> for TableConstraintsQueryResult {
     }
 }
 
-#[cfg(not(feature = "sqlx-postres"))]
+#[cfg(not(feature = "sqlx-postgres"))]
 impl From<&PgRow> for TableConstraintsQueryResult {
     fn from(_row: &PgRow) -> Self {
         Self::default()
