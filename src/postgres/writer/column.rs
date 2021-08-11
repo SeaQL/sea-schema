@@ -178,7 +178,7 @@ impl ColumnInfo {
                 col_def = col_def.custom(Alias::new("tsquery"));
             }
             Type::Uuid => {
-                col_def = col_def.custom(Alias::new("uuid"));
+                col_def = col_def.uuid();
             }
             Type::Xml => {
                 col_def = col_def.custom(Alias::new("xml"));
