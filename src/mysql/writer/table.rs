@@ -6,16 +6,16 @@ impl TableDef {
         let mut table = Table::create();
         table.table(Alias::new(self.info.name.as_ref()));
         for col in self.columns.iter() {
-            table.col(col.write());
+            table.col(&mut col.write());
         }
         table.engine(self.info.engine.to_string().as_str());
         table.character_set(self.info.char_set.to_string().as_str());
         table.collate(self.info.collation.to_string().as_str());
         for idx in self.indexes.iter() {
-            table.index(idx.write());
+            table.index(&mut idx.write());
         }
         for key in self.foreign_keys.iter() {
-            table.foreign_key(key.write());
+            table.foreign_key(&mut key.write());
         }
         TableStatement::Create(table)
     }
