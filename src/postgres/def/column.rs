@@ -16,6 +16,7 @@ pub struct ColumnInfo {
     /// The generation expression for this column, if it is a generated colum
     pub generated: Option<ColumnExpression>,
     pub not_null: Option<NotNull>,
+    pub is_identity: bool,
     // TODO:
     // /// A constraint that ensures the value of a column is unique among all other rows in the table
     // pub unique: Option<Vec<constraints::Unique>>,

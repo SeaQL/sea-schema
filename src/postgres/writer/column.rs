@@ -5,30 +5,22 @@ use std::{default, fmt::Write};
 
 impl ColumnInfo {
     pub fn write(&self) -> ColumnDef {
-        let mut self_copy = self.clone();
+        let mut col_info = self.clone();
         let mut col_def = ColumnDef::new(Alias::new(self.name.as_str()));
         let mut extras: Vec<String> = Vec::new();
         if let Some(default) = self.default.as_ref() {
             if default.0.starts_with("nextval") {
-                match self.col_type {
-                    Type::SmallInt => {
-                        self_copy.col_type = Type::SmallSerial;
-                    }
-                    Type::Integer => {
-                        self_copy.col_type = Type::Serial;
-                    }
-                    Type::BigInt => {
-                        self_copy.col_type = Type::BigSerial;
-                    }
-                    _ => {}
-                }
+                col_info = Self::convert_to_serial(col_info);
             } else {
                 let mut string = "".to_owned();
                 write!(&mut string, "DEFAULT {}", default.0).unwrap();
                 extras.push(string);
             }
         }
-        col_def = self_copy.write_col_type(col_def);
+        if self.is_identity {
+            col_info = Self::convert_to_serial(col_info);
+        }
+        col_def = col_info.write_col_type(col_def);
         if self.not_null.is_some() {
             col_def = col_def.not_null();
         }
@@ -36,6 +28,22 @@ impl ColumnInfo {
             col_def = col_def.extra(extras.join(" "));
         }
         col_def
+    }
+
+    fn convert_to_serial(mut col_info: ColumnInfo) -> ColumnInfo {
+        match col_info.col_type {
+            Type::SmallInt => {
+                col_info.col_type = Type::SmallSerial;
+            }
+            Type::Integer => {
+                col_info.col_type = Type::Serial;
+            }
+            Type::BigInt => {
+                col_info.col_type = Type::BigSerial;
+            }
+            _ => {}
+        };
+        col_info
     }
 
     pub fn write_col_type(&self, mut col_def: ColumnDef) -> ColumnDef {

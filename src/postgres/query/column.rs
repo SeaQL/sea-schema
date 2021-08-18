@@ -51,6 +51,7 @@ pub struct ColumnQueryResult {
     pub column_default: Option<String>,
     pub column_generated: Option<String>,
     pub is_nullable: String,
+    pub is_identity: String,
 
     // Declared or implicit parameters of numeric types; null for other data types
     pub numeric_precision: Option<i32>,
@@ -75,6 +76,7 @@ impl SchemaQueryBuilder {
                 ColumnsField::ColumnDefault,
                 ColumnsField::GenerationExpression,
                 ColumnsField::IsNullable,
+                ColumnsField::IsIdentity,
                 ColumnsField::NumericPrecision,
                 ColumnsField::NumericPrecisionRadix,
                 ColumnsField::NumericScale,
@@ -100,14 +102,15 @@ impl From<&PgRow> for ColumnQueryResult {
             column_default: row.get(2),
             column_generated: row.get(3),
             is_nullable: row.get(4),
-            numeric_precision: row.get(5),
-            numeric_precision_radix: row.get(6),
-            numeric_scale: row.get(7),
-            character_maximum_length: row.get(8),
-            character_octet_length: row.get(9),
-            datetime_precision: row.get(10),
-            interval_type: row.get(11),
-            interval_precision: row.get(12),
+            is_identity: row.get(5),
+            numeric_precision: row.get(6),
+            numeric_precision_radix: row.get(7),
+            numeric_scale: row.get(8),
+            character_maximum_length: row.get(9),
+            character_octet_length: row.get(10),
+            datetime_precision: row.get(11),
+            interval_type: row.get(12),
+            interval_precision: row.get(13),
         }
     }
 }
