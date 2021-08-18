@@ -6,11 +6,11 @@ impl IndexInfo {
     pub fn write(&self) -> IndexCreateStatement {
         let mut index = Index::create();
         if self.name == "PRIMARY" {
-            index = index.primary();
+            index.primary();
         } else {
-            index = index.name(&self.name);
+            index.name(&self.name);
             if self.unique {
-                index = index.unique();
+                index.unique();
             }
         }
         for part in self.parts.iter() {
@@ -29,28 +29,32 @@ impl IndexInfo {
                 None
             };
             if pre.is_none() && ord.is_none() {
-                index = index.col(Alias::new(&part.column));
+                index.col(Alias::new(&part.column));
             } else if pre.is_none() && ord.is_some() {
-                index = index.col((Alias::new(&part.column), ord.unwrap()));
+                index.col((Alias::new(&part.column), ord.unwrap()));
             } else if pre.is_some() && ord.is_none() {
-                index = index.col((Alias::new(&part.column), pre.unwrap()));
+                index.col((Alias::new(&part.column), pre.unwrap()));
             } else {
-                index = index.col((Alias::new(&part.column), pre.unwrap(), ord.unwrap()));
+                index.col((Alias::new(&part.column), pre.unwrap(), ord.unwrap()));
             }
         }
         match self.idx_type {
             IndexType::BTree => {}
-            IndexType::FullText => index = index.index_type(sea_query::IndexType::FullText),
-            IndexType::Hash => index = index.index_type(sea_query::IndexType::Hash),
+            IndexType::FullText => {
+                index.index_type(sea_query::IndexType::FullText);
+            }
+            IndexType::Hash => {
+                index.index_type(sea_query::IndexType::Hash);
+            }
             IndexType::RTree => {
-                index = index.index_type(sea_query::IndexType::Custom(Rc::new(Alias::new(
+                index.index_type(sea_query::IndexType::Custom(Rc::new(Alias::new(
                     &self.idx_type.to_string(),
-                ))))
+                ))));
             }
             IndexType::Spatial => {
-                index = index.index_type(sea_query::IndexType::Custom(Rc::new(Alias::new(
+                index.index_type(sea_query::IndexType::Custom(Rc::new(Alias::new(
                     &self.idx_type.to_string(),
-                ))))
+                ))));
             }
         }
         index

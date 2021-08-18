@@ -3,36 +3,39 @@ use sea_query::{Alias, ForeignKey, ForeignKeyCreateStatement, Index, IndexCreate
 
 impl PrimaryKey {
     pub fn write(&self) -> IndexCreateStatement {
-        let mut idx = Index::create().primary().name(&self.name);
+        let mut idx = Index::create();
+        idx.primary().name(&self.name);
         for col in self.columns.iter() {
-            idx = idx.col(Alias::new(col));
+            idx.col(Alias::new(col));
         }
-        idx
+        idx.to_owned()
     }
 }
 
 impl Unique {
     pub fn write(&self) -> IndexCreateStatement {
-        let mut idx = Index::create().unique().name(&self.name);
+        let mut idx = Index::create();
+        idx.unique().name(&self.name);
         for col in self.columns.iter() {
-            idx = idx.col(Alias::new(col));
+            idx.col(Alias::new(col));
         }
-        idx
+        idx.to_owned()
     }
 }
 
 impl References {
     pub fn write(&self) -> ForeignKeyCreateStatement {
-        let mut key = ForeignKey::create().name(&self.name);
-        key = key.to_tbl(Alias::new(&self.table));
+        let mut key = ForeignKey::create();
+        key.name(&self.name);
+        key.to_tbl(Alias::new(&self.table));
         for column in self.columns.iter() {
-            key = key.from_col(Alias::new(&column));
+            key.from_col(Alias::new(&column));
         }
         for ref_col in self.foreign_columns.iter() {
-            key = key.to_col(Alias::new(&ref_col));
+            key.to_col(Alias::new(&ref_col));
         }
         if let Some(on_update) = &self.on_update {
-            key = key.on_update(match on_update {
+            key.on_update(match on_update {
                 ForeignKeyAction::Cascade => sea_query::ForeignKeyAction::Cascade,
                 ForeignKeyAction::SetNull => sea_query::ForeignKeyAction::SetNull,
                 ForeignKeyAction::SetDefault => sea_query::ForeignKeyAction::SetDefault,
@@ -41,7 +44,7 @@ impl References {
             });
         }
         if let Some(on_delete) = &self.on_delete {
-            key = key.on_delete(match on_delete {
+            key.on_delete(match on_delete {
                 ForeignKeyAction::Cascade => sea_query::ForeignKeyAction::Cascade,
                 ForeignKeyAction::SetNull => sea_query::ForeignKeyAction::SetNull,
                 ForeignKeyAction::SetDefault => sea_query::ForeignKeyAction::SetDefault,
@@ -49,6 +52,6 @@ impl References {
                 ForeignKeyAction::NoAction => sea_query::ForeignKeyAction::NoAction,
             });
         }
-        key
+        key.to_owned()
     }
 }
