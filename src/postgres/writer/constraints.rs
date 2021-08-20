@@ -8,7 +8,7 @@ impl PrimaryKey {
         for col in self.columns.iter() {
             idx.col(Alias::new(col));
         }
-        idx.to_owned()
+        idx.take()
     }
 }
 
@@ -19,7 +19,7 @@ impl Unique {
         for col in self.columns.iter() {
             idx.col(Alias::new(col));
         }
-        idx.to_owned()
+        idx.take()
     }
 }
 
@@ -52,6 +52,6 @@ impl References {
                 ForeignKeyAction::NoAction => sea_query::ForeignKeyAction::NoAction,
             });
         }
-        key.to_owned()
+        key.take()
     }
 }
