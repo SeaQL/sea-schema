@@ -58,7 +58,7 @@ impl SchemaQueryBuilder {
                     q.column(StatisticsFields::Expression);
                 },
                 |q| {
-                    q.expr(Expr::val(Value::Null));
+                    q.expr(Expr::val(Value::Bool(None)));
                 },
             )
             .from((InformationSchema::Schema, InformationSchema::Statistics))
