@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.2.6 - 2021-08-21
+
++ Use sea-query to 0.15
++ [[#13]] Added `is_identity` to Postgres `ColumnInfo`
+
+[#13]: https://github.com/SeaQL/sea-schema/issues/13
+
 ## 0.2.5 - 2021-08-14
 
 + improve Postgres schema discovery
