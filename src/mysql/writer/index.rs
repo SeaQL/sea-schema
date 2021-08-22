@@ -1,6 +1,5 @@
 use crate::mysql::def::{IndexInfo, IndexOrder, IndexType};
-use sea_query::{Alias, Iden, Index, IndexCreateStatement};
-use std::rc::Rc;
+use sea_query::{Alias, Iden, Index, IndexCreateStatement, SeaRc};
 
 impl IndexInfo {
     pub fn write(&self) -> IndexCreateStatement {
@@ -47,12 +46,12 @@ impl IndexInfo {
                 index.index_type(sea_query::IndexType::Hash);
             }
             IndexType::RTree => {
-                index.index_type(sea_query::IndexType::Custom(Rc::new(Alias::new(
+                index.index_type(sea_query::IndexType::Custom(SeaRc::new(Alias::new(
                     &self.idx_type.to_string(),
                 ))));
             }
             IndexType::Spatial => {
-                index.index_type(sea_query::IndexType::Custom(Rc::new(Alias::new(
+                index.index_type(sea_query::IndexType::Custom(SeaRc::new(Alias::new(
                     &self.idx_type.to_string(),
                 ))));
             }

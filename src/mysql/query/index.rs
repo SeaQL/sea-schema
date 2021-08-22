@@ -1,7 +1,6 @@
 use super::{InformationSchema, SchemaQueryBuilder};
 use crate::sqlx_types::{mysql::MySqlRow, Row};
-use sea_query::{Expr, Iden, Order, Query, SelectStatement, Value};
-use std::rc::Rc;
+use sea_query::{Expr, Iden, Order, Query, SeaRc, SelectStatement, Value};
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-statistics-table.html
@@ -40,7 +39,11 @@ pub struct IndexQueryResult {
 }
 
 impl SchemaQueryBuilder {
-    pub fn query_indexes(&self, schema: Rc<dyn Iden>, table: Rc<dyn Iden>) -> SelectStatement {
+    pub fn query_indexes(
+        &self,
+        schema: SeaRc<dyn Iden>,
+        table: SeaRc<dyn Iden>,
+    ) -> SelectStatement {
         Query::select()
             .columns(vec![
                 StatisticsFields::NonUnique,

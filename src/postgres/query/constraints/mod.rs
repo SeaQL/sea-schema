@@ -13,8 +13,7 @@ use crate::{
     postgres::def::Constraint,
     sqlx_types::{postgres::PgRow, Row},
 };
-use sea_query::{Alias, Expr, Iden, JoinType, Order, Query, SelectStatement};
-use std::rc::Rc;
+use sea_query::{Alias, Expr, Iden, JoinType, Order, Query, SeaRc, SelectStatement};
 
 #[derive(Debug, Default)]
 pub struct TableConstraintsQueryResult {
@@ -50,8 +49,8 @@ pub struct TableConstraintsQueryResult {
 impl SchemaQueryBuilder {
     pub fn query_table_constriants(
         &self,
-        schema: Rc<dyn Iden>,
-        table: Rc<dyn Iden>,
+        schema: SeaRc<dyn Iden>,
+        table: SeaRc<dyn Iden>,
     ) -> SelectStatement {
         type Schema = InformationSchema;
         type Tcf = TableConstraintsField;

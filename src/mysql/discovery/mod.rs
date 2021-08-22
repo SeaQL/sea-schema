@@ -8,8 +8,7 @@ use crate::mysql::query::{
     TableQueryResult, VersionQueryResult,
 };
 use futures::future;
-use sea_query::{Alias, Iden, IntoIden};
-use std::rc::Rc;
+use sea_query::{Alias, Iden, IntoIden, SeaRc};
 
 mod executor;
 pub use executor::*;
@@ -17,7 +16,7 @@ pub use executor::*;
 pub struct SchemaDiscovery {
     pub query: SchemaQueryBuilder,
     pub executor: Executor,
-    pub schema: Rc<dyn Iden>,
+    pub schema: SeaRc<dyn Iden>,
 }
 
 impl SchemaDiscovery {
@@ -92,7 +91,7 @@ impl SchemaDiscovery {
     }
 
     pub async fn discover_table(&self, info: TableInfo) -> TableDef {
-        let table = Rc::new(Alias::new(info.name.as_str()));
+        let table = SeaRc::new(Alias::new(info.name.as_str()));
         let columns = self
             .discover_columns(self.schema.clone(), table.clone())
             .await;
@@ -113,8 +112,8 @@ impl SchemaDiscovery {
 
     pub async fn discover_columns(
         &self,
-        schema: Rc<dyn Iden>,
-        table: Rc<dyn Iden>,
+        schema: SeaRc<dyn Iden>,
+        table: SeaRc<dyn Iden>,
     ) -> Vec<ColumnInfo> {
         let rows = self
             .executor
@@ -138,8 +137,8 @@ impl SchemaDiscovery {
 
     pub async fn discover_indexes(
         &self,
-        schema: Rc<dyn Iden>,
-        table: Rc<dyn Iden>,
+        schema: SeaRc<dyn Iden>,
+        table: SeaRc<dyn Iden>,
     ) -> Vec<IndexInfo> {
         let rows = self
             .executor
@@ -169,8 +168,8 @@ impl SchemaDiscovery {
 
     pub async fn discover_foreign_keys(
         &self,
-        schema: Rc<dyn Iden>,
-        table: Rc<dyn Iden>,
+        schema: SeaRc<dyn Iden>,
+        table: SeaRc<dyn Iden>,
     ) -> Vec<ForeignKeyInfo> {
         let rows = self
             .executor

@@ -1,7 +1,6 @@
 use super::{InformationSchema, SchemaQueryBuilder};
 use crate::sqlx_types::{mysql::MySqlRow, Row};
-use sea_query::{Expr, Iden, Order, Query, SelectStatement};
-use std::rc::Rc;
+use sea_query::{Expr, Iden, Order, Query, SeaRc, SelectStatement};
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-key-column-usage-table.html
@@ -42,7 +41,11 @@ pub struct ConstraintQueryResult {
 }
 
 impl SchemaQueryBuilder {
-    pub fn query_constraints(&self, schema: Rc<dyn Iden>, table: Rc<dyn Iden>) -> SelectStatement {
+    pub fn query_constraints(
+        &self,
+        schema: SeaRc<dyn Iden>,
+        table: SeaRc<dyn Iden>,
+    ) -> SelectStatement {
         type Schema = InformationSchema;
         type Key = KeyColumnUsageFields;
         type Ref = ReferentialConstraintsFields;
