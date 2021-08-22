@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.2.7 - 2021-08-23
+
++ Use SeaRc to support SeaQuery's `thread-safe`
+
 ## 0.2.6 - 2021-08-21
 
 + Use sea-query to 0.15
