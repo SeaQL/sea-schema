@@ -192,7 +192,7 @@ impl ColumnInfo {
                 col_def.custom(Alias::new("xml"));
             }
             Type::Json => {
-                col_def.custom(Alias::new("json"));
+                col_def.json();
             }
             Type::Array => {
                 col_def.custom(Alias::new("array"));
