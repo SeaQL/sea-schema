@@ -57,7 +57,6 @@ impl SchemaDiscovery {
             debug_print!("{:?}", result);
             let version = result.parse();
             debug_print!("{:?}", version);
-            debug_print!();
             return version;
         }
         panic!("failed to discover version")
@@ -80,7 +79,6 @@ impl SchemaDiscovery {
             })
             .collect();
 
-        debug_print!();
         tables
     }
 
@@ -131,7 +129,6 @@ impl SchemaDiscovery {
             })
             .collect::<Vec<_>>();
 
-        debug_print!();
         columns
     }
 
@@ -153,7 +150,6 @@ impl SchemaDiscovery {
                 return result;
             })
             .collect();
-        debug_print!();
 
         let indexes = parse_index_query_results(Box::new(results.into_iter()))
             .map(|index| {
@@ -161,7 +157,6 @@ impl SchemaDiscovery {
                 index
             })
             .collect::<Vec<_>>();
-        debug_print!();
 
         indexes
     }
@@ -184,7 +179,6 @@ impl SchemaDiscovery {
                 return result;
             })
             .collect();
-        debug_print!();
 
         let foreign_keys = parse_constraint_query_results(Box::new(results.into_iter()))
             .map(|index| {
@@ -192,7 +186,6 @@ impl SchemaDiscovery {
                 index
             })
             .collect::<Vec<_>>();
-        debug_print!();
 
         foreign_keys
     }
