@@ -21,7 +21,6 @@ impl Executor {
     pub async fn fetch_all(&self, select: SelectStatement) -> Vec<PgRow> {
         let (sql, values) = select.build(PostgresQueryBuilder);
         debug_print!("{}, {:?}", sql, values);
-        debug_print!();
 
         panic!("This is a mock Executor");
     }

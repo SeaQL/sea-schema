@@ -63,7 +63,6 @@ impl SchemaDiscovery {
             })
             .collect();
 
-        debug_print!();
         tables
     }
 
@@ -143,7 +142,6 @@ impl SchemaDiscovery {
             })
             .collect::<Vec<_>>();
 
-        debug_print!();
         columns
     }
 
@@ -168,7 +166,6 @@ impl SchemaDiscovery {
                 result
             })
             .collect();
-        debug_print!();
 
         let constraints = parse_table_constraint_query_results(Box::new(results.into_iter()))
             .map(|index| {
@@ -176,7 +173,6 @@ impl SchemaDiscovery {
                 index
             })
             .collect::<Vec<_>>();
-        debug_print!();
 
         constraints
     }

@@ -21,7 +21,6 @@ impl Executor {
     pub async fn fetch_all(&self, select: SelectStatement) -> Vec<MySqlRow> {
         let (sql, values) = select.build(MysqlQueryBuilder);
         debug_print!("{}, {:?}", sql, values);
-        debug_print!();
 
         panic!("This is a mock Executor");
     }
