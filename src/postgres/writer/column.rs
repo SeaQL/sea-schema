@@ -111,8 +111,8 @@ impl ColumnInfo {
             }
             Type::TimestampWithTimeZone(time_attr) => {
                 match time_attr.precision {
-                    Some(precision) => col_def.timestamp_len(precision.into()),
-                    None => col_def.timestamp(),
+                    Some(precision) => col_def.timestamp_with_time_zone_len(precision.into()),
+                    None => col_def.timestamp_with_time_zone(),
                 };
             }
             Type::Date => {
