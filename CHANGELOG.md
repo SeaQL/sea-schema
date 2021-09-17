@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 0.2.8 - 2021-09-17
 
-+ Fix Postgres TimestampWithTimeZone
++ Fix Postgres `TimestampWithTimeZone`
 
 ## 0.2.7 - 2021-08-23
 
