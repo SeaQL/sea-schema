@@ -74,6 +74,8 @@ impl SchemaQueryBuilder {
                 Expr::tbl(Schema::KeyColumnUsage, Key::ConstraintSchema).eq(schema.to_string()),
             )
             .and_where(Expr::tbl(Schema::KeyColumnUsage, Key::TableName).eq(table.to_string()))
+            .and_where(Expr::tbl(Schema::KeyColumnUsage, Key::ReferencedTableName).is_not_null())
+            .and_where(Expr::tbl(Schema::KeyColumnUsage, Key::ReferencedColumnName).is_not_null())
             .order_by(Key::ConstraintName, Order::Asc)
             .order_by(Key::OrdinalPosition, Order::Asc)
             .take()
