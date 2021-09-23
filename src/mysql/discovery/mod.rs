@@ -2,9 +2,9 @@
 
 use crate::debug_print;
 use crate::mysql::def::*;
-use crate::mysql::parser::{parse_constraint_query_results, parse_index_query_results};
+use crate::mysql::parser::{parse_foreign_key_query_results, parse_index_query_results};
 use crate::mysql::query::{
-    ColumnQueryResult, ConstraintQueryResult, IndexQueryResult, SchemaQueryBuilder,
+    ColumnQueryResult, ForeignKeyQueryResult, IndexQueryResult, SchemaQueryBuilder,
     TableQueryResult, VersionQueryResult,
 };
 use futures::future;
@@ -168,10 +168,10 @@ impl SchemaDiscovery {
     ) -> Vec<ForeignKeyInfo> {
         let rows = self
             .executor
-            .fetch_all(self.query.query_constraints(schema.clone(), table.clone()))
+            .fetch_all(self.query.query_foreign_key(schema.clone(), table.clone()))
             .await;
 
-        let results: Vec<ConstraintQueryResult> = rows
+        let results: Vec<ForeignKeyQueryResult> = rows
             .iter()
             .map(|row| {
                 let result = row.into();
@@ -180,7 +180,7 @@ impl SchemaDiscovery {
             })
             .collect();
 
-        let foreign_keys = parse_constraint_query_results(Box::new(results.into_iter()))
+        let foreign_keys = parse_foreign_key_query_results(Box::new(results.into_iter()))
             .map(|index| {
                 debug_print!("{:?}", index);
                 index

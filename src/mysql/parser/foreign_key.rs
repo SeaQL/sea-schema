@@ -1,48 +1,48 @@
 use crate::mysql::def::*;
-use crate::mysql::query::ConstraintQueryResult;
+use crate::mysql::query::ForeignKeyQueryResult;
 use crate::Name;
 
-pub struct ConstraintQueryResultParser {
+pub struct ForeignKeyQueryResultParser {
     curr: Option<ForeignKeyInfo>,
-    results: Box<dyn Iterator<Item = ConstraintQueryResult>>,
+    results: Box<dyn Iterator<Item = ForeignKeyQueryResult>>,
 }
 
-/// ConstraintQueryResult must be sorted by (TableName, ConstraintName, OrdinalPosition)
-pub fn parse_constraint_query_results(
-    results: Box<dyn Iterator<Item = ConstraintQueryResult>>,
+/// ForeignKeyQueryResult must be sorted by (TableName, ConstraintName, OrdinalPosition)
+pub fn parse_foreign_key_query_results(
+    results: Box<dyn Iterator<Item = ForeignKeyQueryResult>>,
 ) -> impl Iterator<Item = ForeignKeyInfo> {
-    ConstraintQueryResultParser {
+    ForeignKeyQueryResultParser {
         curr: None,
         results,
     }
 }
 
-impl Iterator for ConstraintQueryResultParser {
+impl Iterator for ForeignKeyQueryResultParser {
     type Item = ForeignKeyInfo;
 
     fn next(&mut self) -> Option<Self::Item> {
         while let Some(result) = self.results.next() {
-            let mut constraint = parse_constraint_query_result(result);
+            let mut foreign_key = parse_foreign_key_query_result(result);
             if let Some(curr) = &mut self.curr {
-                // group by `constraint.name`
-                if curr.name == constraint.name {
-                    curr.columns.push(constraint.columns.pop().unwrap());
+                // group by `foreign_key.name`
+                if curr.name == foreign_key.name {
+                    curr.columns.push(foreign_key.columns.pop().unwrap());
                     curr.referenced_columns
-                        .push(constraint.referenced_columns.pop().unwrap());
+                        .push(foreign_key.referenced_columns.pop().unwrap());
                 } else {
                     let prev = self.curr.take();
-                    self.curr = Some(constraint);
+                    self.curr = Some(foreign_key);
                     return prev;
                 }
             } else {
-                self.curr = Some(constraint);
+                self.curr = Some(foreign_key);
             }
         }
         self.curr.take()
     }
 }
 
-pub fn parse_constraint_query_result(result: ConstraintQueryResult) -> ForeignKeyInfo {
+pub fn parse_foreign_key_query_result(result: ForeignKeyQueryResult) -> ForeignKeyInfo {
     ForeignKeyInfo {
         name: result.constraint_name,
         columns: vec![result.column_name],
@@ -64,9 +64,9 @@ mod tests {
     #[test]
     fn test_1() {
         assert_eq!(
-            parse_constraint_query_results(Box::new(
+            parse_foreign_key_query_results(Box::new(
                 vec![
-                    ConstraintQueryResult {
+                    ForeignKeyQueryResult {
                         constraint_name: "fk-cat-dog".to_owned(),
                         column_name: "d1".to_owned(),
                         referenced_table_name: "cat".to_owned(),
@@ -74,7 +74,7 @@ mod tests {
                         update_rule: "CASCADE".to_owned(),
                         delete_rule: "NO ACTION".to_owned(),
                     },
-                    ConstraintQueryResult {
+                    ForeignKeyQueryResult {
                         constraint_name: "fk-cat-dog".to_owned(),
                         column_name: "d2".to_owned(),
                         referenced_table_name: "cat".to_owned(),

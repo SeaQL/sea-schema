@@ -31,7 +31,7 @@ pub enum ReferentialConstraintsFields {
 }
 
 #[derive(Debug, Default)]
-pub struct ConstraintQueryResult {
+pub struct ForeignKeyQueryResult {
     pub constraint_name: String,
     pub column_name: String,
     pub referenced_table_name: String,
@@ -41,7 +41,7 @@ pub struct ConstraintQueryResult {
 }
 
 impl SchemaQueryBuilder {
-    pub fn query_constraints(
+    pub fn query_foreign_key(
         &self,
         schema: SeaRc<dyn Iden>,
         table: SeaRc<dyn Iden>,
@@ -81,7 +81,7 @@ impl SchemaQueryBuilder {
 }
 
 #[cfg(feature = "sqlx-mysql")]
-impl From<&MySqlRow> for ConstraintQueryResult {
+impl From<&MySqlRow> for ForeignKeyQueryResult {
     fn from(row: &MySqlRow) -> Self {
         Self {
             constraint_name: row.get(0),
@@ -95,7 +95,7 @@ impl From<&MySqlRow> for ConstraintQueryResult {
 }
 
 #[cfg(not(feature = "sqlx-mysql"))]
-impl From<&MySqlRow> for ConstraintQueryResult {
+impl From<&MySqlRow> for ForeignKeyQueryResult {
     fn from(row: &MySqlRow) -> Self {
         Self::default()
     }
