@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.2.9 - 2021-09-24
+
++ [[#18]] MySQL: handle panic upon unique constraint
+
+[#18]: https://github.com/SeaQL/sea-schema/issues/18
+
 ## 0.2.8 - 2021-09-17
 
 + Fix Postgres `TimestampWithTimeZone`
