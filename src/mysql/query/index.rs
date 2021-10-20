@@ -1,5 +1,5 @@
 use super::{InformationSchema, SchemaQueryBuilder};
-use crate::sqlx_types::{mysql::MySqlRow, Row};
+use crate::sqlx_types::mysql::MySqlRow;
 use sea_query::{Expr, Iden, Order, Query, SeaRc, SelectStatement, Value};
 
 #[derive(Debug, sea_query::Iden)]

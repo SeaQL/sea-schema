@@ -1,7 +1,6 @@
-use crate::postgres::def::{ArbitraryPrecisionNumericAttr, ColumnInfo, Type};
-use core::num;
-use sea_query::{escape_string, Alias, ColumnDef, Iden};
-use std::{default, fmt::Write};
+use crate::postgres::def::{ColumnInfo, Type};
+use sea_query::{Alias, ColumnDef};
+use std::fmt::Write;
 
 impl ColumnInfo {
     pub fn write(&self) -> ColumnDef {

@@ -1,5 +1,5 @@
 use super::{InformationSchema, SchemaQueryBuilder};
-use crate::sqlx_types::{postgres::PgRow, Row};
+use crate::sqlx_types::postgres::PgRow;
 use sea_query::{Expr, Iden, Query, SeaRc, SelectStatement};
 
 #[derive(Debug, sea_query::Iden)]

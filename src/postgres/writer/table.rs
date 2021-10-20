@@ -1,5 +1,5 @@
 use crate::postgres::def::TableDef;
-use sea_query::{Alias, Iden, Table, TableStatement};
+use sea_query::{Alias, Table, TableStatement};
 
 impl TableDef {
     pub fn write(&self) -> TableStatement {
