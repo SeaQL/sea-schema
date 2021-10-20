@@ -1,6 +1,6 @@
 use crate::postgres::def::{ColumnInfo, Type};
-use sea_query::{Alias, ColumnDef};
-use std::fmt::Write;
+use sea_query::{Alias, ColumnDef, IntervalField};
+use std::{convert::TryFrom, fmt::Write};
 
 impl ColumnInfo {
     pub fn write(&self) -> ColumnDef {
@@ -129,7 +129,20 @@ impl ColumnInfo {
                     None => col_def.time(),
                 };
             }
-            Type::Interval(time_attr) => {}
+            Type::Interval(interval_attr) => {
+                let field = match &interval_attr.field {
+                    Some(field) => match IntervalField::try_from(field) {
+                        Ok(field) => Some(field),
+                        Err(_) => None,
+                    },
+                    None => None,
+                };
+                let precision = match interval_attr.precision {
+                    Some(precision) => Some(precision as u32),
+                    None => None,
+                };
+                col_def.interval(field, precision);
+            }
             Type::Boolean => {
                 col_def.boolean();
             }
