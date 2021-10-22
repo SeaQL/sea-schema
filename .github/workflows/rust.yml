@@ -56,6 +56,8 @@ jobs:
   postgres:
     name: Postgres
     runs-on: ubuntu-20.04
+    env:
+      PASSWORD: sea
     strategy:
       matrix:
         version: [13.3, 12.7, 11.12, 10.17, 9.6.22]
@@ -93,12 +95,12 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-postgres-${{ matrix.project }}
 
       - name: Import DB Schema
-        run: psql -a -d sakila -h 127.0.0.1 < sakila-schema.sql
+        run: psql -a -h 127.0.0.1 -U sea -d sakila < sakila-schema.sql
         working-directory: ./tests/sakila/postgres
         
 
       - name: Import DB Data
-        run: psql -a -d sakila -h 127.0.0.1 < sakila-data.sql
+        run: psql -a -h 127.0.0.1 -U sea -d sakila < sakila-data.sql
         working-directory: ./tests/sakila/postgres
         
 
