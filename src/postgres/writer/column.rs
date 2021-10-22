@@ -1,5 +1,5 @@
 use crate::postgres::def::{ColumnInfo, Type};
-use sea_query::{Alias, ColumnDef, IntervalField};
+use sea_query::{Alias, ColumnDef};
 use std::{convert::TryFrom, fmt::Write};
 
 impl ColumnInfo {
