@@ -134,14 +134,14 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-mysql-${{ matrix.project }}
 
       - name: Create DB
-        run: mysql -uroot -h 127.0.0.1 mysql -e 'CREATE DATABASE `sakila`'
+        run: mysql -uroot -h 127.0.0.1 mysql -e 'CREATE DATABASE `sakila`; GRANT ALL PRIVILEGES ON `sakila` TO \'sea\'@\'%\';'
 
       - name: Import DB Schema
-        run: mysql -usea -psea -h 127.0.0.1 sakila < sakila-schema.sql
+        run: mysql -uroot -h 127.0.0.1 sakila < sakila-schema.sql
         working-directory: ./tests/sakila/mysql
 
       - name: Import DB Data
-        run: mysql -usea -psea -h 127.0.0.1 sakila < sakila-data.sql
+        run: mysql -uroot -h 127.0.0.1 sakila < sakila-data.sql
         working-directory: ./tests/sakila/mysql
 
       - uses: actions-rs/cargo@v1
