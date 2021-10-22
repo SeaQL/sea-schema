@@ -53,8 +53,46 @@ jobs:
         with:
           command: test
 
+  compile-postgres:
+    name: Compile Postgres
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        project: [live, discovery, writer]
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            Cargo.lock
+            target
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-postgres-${{ matrix.project }}
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: >
+            --manifest-path tests/${{ matrix.project }}/postgres/Cargo.toml
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: >
+            --manifest-path tests/${{ matrix.project }}/postgres/Cargo.toml
+            --no-run
+
   postgres:
     name: Postgres
+    needs: compile-postgres
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -102,12 +140,6 @@ jobs:
       - name: Import DB Data
         run: psql -q postgres://sea:sea@localhost/sakila < sakila-data.sql
         working-directory: ./tests/sakila/postgres
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: >
-            --manifest-path tests/${{ matrix.project }}/postgres/Cargo.toml
 
       - uses: actions-rs/cargo@v1
         with:
