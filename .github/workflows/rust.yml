@@ -11,89 +11,126 @@ env:
 
 jobs:
 
-  # clippy:
-  #   name: Clippy
-  #   runs-on: ubuntu-20.04
-  #   steps:
-  #     - uses: actions/checkout@v2
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
 
-  #     - uses: actions-rs/toolchain@v1
-  #       with:
-  #         profile: minimal
-  #         toolchain: stable
-  #         components: clippy
-  #         override: true
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          components: clippy
+          override: true
           
-  #     - uses: actions-rs/clippy-check@v1
-  #       with:
-  #         token: ${{ secrets.GITHUB_TOKEN }}
-  #         args: >-
-  #           --all-targets
-  #           --all
+      - uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: >-
+            --all-targets
+            --all
 
-  # test:
-  #   name: Unit Test
-  #   runs-on: ubuntu-20.04
-  #   steps:
-  #     - uses: actions/checkout@v2
+  test:
+    name: Unit Test
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
 
-  #     - uses: actions-rs/toolchain@v1
-  #       with:
-  #         profile: minimal
-  #         toolchain: stable
-  #         override: true
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
 
-  #     - uses: actions-rs/cargo@v1
-  #       with:
-  #         command: build
-  #         args: >
-  #           --all
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: >
+            --all
 
-  #     - uses: actions-rs/cargo@v1
-  #       with:
-  #         command: test
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
 
-  # compile-postgres:
-  #   name: Compile Postgres
-  #   runs-on: ubuntu-20.04
-  #   strategy:
-  #     matrix:
-  #       project: [live, discovery, writer]
-  #   steps:
-  #     - uses: actions/checkout@v2
+  compile-mysql:
+    name: Compile MySQL
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        project: [live, discovery, writer]
+    steps:
+      - uses: actions/checkout@v2
 
-  #     - uses: actions-rs/toolchain@v1
-  #       with:
-  #         profile: minimal
-  #         toolchain: stable
-  #         override: true
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
 
-  #     - uses: actions/cache@v2
-  #       with:
-  #         path: |
-  #           ~/.cargo/registry
-  #           ~/.cargo/git
-  #           Cargo.lock
-  #           target
-  #         key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-postgres-${{ matrix.project }}
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            Cargo.lock
+            target
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-mysql-${{ matrix.project }}
 
-  #     - uses: actions-rs/cargo@v1
-  #       with:
-  #         command: build
-  #         args: >
-  #           --manifest-path tests/${{ matrix.project }}/postgres/Cargo.toml
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: >
+            --manifest-path tests/${{ matrix.project }}/mysql/Cargo.toml
 
-  #     - uses: actions-rs/cargo@v1
-  #       with:
-  #         command: test
-  #         args: >
-  #           --manifest-path tests/${{ matrix.project }}/postgres/Cargo.toml
-  #           --no-run
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: >
+            --manifest-path tests/${{ matrix.project }}/mysql/Cargo.toml
+            --no-run
+
+  compile-postgres:
+    name: Compile Postgres
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        project: [live, discovery, writer]
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            Cargo.lock
+            target
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-postgres-${{ matrix.project }}
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: >
+            --manifest-path tests/${{ matrix.project }}/postgres/Cargo.toml
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: >
+            --manifest-path tests/${{ matrix.project }}/postgres/Cargo.toml
+            --no-run
 
   mysql:
     name: MySQL
     runs-on: ubuntu-20.04
-    # needs: compile-mysql
+    needs: compile-mysql
     strategy:
       matrix:
         version: [8.0, 5.7]
@@ -162,7 +199,7 @@ jobs:
   mariadb:
     name: MariaDB
     runs-on: ubuntu-20.04
-    # needs: compile-mysql
+    needs: compile-mysql
     strategy:
       matrix:
         version: [10.6]
@@ -228,65 +265,65 @@ jobs:
           args: >
             --manifest-path tests/${{ matrix.project }}/mysql/Cargo.toml
 
-  # postgres:
-  #   name: Postgres
-  #   needs: compile-postgres
-  #   runs-on: ubuntu-20.04
-  #   strategy:
-  #     matrix:
-  #       version: [13.3, 12.7, 11.12, 10.17, 9.6.22]
-  #       project: [live, discovery, writer]
-  #   services:
-  #     postgres:
-  #       image: postgres:${{ matrix.version }}
-  #       env:
-  #         POSTGRES_HOST: 127.0.0.1
-  #         POSTGRES_USER: sea
-  #         POSTGRES_PASSWORD: sea
-  #       ports:
-  #         - "5432:5432"
-  #       options: >-
-  #         --health-cmd pg_isready
-  #         --health-interval 10s
-  #         --health-timeout 5s
-  #         --health-retries 5
-  #   steps:
-  #     - uses: actions/checkout@v2
+  postgres:
+    name: Postgres
+    needs: compile-postgres
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        version: [13.3, 12.7, 11.12, 10.17, 9.6.22]
+        project: [live, discovery, writer]
+    services:
+      postgres:
+        image: postgres:${{ matrix.version }}
+        env:
+          POSTGRES_HOST: 127.0.0.1
+          POSTGRES_USER: sea
+          POSTGRES_PASSWORD: sea
+        ports:
+          - "5432:5432"
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v2
 
-  #     - uses: actions-rs/toolchain@v1
-  #       with:
-  #         profile: minimal
-  #         toolchain: stable
-  #         override: true
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
 
-  #     - uses: actions/cache@v2
-  #       with:
-  #         path: |
-  #           ~/.cargo/registry
-  #           ~/.cargo/git
-  #           Cargo.lock
-  #           target
-  #         key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-postgres-${{ matrix.project }}
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            Cargo.lock
+            target
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-postgres-${{ matrix.project }}
 
-  #     - name: Create DB
-  #       run: psql -q postgres://sea:sea@localhost/postgres -c 'CREATE DATABASE "sakila"'
+      - name: Create DB
+        run: psql -q postgres://sea:sea@localhost/postgres -c 'CREATE DATABASE "sakila"'
 
-  #     - name: Import DB Schema
-  #       run: psql -q postgres://sea:sea@localhost/sakila < sakila-schema.sql
-  #       working-directory: ./tests/sakila/postgres
+      - name: Import DB Schema
+        run: psql -q postgres://sea:sea@localhost/sakila < sakila-schema.sql
+        working-directory: ./tests/sakila/postgres
 
-  #     - name: Import DB Data
-  #       run: psql -q postgres://sea:sea@localhost/sakila < sakila-data.sql
-  #       working-directory: ./tests/sakila/postgres
+      - name: Import DB Data
+        run: psql -q postgres://sea:sea@localhost/sakila < sakila-data.sql
+        working-directory: ./tests/sakila/postgres
 
-  #     - uses: actions-rs/cargo@v1
-  #       with:
-  #         command: run
-  #         args: >
-  #           --manifest-path tests/${{ matrix.project }}/postgres/Cargo.toml
+      - uses: actions-rs/cargo@v1
+        with:
+          command: run
+          args: >
+            --manifest-path tests/${{ matrix.project }}/postgres/Cargo.toml
 
-  #     - uses: actions-rs/cargo@v1
-  #       with:
-  #         command: test
-  #         args: >
-  #           --manifest-path tests/${{ matrix.project }}/postgres/Cargo.toml
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: >
+            --manifest-path tests/${{ matrix.project }}/postgres/Cargo.toml
