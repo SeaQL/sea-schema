@@ -52,6 +52,7 @@ impl SchemaDiscovery {
     pub async fn discover_system(&mut self) -> SystemInfo {
         let rows = self.executor.fetch_all(self.query.query_version()).await;
 
+        #[allow(clippy::never_loop)]
         for row in rows.iter() {
             let result: VersionQueryResult = row.into();
             debug_print!("{:?}", result);
