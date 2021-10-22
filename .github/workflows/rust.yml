@@ -59,7 +59,7 @@ jobs:
     strategy:
       matrix:
         version: [13.3, 12.7, 11.12, 10.17, 9.6.22]
-        project: [live]
+        project: [live, discovery, writer]
     services:
       postgres:
         image: postgres:${{ matrix.version }}
@@ -82,6 +82,21 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            Cargo.lock
+            target
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-postgres-${{ matrix.project }}
+
+      - run: pg_restore -d sakila < ./tests/sakila/postgres/sakila-schema.sql
+        name: Import DB Schema
+
+      - run: pg_restore -d sakila < ./tests/sakila/postgres/sakila-data.sql
+        name: Import DB Data
 
       - uses: actions-rs/cargo@v1
         with:
