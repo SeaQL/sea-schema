@@ -23,6 +23,7 @@ impl SchemaQueryBuilder {
 #[cfg(feature = "sqlx-mysql")]
 impl From<&MySqlRow> for VersionQueryResult {
     fn from(row: &MySqlRow) -> Self {
+        use crate::sqlx_types::Row;
         Self {
             version: row.get(0),
         }

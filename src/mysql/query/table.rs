@@ -83,6 +83,7 @@ impl SchemaQueryBuilder {
 #[cfg(feature = "sqlx-mysql")]
 impl From<&MySqlRow> for TableQueryResult {
     fn from(row: &MySqlRow) -> Self {
+        use crate::sqlx_types::Row;
         Self {
             table_name: row.get(0),
             engine: row.get(1),

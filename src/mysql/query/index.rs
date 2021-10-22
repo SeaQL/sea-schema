@@ -76,6 +76,7 @@ impl SchemaQueryBuilder {
 #[cfg(feature = "sqlx-mysql")]
 impl From<&MySqlRow> for IndexQueryResult {
     fn from(row: &MySqlRow) -> Self {
+        use crate::sqlx_types::Row;
         Self {
             non_unique: row.get(0),
             index_name: row.get(1),

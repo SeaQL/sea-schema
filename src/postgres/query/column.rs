@@ -99,6 +99,7 @@ impl SchemaQueryBuilder {
 #[cfg(feature = "sqlx-postgres")]
 impl From<&PgRow> for ColumnQueryResult {
     fn from(row: &PgRow) -> Self {
+        use crate::sqlx_types::Row;
         Self {
             column_name: row.get(0),
             column_type: row.get(1),

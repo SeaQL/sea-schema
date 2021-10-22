@@ -138,6 +138,7 @@ impl SchemaQueryBuilder {
 #[cfg(feature = "sqlx-postgres")]
 impl From<&PgRow> for TableConstraintsQueryResult {
     fn from(row: &PgRow) -> Self {
+        use crate::sqlx_types::Row;
         Self {
             constraint_schema: row.get(0),
             constraint_name: row.get(1),
