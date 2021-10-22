@@ -97,8 +97,7 @@ jobs:
     strategy:
       matrix:
         version: [8.0, 5.7]
-        # project: [live, discovery, writer]
-        project: [discovery, writer]
+        project: [live, discovery, writer]
     services:
       mysql:
         image: mysql:${{ matrix.version }}

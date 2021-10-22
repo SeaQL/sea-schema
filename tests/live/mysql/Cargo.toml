@@ -1,0 +1,12 @@
+[package]
+name = "sea-schema-live-test-mysql"
+version = "0.1.0"
+edition = "2018"
+publish = false
+
+[dependencies]
+async-std = { version = "1.8", features = [ "attributes" ] }
+sea-schema = { path = "../../../", default-features = false, features = [ "sqlx-mysql", "runtime-async-std-native-tls", "discovery", "writer", "debug-print" ] }
+serde_json = { version = "^1" }
+sqlx = { version = "^0" }
+pretty_assertions = { version = "^0.7" }
