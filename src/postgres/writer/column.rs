@@ -131,10 +131,7 @@ impl ColumnInfo {
             }
             Type::Interval(interval_attr) => {
                 let field = match &interval_attr.field {
-                    Some(field) => match IntervalField::try_from(field) {
-                        Ok(field) => Some(field),
-                        Err(_) => None,
-                    },
+                    Some(field) => IntervalField::try_from(field).ok(),
                     None => None,
                 };
                 let precision = match interval_attr.precision {
