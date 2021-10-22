@@ -134,10 +134,7 @@ impl ColumnInfo {
                     Some(field) => IntervalField::try_from(field).ok(),
                     None => None,
                 };
-                let precision = match interval_attr.precision {
-                    Some(precision) => Some(precision as u32),
-                    None => None,
-                };
+                let precision = interval_attr.precision.map(Into::into);
                 col_def.interval(field, precision);
             }
             Type::Boolean => {
