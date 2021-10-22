@@ -90,17 +90,83 @@ jobs:
   #           --manifest-path tests/${{ matrix.project }}/postgres/Cargo.toml
   #           --no-run
 
-  mysql:
-    name: MySQL
+  # mysql:
+  #   name: MySQL
+  #   runs-on: ubuntu-20.04
+  #   # needs: compile-mysql
+  #   strategy:
+  #     matrix:
+  #       version: [8.0, 5.7]
+  #       project: [live, discovery, writer]
+  #   services:
+  #     mysql:
+  #       image: mysql:${{ matrix.version }}
+  #       env:
+  #         MYSQL_HOST: 127.0.0.1
+  #         MYSQL_DB: mysql
+  #         MYSQL_USER: sea
+  #         MYSQL_PASSWORD: sea
+  #         MYSQL_ALLOW_EMPTY_PASSWORD: yes
+  #         MYSQL_ROOT_PASSWORD:
+  #       ports:
+  #         - "3306:3306"
+  #       options: >-
+  #         --health-cmd="mysqladmin ping"
+  #         --health-interval=10s
+  #         --health-timeout=5s
+  #         --health-retries=3
+  #   steps:
+  #     - uses: actions/checkout@v2
+
+  #     - uses: actions-rs/toolchain@v1
+  #       with:
+  #         profile: minimal
+  #         toolchain: stable
+  #         override: true
+
+  #     - uses: actions/cache@v2
+  #       with:
+  #         path: |
+  #           ~/.cargo/registry
+  #           ~/.cargo/git
+  #           Cargo.lock
+  #           target
+  #         key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-mysql-${{ matrix.project }}
+
+  #     - name: Create DB
+  #       run: mysql -uroot -h 127.0.0.1 mysql -e 'CREATE DATABASE `sakila`'
+
+  #     - name: Import DB Schema
+  #       run: mysql -uroot -h 127.0.0.1 sakila < sakila-schema.sql
+  #       working-directory: ./tests/sakila/mysql
+
+  #     - name: Import DB Data
+  #       run: mysql -uroot -h 127.0.0.1 sakila < sakila-data.sql
+  #       working-directory: ./tests/sakila/mysql
+
+  #     - uses: actions-rs/cargo@v1
+  #       with:
+  #         command: run
+  #         args: >
+  #           --manifest-path tests/${{ matrix.project }}/mysql/Cargo.toml
+
+  #     - uses: actions-rs/cargo@v1
+  #       with:
+  #         command: test
+  #         args: >
+  #           --manifest-path tests/${{ matrix.project }}/mysql/Cargo.toml
+
+  mariadb:
+    name: MariaDB
     runs-on: ubuntu-20.04
     # needs: compile-mysql
     strategy:
       matrix:
-        version: [8.0, 5.7]
+        version: [10.6]
         project: [live, discovery, writer]
     services:
       mysql:
-        image: mysql:${{ matrix.version }}
+        image: mariadb:${{ matrix.version }}
         env:
           MYSQL_HOST: 127.0.0.1
           MYSQL_DB: mysql
