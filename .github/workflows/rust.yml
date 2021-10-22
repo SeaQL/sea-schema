@@ -92,10 +92,10 @@ jobs:
             target
           key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-postgres-${{ matrix.project }}
 
-      - run: pg_restore -d sakila < ./tests/sakila/postgres/sakila-schema.sql
+      - run: psql -ad sakila < ./tests/sakila/postgres/sakila-schema.sql
         name: Import DB Schema
 
-      - run: pg_restore -d sakila < ./tests/sakila/postgres/sakila-data.sql
+      - run: psql -ad sakila < ./tests/sakila/postgres/sakila-data.sql
         name: Import DB Data
 
       - uses: actions-rs/cargo@v1
