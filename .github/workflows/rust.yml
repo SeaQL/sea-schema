@@ -111,6 +111,12 @@ jobs:
 
       - uses: actions-rs/cargo@v1
         with:
+          command: run
+          args: >
+            --manifest-path tests/${{ matrix.project }}/postgres/Cargo.toml
+
+      - uses: actions-rs/cargo@v1
+        with:
           command: test
           args: >
             --manifest-path tests/${{ matrix.project }}/postgres/Cargo.toml
