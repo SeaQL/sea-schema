@@ -329,7 +329,7 @@ fn create_cake_table() -> TableCreateStatement {
                 .integer()
                 .not_null(),
         )
-        .col(ColumnDef::new(Alias::new("gluten_free")).tiny_integer()
+        .col(ColumnDef::new(Alias::new("gluten_free")).tiny_integer_len(1))
         .col(ColumnDef::new(Alias::new("serial")).uuid())
         .index(
             Index::create()
