@@ -93,12 +93,12 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-postgres-${{ matrix.project }}
 
       - name: Import DB Schema
-        run: PASSWORD=sea psql -a -h 127.0.0.1 -U sea -d sakila < sakila-schema.sql
+        run: psql postgres://sea:sea@localhost/sakila < sakila-schema.sql
         working-directory: ./tests/sakila/postgres
         
 
       - name: Import DB Data
-        run: PASSWORD=sea psql -a -h 127.0.0.1 -U sea -d sakila < sakila-data.sql
+        run: psql postgres://sea:sea@localhost/sakila < sakila-data.sql
         working-directory: ./tests/sakila/postgres
         
 
