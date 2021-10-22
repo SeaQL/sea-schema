@@ -93,12 +93,12 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-postgres-${{ matrix.project }}
 
       - name: Import DB Schema
-        run: psql -ad sakila < sakila-schema.sql
+        run: psql -a -d sakila -h 127.0.0.1 < sakila-schema.sql
         working-directory: ./tests/sakila/postgres
         
 
       - name: Import DB Data
-        run: psql -ad sakila < sakila-data.sql
+        run: psql -a -d sakila -h 127.0.0.1 < sakila-data.sql
         working-directory: ./tests/sakila/postgres
         
 
