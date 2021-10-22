@@ -93,14 +93,14 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-postgres-${{ matrix.project }}
 
       - name: Create DB
-        run: psql postgres://sea:sea@localhost/postgres -c 'CREATE DATABASE "sakila"'
+        run: psql -q postgres://sea:sea@localhost/postgres -c 'CREATE DATABASE "sakila"'
 
       - name: Import DB Schema
-        run: psql postgres://sea:sea@localhost/sakila < sakila-schema.sql
+        run: psql -q postgres://sea:sea@localhost/sakila < sakila-schema.sql
         working-directory: ./tests/sakila/postgres
 
       - name: Import DB Data
-        run: psql postgres://sea:sea@localhost/sakila < sakila-data.sql
+        run: psql -q postgres://sea:sea@localhost/sakila < sakila-data.sql
         working-directory: ./tests/sakila/postgres
 
       - uses: actions-rs/cargo@v1
