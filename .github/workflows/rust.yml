@@ -134,7 +134,7 @@ jobs:
           key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-mysql-${{ matrix.project }}
 
       - name: Create DB
-        run: mysql -usea -psea -h 127.0.0.1 mysql -e 'CREATE DATABASE `sakila`'
+        run: mysql -uroot -h 127.0.0.1 mysql -e 'CREATE DATABASE `sakila`'
 
       - name: Import DB Schema
         run: mysql -usea -psea -h 127.0.0.1 sakila < sakila-schema.sql
