@@ -5,12 +5,12 @@ use sea_schema::sea_query::{
     Alias, ColumnDef, ForeignKey, ForeignKeyAction, Index, PostgresQueryBuilder, Table,
     TableCreateStatement,
 };
-use sqlx::{Executor, PgPool, Pool, Postgres};
+use sqlx::{PgPool, Pool, Postgres};
 
 #[cfg_attr(test, async_std::test)]
 #[cfg_attr(not(test), async_std::main)]
 async fn main() {
-    let mut connection = setup("postgres://sea:sea@localhost", "sea-schema").await;
+    let connection = setup("postgres://sea:sea@localhost", "sea-schema").await;
     let mut executor = connection.acquire().await.unwrap();
 
     let tbl_create_stmts = vec![

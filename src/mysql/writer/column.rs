@@ -1,5 +1,4 @@
 use crate::mysql::def::{CharSet, ColumnInfo, NumericAttr, StringAttr, Type};
-use core::num;
 use sea_query::{escape_string, Alias, ColumnDef, Iden};
 use std::fmt::Write;
 

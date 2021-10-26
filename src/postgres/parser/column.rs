@@ -1,14 +1,5 @@
-use crate::{
-    parser::Parser,
-    postgres::{
-        def::*,
-        parser::yes_or_no_to_bool,
-        query::{constraints, ColumnQueryResult},
-    },
-    Name,
-};
-
-use std::convert::{TryFrom, TryInto};
+use crate::postgres::{def::*, parser::yes_or_no_to_bool, query::ColumnQueryResult};
+use std::convert::TryFrom;
 
 impl ColumnQueryResult {
     pub fn parse(self) -> ColumnInfo {

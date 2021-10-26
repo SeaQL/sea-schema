@@ -1,6 +1,5 @@
 use crate::postgres::{def::*, query::TableConstraintsQueryResult};
-use crate::{parser::Parser, Name};
-use sea_query::unescape_string;
+use crate::Name;
 
 pub struct TableConstraintsQueryResultParser {
     curr: Option<TableConstraintsQueryResult>,

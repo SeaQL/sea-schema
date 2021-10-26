@@ -1,5 +1,5 @@
 use super::SchemaQueryBuilder;
-use crate::sqlx_types::{mysql::MySqlRow, Row};
+use crate::sqlx_types::mysql::MySqlRow;
 use sea_query::{Func, Query, SelectStatement};
 
 #[derive(sea_query::Iden)]
@@ -23,6 +23,7 @@ impl SchemaQueryBuilder {
 #[cfg(feature = "sqlx-mysql")]
 impl From<&MySqlRow> for VersionQueryResult {
     fn from(row: &MySqlRow) -> Self {
+        use crate::sqlx_types::Row;
         Self {
             version: row.get(0),
         }

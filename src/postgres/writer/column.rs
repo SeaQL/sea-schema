@@ -1,7 +1,6 @@
-use crate::postgres::def::{ArbitraryPrecisionNumericAttr, ColumnInfo, Type};
-use core::num;
-use sea_query::{escape_string, Alias, ColumnDef, Iden};
-use std::{default, fmt::Write};
+use crate::postgres::def::{ColumnInfo, Type};
+use sea_query::{Alias, ColumnDef, IntervalField};
+use std::{convert::TryFrom, fmt::Write};
 
 impl ColumnInfo {
     pub fn write(&self) -> ColumnDef {
@@ -130,7 +129,14 @@ impl ColumnInfo {
                     None => col_def.time(),
                 };
             }
-            Type::Interval(time_attr) => {}
+            Type::Interval(interval_attr) => {
+                let field = match &interval_attr.field {
+                    Some(field) => IntervalField::try_from(field).ok(),
+                    None => None,
+                };
+                let precision = interval_attr.precision.map(Into::into);
+                col_def.interval(field, precision);
+            }
             Type::Boolean => {
                 col_def.boolean();
             }

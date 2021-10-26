@@ -1,5 +1,5 @@
 use super::{CharacterSetFields, InformationSchema, SchemaQueryBuilder};
-use crate::sqlx_types::{mysql::MySqlRow, Row};
+use crate::sqlx_types::mysql::MySqlRow;
 use sea_query::{Expr, Iden, Order, Query, SeaRc, SelectStatement};
 
 #[derive(Debug, sea_query::Iden)]
@@ -83,6 +83,7 @@ impl SchemaQueryBuilder {
 #[cfg(feature = "sqlx-mysql")]
 impl From<&MySqlRow> for TableQueryResult {
     fn from(row: &MySqlRow) -> Self {
+        use crate::sqlx_types::Row;
         Self {
             table_name: row.get(0),
             engine: row.get(1),
