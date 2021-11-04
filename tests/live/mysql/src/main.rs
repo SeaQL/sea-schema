@@ -98,8 +98,8 @@ fn create_bakery_table() -> TableCreateStatement {
                 .col(Alias::new("id")),
         )
         .engine("InnoDB")
-        .character_set("utf8")
-        .collate("utf8_general_ci")
+        .character_set("utf8mb4")
+        .collate("utf8mb4_general_ci")
         .to_owned()
 }
 
@@ -135,8 +135,8 @@ fn create_baker_table() -> TableCreateStatement {
                 .on_update(ForeignKeyAction::Cascade),
         )
         .engine("InnoDB")
-        .character_set("utf8")
-        .collate("utf8_general_ci")
+        .character_set("utf8mb4")
+        .collate("utf8mb4_general_ci")
         .to_owned()
 }
 
@@ -158,8 +158,8 @@ fn create_customer_table() -> TableCreateStatement {
                 .col(Alias::new("id")),
         )
         .engine("InnoDB")
-        .character_set("utf8")
-        .collate("utf8_general_ci")
+        .character_set("utf8mb4")
+        .collate("utf8mb4_general_ci")
         .to_owned()
 }
 
@@ -223,8 +223,8 @@ fn create_order_table() -> TableCreateStatement {
                 .on_update(ForeignKeyAction::Cascade),
         )
         .engine("InnoDB")
-        .character_set("utf8")
-        .collate("utf8_general_ci")
+        .character_set("utf8mb4")
+        .collate("utf8mb4_general_ci")
         .to_owned()
 }
 
@@ -282,8 +282,8 @@ fn create_lineitem_table() -> TableCreateStatement {
                 .on_update(ForeignKeyAction::Cascade),
         )
         .engine("InnoDB")
-        .character_set("utf8")
-        .collate("utf8_general_ci")
+        .character_set("utf8mb4")
+        .collate("utf8mb4_general_ci")
         .to_owned()
 }
 
@@ -308,8 +308,8 @@ fn create_cakes_bakers_table() -> TableCreateStatement {
                 .col(Alias::new("baker_id")),
         )
         .engine("InnoDB")
-        .character_set("utf8")
-        .collate("utf8_general_ci")
+        .character_set("utf8mb4")
+        .collate("utf8mb4_general_ci")
         .to_owned()
 }
 
@@ -351,7 +351,7 @@ fn create_cake_table() -> TableCreateStatement {
                 .on_update(ForeignKeyAction::Cascade),
         )
         .engine("InnoDB")
-        .character_set("utf8")
-        .collate("utf8_general_ci")
+        .character_set("utf8mb4")
+        .collate("utf8mb4_general_ci")
         .to_owned()
 }
