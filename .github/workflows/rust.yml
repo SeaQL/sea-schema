@@ -132,6 +132,7 @@ jobs:
     runs-on: ubuntu-20.04
     needs: compile-mysql
     strategy:
+      fail-fast: false
       matrix:
         version: [8.0, 5.7]
         project: [live, discovery, writer]
@@ -201,6 +202,7 @@ jobs:
     runs-on: ubuntu-20.04
     needs: compile-mysql
     strategy:
+      fail-fast: false
       matrix:
         version: [10.6]
         project: [live, discovery, writer]
@@ -270,6 +272,7 @@ jobs:
     needs: compile-postgres
     runs-on: ubuntu-20.04
     strategy:
+      fail-fast: false
       matrix:
         version: [13.3, 12.7, 11.12, 10.17, 9.6.22]
         project: [live, discovery, writer]

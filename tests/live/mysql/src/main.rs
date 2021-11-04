@@ -85,7 +85,7 @@ fn create_bakery_table() -> TableCreateStatement {
         .table(Alias::new("bakery"))
         .col(
             ColumnDef::new(Alias::new("id"))
-                .integer_len(8)
+                .integer_len(255)
                 .not_null()
                 .auto_increment(),
         )
@@ -108,13 +108,13 @@ fn create_baker_table() -> TableCreateStatement {
         .table(Alias::new("baker"))
         .col(
             ColumnDef::new(Alias::new("id"))
-                .integer_len(8)
+                .integer_len(255)
                 .not_null()
                 .auto_increment(),
         )
         .col(ColumnDef::new(Alias::new("name")).string())
         .col(ColumnDef::new(Alias::new("contact_details")).json())
-        .col(ColumnDef::new(Alias::new("bakery_id")).integer_len(8))
+        .col(ColumnDef::new(Alias::new("bakery_id")).integer_len(255))
         .index(
             Index::create()
                 .name("FK_baker_bakery")
@@ -145,7 +145,7 @@ fn create_customer_table() -> TableCreateStatement {
         .table(Alias::new("customer"))
         .col(
             ColumnDef::new(Alias::new("id"))
-                .integer_len(8)
+                .integer_len(255)
                 .not_null()
                 .auto_increment(),
         )
@@ -168,19 +168,19 @@ fn create_order_table() -> TableCreateStatement {
         .table(Alias::new("order"))
         .col(
             ColumnDef::new(Alias::new("id"))
-                .integer_len(8)
+                .integer_len(255)
                 .not_null()
                 .auto_increment(),
         )
         .col(ColumnDef::new(Alias::new("total")).decimal_len(19, 4))
         .col(
             ColumnDef::new(Alias::new("bakery_id"))
-                .integer_len(8)
+                .integer_len(255)
                 .not_null(),
         )
         .col(
             ColumnDef::new(Alias::new("customer_id"))
-                .integer_len(8)
+                .integer_len(255)
                 .not_null(),
         )
         // .col(
@@ -233,20 +233,20 @@ fn create_lineitem_table() -> TableCreateStatement {
         .table(Alias::new("lineitem"))
         .col(
             ColumnDef::new(Alias::new("id"))
-                .integer_len(8)
+                .integer_len(255)
                 .not_null()
                 .auto_increment(),
         )
         .col(ColumnDef::new(Alias::new("price")).decimal_len(19, 4))
-        .col(ColumnDef::new(Alias::new("quantity")).integer_len(8))
+        .col(ColumnDef::new(Alias::new("quantity")).integer_len(255))
         .col(
             ColumnDef::new(Alias::new("order_id"))
-                .integer_len(8)
+                .integer_len(255)
                 .not_null(),
         )
         .col(
             ColumnDef::new(Alias::new("cake_id"))
-                .integer_len(8)
+                .integer_len(255)
                 .not_null(),
         )
         .index(
@@ -292,12 +292,12 @@ fn create_cakes_bakers_table() -> TableCreateStatement {
         .table(Alias::new("cakes_bakers"))
         .col(
             ColumnDef::new(Alias::new("cake_id"))
-                .integer_len(8)
+                .integer_len(255)
                 .not_null(),
         )
         .col(
             ColumnDef::new(Alias::new("baker_id"))
-                .integer_len(8)
+                .integer_len(255)
                 .not_null(),
         )
         .primary_key(
@@ -318,7 +318,7 @@ fn create_cake_table() -> TableCreateStatement {
         .table(Alias::new("cake"))
         .col(
             ColumnDef::new(Alias::new("id"))
-                .integer_len(8)
+                .integer_len(255)
                 .not_null()
                 .auto_increment(),
         )
@@ -326,7 +326,7 @@ fn create_cake_table() -> TableCreateStatement {
         .col(ColumnDef::new(Alias::new("price")).decimal_len(19, 4))
         .col(
             ColumnDef::new(Alias::new("bakery_id"))
-                .integer_len(8)
+                .integer_len(255)
                 .not_null(),
         )
         .col(ColumnDef::new(Alias::new("gluten_free")).tiny_integer_len(1))
