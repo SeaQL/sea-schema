@@ -10,3 +10,4 @@ sea-schema = { path = "../../../", default-features = false, features = [ "sqlx-
 serde_json = { version = "^1" }
 sqlx = { version = "^0" }
 pretty_assertions = { version = "^0.7" }
+regex = { version = "^1" }

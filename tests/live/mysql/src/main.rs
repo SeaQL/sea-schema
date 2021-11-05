@@ -1,12 +1,12 @@
-use std::collections::HashMap;
-
 use pretty_assertions::assert_eq;
+use regex::Regex;
 use sea_schema::mysql::{def::TableDef, discovery::SchemaDiscovery};
 use sea_schema::sea_query::{
     Alias, ColumnDef, ForeignKey, ForeignKeyAction, Index, MysqlQueryBuilder, Table,
     TableCreateStatement,
 };
 use sqlx::{MySql, MySqlPool, Pool};
+use std::collections::HashMap;
 
 #[cfg_attr(test, async_std::test)]
 #[cfg_attr(not(test), async_std::main)]
@@ -47,6 +47,7 @@ async fn main() {
         let expected_sql = tbl_create_stmt.to_string(MysqlQueryBuilder);
         let table = map.get(&tbl_create_stmt.get_table_name().unwrap()).unwrap();
         let sql = table.write().to_string(MysqlQueryBuilder);
+        let sql = strip_generated_sql(sql);
         println!("Expected SQL:");
         println!("{};", expected_sql);
         println!("Generated SQL:");
@@ -54,6 +55,20 @@ async fn main() {
         println!();
         assert_eq!(expected_sql, sql);
     }
+}
+
+fn strip_generated_sql(mut sql: String) -> String {
+    for (pattern, replacement) in vec![
+        (Regex::new(r"(?i) DEFAULT NULL").unwrap(), ""),
+        (Regex::new(r"(?i)TINYINT\(\d+\)").unwrap(), "tinyint"),
+        (Regex::new(r"(?i)SMALLINT\(\d+\)").unwrap(), "smallint"),
+        (Regex::new(r"(?i)MEDIUMINT\(\d+\)").unwrap(), "mediumint"),
+        (Regex::new(r"(?i)INT\(\d+\)").unwrap(), "int"),
+        (Regex::new(r"(?i)BIGINT\(\d+\)").unwrap(), "bigint"),
+    ] {
+        sql = pattern.replace_all(&sql, replacement).to_string();
+    }
+    sql
 }
 
 async fn setup(base_url: &str, db_name: &str) -> Pool<MySql> {
@@ -85,18 +100,13 @@ fn create_bakery_table() -> TableCreateStatement {
         .table(Alias::new("bakery"))
         .col(
             ColumnDef::new(Alias::new("id"))
-                .integer_len(255)
+                .integer()
                 .not_null()
                 .auto_increment(),
         )
         .col(ColumnDef::new(Alias::new("name")).string())
         .col(ColumnDef::new(Alias::new("profit_margin")).double())
-        .primary_key(
-            Index::create()
-                // FIXME: Mysql writer will not write the name of primary key?
-                // .name("bakery_pkey")
-                .col(Alias::new("id")),
-        )
+        .primary_key(Index::create().col(Alias::new("id")))
         .engine("InnoDB")
         .character_set("utf8mb4")
         .collate("utf8mb4_general_ci")
@@ -108,24 +118,19 @@ fn create_baker_table() -> TableCreateStatement {
         .table(Alias::new("baker"))
         .col(
             ColumnDef::new(Alias::new("id"))
-                .integer_len(255)
+                .integer()
                 .not_null()
                 .auto_increment(),
         )
         .col(ColumnDef::new(Alias::new("name")).string())
         .col(ColumnDef::new(Alias::new("contact_details")).json())
-        .col(ColumnDef::new(Alias::new("bakery_id")).integer_len(255))
+        .col(ColumnDef::new(Alias::new("bakery_id")).integer())
         .index(
             Index::create()
                 .name("FK_baker_bakery")
                 .col(Alias::new("bakery_id")),
         )
-        .primary_key(
-            Index::create()
-                // FIXME: Mysql writer will not write the name of primary key?
-                // .name("baker_pkey")
-                .col(Alias::new("id")),
-        )
+        .primary_key(Index::create().col(Alias::new("id")))
         .foreign_key(
             ForeignKey::create()
                 .name("FK_baker_bakery")
@@ -145,18 +150,13 @@ fn create_customer_table() -> TableCreateStatement {
         .table(Alias::new("customer"))
         .col(
             ColumnDef::new(Alias::new("id"))
-                .integer_len(255)
+                .integer()
                 .not_null()
                 .auto_increment(),
         )
         .col(ColumnDef::new(Alias::new("name")).string())
         .col(ColumnDef::new(Alias::new("notes")).text())
-        .primary_key(
-            Index::create()
-                // FIXME: Mysql writer will not write the name of primary key?
-                // .name("customer_pkey")
-                .col(Alias::new("id")),
-        )
+        .primary_key(Index::create().col(Alias::new("id")))
         .engine("InnoDB")
         .character_set("utf8mb4")
         .collate("utf8mb4_general_ci")
@@ -168,28 +168,22 @@ fn create_order_table() -> TableCreateStatement {
         .table(Alias::new("order"))
         .col(
             ColumnDef::new(Alias::new("id"))
-                .integer_len(255)
+                .integer()
                 .not_null()
                 .auto_increment(),
         )
         .col(ColumnDef::new(Alias::new("total")).decimal_len(19, 4))
-        .col(
-            ColumnDef::new(Alias::new("bakery_id"))
-                .integer_len(255)
-                .not_null(),
-        )
+        .col(ColumnDef::new(Alias::new("bakery_id")).integer().not_null())
         .col(
             ColumnDef::new(Alias::new("customer_id"))
-                .integer_len(255)
+                .integer()
                 .not_null(),
         )
-        // .col(
-        //     ColumnDef::new(Alias::new("placed_at"))
-        //         .timestamp_len(6)
-        //         .not_null()
-        //         // FIXME: accept default expression instead of only value
-        //         .default("CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP"),
-        // )
+        .col(
+            ColumnDef::new(Alias::new("placed_at"))
+                .date_time()
+                .not_null(),
+        )
         .index(
             Index::create()
                 .name("FK_order_bakery")
@@ -200,12 +194,7 @@ fn create_order_table() -> TableCreateStatement {
                 .name("FK_order_customer")
                 .col(Alias::new("customer_id")),
         )
-        .primary_key(
-            Index::create()
-                // FIXME: Mysql writer will not write the name of primary key?
-                // .name("order_pkey")
-                .col(Alias::new("id")),
-        )
+        .primary_key(Index::create().col(Alias::new("id")))
         .foreign_key(
             ForeignKey::create()
                 .name("FK_order_bakery")
@@ -233,22 +222,14 @@ fn create_lineitem_table() -> TableCreateStatement {
         .table(Alias::new("lineitem"))
         .col(
             ColumnDef::new(Alias::new("id"))
-                .integer_len(255)
+                .integer()
                 .not_null()
                 .auto_increment(),
         )
         .col(ColumnDef::new(Alias::new("price")).decimal_len(19, 4))
-        .col(ColumnDef::new(Alias::new("quantity")).integer_len(255))
-        .col(
-            ColumnDef::new(Alias::new("order_id"))
-                .integer_len(255)
-                .not_null(),
-        )
-        .col(
-            ColumnDef::new(Alias::new("cake_id"))
-                .integer_len(255)
-                .not_null(),
-        )
+        .col(ColumnDef::new(Alias::new("quantity")).integer())
+        .col(ColumnDef::new(Alias::new("order_id")).integer().not_null())
+        .col(ColumnDef::new(Alias::new("cake_id")).integer().not_null())
         .index(
             Index::create()
                 .name("FK_lineitem_cake")
@@ -259,12 +240,7 @@ fn create_lineitem_table() -> TableCreateStatement {
                 .name("FK_lineitem_order")
                 .col(Alias::new("order_id")),
         )
-        .primary_key(
-            Index::create()
-                // FIXME: Mysql writer will not write the name of primary key?
-                // .name("lineitem_pkey")
-                .col(Alias::new("id")),
-        )
+        .primary_key(Index::create().col(Alias::new("id")))
         .foreign_key(
             ForeignKey::create()
                 .name("FK_lineitem_cake")
@@ -290,20 +266,10 @@ fn create_lineitem_table() -> TableCreateStatement {
 fn create_cakes_bakers_table() -> TableCreateStatement {
     Table::create()
         .table(Alias::new("cakes_bakers"))
-        .col(
-            ColumnDef::new(Alias::new("cake_id"))
-                .integer_len(255)
-                .not_null(),
-        )
-        .col(
-            ColumnDef::new(Alias::new("baker_id"))
-                .integer_len(255)
-                .not_null(),
-        )
+        .col(ColumnDef::new(Alias::new("cake_id")).integer().not_null())
+        .col(ColumnDef::new(Alias::new("baker_id")).integer().not_null())
         .primary_key(
             Index::create()
-                // FIXME: Mysql writer will not write the name of primary key?
-                // .name("cakes_bakers_pkey")
                 .col(Alias::new("cake_id"))
                 .col(Alias::new("baker_id")),
         )
@@ -318,30 +284,21 @@ fn create_cake_table() -> TableCreateStatement {
         .table(Alias::new("cake"))
         .col(
             ColumnDef::new(Alias::new("id"))
-                .integer_len(255)
+                .integer()
                 .not_null()
                 .auto_increment(),
         )
         .col(ColumnDef::new(Alias::new("name")).string())
         .col(ColumnDef::new(Alias::new("price")).decimal_len(19, 4))
-        .col(
-            ColumnDef::new(Alias::new("bakery_id"))
-                .integer_len(255)
-                .not_null(),
-        )
-        .col(ColumnDef::new(Alias::new("gluten_free")).tiny_integer_len(1))
+        .col(ColumnDef::new(Alias::new("bakery_id")).integer().not_null())
+        .col(ColumnDef::new(Alias::new("gluten_free")).tiny_integer())
         .col(ColumnDef::new(Alias::new("serial")).uuid())
         .index(
             Index::create()
                 .name("FK_cake_bakery")
                 .col(Alias::new("bakery_id")),
         )
-        .primary_key(
-            Index::create()
-                // FIXME: Mysql writer will not write the name of primary key?
-                // .name("cake_pkey")
-                .col(Alias::new("id")),
-        )
+        .primary_key(Index::create().col(Alias::new("id")))
         .foreign_key(
             ForeignKey::create()
                 .name("FK_cake_bakery")
