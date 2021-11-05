@@ -65,7 +65,7 @@ fn strip_generated_sql(mut sql: String) -> String {
         (Regex::new(r"(?i)MEDIUMINT\(\d+\)").unwrap(), "mediumint"),
         (Regex::new(r"(?i)INT\(\d+\)").unwrap(), "int"),
         (Regex::new(r"(?i)BIGINT\(\d+\)").unwrap(), "bigint"),
-        (Regex::new(r"(?i)LONGTEXE").unwrap(), "json"),
+        (Regex::new(r"(?i)LONGTEXT").unwrap(), "json"),
     ] {
         sql = pattern.replace_all(&sql, replacement).to_string();
     }
