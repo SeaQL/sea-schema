@@ -5,6 +5,7 @@ members = [
     "tests/discovery/postgres",
     "tests/writer/mysql",
     "tests/writer/postgres",
+    "tests/live/mysql",
     "tests/live/postgres",
 ]
 
