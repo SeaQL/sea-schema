@@ -156,7 +156,7 @@ impl ColumnInfo {
                 col_def.custom(Alias::new("path"));
             }
             Type::Polygon => {
-                col_def.custom(Alias::new("ploygon"));
+                col_def.custom(Alias::new("polygon"));
             }
             Type::Circle => {
                 col_def.custom(Alias::new("circle"));
@@ -226,6 +226,9 @@ impl ColumnInfo {
             }
             Type::Unknown(s) => {
                 col_def.custom(Alias::new(s));
+            }
+            Type::Enum(def) => {
+                col_def.custom(Alias::new("enum"));
             }
         };
         col_def
