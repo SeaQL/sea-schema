@@ -138,6 +138,7 @@ pub enum Type {
     PgLsn,
     // TODO: Pseudo-types
     Unknown(String),
+    Enum(EnumDef),
 }
 
 impl Type {
@@ -194,6 +195,7 @@ impl Type {
             "daterange" => Type::DateRange,
             // "" => Type::Domain,
             "pg_lsn" => Type::PgLsn,
+            "enum" => Type::Enum(EnumDef::default()),
 
             _ => Type::Unknown(name.to_owned()),
         }
@@ -262,5 +264,48 @@ impl Type {
 
     pub fn has_bit_attr(&self) -> bool {
         matches!(self, Type::Bit(_))
+    }
+
+    pub fn get_enum_def(&self) -> &EnumDef {
+        match self {
+            Type::Enum(def) => def,
+            _ => panic!("type error"),
+        }
+    }
+
+    pub fn get_enum_def_mut(&mut self) -> &mut EnumDef {
+        match self {
+            Type::Enum(def) => def,
+            _ => panic!("type error"),
+        }
+    }
+
+    pub fn is_enum(&self) -> bool {
+        matches!(self, Type::Enum(_))
+    }
+}
+
+#[derive(Debug)]
+pub struct EnumIden(String);
+
+impl sea_query::Iden for EnumIden {
+    fn unquoted(&self, s: &mut dyn std::fmt::Write) {
+        write!(s, "{}", self.0).unwrap();
+    }
+}
+
+#[derive(Clone, Debug, Default, PartialEq)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
+pub struct EnumDef {
+    pub values: Vec<String>,
+    pub attr: StringAttr,
+}
+
+impl EnumDef {
+    pub fn to_enum_def(&self) -> Vec<EnumIden> {
+        self.values
+            .iter()
+            .map(|iden| EnumIden(iden.to_owned()))
+            .collect::<Vec<EnumIden>>()
     }
 }
