@@ -1,0 +1,12 @@
+[package]
+name = "sea-schema-writer-test-postgres-enum"
+version = "0.1.0"
+edition = "2018"
+publish = false
+
+[dependencies]
+async-std = { version = "1.8", features = [ "attributes" ] }
+sea-query = "0.18.2"
+sea-schema = { path = "../../../", default-features = false, features = [ "sqlx-postgres", "runtime-async-std-native-tls", "discovery", "writer", "debug-print" ] }
+serde_json = { version = "^1" }
+sqlx = { version = "^0" }
