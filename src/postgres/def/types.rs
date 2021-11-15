@@ -402,6 +402,7 @@ impl EnumDef {
     }
 }
 
+#[cfg(feature = "sqlx")]
 /// Helpers to extract the Postgres `ENUM` type from a PostgreSQL row
 #[derive(sqlx::FromRow, Debug)]
 pub struct PgEnum {
@@ -411,6 +412,7 @@ pub struct PgEnum {
     pub enumlabel: String,
 }
 
+#[cfg(feature = "sqlx")]
 impl PgEnum {
     /// Create a new type to handle a Postgres ENUM row
     pub fn new() -> Self {
