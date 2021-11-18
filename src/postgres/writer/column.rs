@@ -228,7 +228,7 @@ impl ColumnInfo {
                 col_def.custom(Alias::new(s));
             }
             Type::Enum(def) => {
-                col_def.custom(Alias::new("enum"));
+                col_def.custom(Alias::new(&def.typename));
             }
         };
         col_def

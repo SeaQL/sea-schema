@@ -7,7 +7,8 @@ use crate::postgres::query::{
     ColumnQueryResult, SchemaQueryBuilder, TableConstraintsQueryResult, TableQueryResult,
 };
 use futures::future;
-use sea_query::{Alias, Iden, IntoIden, SeaRc};
+use sea_query::{Alias, ColumnRef, Expr, Iden, IntoIden, JoinType, SeaRc, SelectStatement};
+use std::collections::HashMap;
 
 mod executor;
 pub use executor::*;
@@ -176,4 +177,60 @@ impl SchemaDiscovery {
 
         constraints
     }
+
+    #[cfg(feature = "sqlx-postgres")]
+    pub async fn discover_enums(&self) -> Vec<Type> {
+        let mut query = SelectStatement::new();
+
+        // SELECT pg_type.typname, pg_enum.enumlabel FROM pg_type JOIN pg_enum ON pg_enum.enumtypid = pg_type.oid;
+        query
+            .expr(Expr::col(ColumnRef::TableColumn(
+                SeaRc::new(Alias::new("pg_type")),
+                SeaRc::new(Alias::new("typname")),
+            )))
+            .expr(Expr::col(ColumnRef::TableColumn(
+                SeaRc::new(Alias::new("pg_enum")),
+                SeaRc::new(Alias::new("enumlabel")),
+            )))
+            .from(Alias::new("pg_type"))
+            .join(
+                JoinType::Join,
+                Alias::new("pg_enum"),
+                Expr::tbl(Alias::new("pg_enum"), Alias::new("enumtypid"))
+                    .equals(Alias::new("pg_type"), Alias::new("oid")),
+            );
+        let enum_rows = self.executor.get_enums(query).await;
+
+        let mut enums: Vec<Type> = Vec::default();
+
+        let mut temp_enumdef: HashMap<Typname, EnumValues> = HashMap::new();
+
+        enum_rows.iter().for_each(|enum_row| {
+            if let Some(entry_exists) = temp_enumdef.get_mut(&enum_row.typname) {
+                entry_exists.push(enum_row.enumlabel.to_owned());
+            } else {
+                temp_enumdef.insert(
+                    enum_row.typname.to_owned(),
+                    vec![enum_row.enumlabel.to_owned()],
+                );
+            }
+        });
+
+        temp_enumdef.into_iter().for_each(|key_value_pair| {
+            let mut pg_enum = Type::Enum(EnumDef::default());
+            pg_enum.get_enum_def_mut().typename = key_value_pair.0.clone();
+
+            let attr_len = key_value_pair.0.len() as u16;
+            pg_enum.get_enum_def_mut().attr.length = Some(attr_len);
+
+            pg_enum.get_enum_def_mut().values = key_value_pair.1;
+
+            enums.push(pg_enum);
+        });
+
+        enums
+    }
 }
+
+type Typname = String;
+type EnumValues = Vec<String>;

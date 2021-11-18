@@ -1,7 +1,6 @@
-use crate::parser::Parser;
-use sea_query::{
-    backend::PostgresQueryBuilder, extension::postgres::TypeCreateStatement, unescape_string, Token,
-};
+use sea_query::{backend::PostgresQueryBuilder, extension::postgres::TypeCreateStatement};
+
+use crate::sqlx_types::{postgres::PgRow, Row};
 
 #[cfg(feature = "with-serde")]
 use serde::{Deserialize, Serialize};
@@ -206,56 +205,6 @@ impl Type {
             _ => Type::Unknown(name.to_owned()),
         }
     }
-
-    /// Parses a raw SQL enum `CREATE TYPE name AS ENUM(field_one, field_two, ...)`
-    pub fn enum_from_query(query: &str) -> Type {
-        let mut parser = Parser::new(&query);
-
-        let mut column_type = Type::Enum(EnumDef::default());
-
-        let mut enum_name = String::default();
-
-        while let Some(_) = parser.next() {
-            if parser.last == Some(Token::Unquoted("TYPE".to_owned())) && enum_name.is_empty() {
-                match parser.curr() {
-                    None => (),
-                    Some(token) => match token {
-                        Token::Quoted(_) => {
-                            if let Some(unquoted) = token.unquote() {
-                                enum_name = unquoted;
-                            }
-                        }
-                        Token::Unquoted(unquoted_token) => enum_name = unquoted_token.to_owned(),
-                        _ => (),
-                    },
-                };
-            }
-
-            if parser.next_if_punctuation("(") {
-                while parser.curr().is_some() {
-                    if let Some(word) = parser.next_if_quoted_any() {
-                        column_type
-                            .get_enum_def_mut()
-                            .values
-                            .push(unescape_string(word.unquote().unwrap().as_str()));
-                        parser.next_if_punctuation(",");
-                    } else if parser.curr_is_unquoted() {
-                        todo!("there can actually be numeric enum values but is very confusing");
-                    }
-                    if parser.next_if_punctuation(")") {
-                        break;
-                    }
-                }
-            }
-        }
-
-        let attr_len = enum_name.len() as u16;
-
-        column_type.get_enum_def_mut().typename = enum_name;
-        column_type.get_enum_def_mut().attr.length = Some(attr_len);
-
-        column_type
-    }
 }
 
 #[derive(Clone, Debug, PartialEq, Default)]
@@ -270,7 +219,7 @@ pub struct ArbitraryPrecisionNumericAttr {
     pub scale: Option<u16>,
 }
 
-#[derive(Clone, Debug, PartialEq, Default)]
+#[derive(Clone, Debug, PartialEq, Default, PartialOrd, Eq, Ord)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct StringAttr {
     pub length: Option<u16>,
@@ -322,13 +271,23 @@ impl Type {
         matches!(self, Type::Bit(_))
     }
 
-    pub fn get_enum_def(&self) -> &EnumDef {
+    /// Get an immutable reference to the [EnumDef] of type [Type::Enum]
+    pub fn get_enum_def(self) -> EnumDef {
         match self {
             Type::Enum(def) => def,
             _ => panic!("type error"),
         }
     }
 
+    /// Get an immutable reference to the [EnumDef] of type [Type::Enum]
+    pub fn get_enum_def_ref(&self) -> &EnumDef {
+        match self {
+            Type::Enum(def) => def,
+            _ => panic!("type error"),
+        }
+    }
+
+    /// Get a mutable reference to the [EnumDef] of type [Type::Enum]
     pub fn get_enum_def_mut(&mut self) -> &mut EnumDef {
         match self {
             Type::Enum(def) => def,
@@ -336,16 +295,9 @@ impl Type {
         }
     }
 
+    /// Is the type given an enum
     pub fn is_enum(&self) -> bool {
         matches!(self, Type::Enum(_))
-    }
-
-    /// Returns nome if the type is not an enum `Type::Enum(EnumDef)`
-    pub fn enum_to_create_statement(&self) -> Option<String> {
-        match self {
-            Type::Enum(enum_def) => Some(enum_def.to_sql_query()),
-            _ => None,
-        }
     }
 }
 
@@ -360,7 +312,7 @@ impl sea_query::Iden for EnumIden {
 }
 
 /// Defines an enum for the PostgreSQL module
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct EnumDef {
     /// Holds the fields of the `ENUM`
@@ -386,7 +338,8 @@ impl EnumDef {
     }
 
     /// Converts the [EnumDef] to a [TypeCreateStatement]
-    pub fn to_create_statement(&self) -> TypeCreateStatement {
+    pub fn to_create_statement(&mut self) -> TypeCreateStatement {
+        self.values.sort();
         sea_query::extension::postgres::Type::create()
             .as_enum(self.typename_impl_iden())
             .values(self.values_impl_iden())
@@ -394,45 +347,26 @@ impl EnumDef {
     }
 
     /// Converts the [EnumDef] to a SQL statement
-    pub fn to_sql_query(&self) -> String {
-        sea_query::extension::postgres::Type::create()
-            .as_enum(self.typename_impl_iden())
-            .values(self.values_impl_iden())
-            .to_string(PostgresQueryBuilder)
+    pub fn to_sql_query(&mut self) -> String {
+        self.to_create_statement().to_string(PostgresQueryBuilder)
     }
 }
 
-#[cfg(feature = "sqlx")]
-/// Helpers to extract the Postgres `ENUM` type from a PostgreSQL row
-#[derive(sqlx::FromRow, Debug)]
-pub struct PgEnum {
-    /// The name of the enum type
+/// Holds the enum and their values from a `PgRow`
+#[derive(Debug)]
+pub struct EnumRow {
+    // The name of the enum type
     pub typname: String,
-    /// A field of the enum type.
+    /// The values of the enum type
     pub enumlabel: String,
 }
 
-#[cfg(feature = "sqlx")]
-impl PgEnum {
-    /// Create a new type to handle a Postgres ENUM row
-    pub fn new() -> Self {
-        Self {
-            typname: String::default(),
-            enumlabel: String::default(),
+#[cfg(feature = "sqlx-postgres")]
+impl From<&PgRow> for EnumRow {
+    fn from(row: &PgRow) -> Self {
+        EnumRow {
+            typname: row.get(0),
+            enumlabel: row.get(1),
         }
-    }
-
-    /// Create a [Type::Enum] from a PostgreSQL enum row
-    pub fn to_enum_type(&mut self, fields: Vec<PgEnum>) -> Type {
-        let mut enum_def = EnumDef::default();
-        let typename = fields[0].typname.clone();
-        enum_def.attr.length = Some(typename.len() as u16);
-        enum_def.typename = typename;
-
-        fields.iter().for_each(|pg_enum| {
-            enum_def.values.push(pg_enum.enumlabel.clone());
-        });
-
-        Type::Enum(enum_def)
     }
 }
