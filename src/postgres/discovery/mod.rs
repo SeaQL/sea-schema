@@ -7,7 +7,7 @@ use crate::postgres::query::{
     ColumnQueryResult, SchemaQueryBuilder, TableConstraintsQueryResult, TableQueryResult,
 };
 use futures::future;
-use sea_query::{Alias, Iden, IntoIden, SeaRc};
+use sea_query::{Alias, ColumnRef, Expr, Iden, IntoIden, JoinType, SeaRc, SelectStatement};
 
 mod executor;
 pub use executor::*;
@@ -175,5 +175,47 @@ impl SchemaDiscovery {
             .collect::<Vec<_>>();
 
         constraints
+    }
+
+    pub async fn discover_enums(&self) -> Vec<Type> {
+        let mut query = SelectStatement::new();
+
+        // SELECT type.typname AS name, string_agg(enum.enumlabel, '|') AS value FROM pg_enum AS enum JOIN pg_type AS type ON type.oid = enum.enumtypid GROUP BY type.typname
+        query
+            .expr_as(
+                Expr::col(ColumnRef::TableColumn(
+                    SeaRc::new(Alias::new("type")),
+                    SeaRc::new(Alias::new("typname")),
+                )),
+                Alias::new("name"),
+            )
+            .expr_as(
+                Expr::cust("string_agg(enum.enumlabel, '|')"),
+                Alias::new("value"),
+            )
+            .from_as(Alias::new("pg_enum"), Alias::new("enum"))
+            .join_as(
+                JoinType::Join,
+                Alias::new("pg_type"),
+                Alias::new("type"),
+                Expr::tbl(Alias::new("type"), Alias::new("oid"))
+                    .equals(Alias::new("enum"), Alias::new("enumtypid")),
+            )
+            .group_by_col(ColumnRef::TableColumn(
+                SeaRc::new(Alias::new("type")),
+                SeaRc::new(Alias::new("typname")),
+            ));
+
+        let enum_rows = self.executor.get_enums(query).await;
+
+        let mut enums: Vec<Type> = Vec::default();
+
+        enum_rows.iter().for_each(|enum_row| {
+            let enum_def: EnumDef = enum_row.into();
+
+            enums.push(Type::Enum(enum_def));
+        });
+
+        enums
     }
 }

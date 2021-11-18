@@ -1,5 +1,6 @@
+use crate::postgres::def::EnumRow;
 use sea_query::{PostgresQueryBuilder, SelectStatement};
-use sqlx::{postgres::PgRow, PgPool, Row};
+use sqlx::{postgres::PgRow, PgPool};
 
 sea_query::sea_query_driver_postgres!();
 use sea_query_driver_postgres::bind_query;
@@ -32,7 +33,10 @@ impl Executor {
             .unwrap()
     }
 
-    pub async fn get_enums(&self, select: SelectStatement) -> Vec<EnumColumn> {
+    /// Fetches enums from the enum column. There are many ways to do this however,
+    /// this function uses the SQL statement
+    /// `SELECT type.typname AS name, string_agg(enum.enumlabel, '|') AS value FROM pg_enum AS enum JOIN pg_type AS type ON type.oid = enum.enumtypid GROUP BY type.typname; `
+    pub async fn get_enums(&self, select: SelectStatement) -> Vec<EnumRow> {
         let (sql, values) = select.build(PostgresQueryBuilder);
         debug_print!("{}, {:?}", sql, values);
 
@@ -45,26 +49,10 @@ impl Executor {
 
         rows.iter()
             .map(|pg_row| {
-                let column: EnumColumn = pg_row.into();
+                let column: EnumRow = pg_row.into();
 
                 column
             })
-            .collect::<Vec<EnumColumn>>()
-    }
-}
-
-#[derive(Debug, sqlx::FromRow)]
-pub struct EnumColumn {
-    pub name: String,
-    pub value: String,
-}
-
-// #[cfg(feature = "sqlx-postgres")]
-impl From<&PgRow> for EnumColumn {
-    fn from(row: &PgRow) -> Self {
-        Self {
-            name: row.get(0),
-            value: row.get(1),
-        }
+            .collect::<Vec<EnumRow>>()
     }
 }

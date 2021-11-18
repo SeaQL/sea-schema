@@ -1,7 +1,5 @@
-use crate::parser::Parser;
-use sea_query::{
-    backend::PostgresQueryBuilder, extension::postgres::TypeCreateStatement, unescape_string, Token,
-};
+use sea_query::{backend::PostgresQueryBuilder, extension::postgres::TypeCreateStatement};
+use sqlx::Row;
 
 #[cfg(feature = "with-serde")]
 use serde::{Deserialize, Serialize};
@@ -206,56 +204,6 @@ impl Type {
             _ => Type::Unknown(name.to_owned()),
         }
     }
-
-    /// Parses a raw SQL enum `CREATE TYPE name AS ENUM(field_one, field_two, ...)`
-    pub fn enum_from_query(query: &str) -> Type {
-        let mut parser = Parser::new(&query);
-
-        let mut column_type = Type::Enum(EnumDef::default());
-
-        let mut enum_name = String::default();
-
-        while let Some(_) = parser.next() {
-            if parser.last == Some(Token::Unquoted("TYPE".to_owned())) && enum_name.is_empty() {
-                match parser.curr() {
-                    None => (),
-                    Some(token) => match token {
-                        Token::Quoted(_) => {
-                            if let Some(unquoted) = token.unquote() {
-                                enum_name = unquoted;
-                            }
-                        }
-                        Token::Unquoted(unquoted_token) => enum_name = unquoted_token.to_owned(),
-                        _ => (),
-                    },
-                };
-            }
-
-            if parser.next_if_punctuation("(") {
-                while parser.curr().is_some() {
-                    if let Some(word) = parser.next_if_quoted_any() {
-                        column_type
-                            .get_enum_def_mut()
-                            .values
-                            .push(unescape_string(word.unquote().unwrap().as_str()));
-                        parser.next_if_punctuation(",");
-                    } else if parser.curr_is_unquoted() {
-                        todo!("there can actually be numeric enum values but is very confusing");
-                    }
-                    if parser.next_if_punctuation(")") {
-                        break;
-                    }
-                }
-            }
-        }
-
-        let attr_len = enum_name.len() as u16;
-
-        column_type.get_enum_def_mut().typename = enum_name;
-        column_type.get_enum_def_mut().attr.length = Some(attr_len);
-
-        column_type
-    }
 }
 
 #[derive(Clone, Debug, PartialEq, Default)]
@@ -402,37 +350,40 @@ impl EnumDef {
     }
 }
 
-#[cfg(feature = "sqlx")]
-/// Helpers to extract the Postgres `ENUM` type from a PostgreSQL row
-#[derive(sqlx::FromRow, Debug)]
-pub struct PgEnum {
-    /// The name of the enum type
-    pub typname: String,
-    /// A field of the enum type.
-    pub enumlabel: String,
+/// Holds the enum and their values from a `PgRow`
+#[derive(Debug, sqlx::FromRow)]
+pub struct EnumRow {
+    // The name of the enum type
+    pub name: String,
+    /// The values of the enum type which are concatenated using ` | ` symbol
+    /// for example `"sans|serif|monospace"`
+    pub values: String,
 }
 
-#[cfg(feature = "sqlx")]
-impl PgEnum {
-    /// Create a new type to handle a Postgres ENUM row
-    pub fn new() -> Self {
+use crate::sqlx_types::postgres::PgRow;
+impl From<&PgRow> for EnumRow {
+    fn from(row: &PgRow) -> Self {
         Self {
-            typname: String::default(),
-            enumlabel: String::default(),
+            name: row.get(0),
+            values: row.get(1),
         }
     }
+}
 
-    /// Create a [Type::Enum] from a PostgreSQL enum row
-    pub fn to_enum_type(&mut self, fields: Vec<PgEnum>) -> Type {
-        let mut enum_def = EnumDef::default();
-        let typename = fields[0].typname.clone();
-        enum_def.attr.length = Some(typename.len() as u16);
-        enum_def.typename = typename;
+impl From<&EnumRow> for EnumDef {
+    fn from(row: &EnumRow) -> Self {
+        let fields = row
+            .values
+            .split("|")
+            .map(|field| field.to_owned())
+            .collect::<Vec<String>>();
 
-        fields.iter().for_each(|pg_enum| {
-            enum_def.values.push(pg_enum.enumlabel.clone());
-        });
-
-        Type::Enum(enum_def)
+        Self {
+            typename: row.name.to_owned(),
+            attr: StringAttr {
+                length: Some(row.name.len() as u16),
+            },
+            values: fields,
+        }
     }
 }
