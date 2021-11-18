@@ -1,4 +1,3 @@
-use crate::postgres::def::EnumRow;
 use sea_query::{PostgresQueryBuilder, SelectStatement};
 use sqlx::{postgres::PgRow, PgPool};
 
@@ -31,28 +30,5 @@ impl Executor {
             .fetch_all(&mut self.pool.acquire().await.unwrap())
             .await
             .unwrap()
-    }
-
-    /// Fetches enums from the enum column. There are many ways to do this however,
-    /// this function uses the SQL statement
-    /// SELECT pg_type.typname, pg_enum.enumlabel FROM pg_type JOIN pg_enum ON pg_enum.enumtypid = pg_type.oid;
-    pub async fn get_enums(&self, select: SelectStatement) -> Vec<EnumRow> {
-        let (sql, values) = select.build(PostgresQueryBuilder);
-        debug_print!("{}, {:?}", sql, values);
-
-        let query = bind_query(sqlx::query(&sql), &values);
-
-        let rows = query
-            .fetch_all(&mut self.pool.acquire().await.unwrap())
-            .await
-            .unwrap();
-
-        rows.iter()
-            .map(|pg_row| {
-                let column: EnumRow = pg_row.into();
-
-                column
-            })
-            .collect::<Vec<EnumRow>>()
     }
 }

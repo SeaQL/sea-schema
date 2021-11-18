@@ -1,7 +1,3 @@
-use sea_query::{backend::PostgresQueryBuilder, extension::postgres::TypeCreateStatement};
-
-use crate::sqlx_types::{postgres::PgRow, Row};
-
 #[cfg(feature = "with-serde")]
 use serde::{Deserialize, Serialize};
 
@@ -172,7 +168,6 @@ impl Type {
             "time with time zone" => Type::TimeWithTimeZone(TimeAttr::default()),
             "interval" => Type::Interval(IntervalAttr::default()),
             "boolean" => Type::Boolean,
-            // "" => Type::Enum,
             "point" => Type::Point,
             "line" => Type::Line,
             "lseg" => Type::Lseg,
@@ -200,7 +195,7 @@ impl Type {
             "daterange" => Type::DateRange,
             // "" => Type::Domain,
             "pg_lsn" => Type::PgLsn,
-            "enum" => Type::Enum(EnumDef::default()),
+            "user-defined" => Type::Enum(EnumDef::default()),
 
             _ => Type::Unknown(name.to_owned()),
         }
@@ -219,7 +214,7 @@ pub struct ArbitraryPrecisionNumericAttr {
     pub scale: Option<u16>,
 }
 
-#[derive(Clone, Debug, PartialEq, Default, PartialOrd, Eq, Ord)]
+#[derive(Clone, Debug, PartialEq, Default)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct StringAttr {
     pub length: Option<u16>,
@@ -242,6 +237,16 @@ pub struct IntervalAttr {
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct BitAttr {
     pub length: Option<u16>,
+}
+
+/// Defines an enum for the PostgreSQL module
+#[derive(Clone, Debug, PartialEq, Default)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
+pub struct EnumDef {
+    /// Holds the fields of the `ENUM`
+    pub values: Vec<String>,
+    /// Defines the name of the PostgreSQL enum identifier
+    pub typename: String,
 }
 
 impl Type {
@@ -271,102 +276,7 @@ impl Type {
         matches!(self, Type::Bit(_))
     }
 
-    /// Get an immutable reference to the [EnumDef] of type [Type::Enum]
-    pub fn get_enum_def(self) -> EnumDef {
-        match self {
-            Type::Enum(def) => def,
-            _ => panic!("type error"),
-        }
-    }
-
-    /// Get an immutable reference to the [EnumDef] of type [Type::Enum]
-    pub fn get_enum_def_ref(&self) -> &EnumDef {
-        match self {
-            Type::Enum(def) => def,
-            _ => panic!("type error"),
-        }
-    }
-
-    /// Get a mutable reference to the [EnumDef] of type [Type::Enum]
-    pub fn get_enum_def_mut(&mut self) -> &mut EnumDef {
-        match self {
-            Type::Enum(def) => def,
-            _ => panic!("type error"),
-        }
-    }
-
-    /// Is the type given an enum
-    pub fn is_enum(&self) -> bool {
+    pub fn has_enum_attr(&self) -> bool {
         matches!(self, Type::Enum(_))
-    }
-}
-
-/// Used to ensure enum names and enum fields always implement [sea_query::types::IntoIden]
-#[derive(Debug)]
-pub struct EnumIden(pub String);
-
-impl sea_query::Iden for EnumIden {
-    fn unquoted(&self, s: &mut dyn std::fmt::Write) {
-        write!(s, "{}", self.0).unwrap();
-    }
-}
-
-/// Defines an enum for the PostgreSQL module
-#[derive(Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
-#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
-pub struct EnumDef {
-    /// Holds the fields of the `ENUM`
-    pub values: Vec<String>,
-    /// Defines the length of the name describing the [Type::Enum]
-    pub attr: StringAttr,
-    /// Defines the name of the PostgreSQL enum identifier
-    pub typename: String,
-}
-
-impl EnumDef {
-    /// Implements [sea_query::types::IntoIden] for the Enum name
-    pub fn typename_impl_iden(&self) -> EnumIden {
-        EnumIden(self.typename.to_owned())
-    }
-
-    /// Implements [sea_query::types::IntoIden] for the Enum fields
-    pub fn values_impl_iden(&self) -> Vec<EnumIden> {
-        self.values
-            .iter()
-            .map(|iden| EnumIden(iden.to_owned()))
-            .collect::<Vec<EnumIden>>()
-    }
-
-    /// Converts the [EnumDef] to a [TypeCreateStatement]
-    pub fn to_create_statement(&mut self) -> TypeCreateStatement {
-        self.values.sort();
-        sea_query::extension::postgres::Type::create()
-            .as_enum(self.typename_impl_iden())
-            .values(self.values_impl_iden())
-            .clone()
-    }
-
-    /// Converts the [EnumDef] to a SQL statement
-    pub fn to_sql_query(&mut self) -> String {
-        self.to_create_statement().to_string(PostgresQueryBuilder)
-    }
-}
-
-/// Holds the enum and their values from a `PgRow`
-#[derive(Debug)]
-pub struct EnumRow {
-    // The name of the enum type
-    pub typname: String,
-    /// The values of the enum type
-    pub enumlabel: String,
-}
-
-#[cfg(feature = "sqlx-postgres")]
-impl From<&PgRow> for EnumRow {
-    fn from(row: &PgRow) -> Self {
-        EnumRow {
-            typname: row.get(0),
-            enumlabel: row.get(1),
-        }
     }
 }

@@ -4,10 +4,11 @@ use crate::debug_print;
 use crate::postgres::def::*;
 use crate::postgres::parser::parse_table_constraint_query_results;
 use crate::postgres::query::{
-    ColumnQueryResult, SchemaQueryBuilder, TableConstraintsQueryResult, TableQueryResult,
+    ColumnQueryResult, EnumQueryResult, SchemaQueryBuilder, TableConstraintsQueryResult,
+    TableQueryResult,
 };
 use futures::future;
-use sea_query::{Alias, ColumnRef, Expr, Iden, IntoIden, JoinType, SeaRc, SelectStatement};
+use sea_query::{Alias, Iden, IntoIden, SeaRc};
 use std::collections::HashMap;
 
 mod executor;
@@ -31,12 +32,12 @@ impl SchemaDiscovery {
         }
     }
 
-    pub async fn discover(mut self) -> Schema {
+    pub async fn discover(&self) -> Schema {
         let tables = self.discover_tables().await;
         let tables = future::join_all(
             tables
                 .into_iter()
-                .map(|t| (&self, t))
+                .map(|t| (self, t))
                 .map(Self::discover_table_static),
         )
         .await;
@@ -47,7 +48,7 @@ impl SchemaDiscovery {
         }
     }
 
-    pub async fn discover_tables(&mut self) -> Vec<TableInfo> {
+    pub async fn discover_tables(&self) -> Vec<TableInfo> {
         let rows = self
             .executor
             .fetch_all(self.query.query_tables(self.schema.clone()))
@@ -178,59 +179,36 @@ impl SchemaDiscovery {
         constraints
     }
 
-    #[cfg(feature = "sqlx-postgres")]
-    pub async fn discover_enums(&self) -> Vec<Type> {
-        let mut query = SelectStatement::new();
+    pub async fn discover_enums(&self) -> Vec<EnumDef> {
+        let rows = self.executor.fetch_all(self.query.query_enums()).await;
 
-        // SELECT pg_type.typname, pg_enum.enumlabel FROM pg_type JOIN pg_enum ON pg_enum.enumtypid = pg_type.oid;
-        query
-            .expr(Expr::col(ColumnRef::TableColumn(
-                SeaRc::new(Alias::new("pg_type")),
-                SeaRc::new(Alias::new("typname")),
-            )))
-            .expr(Expr::col(ColumnRef::TableColumn(
-                SeaRc::new(Alias::new("pg_enum")),
-                SeaRc::new(Alias::new("enumlabel")),
-            )))
-            .from(Alias::new("pg_type"))
-            .join(
-                JoinType::Join,
-                Alias::new("pg_enum"),
-                Expr::tbl(Alias::new("pg_enum"), Alias::new("enumtypid"))
-                    .equals(Alias::new("pg_type"), Alias::new("oid")),
-            );
-        let enum_rows = self.executor.get_enums(query).await;
+        let enum_rows: Vec<EnumQueryResult> = rows
+            .iter()
+            .map(|row| {
+                let result: EnumQueryResult = row.into();
+                debug_print!("{:?}", result);
+                return result;
+            })
+            .collect();
 
-        let mut enums: Vec<Type> = Vec::default();
+        let map = enum_rows.into_iter().fold(
+            HashMap::new(),
+            |mut map: HashMap<String, Vec<String>>,
+             EnumQueryResult {
+                 typename,
+                 enumlabel,
+             }| {
+                if let Some(entry_exists) = map.get_mut(&typename) {
+                    entry_exists.push(enumlabel);
+                } else {
+                    map.insert(typename, vec![enumlabel]);
+                }
+                map
+            },
+        );
 
-        let mut temp_enumdef: HashMap<Typname, EnumValues> = HashMap::new();
-
-        enum_rows.iter().for_each(|enum_row| {
-            if let Some(entry_exists) = temp_enumdef.get_mut(&enum_row.typname) {
-                entry_exists.push(enum_row.enumlabel.to_owned());
-            } else {
-                temp_enumdef.insert(
-                    enum_row.typname.to_owned(),
-                    vec![enum_row.enumlabel.to_owned()],
-                );
-            }
-        });
-
-        temp_enumdef.into_iter().for_each(|key_value_pair| {
-            let mut pg_enum = Type::Enum(EnumDef::default());
-            pg_enum.get_enum_def_mut().typename = key_value_pair.0.clone();
-
-            let attr_len = key_value_pair.0.len() as u16;
-            pg_enum.get_enum_def_mut().attr.length = Some(attr_len);
-
-            pg_enum.get_enum_def_mut().values = key_value_pair.1;
-
-            enums.push(pg_enum);
-        });
-
-        enums
+        map.into_iter()
+            .map(|(typename, values)| EnumDef { values, typename })
+            .collect()
     }
 }
-
-type Typname = String;
-type EnumValues = Vec<String>;
