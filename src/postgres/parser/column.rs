@@ -1,5 +1,5 @@
 use crate::postgres::{def::*, parser::yes_or_no_to_bool, query::ColumnQueryResult};
-use std::convert::TryFrom;
+use std::{collections::HashMap, convert::TryFrom};
 
 impl ColumnQueryResult {
     pub fn parse(self) -> ColumnInfo {
@@ -58,21 +58,21 @@ pub fn parse_numeric_attributes(
         None => None,
         Some(num) => match u16::try_from(num) {
             Ok(num) => Some(num),
-            Err(e) => None,
+            Err(_) => None,
         },
     };
-    let numeric_precision_radix: Option<u16> = match num_precision_radix {
+    let _numeric_precision_radix: Option<u16> = match num_precision_radix {
         None => None,
         Some(num) => match u16::try_from(num) {
             Ok(num) => Some(num),
-            Err(e) => None,
+            Err(_) => None,
         },
     };
     let numeric_scale: Option<u16> = match num_scale {
         None => None,
         Some(num) => match u16::try_from(num) {
             Ok(num) => Some(num),
-            Err(e) => None,
+            Err(_) => None,
         },
     };
 
@@ -97,7 +97,7 @@ pub fn parse_string_attributes(
                 None => None,
                 Some(num) => match u16::try_from(num) {
                     Ok(num) => Some(num),
-                    Err(e) => None,
+                    Err(_) => None,
                 },
             };
         }
@@ -117,7 +117,7 @@ pub fn parse_time_attributes(datetime_precision: Option<i32>, mut ctype: ColumnT
                 None => None,
                 Some(num) => match u16::try_from(num) {
                     Ok(num) => Some(num),
-                    Err(e) => None,
+                    Err(_) => None,
                 },
             };
         }
@@ -139,7 +139,7 @@ pub fn parse_interval_attributes(
                 None => None,
                 Some(num) => match u16::try_from(num) {
                     Ok(num) => Some(num),
-                    Err(e) => None,
+                    Err(_) => None,
                 },
             };
         }
@@ -159,7 +159,7 @@ pub fn parse_bit_attributes(
                 None => None,
                 Some(num) => match u16::try_from(num) {
                     Ok(num) => Some(num),
-                    Err(e) => None,
+                    Err(_) => None,
                 },
             };
         }
@@ -181,4 +181,15 @@ pub fn parse_enum_attributes(udt_name: Option<&String>, mut ctype: ColumnType) -
     };
 
     ctype
+}
+
+impl ColumnInfo {
+    pub fn parse_enum_variants(mut self, enums: &HashMap<String, Vec<String>>) -> Self {
+        if let Type::Enum(ref mut enum_def) = self.col_type {
+            if let Some(def) = enums.get(&enum_def.typename) {
+                enum_def.values = def.clone()
+            }
+        }
+        self
+    }
 }
