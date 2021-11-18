@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 async-std = { version = "1.8", features = ["attributes"] }
-sea-query = "0.19.1"
+sea-query = "^0.18.1"
 sea-schema = { path = "../../../", default-features = false, features = [
     "runtime-async-std-native-tls",
     "discovery",
@@ -18,7 +18,7 @@ sea-schema = { path = "../../../", default-features = false, features = [
     "sqlite",
 ] }
 serde_json = { version = "^1" }
-sqlx = { version = "0.4.1", features = [
+sqlx = { version = "0.5.9", features = [
     "sqlite",
     "runtime-async-std-native-tls",
 ] }

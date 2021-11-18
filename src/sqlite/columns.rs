@@ -1,5 +1,7 @@
 use crate::sqlite::{DefaultType, Type};
-use sea_query::foreign_key::ForeignKeyAction as SeaQueryForeignKeyAction;
+use sea_query::{
+    foreign_key::ForeignKeyAction as SeaQueryForeignKeyAction, Alias, Index, IndexCreateStatement,
+};
 use sqlx::{sqlite::SqliteRow, Row};
 use std::num::ParseIntError;
 
@@ -60,6 +62,26 @@ pub struct IndexInfo {
     pub columns: Vec<String>,
 }
 
+impl IndexInfo {
+    /// Write all the discovered index into a [IndexCreateStatement]
+    pub fn write(&self) -> IndexCreateStatement {
+        let mut new_index = Index::create();
+        new_index
+            .name(&self.index_name)
+            .table(Alias::new(&self.table_name));
+
+        if self.unique {
+            new_index.unique();
+        }
+
+        self.columns.iter().for_each(|column| {
+            new_index.col(Alias::new(&column));
+        });
+
+        new_index
+    }
+}
+
 /// Maps the index all columns as a result of using query
 /// `PRAGMA index_list(table_name)`
 #[derive(Debug, Default, Clone)]
@@ -103,7 +125,7 @@ impl From<&SqliteRow> for IndexedColumns {
         let columns_to_index = split_at_open_bracket[1]
             .replace(")", "")
             .split(",")
-            .map(|column| column.trim().to_owned())
+            .map(|column| column.trim().replace("`", ""))
             .collect::<Vec<String>>();
 
         Self {

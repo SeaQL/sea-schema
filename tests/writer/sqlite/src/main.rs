@@ -1,21 +1,25 @@
-use sea_schema::sqlite::{SchemaDiscovery, DiscoveryResult};
 use sea_schema::sea_query::SqliteQueryBuilder;
+use sea_schema::sqlite::{DiscoveryResult, SchemaDiscovery};
+use sqlx::sqlite::SqlitePool;
 
 #[async_std::main]
 async fn main() -> DiscoveryResult<()> {
-    // let connection = SqlitePool::connect("sqlite://tests/sakila/sqlite/sakila.db")
-    //     .await
-    //     .unwrap();
+    let sqlite_pool = SqlitePool::connect("sqlite://tests/sakila/sqlite/sakila.db")
+        .await
+        .unwrap();
 
-    let mut schema_discovery = SchemaDiscovery::new("tests/sakila/sqlite/sakila.db").await?;
+    let mut schema_discovery = SchemaDiscovery::new(sqlite_pool);
 
-    let schema = schema_discovery.discover().await?;
+    let discover_tables = schema_discovery.discover().await?;
 
-    for table in schema.tables.iter_mut() {
-        // println!("{};", table.write().to_string(SqliteQueryBuilder));
-        println!("{};", table.to_sql_statement());
-        println!("{};", table.to_sql_statement_with_indexes());
-        println!();
+    for table in discover_tables.tables.iter() {
+        println!("{};", table.write().to_string(SqliteQueryBuilder));
+    }
+
+    let discover_indexes = schema_discovery.discover_indexes().await?;
+
+    for index in discover_indexes.iter() {
+        println!("{};", index.write().to_string(SqliteQueryBuilder));
     }
 
     Ok(())

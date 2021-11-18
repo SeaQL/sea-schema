@@ -1,38 +1,33 @@
 use async_std::fs::File;
 use sea_query::{
-    Alias, ColumnDef, ForeignKeyAction, ForeignKeyCreateStatement, Query, SqliteQueryBuilder, Table,
+    Alias, ColumnDef, ForeignKeyAction, ForeignKeyCreateStatement, Index, Query,
+    SqliteQueryBuilder, Table,
 };
 use sea_schema::sqlite::SchemaDiscovery;
-use sqlx::{
-    sqlite::{SqliteConnectOptions, SqliteJournalMode},
-    ConnectOptions,
-};
-use std::str::FromStr;
+use sqlx::sqlite::SqlitePoolOptions;
 
 #[cfg_attr(test, async_std::test)]
 #[cfg_attr(not(test), async_std::main)]
 async fn main() {
     File::create("test.db").await.unwrap();
-    let mut sqlite_connection = SqliteConnectOptions::from_str("sqlite://test.db")
-        .unwrap()
-        .journal_mode(SqliteJournalMode::Wal)
-        .connect()
+    let sqlite_pool = SqlitePoolOptions::new()
+        .connect("sqlite://test.db")
         .await
         .unwrap();
 
     //DROP TABLES to ensure all tests pass
     sqlx::query("DROP TABLE IF EXISTS Programming_Langs")
-        .fetch_all(&mut sqlite_connection)
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query("DROP TABLE IF EXISTS suppliers")
-        .fetch_all(&mut sqlite_connection)
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query("DROP TABLE IF EXISTS supplier_groups")
-        .fetch_all(&mut sqlite_connection)
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
@@ -74,7 +69,32 @@ async fn main() {
         .unwrap()
         .to_owned();
 
-    dbg!(&create_table.to_string(SqliteQueryBuilder));
+    //dbg!(&create_table.to_string(SqliteQueryBuilder));
+
+    let create_index = Index::create()
+        .name("idx-programming_lang-aspect")
+        .table(Alias::new("Programming_Langs"))
+        .col(Alias::new("SLOC"))
+        .col(Alias::new("SemVer"))
+        .to_owned();
+
+    dbg!(&create_index.to_string(SqliteQueryBuilder));
+
+    //DROP TABLES to ensure all tests pass
+    sqlx::query("DROP TABLE IF EXISTS Programming_Langs")
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .await
+        .unwrap();
+
+    sqlx::query("DROP TABLE IF EXISTS suppliers")
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .await
+        .unwrap();
+
+    sqlx::query("DROP TABLE IF EXISTS supplier_groups")
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .await
+        .unwrap();
 
     // Tests foreign key discovery
     let table_create_suppliers = Table::create()
@@ -142,68 +162,107 @@ async fn main() {
     dbg!(&insert_into_suppliers.to_string(SqliteQueryBuilder));
 
     sqlx::query(&create_table.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_connection)
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query(&insert_into_table.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_connection)
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query(&table_create_supplier_groups.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_connection)
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query(&table_create_suppliers.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_connection)
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query(&insert_into_supplier_groups.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_connection)
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query(&insert_into_suppliers.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_connection)
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
-    let discovered_schema = SchemaDiscovery::new("test.db")
+    sqlx::query(&create_index.to_string(SqliteQueryBuilder))
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
         .await
-        .unwrap()
-        .discover()
-        .await
-        .unwrap()
-        .to_sql();
+        .unwrap();
 
-    dbg!(&discovered_schema);
+    let mut discovered_schema = SchemaDiscovery::new(sqlite_pool.clone());
+    let discover_tables = discovered_schema.discover().await.unwrap();
 
-    // Doing a binary search since assertion on Vec indexes can panic
-    // due to re-arrangement between queries
+    // Doing a binary search instead of an assertion on Vec indexes since they can panic
+    // due to re-arrangement of indexes between queries
 
-    dbg!(&discovered_schema.binary_search(&create_table.to_string(SqliteQueryBuilder)));
-    dbg!(&discovered_schema.binary_search(&table_create_suppliers.to_string(SqliteQueryBuilder)));
-    dbg!(&discovered_schema
+    let discovered_schema_statements = discover_tables
+        .tables
+        .iter()
+        .map(|table| table.write().to_string(SqliteQueryBuilder))
+        .collect::<Vec<String>>();
+
+    dbg!(&discovered_schema_statements.binary_search(&create_table.to_string(SqliteQueryBuilder)));
+    dbg!(&discovered_schema_statements
+        .binary_search(&table_create_suppliers.to_string(SqliteQueryBuilder)));
+    dbg!(&discovered_schema_statements
         .binary_search(&table_create_supplier_groups.to_string(SqliteQueryBuilder)));
-    assert!(
-        match &discovered_schema.binary_search(&create_table.to_string(SqliteQueryBuilder)) {
-            Ok(_) => true,
-            Err(_) => false,
-        }
-    );
-    assert!(match &discovered_schema
+    assert!(match &discovered_schema_statements
+        .binary_search(&create_table.to_string(SqliteQueryBuilder))
+    {
+        Ok(_) => true,
+        Err(_) => false,
+    });
+    assert!(match &discovered_schema_statements
         .binary_search(&table_create_suppliers.to_string(SqliteQueryBuilder))
     {
         Ok(_) => true,
         Err(_) => false,
     });
-    assert!(match &discovered_schema
+    assert!(match &discovered_schema_statements
         .binary_search(&table_create_supplier_groups.to_string(SqliteQueryBuilder))
     {
         Ok(_) => true,
         Err(_) => false,
     });
+
+    let discover_indexes = SchemaDiscovery::new(sqlite_pool)
+        .discover_indexes()
+        .await
+        .unwrap();
+
+    dbg!(&discover_indexes);
+
+    let mut index_create_statements = Vec::default();
+    discover_indexes.iter().for_each(|index| {
+        let index_statement: sea_query::IndexCreateStatement = index.write();
+        index_create_statements.push(index_statement.to_string(SqliteQueryBuilder));
+    });
+
+    assert!(
+        match index_create_statements.binary_search(&create_index.to_string(SqliteQueryBuilder)) {
+            Ok(_) => true,
+            Err(_) => false,
+        }
+    );
 }
+
+/*
+use sea_query::{
+    Alias, ColumnDef, ForeignKeyAction, ForeignKeyCreateStatement, Query, SqliteQueryBuilder, Table,
+};
+use sea_schema::sqlite::SchemaDiscovery;
+use sqlx::sqlite::{SqlitePool, SqlitePoolOptions};
+
+#[cfg_attr(test, async_std::test)]
+#[cfg_attr(not(test), async_std::main)]
+async fn main() {
+
+}
+*/
