@@ -307,6 +307,11 @@ async fn create_fetch_verify_enum() {
         .await
         .unwrap();
 
+    sqlx::query("DROP TYPE IF EXISTS crazy_enum;")
+        .execute(&pool)
+        .await
+        .unwrap();
+
     sqlx::query(&create_crazy_enum)
         .execute(&pool)
         .await
