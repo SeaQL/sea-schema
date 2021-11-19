@@ -177,7 +177,6 @@ impl SchemaDiscovery {
         constraints
     }
 
-    #[cfg(feature = "sqlx-postgres")]
     pub async fn discover_enums(&self) -> Vec<Type> {
         let mut query = SelectStatement::new();
 
