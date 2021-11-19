@@ -298,58 +298,6 @@ impl Type {
             _ => None,
         }
     }
-    /// Convert a raw SQL query into a type [Type::Enum]
-    pub fn enum_from_query(query: &str) -> Type {
-        use crate::parser::Parser;
-        use sea_query::{unescape_string, Token};
-
-        let mut parser = Parser::new(&query);
-
-        let mut type_enum = Type::Enum(EnumDef::default());
-
-        let mut enum_name = String::default();
-
-        while let Some(_) = parser.next() {
-            if parser.last == Some(Token::Unquoted("TYPE".to_owned())) && enum_name.is_empty() {
-                match parser.curr() {
-                    None => (),
-                    Some(token) => match token {
-                        Token::Quoted(_) => {
-                            if let Some(unquoted) = token.unquote() {
-                                enum_name = unquoted;
-                            }
-                        }
-                        Token::Unquoted(unquoted_token) => enum_name = unquoted_token.to_owned(),
-                        _ => (),
-                    },
-                };
-            }
-
-            if parser.next_if_punctuation("(") {
-                while parser.curr().is_some() {
-                    if let Some(word) = parser.next_if_quoted_any() {
-                        type_enum
-                            .get_enum_def_mut()
-                            .values
-                            .push(unescape_string(word.unquote().unwrap().as_str()));
-                        parser.next_if_punctuation(",");
-                    } else if parser.curr_is_unquoted() {
-                        todo!("there can actually be numeric enum values but is very confusing");
-                    }
-                    if parser.next_if_punctuation(")") {
-                        break;
-                    }
-                }
-            }
-        }
-
-        let attr_len = enum_name.len() as u16;
-
-        type_enum.get_enum_def_mut().typename = enum_name;
-        type_enum.get_enum_def_mut().attr.length = Some(attr_len);
-
-        type_enum
-    }
 }
 
 /// Used to ensure enum names and enum fields always implement [sea_query::types::IntoIden]
@@ -409,36 +357,17 @@ impl EnumDef {
 #[derive(Debug)]
 pub struct EnumRow {
     // The name of the enum type
-    pub name: String,
-    /// The values of the enum type which are concatenated using ` | ` symbol
-    /// for example `"sans|serif|monospace"`
-    pub values: String,
+    pub typname: String,
+    /// The values of the enum type
+    pub enumlabel: String,
 }
 
 #[cfg(feature = "sqlx-postgres")]
 impl From<&PgRow> for EnumRow {
     fn from(row: &PgRow) -> Self {
         EnumRow {
-            name: row.get(0),
-            values: row.get(1),
-        }
-    }
-}
-
-impl From<&EnumRow> for EnumDef {
-    fn from(row: &EnumRow) -> Self {
-        let fields = row
-            .values
-            .split("|")
-            .map(|field| field.to_owned())
-            .collect::<Vec<String>>();
-
-        Self {
-            typename: row.name.to_owned(),
-            attr: StringAttr {
-                length: Some(row.name.len() as u16),
-            },
-            values: fields,
+            typname: row.get(0),
+            enumlabel: row.get(1),
         }
     }
 }

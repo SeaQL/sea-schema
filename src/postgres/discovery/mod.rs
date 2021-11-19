@@ -8,6 +8,7 @@ use crate::postgres::query::{
 };
 use futures::future;
 use sea_query::{Alias, ColumnRef, Expr, Iden, IntoIden, JoinType, SeaRc, SelectStatement};
+use std::collections::HashMap;
 
 mod executor;
 pub use executor::*;
@@ -181,42 +182,55 @@ impl SchemaDiscovery {
     pub async fn discover_enums(&self) -> Vec<Type> {
         let mut query = SelectStatement::new();
 
-        // SELECT type.typname AS name, string_agg(enum.enumlabel, '|') AS value FROM pg_enum AS enum JOIN pg_type AS type ON type.oid = enum.enumtypid GROUP BY type.typname
+        // SELECT pg_type.typname, pg_enum.enumlabel FROM pg_type JOIN pg_enum ON pg_enum.enumtypid = pg_type.oid;
         query
-            .expr_as(
-                Expr::col(ColumnRef::TableColumn(
-                    SeaRc::new(Alias::new("type")),
-                    SeaRc::new(Alias::new("typname")),
-                )),
-                Alias::new("name"),
-            )
-            .expr_as(
-                Expr::cust("string_agg(enum.enumlabel, '|')"),
-                Alias::new("value"),
-            )
-            .from_as(Alias::new("pg_enum"), Alias::new("enum"))
-            .join_as(
-                JoinType::Join,
-                Alias::new("pg_type"),
-                Alias::new("type"),
-                Expr::tbl(Alias::new("type"), Alias::new("oid"))
-                    .equals(Alias::new("enum"), Alias::new("enumtypid")),
-            )
-            .group_by_col(ColumnRef::TableColumn(
-                SeaRc::new(Alias::new("type")),
+            .expr(Expr::col(ColumnRef::TableColumn(
+                SeaRc::new(Alias::new("pg_type")),
                 SeaRc::new(Alias::new("typname")),
-            ));
-
+            )))
+            .expr(Expr::col(ColumnRef::TableColumn(
+                SeaRc::new(Alias::new("pg_enum")),
+                SeaRc::new(Alias::new("enumlabel")),
+            )))
+            .from(Alias::new("pg_type"))
+            .join(
+                JoinType::Join,
+                Alias::new("pg_enum"),
+                Expr::tbl(Alias::new("pg_enum"), Alias::new("enumtypid"))
+                    .equals(Alias::new("pg_type"), Alias::new("oid")),
+            );
         let enum_rows = self.executor.get_enums(query).await;
 
         let mut enums: Vec<Type> = Vec::default();
 
-        enum_rows.iter().for_each(|enum_row| {
-            let enum_def: EnumDef = enum_row.into();
+        let mut temp_enumdef: HashMap<Typname, EnumValues> = HashMap::new();
 
-            enums.push(Type::Enum(enum_def));
+        enum_rows.iter().for_each(|enum_row| {
+            if let Some(entry_exists) = temp_enumdef.get_mut(&enum_row.typname) {
+                entry_exists.push(enum_row.enumlabel.to_owned());
+            } else {
+                temp_enumdef.insert(
+                    enum_row.typname.to_owned(),
+                    vec![enum_row.enumlabel.to_owned()],
+                );
+            }
+        });
+
+        temp_enumdef.into_iter().for_each(|key_value_pair| {
+            let mut pg_enum = Type::Enum(EnumDef::default());
+            pg_enum.get_enum_def_mut().typename = key_value_pair.0.clone();
+
+            let attr_len = key_value_pair.0.len() as u16;
+            pg_enum.get_enum_def_mut().attr.length = Some(attr_len);
+
+            pg_enum.get_enum_def_mut().values = key_value_pair.1;
+
+            enums.push(pg_enum);
         });
 
         enums
     }
 }
+
+type Typname = String;
+type EnumValues = Vec<String>;

@@ -35,7 +35,7 @@ impl Executor {
 
     /// Fetches enums from the enum column. There are many ways to do this however,
     /// this function uses the SQL statement
-    /// `SELECT type.typname AS name, string_agg(enum.enumlabel, '|') AS value FROM pg_enum AS enum JOIN pg_type AS type ON type.oid = enum.enumtypid GROUP BY type.typname; `
+    /// SELECT pg_type.typname, pg_enum.enumlabel FROM pg_type JOIN pg_enum ON pg_enum.enumtypid = pg_type.oid;
     pub async fn get_enums(&self, select: SelectStatement) -> Vec<EnumRow> {
         let (sql, values) = select.build(PostgresQueryBuilder);
         debug_print!("{}, {:?}", sql, values);
