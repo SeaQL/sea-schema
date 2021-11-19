@@ -1,4 +1,6 @@
 use sea_query::{backend::PostgresQueryBuilder, extension::postgres::TypeCreateStatement};
+
+#[cfg(feature = "sqlx-dep")]
 use sqlx::Row;
 
 #[cfg(feature = "with-serde")]
@@ -405,6 +407,7 @@ impl EnumDef {
 }
 
 /// Holds the enum and their values from a `PgRow`
+#[cfg(feature = "sqlx-dep")]
 #[derive(Debug, sqlx::FromRow)]
 pub struct EnumRow {
     // The name of the enum type
