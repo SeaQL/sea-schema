@@ -1,6 +1,6 @@
 use sea_query::{backend::PostgresQueryBuilder, extension::postgres::TypeCreateStatement};
 
-use crate::sqlx_types::{postgres::PgRow, FromRow, Row};
+use crate::sqlx_types::{postgres::PgRow, Row};
 
 #[cfg(feature = "with-serde")]
 use serde::{Deserialize, Serialize};
@@ -406,7 +406,7 @@ impl EnumDef {
 }
 
 /// Holds the enum and their values from a `PgRow`
-#[derive(Debug, FromRow)]
+#[derive(Debug)]
 pub struct EnumRow {
     // The name of the enum type
     pub name: String,
@@ -415,6 +415,7 @@ pub struct EnumRow {
     pub values: String,
 }
 
+#[cfg(feature = "sqlx-postgres")]
 impl From<&PgRow> for EnumRow {
     fn from(row: &PgRow) -> Self {
         EnumRow {
