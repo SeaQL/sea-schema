@@ -417,6 +417,7 @@ pub struct EnumRow {
     pub values: String,
 }
 
+#[cfg(feature = "sqlx-dep")]
 use crate::sqlx_types::postgres::PgRow;
 impl From<&PgRow> for EnumRow {
     fn from(row: &PgRow) -> Self {
@@ -427,6 +428,7 @@ impl From<&PgRow> for EnumRow {
     }
 }
 
+#[cfg(feature = "sqlx-dep")]
 impl From<&EnumRow> for EnumDef {
     fn from(row: &EnumRow) -> Self {
         let fields = row
