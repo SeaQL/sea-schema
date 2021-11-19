@@ -53,6 +53,8 @@ async fn main() {
         println!();
         assert_eq!(expected_sql, sql);
     }
+
+    create_fetch_verify_enum().await;
 }
 
 async fn setup(base_url: &str, db_name: &str) -> Pool<Postgres> {
@@ -275,4 +277,62 @@ fn create_cake_table() -> TableCreateStatement {
                 .on_update(ForeignKeyAction::Cascade),
         )
         .to_owned()
+}
+
+/// A test case for PostgreSQL enums in the following steps:
+///
+/// Creates an enum with string types that have special characters
+/// Add the enum type to the database
+/// Discover all enums from the database
+/// Assert that the enum created earlier is amongst those discovered
+async fn create_fetch_verify_enum() {
+    use sea_query::{extension::postgres::TypeCreateStatement, Alias, PostgresQueryBuilder};
+
+    let create_crazy_enum = TypeCreateStatement::new()
+        .as_enum(Alias::new("crazy_enum"))
+        .values(vec![
+            Alias::new("Astro0%00%8987,.!@#$%^&*()_-+=[]{}\\|.<>/? ``"),
+            Alias::new("Biology"),
+            Alias::new("Chemistry"),
+            Alias::new("Math"),
+            Alias::new("Physics"),
+        ])
+        .to_string(PostgresQueryBuilder);
+
+    use sqlx::postgres::PgPoolOptions;
+
+    let pool = PgPoolOptions::new()
+        .max_connections(5)
+        .connect("postgres://sea:sea@localhost/sakila")
+        .await
+        .unwrap();
+
+    sqlx::query(&create_crazy_enum)
+        .execute(&pool)
+        .await
+        .unwrap();
+
+    let connection = PgPool::connect("postgres://sea:sea@localhost/sakila")
+        .await
+        .unwrap();
+
+    let enums_discovery = SchemaDiscovery::new(connection, "public")
+        .discover_enums()
+        .await;
+
+    dbg!(&enums_discovery);
+
+    let enum_create_statements = enums_discovery
+        .into_iter()
+        .map(|enum_type| enum_type.get_enum_def().to_sql_query())
+        .collect::<Vec<String>>();
+
+    dbg!(&enum_create_statements);
+
+    assert!(
+        match enum_create_statements.binary_search(&create_crazy_enum) {
+            Ok(_) => true,
+            Err(_) => false,
+        }
+    );
 }
