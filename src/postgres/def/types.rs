@@ -269,7 +269,7 @@ impl Type {
     pub fn has_bit_attr(&self) -> bool {
         matches!(self, Type::Bit(_))
     }
-
+    /// Get an immutable reference to the [EnumDef] of type [Type::Enum]
     pub fn get_enum_def(&self) -> &EnumDef {
         match self {
             Type::Enum(def) => def,
@@ -277,6 +277,7 @@ impl Type {
         }
     }
 
+    /// Get a mutable reference to the [EnumDef] of type [Type::Enum]
     pub fn get_enum_def_mut(&mut self) -> &mut EnumDef {
         match self {
             Type::Enum(def) => def,
@@ -284,6 +285,7 @@ impl Type {
         }
     }
 
+    /// Is the type given an enum
     pub fn is_enum(&self) -> bool {
         matches!(self, Type::Enum(_))
     }
@@ -294,6 +296,58 @@ impl Type {
             Type::Enum(enum_def) => Some(enum_def.to_sql_query()),
             _ => None,
         }
+    }
+    /// Convert a raw SQL query into a type [Type::Enum]
+    pub fn enum_from_query(query: &str) -> Type {
+        use crate::parser::Parser;
+        use sea_query::{unescape_string, Token};
+
+        let mut parser = Parser::new(&query);
+
+        let mut type_enum = Type::Enum(EnumDef::default());
+
+        let mut enum_name = String::default();
+
+        while let Some(_) = parser.next() {
+            if parser.last == Some(Token::Unquoted("TYPE".to_owned())) && enum_name.is_empty() {
+                match parser.curr() {
+                    None => (),
+                    Some(token) => match token {
+                        Token::Quoted(_) => {
+                            if let Some(unquoted) = token.unquote() {
+                                enum_name = unquoted;
+                            }
+                        }
+                        Token::Unquoted(unquoted_token) => enum_name = unquoted_token.to_owned(),
+                        _ => (),
+                    },
+                };
+            }
+
+            if parser.next_if_punctuation("(") {
+                while parser.curr().is_some() {
+                    if let Some(word) = parser.next_if_quoted_any() {
+                        type_enum
+                            .get_enum_def_mut()
+                            .values
+                            .push(unescape_string(word.unquote().unwrap().as_str()));
+                        parser.next_if_punctuation(",");
+                    } else if parser.curr_is_unquoted() {
+                        todo!("there can actually be numeric enum values but is very confusing");
+                    }
+                    if parser.next_if_punctuation(")") {
+                        break;
+                    }
+                }
+            }
+        }
+
+        let attr_len = enum_name.len() as u16;
+
+        type_enum.get_enum_def_mut().typename = enum_name;
+        type_enum.get_enum_def_mut().attr.length = Some(attr_len);
+
+        type_enum
     }
 }
 
