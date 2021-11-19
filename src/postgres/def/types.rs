@@ -219,7 +219,7 @@ pub struct ArbitraryPrecisionNumericAttr {
     pub scale: Option<u16>,
 }
 
-#[derive(Clone, Debug, PartialEq, Default)]
+#[derive(Clone, Debug, PartialEq, Default, PartialOrd, Eq, Ord)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct StringAttr {
     pub length: Option<u16>,
@@ -270,8 +270,17 @@ impl Type {
     pub fn has_bit_attr(&self) -> bool {
         matches!(self, Type::Bit(_))
     }
+
     /// Get an immutable reference to the [EnumDef] of type [Type::Enum]
-    pub fn get_enum_def(&self) -> &EnumDef {
+    pub fn get_enum_def(self) -> EnumDef {
+        match self {
+            Type::Enum(def) => def,
+            _ => panic!("type error"),
+        }
+    }
+
+    /// Get an immutable reference to the [EnumDef] of type [Type::Enum]
+    pub fn get_enum_def_ref(&self) -> &EnumDef {
         match self {
             Type::Enum(def) => def,
             _ => panic!("type error"),
@@ -290,14 +299,6 @@ impl Type {
     pub fn is_enum(&self) -> bool {
         matches!(self, Type::Enum(_))
     }
-
-    /// Returns nome if the type is not an enum `Type::Enum(EnumDef)`
-    pub fn enum_to_create_statement(&self) -> Option<String> {
-        match self {
-            Type::Enum(enum_def) => Some(enum_def.to_sql_query()),
-            _ => None,
-        }
-    }
 }
 
 /// Used to ensure enum names and enum fields always implement [sea_query::types::IntoIden]
@@ -311,7 +312,7 @@ impl sea_query::Iden for EnumIden {
 }
 
 /// Defines an enum for the PostgreSQL module
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct EnumDef {
     /// Holds the fields of the `ENUM`
@@ -337,7 +338,8 @@ impl EnumDef {
     }
 
     /// Converts the [EnumDef] to a [TypeCreateStatement]
-    pub fn to_create_statement(&self) -> TypeCreateStatement {
+    pub fn to_create_statement(&mut self) -> TypeCreateStatement {
+        self.values.sort();
         sea_query::extension::postgres::Type::create()
             .as_enum(self.typename_impl_iden())
             .values(self.values_impl_iden())
@@ -345,7 +347,8 @@ impl EnumDef {
     }
 
     /// Converts the [EnumDef] to a SQL statement
-    pub fn to_sql_query(&self) -> String {
+    pub fn to_sql_query(&mut self) -> String {
+        self.values.sort();
         sea_query::extension::postgres::Type::create()
             .as_enum(self.typename_impl_iden())
             .values(self.values_impl_iden())
