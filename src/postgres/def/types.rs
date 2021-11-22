@@ -271,32 +271,7 @@ impl Type {
         matches!(self, Type::Bit(_))
     }
 
-    /// Get an immutable reference to the [EnumDef] of type [Type::Enum]
-    pub fn get_enum_def(self) -> EnumDef {
-        match self {
-            Type::Enum(def) => def,
-            _ => panic!("type error"),
-        }
-    }
-
-    /// Get an immutable reference to the [EnumDef] of type [Type::Enum]
-    pub fn get_enum_def_ref(&self) -> &EnumDef {
-        match self {
-            Type::Enum(def) => def,
-            _ => panic!("type error"),
-        }
-    }
-
-    /// Get a mutable reference to the [EnumDef] of type [Type::Enum]
-    pub fn get_enum_def_mut(&mut self) -> &mut EnumDef {
-        match self {
-            Type::Enum(def) => def,
-            _ => panic!("type error"),
-        }
-    }
-
-    /// Is the type given an enum
-    pub fn is_enum(&self) -> bool {
+    pub fn has_enum_attr(&self) -> bool {
         matches!(self, Type::Enum(_))
     }
 }
@@ -312,13 +287,11 @@ impl sea_query::Iden for EnumIden {
 }
 
 /// Defines an enum for the PostgreSQL module
-#[derive(Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Clone, Debug, PartialEq, Default)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct EnumDef {
     /// Holds the fields of the `ENUM`
     pub values: Vec<String>,
-    /// Defines the length of the name describing the [Type::Enum]
-    pub attr: StringAttr,
     /// Defines the name of the PostgreSQL enum identifier
     pub typename: String,
 }
