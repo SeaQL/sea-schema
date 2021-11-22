@@ -333,13 +333,3 @@ pub struct EnumRow {
     /// The values of the enum type
     pub enumlabel: String,
 }
-
-#[cfg(feature = "sqlx-postgres")]
-impl From<&PgRow> for EnumRow {
-    fn from(row: &PgRow) -> Self {
-        EnumRow {
-            typname: row.get(0),
-            enumlabel: row.get(1),
-        }
-    }
-}
