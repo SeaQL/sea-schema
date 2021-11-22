@@ -1,4 +1,3 @@
-use crate::postgres::def::EnumRow;
 use sea_query::{PostgresQueryBuilder, SelectStatement};
 use sqlx::{postgres::PgRow, PgPool};
 

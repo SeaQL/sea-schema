@@ -217,7 +217,7 @@ pub struct ArbitraryPrecisionNumericAttr {
     pub scale: Option<u16>,
 }
 
-#[derive(Clone, Debug, PartialEq, Default, PartialOrd, Eq, Ord)]
+#[derive(Clone, Debug, PartialEq, Default)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct StringAttr {
     pub length: Option<u16>,
@@ -321,13 +321,4 @@ impl EnumDef {
     pub fn to_sql_query(&mut self) -> String {
         self.to_create_statement().to_string(PostgresQueryBuilder)
     }
-}
-
-/// Holds the enum and their values from a `PgRow`
-#[derive(Debug)]
-pub struct EnumRow {
-    // The name of the enum type
-    pub typname: String,
-    /// The values of the enum type
-    pub enumlabel: String,
 }

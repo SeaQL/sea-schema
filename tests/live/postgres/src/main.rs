@@ -5,7 +5,6 @@ use sea_schema::sea_query::{
     extension::postgres::Type, Alias, ColumnDef, ForeignKey, ForeignKeyAction, Index,
     PostgresQueryBuilder, Table, TableCreateStatement,
 };
-use sqlx::pool::PoolConnection;
 use sqlx::{PgPool, Pool, Postgres};
 
 #[cfg_attr(test, async_std::test)]
