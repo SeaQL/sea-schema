@@ -1,7 +1,5 @@
 use sea_query::{backend::PostgresQueryBuilder, extension::postgres::TypeCreateStatement};
 
-use crate::sqlx_types::{postgres::PgRow, Row};
-
 #[cfg(feature = "with-serde")]
 use serde::{Deserialize, Serialize};
 
