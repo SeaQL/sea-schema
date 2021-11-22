@@ -348,11 +348,7 @@ impl EnumDef {
 
     /// Converts the [EnumDef] to a SQL statement
     pub fn to_sql_query(&mut self) -> String {
-        self.values.sort();
-        sea_query::extension::postgres::Type::create()
-            .as_enum(self.typename_impl_iden())
-            .values(self.values_impl_iden())
-            .to_string(PostgresQueryBuilder)
+        self.to_create_statement().to_string(PostgresQueryBuilder)
     }
 }
 
