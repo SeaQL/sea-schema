@@ -14,6 +14,22 @@ async fn main() {
     let connection = setup("postgres://sea:sea@localhost", "sea-schema").await;
     let mut executor = connection.acquire().await.unwrap();
 
+    let create_enum_stmt = Type::create()
+        .as_enum(Alias::new("crazy_enum"))
+        .values(vec![
+            Alias::new("Astro0%00%8987,.!@#$%^&*()_-+=[]{}\\|.<>/? ``"),
+            Alias::new("Biology"),
+            Alias::new("Chemistry"),
+            Alias::new("Math"),
+            Alias::new("Physics"),
+        ])
+        .to_string(PostgresQueryBuilder);
+
+    sqlx::query(&create_enum_stmt)
+        .execute(&mut executor)
+        .await
+        .unwrap();
+
     let tbl_create_stmts = vec![
         create_bakery_table(),
         create_baker_table(),
@@ -30,22 +46,6 @@ async fn main() {
         println!();
         sqlx::query(&sql).execute(&mut executor).await.unwrap();
     }
-
-    let create_enum_stmt = Type::create()
-        .as_enum(Alias::new("crazy_enum"))
-        .values(vec![
-            Alias::new("Astro0%00%8987,.!@#$%^&*()_-+=[]{}\\|.<>/? ``"),
-            Alias::new("Biology"),
-            Alias::new("Chemistry"),
-            Alias::new("Math"),
-            Alias::new("Physics"),
-        ])
-        .to_string(PostgresQueryBuilder);
-
-    sqlx::query(&create_enum_stmt)
-        .execute(&mut executor)
-        .await
-        .unwrap();
 
     let schema_discovery = SchemaDiscovery::new(connection.clone(), "public");
 
@@ -123,6 +123,7 @@ fn create_bakery_table() -> TableCreateStatement {
         )
         .col(ColumnDef::new(Alias::new("name")).string())
         .col(ColumnDef::new(Alias::new("profit_margin")).double())
+        .col(ColumnDef::new(Alias::new("crazy_enum_col")).custom(Alias::new("crazy_enum")))
         .primary_key(
             Index::create()
                 .primary()
