@@ -8,7 +8,7 @@ use crate::postgres::query::{
     TableQueryResult,
 };
 use futures::future;
-use sea_query::{Alias, ColumnRef, Expr, Iden, IntoIden, JoinType, SeaRc, SelectStatement};
+use sea_query::{Alias, Iden, IntoIden, SeaRc};
 use std::collections::HashMap;
 
 mod executor;

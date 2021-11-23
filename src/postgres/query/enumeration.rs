@@ -1,6 +1,6 @@
-use super::{InformationSchema, SchemaQueryBuilder};
+use super::SchemaQueryBuilder;
 use crate::sqlx_types::postgres::PgRow;
-use sea_query::{Expr, Iden, Order, Query, SeaRc, SelectStatement};
+use sea_query::{Expr, Order, Query, SelectStatement};
 
 #[derive(Debug, sea_query::Iden)]
 pub enum PgType {

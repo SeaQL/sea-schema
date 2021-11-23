@@ -1,5 +1,3 @@
-use sea_query::{backend::PostgresQueryBuilder, extension::postgres::TypeCreateStatement};
-
 #[cfg(feature = "with-serde")]
 use serde::{Deserialize, Serialize};
 
