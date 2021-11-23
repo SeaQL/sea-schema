@@ -241,6 +241,16 @@ pub struct BitAttr {
     pub length: Option<u16>,
 }
 
+/// Defines an enum for the PostgreSQL module
+#[derive(Clone, Debug, PartialEq, Default)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
+pub struct EnumDef {
+    /// Holds the fields of the `ENUM`
+    pub values: Vec<String>,
+    /// Defines the name of the PostgreSQL enum identifier
+    pub typename: String,
+}
+
 impl Type {
     pub fn has_numeric_attr(&self) -> bool {
         matches!(self, Type::Numeric(_) | Type::Decimal(_))
@@ -270,54 +280,5 @@ impl Type {
 
     pub fn has_enum_attr(&self) -> bool {
         matches!(self, Type::Enum(_))
-    }
-}
-
-/// Used to ensure enum names and enum fields always implement [sea_query::types::IntoIden]
-#[derive(Debug)]
-pub struct EnumIden(pub String);
-
-impl sea_query::Iden for EnumIden {
-    fn unquoted(&self, s: &mut dyn std::fmt::Write) {
-        write!(s, "{}", self.0).unwrap();
-    }
-}
-
-/// Defines an enum for the PostgreSQL module
-#[derive(Clone, Debug, PartialEq, Default)]
-#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
-pub struct EnumDef {
-    /// Holds the fields of the `ENUM`
-    pub values: Vec<String>,
-    /// Defines the name of the PostgreSQL enum identifier
-    pub typename: String,
-}
-
-impl EnumDef {
-    /// Implements [sea_query::types::IntoIden] for the Enum name
-    pub fn typename_impl_iden(&self) -> EnumIden {
-        EnumIden(self.typename.to_owned())
-    }
-
-    /// Implements [sea_query::types::IntoIden] for the Enum fields
-    pub fn values_impl_iden(&self) -> Vec<EnumIden> {
-        self.values
-            .iter()
-            .map(|iden| EnumIden(iden.to_owned()))
-            .collect::<Vec<EnumIden>>()
-    }
-
-    /// Converts the [EnumDef] to a [TypeCreateStatement]
-    pub fn to_create_statement(&mut self) -> TypeCreateStatement {
-        self.values.sort();
-        sea_query::extension::postgres::Type::create()
-            .as_enum(self.typename_impl_iden())
-            .values(self.values_impl_iden())
-            .clone()
-    }
-
-    /// Converts the [EnumDef] to a SQL statement
-    pub fn to_sql_query(&mut self) -> String {
-        self.to_create_statement().to_string(PostgresQueryBuilder)
     }
 }

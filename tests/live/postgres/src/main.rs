@@ -74,10 +74,10 @@ async fn main() {
 
     dbg!(&enum_defs);
 
-    let enum_create_statements = enum_defs
+    let enum_create_statements: Vec<String> = enum_defs
         .into_iter()
-        .map(|mut enum_type| enum_type.to_sql_query())
-        .collect::<Vec<String>>();
+        .map(|enum_def| enum_def.write().to_string(PostgresQueryBuilder))
+        .collect();
 
     dbg!(&create_enum_stmt);
     dbg!(&enum_create_statements);

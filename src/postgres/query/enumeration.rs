@@ -1,6 +1,6 @@
 use super::{InformationSchema, SchemaQueryBuilder};
 use crate::sqlx_types::postgres::PgRow;
-use sea_query::{Expr, Iden, Query, SeaRc, SelectStatement};
+use sea_query::{Expr, Iden, Order, Query, SeaRc, SelectStatement};
 
 #[derive(Debug, sea_query::Iden)]
 pub enum PgType {
@@ -38,6 +38,8 @@ impl SchemaQueryBuilder {
                 PgEnum::Table,
                 Expr::tbl(PgEnum::Table, PgEnum::EnumTypeId).equals(PgType::Table, PgType::Oid),
             )
+            .order_by((PgType::Table, PgType::TypeName), Order::Asc)
+            .order_by((PgEnum::Table, PgEnum::EnumLabel), Order::Asc)
             .take()
     }
 }
