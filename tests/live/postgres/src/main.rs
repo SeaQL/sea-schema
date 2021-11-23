@@ -46,7 +46,7 @@ async fn main() {
         sqlx::query(&sql).execute(&mut executor).await.unwrap();
     }
 
-    let schema_discovery = SchemaDiscovery::new(connection.clone(), "public");
+    let schema_discovery = SchemaDiscovery::new(connection, "public");
 
     let schema = schema_discovery.discover().await;
 
@@ -69,8 +69,6 @@ async fn main() {
         println!();
         assert_eq!(expected_sql, sql);
     }
-
-    let schema_discovery = SchemaDiscovery::new(connection, "public");
 
     let enum_defs = schema_discovery.discover_enums().await;
 

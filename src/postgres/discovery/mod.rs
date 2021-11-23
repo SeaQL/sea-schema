@@ -32,12 +32,12 @@ impl SchemaDiscovery {
         }
     }
 
-    pub async fn discover(mut self) -> Schema {
+    pub async fn discover(&self) -> Schema {
         let tables = self.discover_tables().await;
         let tables = future::join_all(
             tables
                 .into_iter()
-                .map(|t| (&self, t))
+                .map(|t| (self, t))
                 .map(Self::discover_table_static),
         )
         .await;
@@ -48,7 +48,7 @@ impl SchemaDiscovery {
         }
     }
 
-    pub async fn discover_tables(&mut self) -> Vec<TableInfo> {
+    pub async fn discover_tables(&self) -> Vec<TableInfo> {
         let rows = self
             .executor
             .fetch_all(self.query.query_tables(self.schema.clone()))
