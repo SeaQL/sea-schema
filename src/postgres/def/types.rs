@@ -170,7 +170,6 @@ impl Type {
             "time with time zone" => Type::TimeWithTimeZone(TimeAttr::default()),
             "interval" => Type::Interval(IntervalAttr::default()),
             "boolean" => Type::Boolean,
-            // "" => Type::Enum,
             "point" => Type::Point,
             "line" => Type::Line,
             "lseg" => Type::Lseg,
@@ -198,7 +197,7 @@ impl Type {
             "daterange" => Type::DateRange,
             // "" => Type::Domain,
             "pg_lsn" => Type::PgLsn,
-            "enum" => Type::Enum(EnumDef::default()),
+            "user-defined" => Type::Enum(EnumDef::default()),
 
             _ => Type::Unknown(name.to_owned()),
         }
