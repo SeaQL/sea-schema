@@ -91,7 +91,7 @@ pub enum Type {
     Bit(BitAttr),
 
     // Text search types
-    /// A sorted list of distincp lexemes which are words that have been normalized to merge different
+    /// A sorted list of distinct lexemes which are words that have been normalized to merge different
     /// variants of the same word
     TsVector,
     /// A list of lexemes that are to be searched for, and can be combined using Boolean operators AND,
@@ -101,7 +101,7 @@ pub enum Type {
     /// A universally unique identifier as defined by RFC 4122, ISO 9834-8:2005, and related standards
     Uuid,
 
-    /// XML data checked for well-formedness and with additonal support functions
+    /// XML data checked for well-formedness and with additional support functions
     Xml,
 
     /// JSON data checked for validity and with additional functions
@@ -138,6 +138,8 @@ pub enum Type {
     PgLsn,
     // TODO: Pseudo-types
     Unknown(String),
+    /// Defines an PostgreSQL
+    Enum(EnumDef),
 }
 
 impl Type {
@@ -166,7 +168,6 @@ impl Type {
             "time with time zone" => Type::TimeWithTimeZone(TimeAttr::default()),
             "interval" => Type::Interval(IntervalAttr::default()),
             "boolean" => Type::Boolean,
-            // "" => Type::Enum,
             "point" => Type::Point,
             "line" => Type::Line,
             "lseg" => Type::Lseg,
@@ -194,6 +195,7 @@ impl Type {
             "daterange" => Type::DateRange,
             // "" => Type::Domain,
             "pg_lsn" => Type::PgLsn,
+            "user-defined" => Type::Enum(EnumDef::default()),
 
             _ => Type::Unknown(name.to_owned()),
         }
@@ -237,6 +239,16 @@ pub struct BitAttr {
     pub length: Option<u16>,
 }
 
+/// Defines an enum for the PostgreSQL module
+#[derive(Clone, Debug, PartialEq, Default)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
+pub struct EnumDef {
+    /// Holds the fields of the `ENUM`
+    pub values: Vec<String>,
+    /// Defines the name of the PostgreSQL enum identifier
+    pub typename: String,
+}
+
 impl Type {
     pub fn has_numeric_attr(&self) -> bool {
         matches!(self, Type::Numeric(_) | Type::Decimal(_))
@@ -262,5 +274,9 @@ impl Type {
 
     pub fn has_bit_attr(&self) -> bool {
         matches!(self, Type::Bit(_))
+    }
+
+    pub fn has_enum_attr(&self) -> bool {
+        matches!(self, Type::Enum(_))
     }
 }

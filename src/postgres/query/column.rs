@@ -64,6 +64,8 @@ pub struct ColumnQueryResult {
 
     pub interval_type: Option<String>,
     pub interval_precision: Option<i32>,
+
+    pub udt_name: Option<String>,
 }
 
 impl SchemaQueryBuilder {
@@ -88,6 +90,7 @@ impl SchemaQueryBuilder {
                 ColumnsField::DatetimePrecision,
                 ColumnsField::IntervalType,
                 ColumnsField::IntervalPrecision,
+                ColumnsField::UdtName,
             ])
             .from((InformationSchema::Schema, InformationSchema::Columns))
             .and_where(Expr::col(ColumnsField::TableSchema).eq(schema.to_string()))
@@ -115,6 +118,7 @@ impl From<&PgRow> for ColumnQueryResult {
             datetime_precision: row.get(11),
             interval_type: row.get(12),
             interval_precision: row.get(13),
+            udt_name: row.get(14),
         }
     }
 }

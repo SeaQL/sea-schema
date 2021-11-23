@@ -2,8 +2,8 @@ use std::collections::HashMap;
 
 use sea_schema::postgres::{def::TableDef, discovery::SchemaDiscovery};
 use sea_schema::sea_query::{
-    Alias, ColumnDef, ForeignKey, ForeignKeyAction, Index, PostgresQueryBuilder, Table,
-    TableCreateStatement,
+    extension::postgres::Type, Alias, ColumnDef, ForeignKey, ForeignKeyAction, Index,
+    PostgresQueryBuilder, Table, TableCreateStatement,
 };
 use sqlx::{PgPool, Pool, Postgres};
 
@@ -12,6 +12,22 @@ use sqlx::{PgPool, Pool, Postgres};
 async fn main() {
     let connection = setup("postgres://sea:sea@localhost", "sea-schema").await;
     let mut executor = connection.acquire().await.unwrap();
+
+    let create_enum_stmt = Type::create()
+        .as_enum(Alias::new("crazy_enum"))
+        .values(vec![
+            Alias::new("Astro0%00%8987,.!@#$%^&*()_-+=[]{}\\|.<>/? ``"),
+            Alias::new("Biology"),
+            Alias::new("Chemistry"),
+            Alias::new("Math"),
+            Alias::new("Physics"),
+        ])
+        .to_string(PostgresQueryBuilder);
+
+    sqlx::query(&create_enum_stmt)
+        .execute(&mut executor)
+        .await
+        .unwrap();
 
     let tbl_create_stmts = vec![
         create_bakery_table(),
@@ -53,6 +69,20 @@ async fn main() {
         println!();
         assert_eq!(expected_sql, sql);
     }
+
+    let enum_defs = schema_discovery.discover_enums().await;
+
+    dbg!(&enum_defs);
+
+    let enum_create_statements: Vec<String> = enum_defs
+        .into_iter()
+        .map(|enum_def| enum_def.write().to_string(PostgresQueryBuilder))
+        .collect();
+
+    dbg!(&create_enum_stmt);
+    dbg!(&enum_create_statements);
+
+    assert_eq!(create_enum_stmt, enum_create_statements[0]);
 }
 
 async fn setup(base_url: &str, db_name: &str) -> Pool<Postgres> {
@@ -90,6 +120,7 @@ fn create_bakery_table() -> TableCreateStatement {
         )
         .col(ColumnDef::new(Alias::new("name")).string())
         .col(ColumnDef::new(Alias::new("profit_margin")).double())
+        .col(ColumnDef::new(Alias::new("crazy_enum_col")).custom(Alias::new("crazy_enum")))
         .primary_key(
             Index::create()
                 .primary()

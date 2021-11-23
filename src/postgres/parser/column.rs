@@ -41,6 +41,9 @@ pub fn parse_column_type(result: &ColumnQueryResult) -> ColumnType {
     if ctype.has_bit_attr() {
         ctype = parse_bit_attributes(result.character_maximum_length, ctype);
     }
+    if ctype.has_enum_attr() {
+        ctype = parse_enum_attributes(result.udt_name.as_ref(), ctype);
+    }
 
     ctype
 }
@@ -161,6 +164,20 @@ pub fn parse_bit_attributes(
             };
         }
         _ => panic!("parse_bit_attributes(_) received a type that does not have BitAttr"),
+    };
+
+    ctype
+}
+
+pub fn parse_enum_attributes(udt_name: Option<&String>, mut ctype: ColumnType) -> ColumnType {
+    match ctype {
+        Type::Enum(ref mut def) => {
+            def.typename = match udt_name {
+                None => panic!("parse_enum_attributes(_) received an empty udt_name"),
+                Some(typename) => typename.to_string(),
+            };
+        }
+        _ => panic!("parse_enum_attributes(_) received a type that does not have EnumDef"),
     };
 
     ctype

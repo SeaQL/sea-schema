@@ -4,10 +4,12 @@ use crate::debug_print;
 use crate::postgres::def::*;
 use crate::postgres::parser::parse_table_constraint_query_results;
 use crate::postgres::query::{
-    ColumnQueryResult, SchemaQueryBuilder, TableConstraintsQueryResult, TableQueryResult,
+    ColumnQueryResult, EnumQueryResult, SchemaQueryBuilder, TableConstraintsQueryResult,
+    TableQueryResult,
 };
 use futures::future;
 use sea_query::{Alias, Iden, IntoIden, SeaRc};
+use std::collections::HashMap;
 
 mod executor;
 pub use executor::*;
@@ -30,12 +32,12 @@ impl SchemaDiscovery {
         }
     }
 
-    pub async fn discover(mut self) -> Schema {
+    pub async fn discover(&self) -> Schema {
         let tables = self.discover_tables().await;
         let tables = future::join_all(
             tables
                 .into_iter()
-                .map(|t| (&self, t))
+                .map(|t| (self, t))
                 .map(Self::discover_table_static),
         )
         .await;
@@ -46,7 +48,7 @@ impl SchemaDiscovery {
         }
     }
 
-    pub async fn discover_tables(&mut self) -> Vec<TableInfo> {
+    pub async fn discover_tables(&self) -> Vec<TableInfo> {
         let rows = self
             .executor
             .fetch_all(self.query.query_tables(self.schema.clone()))
@@ -175,5 +177,38 @@ impl SchemaDiscovery {
             .collect::<Vec<_>>();
 
         constraints
+    }
+
+    pub async fn discover_enums(&self) -> Vec<EnumDef> {
+        let rows = self.executor.fetch_all(self.query.query_enums()).await;
+
+        let enum_rows: Vec<EnumQueryResult> = rows
+            .iter()
+            .map(|row| {
+                let result: EnumQueryResult = row.into();
+                debug_print!("{:?}", result);
+                return result;
+            })
+            .collect();
+
+        let map = enum_rows.into_iter().fold(
+            HashMap::new(),
+            |mut map: HashMap<String, Vec<String>>,
+             EnumQueryResult {
+                 typename,
+                 enumlabel,
+             }| {
+                if let Some(entry_exists) = map.get_mut(&typename) {
+                    entry_exists.push(enumlabel);
+                } else {
+                    map.insert(typename, vec![enumlabel]);
+                }
+                map
+            },
+        );
+
+        map.into_iter()
+            .map(|(typename, values)| EnumDef { values, typename })
+            .collect()
     }
 }

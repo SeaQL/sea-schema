@@ -1,11 +1,13 @@
 mod column;
 mod constraints;
+mod enumeration;
 mod schema;
 mod table;
 mod types;
 
 pub use column::*;
 pub use constraints::*;
+pub use enumeration::*;
 pub use schema::*;
 pub use table::*;
 pub use types::*;
