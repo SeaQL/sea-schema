@@ -1,6 +1,6 @@
 use super::{InformationSchema, SchemaQueryBuilder};
 use crate::sqlx_types::mysql::MySqlRow;
-use sea_query::{Expr, Iden, Order, Query, SeaRc, SelectStatement, Value};
+use sea_query::{Expr, Iden, Order, Query, SeaRc, SelectStatement, TableRef, Value};
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-statistics-table.html
@@ -64,7 +64,10 @@ impl SchemaQueryBuilder {
                     q.expr(Expr::val(Value::Bool(None)));
                 },
             )
-            .from((InformationSchema::Schema, InformationSchema::Statistics))
+            .from(TableRef::db_tbl(
+                InformationSchema::Schema,
+                InformationSchema::Statistics,
+            ))
             .and_where(Expr::col(StatisticsFields::TableSchema).eq(schema.to_string()))
             .and_where(Expr::col(StatisticsFields::TableName).eq(table.to_string()))
             .order_by(StatisticsFields::IndexName, Order::Asc)

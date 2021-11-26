@@ -1,6 +1,6 @@
 use super::{InformationSchema, SchemaQueryBuilder};
 use crate::sqlx_types::mysql::MySqlRow;
-use sea_query::{Expr, Iden, Order, Query, SeaRc, SelectStatement};
+use sea_query::{Expr, Iden, Order, Query, SeaRc, SelectStatement, TableRef};
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-key-column-usage-table.html
@@ -60,9 +60,9 @@ impl SchemaQueryBuilder {
                 (Schema::ReferentialConstraints, Ref::UpdateRule),
                 (Schema::ReferentialConstraints, Ref::DeleteRule),
             ])
-            .from((Schema::Schema, Schema::KeyColumnUsage))
+            .from(TableRef::db_tbl(Schema::Schema, Schema::KeyColumnUsage))
             .inner_join(
-                (Schema::Schema, Schema::ReferentialConstraints),
+                TableRef::db_tbl(Schema::Schema, Schema::ReferentialConstraints),
                 Expr::tbl(Schema::KeyColumnUsage, Key::ConstraintSchema)
                     .equals(Schema::ReferentialConstraints, Ref::ConstraintSchema)
                     .and(
