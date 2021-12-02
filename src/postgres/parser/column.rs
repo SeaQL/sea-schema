@@ -1,5 +1,5 @@
 use crate::postgres::{def::*, parser::yes_or_no_to_bool, query::ColumnQueryResult};
-use std::convert::TryFrom;
+use std::{collections::HashMap, convert::TryFrom};
 
 impl ColumnQueryResult {
     pub fn parse(self) -> ColumnInfo {
@@ -181,4 +181,18 @@ pub fn parse_enum_attributes(udt_name: Option<&String>, mut ctype: ColumnType) -
     };
 
     ctype
+}
+
+impl ColumnInfo {
+    pub fn parse_enum_variants(mut self, enums: &HashMap<String, Vec<String>>) -> Self {
+        match self.col_type {
+            Type::Enum(ref mut enum_def) => {
+                if let Some(def) = enums.get(&enum_def.typename) {
+                    enum_def.values = def.clone()
+                }
+            }
+            _ => {}
+        }
+        self
+    }
 }
