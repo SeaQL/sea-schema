@@ -4,6 +4,11 @@ use sqlx::MySqlPool;
 
 #[async_std::main]
 async fn main() {
+    // env_logger::builder()
+    //     .filter_level(log::LevelFilter::Debug)
+    //     .is_test(true)
+    //     .init();
+
     let connection = MySqlPool::connect("mysql://sea:sea@localhost/sakila")
         .await
         .unwrap();
@@ -11,6 +16,8 @@ async fn main() {
     let schema_discovery = SchemaDiscovery::new(connection, "sakila");
 
     let schema = schema_discovery.discover().await;
+
+    println!("{:#?}", schema);
 
     for table in schema.tables.iter() {
         println!("{};", table.write().to_string(MysqlQueryBuilder));
