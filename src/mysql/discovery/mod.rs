@@ -126,7 +126,7 @@ impl SchemaDiscovery {
                 debug_print!("{:?}", result);
                 let column = result.parse();
                 debug_print!("{:?}", column);
-                return column;
+                column
             })
             .collect::<Vec<_>>();
 
@@ -143,23 +143,18 @@ impl SchemaDiscovery {
             .fetch_all(self.query.query_indexes(schema.clone(), table.clone()))
             .await;
 
-        let results: Vec<IndexQueryResult> = rows
-            .iter()
-            .map(|row| {
-                let result = row.into();
-                debug_print!("{:?}", result);
-                return result;
-            })
-            .collect();
+        let results = rows.into_iter().map(|row| {
+            let result: IndexQueryResult = (&row).into();
+            debug_print!("{:?}", result);
+            result
+        });
 
-        let indexes = parse_index_query_results(Box::new(results.into_iter()))
+        parse_index_query_results(Box::new(results))
             .map(|index| {
                 debug_print!("{:?}", index);
                 index
             })
-            .collect::<Vec<_>>();
-
-        indexes
+            .collect()
     }
 
     pub async fn discover_foreign_keys(
@@ -172,22 +167,17 @@ impl SchemaDiscovery {
             .fetch_all(self.query.query_foreign_key(schema.clone(), table.clone()))
             .await;
 
-        let results: Vec<ForeignKeyQueryResult> = rows
-            .iter()
-            .map(|row| {
-                let result = row.into();
-                debug_print!("{:?}", result);
-                return result;
-            })
-            .collect();
+        let results = rows.into_iter().map(|row| {
+            let result: ForeignKeyQueryResult = (&row).into();
+            debug_print!("{:?}", result);
+            result
+        });
 
-        let foreign_keys = parse_foreign_key_query_results(Box::new(results.into_iter()))
+        parse_foreign_key_query_results(Box::new(results))
             .map(|index| {
                 debug_print!("{:?}", index);
                 index
             })
-            .collect::<Vec<_>>();
-
-        foreign_keys
+            .collect()
     }
 }

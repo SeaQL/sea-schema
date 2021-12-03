@@ -186,10 +186,10 @@ impl Type {
         if num.maximum.is_some() || num.decimal.is_some() {
             write!(s, ")").unwrap();
         }
-        if num.unsigned.is_some() && num.unsigned.unwrap() == true {
+        if num.unsigned.is_some() && num.unsigned.unwrap() {
             write!(s, " UNSIGNED").unwrap();
         }
-        if num.zero_fill.is_some() && num.zero_fill.unwrap() == true {
+        if num.zero_fill.is_some() && num.zero_fill.unwrap() {
             write!(s, " ZEROFILL").unwrap();
         }
     }
