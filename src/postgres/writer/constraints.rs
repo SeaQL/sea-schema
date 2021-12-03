@@ -29,10 +29,10 @@ impl References {
         key.name(&self.name);
         key.to_tbl(Alias::new(&self.table));
         for column in self.columns.iter() {
-            key.from_col(Alias::new(&column));
+            key.from_col(Alias::new(column.as_str()));
         }
         for ref_col in self.foreign_columns.iter() {
-            key.to_col(Alias::new(&ref_col));
+            key.to_col(Alias::new(ref_col.as_str()));
         }
         if let Some(on_update) = &self.on_update {
             key.on_update(match on_update {

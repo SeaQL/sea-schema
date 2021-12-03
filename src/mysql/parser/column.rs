@@ -644,7 +644,7 @@ mod tests {
 
     #[test]
     fn test_24() {
-        assert_eq!(parse_column_null("yes"), true);
-        assert_eq!(parse_column_null("no"), false);
+        assert!(parse_column_null("yes"));
+        assert!(!parse_column_null("no"));
     }
 }

@@ -42,7 +42,7 @@ impl ColumnInfo {
                     .auto_increment()
                     .unique_key();
             }
-            Type::Bit(num_attr) => {
+            Type::Bit(_) => {
                 // FIXME: Unresolved type mapping
                 col_def.custom(self.col_type.clone());
             }
@@ -63,7 +63,7 @@ impl ColumnInfo {
                 };
                 col_def = self.write_num_attr(col_def, num_attr);
             }
-            Type::MediumInt(num_attr) => {
+            Type::MediumInt(_) => {
                 // FIXME: Unresolved type mapping
                 col_def.custom(self.col_type.clone());
             }
@@ -162,7 +162,7 @@ impl ColumnInfo {
                 };
                 col_def = self.write_str_attr(col_def, str_attr);
             }
-            Type::Varbinary(str_attr) => {
+            Type::Varbinary(_) => {
                 // FIXME: Unresolved type mapping
                 col_def.custom(self.col_type.clone());
             }
@@ -170,19 +170,19 @@ impl ColumnInfo {
                 col_def.text();
                 col_def = self.write_str_attr(col_def, str_attr);
             }
-            Type::TinyText(str_attr) => {
+            Type::TinyText(_) => {
                 // FIXME: Unresolved type mapping
                 col_def.custom(self.col_type.clone());
             }
-            Type::MediumText(str_attr) => {
+            Type::MediumText(_) => {
                 // FIXME: Unresolved type mapping
                 col_def.custom(self.col_type.clone());
             }
-            Type::LongText(str_attr) => {
+            Type::LongText(_) => {
                 // FIXME: Unresolved type mapping
                 col_def.custom(self.col_type.clone());
             }
-            Type::Blob(blob_attr) => {
+            Type::Blob(_) => {
                 // FIXME: Unresolved type mapping
                 col_def.custom(self.col_type.clone());
             }
@@ -198,50 +198,50 @@ impl ColumnInfo {
                 // FIXME: Unresolved type mapping
                 col_def.custom(self.col_type.clone());
             }
-            Type::Enum(enum_attr) => {
+            Type::Enum(_) => {
                 // FIXME: Unresolved type mapping
                 col_def.custom(self.col_type.clone());
             }
-            Type::Set(set_attr) => {
+            Type::Set(_) => {
                 // FIXME: Unresolved type mapping
                 col_def.custom(self.col_type.clone());
             }
-            Type::Geometry(geo_attr) => {
+            Type::Geometry(_) => {
                 // FIXME: Unresolved type mapping
                 col_def.custom(self.col_type.clone());
             }
-            Type::Point(geo_attr) => {
+            Type::Point(_) => {
                 // FIXME: Unresolved type mapping
                 col_def.custom(self.col_type.clone());
             }
-            Type::LineString(geo_attr) => {
+            Type::LineString(_) => {
                 // FIXME: Unresolved type mapping
                 col_def.custom(self.col_type.clone());
             }
-            Type::Polygon(geo_attr) => {
+            Type::Polygon(_) => {
                 // FIXME: Unresolved type mapping
                 col_def.custom(self.col_type.clone());
             }
-            Type::MultiPoint(geo_attr) => {
+            Type::MultiPoint(_) => {
                 // FIXME: Unresolved type mapping
                 col_def.custom(self.col_type.clone());
             }
-            Type::MultiLineString(geo_attr) => {
+            Type::MultiLineString(_) => {
                 // FIXME: Unresolved type mapping
                 col_def.custom(self.col_type.clone());
             }
-            Type::MultiPolygon(geo_attr) => {
+            Type::MultiPolygon(_) => {
                 // FIXME: Unresolved type mapping
                 col_def.custom(self.col_type.clone());
             }
-            Type::GeometryCollection(geo_attr) => {
+            Type::GeometryCollection(_) => {
                 // FIXME: Unresolved type mapping
                 col_def.custom(self.col_type.clone());
             }
             Type::Json => {
                 col_def.json();
             }
-            Type::Unknown(str) => {
+            Type::Unknown(_) => {
                 col_def.custom(self.col_type.clone());
             }
         };
@@ -249,34 +249,22 @@ impl ColumnInfo {
     }
 
     pub fn write_num_attr(&self, mut col_def: ColumnDef, num_attr: &NumericAttr) -> ColumnDef {
-        match num_attr.unsigned {
-            Some(unsigned) => {
-                col_def.extra("UNSIGNED".into());
-            }
-            None => {}
-        };
-        match num_attr.zero_fill {
-            Some(zero_fill) => {
-                col_def.extra("ZEROFILL".into());
-            }
-            None => {}
-        };
+        if num_attr.unsigned.is_some() {
+            col_def.extra("UNSIGNED".into());
+        }
+        if num_attr.zero_fill.is_some() {
+            col_def.extra("ZEROFILL".into());
+        }
         col_def
     }
 
     pub fn write_str_attr(&self, mut col_def: ColumnDef, str_attr: &StringAttr) -> ColumnDef {
-        match &str_attr.charset {
-            Some(charset) => {
-                col_def.extra(format!("CHARACTER SET {}", charset.to_string()));
-            }
-            _ => {}
-        };
-        match &str_attr.collation {
-            Some(collation) => {
-                col_def.extra(format!("COLLATE {}", collation.to_string()));
-            }
-            _ => {}
-        };
+        if let Some(charset) = &str_attr.charset {
+            col_def.extra(format!("CHARACTER SET {}", charset.to_string()));
+        }
+        if let Some(collation) = &str_attr.collation {
+            col_def.extra(format!("COLLATE {}", collation.to_string()));
+        }
         col_def
     }
 }

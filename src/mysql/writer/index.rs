@@ -2,6 +2,7 @@ use crate::mysql::def::{IndexInfo, IndexOrder, IndexType};
 use sea_query::{Alias, Iden, Index, IndexCreateStatement, SeaRc};
 
 impl IndexInfo {
+    #[allow(clippy::unnecessary_unwrap)]
     pub fn write(&self) -> IndexCreateStatement {
         let mut index = Index::create();
         if self.name == "PRIMARY" {
@@ -13,11 +14,7 @@ impl IndexInfo {
             }
         }
         for part in self.parts.iter() {
-            let pre = if let Some(pre) = part.sub_part {
-                Some(pre)
-            } else {
-                None
-            };
+            let pre = part.sub_part;
             let ord = if self.parts.len() == 1 {
                 match part.order {
                     IndexOrder::Ascending => None,
