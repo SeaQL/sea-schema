@@ -1,6 +1,6 @@
 use super::{CharacterSetFields, InformationSchema, SchemaQueryBuilder};
 use crate::sqlx_types::mysql::MySqlRow;
-use sea_query::{Expr, Iden, Order, Query, SeaRc, SelectStatement, TableRef};
+use sea_query::{Expr, Iden, Order, Query, SeaRc, SelectStatement};
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-tables-table.html
@@ -64,9 +64,13 @@ impl SchemaQueryBuilder {
                 Schema::CollationCharacterSet,
                 CharacterSetFields::CharacterSetName,
             ))
-            .from(TableRef::db_tbl(Schema::Schema, Schema::Tables))
+            .from((Schema::Schema, Schema::Schema, Schema::Tables))
             .left_join(
-                TableRef::db_tbl(Schema::Schema, Schema::CollationCharacterSet),
+                (
+                    Schema::Schema,
+                    Schema::Schema,
+                    Schema::CollationCharacterSet,
+                ),
                 Expr::tbl(
                     Schema::CollationCharacterSet,
                     CharacterSetFields::CollationName,

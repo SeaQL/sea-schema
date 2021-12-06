@@ -1,6 +1,6 @@
 use super::{InformationSchema, SchemaQueryBuilder};
 use crate::sqlx_types::mysql::MySqlRow;
-use sea_query::{Expr, Iden, Order, Query, SeaRc, SelectStatement, TableRef};
+use sea_query::{Expr, Iden, Order, Query, SeaRc, SelectStatement};
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-columns-table.html
@@ -58,7 +58,8 @@ impl SchemaQueryBuilder {
                 ColumnFields::GenerationExpression,
                 ColumnFields::ColumnComment,
             ])
-            .from(TableRef::db_tbl(
+            .from((
+                InformationSchema::Schema,
                 InformationSchema::Schema,
                 InformationSchema::Columns,
             ))
