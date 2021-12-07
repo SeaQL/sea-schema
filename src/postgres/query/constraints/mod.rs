@@ -10,7 +10,7 @@ pub use table_constraints::*;
 
 use super::{InformationSchema, SchemaQueryBuilder};
 use crate::sqlx_types::postgres::PgRow;
-use sea_query::{Alias, Expr, Iden, JoinType, Order, Query, SeaRc, SelectStatement};
+use sea_query::{Alias, Condition, Expr, Iden, JoinType, Order, Query, SeaRc, SelectStatement};
 
 #[derive(Debug, Default)]
 pub struct TableConstraintsQueryResult {
