@@ -66,8 +66,11 @@ impl Iterator for TableConstraintsQueryResultParser {
                         }));
                     }
 
-                    columns.push(result.column_name.unwrap());
-                    foreign_columns.push(result.referential_key_column_name.unwrap());
+                    if result.column_name.is_some() && result.referential_key_column_name.is_some()
+                    {
+                        columns.push(result.column_name.unwrap());
+                        foreign_columns.push(result.referential_key_column_name.unwrap());
+                    }
                 }
 
                 Some(Constraint::References(References {
