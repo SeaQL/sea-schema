@@ -1,4 +1,4 @@
-use sea_query::{Alias, ColumnDef, SqliteQueryBuilder, Table};
+use sea_query::{Alias, ColumnDef, Query, SqliteQueryBuilder, Table};
 use sea_schema::sqlite::SchemaDiscovery;
 use sqlx::{
     sqlite::{SqliteConnectOptions, SqliteJournalMode},
@@ -29,6 +29,15 @@ async fn main() {
         )
         .to_owned();
 
+    // This ensures that the `sqlite_sequence` table is populated
+
+    let insert_into_table = Query::insert()
+        .into_table(Alias::new("Programming_Langs"))
+        .columns(vec![Alias::new("SLOC"), Alias::new("SemVer")])
+        .values(vec![4.into(), "0.1.0".into()])
+        .unwrap()
+        .to_owned();
+
     dbg!(&create_table.to_string(SqliteQueryBuilder));
 
     let mut sqlite_connection = SqliteConnectOptions::from_str("sqlite://foo.db")
@@ -42,6 +51,12 @@ async fn main() {
         .fetch_all(&mut sqlite_connection)
         .await
         .unwrap();
+
+    sqlx::query(&insert_into_table.to_string(SqliteQueryBuilder))
+        .fetch_all(&mut sqlite_connection)
+        .await
+        .unwrap();
+
     assert_eq!(
         create_table.to_string(SqliteQueryBuilder),
         SchemaDiscovery::new("foo.db")
