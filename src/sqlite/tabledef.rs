@@ -182,7 +182,7 @@ impl TableDef {
                 new_column.primary_key();
             }
 
-            if self.auto_increment {
+            if self.auto_increment && column_info.primary_key {
                 new_column.auto_increment();
             }
 
