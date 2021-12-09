@@ -1,3 +1,4 @@
+use async_std::fs::File;
 use sea_query::{
     Alias, ColumnDef, ForeignKeyAction, ForeignKeyCreateStatement, Query, SqliteQueryBuilder, Table,
 };
@@ -11,7 +12,8 @@ use std::str::FromStr;
 #[cfg_attr(test, async_std::test)]
 #[cfg_attr(not(test), async_std::main)]
 async fn main() {
-    let mut sqlite_connection = SqliteConnectOptions::from_str("sqlite://foo.db")
+    File::create("test.db").await.unwrap();
+    let mut sqlite_connection = SqliteConnectOptions::from_str("sqlite://test.db")
         .unwrap()
         .journal_mode(SqliteJournalMode::Wal)
         .connect()
@@ -169,7 +171,7 @@ async fn main() {
         .await
         .unwrap();
 
-    let discovered_schema = SchemaDiscovery::new("foo.db")
+    let discovered_schema = SchemaDiscovery::new("test.db")
         .await
         .unwrap()
         .discover()
@@ -204,19 +206,4 @@ async fn main() {
         Ok(_) => true,
         Err(_) => false,
     });
-
-    /*assert_eq!(
-        create_table.to_string(SqliteQueryBuilder),
-        discovered_schema[0]
-    );
-
-    assert_eq!(
-        table_create_suppliers.to_string(SqliteQueryBuilder),
-        discovered_schema[2]
-    );
-
-    assert_eq!(
-        table_create_supplier_groups.to_string(SqliteQueryBuilder),
-        discovered_schema[3]
-    ); */
 }
