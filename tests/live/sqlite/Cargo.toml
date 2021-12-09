@@ -15,6 +15,7 @@ sea-schema = { path = "../../../", default-features = false, features = [
     "debug-print",
     "parser",
     "sqlx-sqlite",
+    "sqlite",
 ] }
 serde_json = { version = "^1" }
 sqlx = { version = "0.4.1", features = [

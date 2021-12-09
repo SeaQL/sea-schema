@@ -8,7 +8,8 @@ use sqlx::{
 };
 use std::str::FromStr;
 
-#[async_std::main]
+#[cfg_attr(test, async_std::test)]
+#[cfg_attr(not(test), async_std::main)]
 async fn main() {
     let mut sqlite_connection = SqliteConnectOptions::from_str("sqlite://foo.db")
         .unwrap()

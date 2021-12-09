@@ -7,7 +7,7 @@ members = [
     "tests/writer/postgres",
     "tests/live/mysql",
     "tests/live/postgres",
-    "tests/live/sqlite",        # FIXME Remove
+    "tests/live/sqlite",
 ]
 
 [package]
@@ -43,6 +43,7 @@ debug-print = ["log"]
 default = ["mysql", "postgres", "discovery", "writer"]
 mysql = []
 postgres = []
+sqlite = []
 def = []
 discovery = ["futures", "parser"]
 parser = ["query"]
@@ -63,7 +64,13 @@ sqlx-postgres = [
     "sea-query/sqlx-postgres",
     "sqlx/postgres",
 ]
-sqlx-sqlite = ["futures", "sqlx-dep", "sea-query/sqlx-sqlite", "sqlx/sqlite"]
+sqlx-sqlite = [
+    "sqlite",
+    "futures",
+    "sqlx-dep",
+    "sea-query/sqlx-sqlite",
+    "sqlx/sqlite",
+]
 runtime-actix-native-tls = ["sqlx/runtime-actix-native-tls"]
 runtime-async-std-native-tls = ["sqlx/runtime-async-std-native-tls"]
 runtime-tokio-native-tls = ["sqlx/runtime-tokio-native-tls"]
