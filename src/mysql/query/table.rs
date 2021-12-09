@@ -64,13 +64,9 @@ impl SchemaQueryBuilder {
                 Schema::CollationCharacterSet,
                 CharacterSetFields::CharacterSetName,
             ))
-            .from((Schema::Schema, Schema::Schema, Schema::Tables))
+            .from((Schema::Schema, Schema::Tables))
             .left_join(
-                (
-                    Schema::Schema,
-                    Schema::Schema,
-                    Schema::CollationCharacterSet,
-                ),
+                (Schema::Schema, Schema::CollationCharacterSet),
                 Expr::tbl(
                     Schema::CollationCharacterSet,
                     CharacterSetFields::CollationName,

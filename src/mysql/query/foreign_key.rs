@@ -60,13 +60,9 @@ impl SchemaQueryBuilder {
                 (Schema::ReferentialConstraints, Ref::UpdateRule),
                 (Schema::ReferentialConstraints, Ref::DeleteRule),
             ])
-            .from((Schema::Schema, Schema::Schema, Schema::KeyColumnUsage))
+            .from((Schema::Schema, Schema::KeyColumnUsage))
             .inner_join(
-                (
-                    Schema::Schema,
-                    Schema::Schema,
-                    Schema::ReferentialConstraints,
-                ),
+                (Schema::Schema, Schema::ReferentialConstraints),
                 Expr::tbl(Schema::KeyColumnUsage, Key::ConstraintSchema)
                     .equals(Schema::ReferentialConstraints, Ref::ConstraintSchema)
                     .and(

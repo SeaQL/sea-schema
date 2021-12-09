@@ -58,11 +58,7 @@ impl SchemaQueryBuilder {
                 ColumnFields::GenerationExpression,
                 ColumnFields::ColumnComment,
             ])
-            .from((
-                InformationSchema::Schema,
-                InformationSchema::Schema,
-                InformationSchema::Columns,
-            ))
+            .from((InformationSchema::Schema, InformationSchema::Columns))
             .and_where(Expr::col(ColumnFields::TableSchema).eq(schema.to_string()))
             .and_where(Expr::col(ColumnFields::TableName).eq(table.to_string()))
             .order_by(ColumnFields::OrdinalPosition, Order::Asc)
