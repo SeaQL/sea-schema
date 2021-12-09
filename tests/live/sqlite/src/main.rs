@@ -46,12 +46,19 @@ async fn main() {
         .col(
             ColumnDef::new(Alias::new("SLOC"))
                 .custom(Alias::new("INT8"))
-                .not_null(),
+                .not_null()
+                .default(100.45),
         )
         .col(
             ColumnDef::new(Alias::new("SemVer"))
                 .custom(Alias::new("VARCHAR(255)"))
                 .not_null(),
+        )
+        .col(
+            ColumnDef::new(Alias::new("last_update"))
+                .custom(Alias::new("DATETIME"))
+                .not_null()
+                .default("CURRENT_TIMESTAMP"),
         )
         .to_owned();
 
@@ -89,8 +96,8 @@ async fn main() {
                 .name("group_id")
                 .from(Alias::new("suppliers"), Alias::new("group_id"))
                 .to(Alias::new("supplier_groups"), Alias::new("group_id"))
-                .on_delete(ForeignKeyAction::NoAction)
-                .on_update(ForeignKeyAction::NoAction),
+                .on_delete(ForeignKeyAction::SetNull)
+                .on_update(ForeignKeyAction::SetNull),
         )
         .to_owned();
 
