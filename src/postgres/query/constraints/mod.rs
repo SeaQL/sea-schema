@@ -165,7 +165,7 @@ impl SchemaQueryBuilder {
             .order_by((Schema::TableConstraints, Tcf::ConstraintName), Order::Asc)
             .order_by((Schema::KeyColumnUsage, Kcuf::OrdinalPosition), Order::Asc)
             .order_by((rcsq.clone(), RefC::UniqueConstraintName), Order::Asc)
-            .order_by((rcsq.clone(), Tcf::ConstraintName), Order::Asc)
+            .order_by((rcsq, Tcf::ConstraintName), Order::Asc)
             .take()
     }
 }

@@ -40,9 +40,6 @@ pub struct ColumnExpression(pub String);
 
 impl ColumnExpression {
     pub fn from_option_string(maybe_string: Option<String>) -> Option<ColumnExpression> {
-        match maybe_string {
-            None => None,
-            Some(string) => Some(ColumnExpression(string)),
-        }
+        maybe_string.map(ColumnExpression)
     }
 }

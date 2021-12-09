@@ -175,13 +175,13 @@ impl ColumnInfo {
             }
             Type::Bit(bit_attr) => {
                 let mut str = String::new();
-                write!(str, "bit");
+                write!(str, "bit").unwrap();
                 if bit_attr.length.is_some() {
-                    write!(str, "(");
+                    write!(str, "(").unwrap();
                     if let Some(length) = bit_attr.length {
-                        write!(str, "{}", length);
+                        write!(str, "{}", length).unwrap();
                     }
-                    write!(str, ")");
+                    write!(str, ")").unwrap();
                 }
                 col_def.custom(Alias::new(&str));
             }

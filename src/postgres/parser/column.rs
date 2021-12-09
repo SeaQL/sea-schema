@@ -58,21 +58,21 @@ pub fn parse_numeric_attributes(
         None => None,
         Some(num) => match u16::try_from(num) {
             Ok(num) => Some(num),
-            Err(e) => None,
+            Err(_) => None,
         },
     };
-    let numeric_precision_radix: Option<u16> = match num_precision_radix {
+    let _numeric_precision_radix: Option<u16> = match num_precision_radix {
         None => None,
         Some(num) => match u16::try_from(num) {
             Ok(num) => Some(num),
-            Err(e) => None,
+            Err(_) => None,
         },
     };
     let numeric_scale: Option<u16> = match num_scale {
         None => None,
         Some(num) => match u16::try_from(num) {
             Ok(num) => Some(num),
-            Err(e) => None,
+            Err(_) => None,
         },
     };
 
@@ -97,7 +97,7 @@ pub fn parse_string_attributes(
                 None => None,
                 Some(num) => match u16::try_from(num) {
                     Ok(num) => Some(num),
-                    Err(e) => None,
+                    Err(_) => None,
                 },
             };
         }
@@ -117,7 +117,7 @@ pub fn parse_time_attributes(datetime_precision: Option<i32>, mut ctype: ColumnT
                 None => None,
                 Some(num) => match u16::try_from(num) {
                     Ok(num) => Some(num),
-                    Err(e) => None,
+                    Err(_) => None,
                 },
             };
         }
@@ -139,7 +139,7 @@ pub fn parse_interval_attributes(
                 None => None,
                 Some(num) => match u16::try_from(num) {
                     Ok(num) => Some(num),
-                    Err(e) => None,
+                    Err(_) => None,
                 },
             };
         }
@@ -159,7 +159,7 @@ pub fn parse_bit_attributes(
                 None => None,
                 Some(num) => match u16::try_from(num) {
                     Ok(num) => Some(num),
-                    Err(e) => None,
+                    Err(_) => None,
                 },
             };
         }

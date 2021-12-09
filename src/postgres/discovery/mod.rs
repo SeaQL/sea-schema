@@ -133,18 +133,15 @@ impl SchemaDiscovery {
             .fetch_all(self.query.query_columns(schema.clone(), table.clone()))
             .await;
 
-        let columns = rows
-            .iter()
+        rows.into_iter()
             .map(|row| {
-                let result: ColumnQueryResult = row.into();
+                let result: ColumnQueryResult = (&row).into();
                 debug_print!("{:?}", result);
                 let column = result.parse();
                 debug_print!("{:?}", column);
-                return column;
+                column
             })
-            .collect::<Vec<_>>();
-
-        columns
+            .collect()
     }
 
     pub async fn discover_constraints(
@@ -160,38 +157,30 @@ impl SchemaDiscovery {
             )
             .await;
 
-        let results: Vec<TableConstraintsQueryResult> = rows
-            .iter()
-            .map(|row| {
-                let result = row.into();
-                debug_print!("{:?}", result);
-                result
-            })
-            .collect();
+        let results = rows.into_iter().map(|row| {
+            let result: TableConstraintsQueryResult = (&row).into();
+            debug_print!("{:?}", result);
+            result
+        });
 
-        let constraints = parse_table_constraint_query_results(Box::new(results.into_iter()))
+        parse_table_constraint_query_results(Box::new(results))
             .map(|index| {
                 debug_print!("{:?}", index);
                 index
             })
-            .collect::<Vec<_>>();
-
-        constraints
+            .collect()
     }
 
     pub async fn discover_enums(&self) -> Vec<EnumDef> {
         let rows = self.executor.fetch_all(self.query.query_enums()).await;
 
-        let enum_rows: Vec<EnumQueryResult> = rows
-            .iter()
-            .map(|row| {
-                let result: EnumQueryResult = row.into();
-                debug_print!("{:?}", result);
-                return result;
-            })
-            .collect();
+        let enum_rows = rows.into_iter().map(|row| {
+            let result: EnumQueryResult = (&row).into();
+            debug_print!("{:?}", result);
+            result
+        });
 
-        let map = enum_rows.into_iter().fold(
+        let map = enum_rows.fold(
             HashMap::new(),
             |mut map: HashMap<String, Vec<String>>,
              EnumQueryResult {
