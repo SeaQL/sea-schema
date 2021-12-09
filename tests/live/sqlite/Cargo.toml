@@ -9,7 +9,7 @@ edition = "2021"
 async-std = { version = "1.8", features = ["attributes"] }
 sea-query = "0.19.1"
 sea-schema = { path = "../../../", default-features = false, features = [
-    "runtime-async-std-rustls",
+    "runtime-async-std-native-tls",
     "discovery",
     "writer",
     "debug-print",
@@ -17,5 +17,7 @@ sea-schema = { path = "../../../", default-features = false, features = [
     "sqlx-sqlite",
 ] }
 serde_json = { version = "^1" }
-#sqlx = { version = "^0" }
-sqlx = { version = "0.4.1", features = ["sqlite", "runtime-async-std-rustls"] }
+sqlx = { version = "0.4.1", features = [
+    "sqlite",
+    "runtime-async-std-native-tls",
+] }
