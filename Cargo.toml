@@ -3,8 +3,10 @@ members = [
     ".",
     "tests/discovery/mysql",
     "tests/discovery/postgres",
+    "tests/discovery/sqlite",
     "tests/writer/mysql",
     "tests/writer/postgres",
+    "tests/writer/sqlite",
     "tests/live/mysql",
     "tests/live/postgres",
     "tests/live/sqlite",
@@ -40,7 +42,7 @@ log = { version = "^0.4", optional = true }
 
 [features]
 debug-print = ["log"]
-default = ["mysql", "postgres", "discovery", "writer"]
+default = ["mysql", "postgres", "sqlite", "discovery", "writer"]
 mysql = []
 postgres = []
 sqlite = []
