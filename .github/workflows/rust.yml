@@ -132,7 +132,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        project: [live]
+        project: [live, discovery, writer]
     steps:
       - uses: actions/checkout@v2
 
@@ -149,11 +149,11 @@ jobs:
             ~/.cargo/git
             Cargo.lock
             target
-          key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-mysql-${{ matrix.project }}
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-sqlite-${{ matrix.project }}
 
       - uses: actions-rs/cargo@v1
         with:
-          command: run
+          command: build
           args: >
             --manifest-path tests/${{ matrix.project }}/sqlite/Cargo.toml
 
@@ -366,3 +366,41 @@ jobs:
           command: test
           args: >
             --manifest-path tests/${{ matrix.project }}/postgres/Cargo.toml
+
+  sqlite:
+    name: Sqlite
+    needs: compile-sqlite
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [live, discovery, writer]
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            Cargo.lock
+            target
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-sqlite-${{ matrix.project }}
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: run
+          args: >
+            --manifest-path tests/${{ matrix.project }}/sqlite/Cargo.toml
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: >
+            --manifest-path tests/${{ matrix.project }}/sqlite/Cargo.toml
