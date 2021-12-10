@@ -33,6 +33,12 @@ impl SchemaDiscovery {
     }
 
     pub async fn discover(&self) -> Schema {
+        let enums: HashMap<_, _> = self
+            .discover_enums()
+            .await
+            .into_iter()
+            .map(|enum_def| (enum_def.typename, enum_def.values))
+            .collect();
         let tables = self.discover_tables().await;
         let tables = future::join_all(
             tables
@@ -40,7 +46,17 @@ impl SchemaDiscovery {
                 .map(|t| (self, t))
                 .map(Self::discover_table_static),
         )
-        .await;
+        .await
+        .into_iter()
+        .map(|mut table| {
+            table.columns = table
+                .columns
+                .into_iter()
+                .map(|col| col.parse_enum_variants(&enums))
+                .collect();
+            table
+        })
+        .collect();
 
         Schema {
             schema: self.schema.to_string(),
