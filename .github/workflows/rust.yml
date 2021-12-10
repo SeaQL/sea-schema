@@ -368,7 +368,7 @@ jobs:
             --manifest-path tests/${{ matrix.project }}/postgres/Cargo.toml
 
   sqlite:
-    name: Sqlite
+    name: SQLite
     needs: compile-sqlite
     runs-on: ubuntu-20.04
     strategy:
