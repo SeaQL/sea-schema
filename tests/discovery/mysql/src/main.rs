@@ -3,6 +3,11 @@ use sqlx::MySqlPool;
 
 #[async_std::main]
 async fn main() {
+    // env_logger::builder()
+    //     .filter_level(log::LevelFilter::Debug)
+    //     .is_test(true)
+    //     .init();
+
     let connection = MySqlPool::connect("mysql://sea:sea@localhost/sakila")
         .await
         .unwrap();

@@ -144,6 +144,7 @@ pub enum Type {
 
 impl Type {
     // TODO: Support more types
+    #[allow(clippy::should_implement_trait)]
     pub fn from_str(name: &str) -> Type {
         match name.to_lowercase().as_str() {
             "smallint" | "int2" => Type::SmallInt,
