@@ -3,36 +3,30 @@ use sea_query::{
     Alias, ColumnDef, ForeignKeyAction, ForeignKeyCreateStatement, Query, SqliteQueryBuilder, Table,
 };
 use sea_schema::sqlite::SchemaDiscovery;
-use sqlx::{
-    sqlite::{SqliteConnectOptions, SqliteJournalMode},
-    ConnectOptions,
-};
-use std::str::FromStr;
+use sqlx::sqlite::{SqlitePool, SqlitePoolOptions};
 
 #[cfg_attr(test, async_std::test)]
 #[cfg_attr(not(test), async_std::main)]
 async fn main() {
     File::create("test.db").await.unwrap();
-    let mut sqlite_connection = SqliteConnectOptions::from_str("sqlite://test.db")
-        .unwrap()
-        .journal_mode(SqliteJournalMode::Wal)
-        .connect()
+    let mut sqlite_pool = SqlitePoolOptions::new()
+        .connect("sqlite://test.db")
         .await
         .unwrap();
 
     //DROP TABLES to ensure all tests pass
     sqlx::query("DROP TABLE IF EXISTS Programming_Langs")
-        .fetch_all(&mut sqlite_connection)
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query("DROP TABLE IF EXISTS suppliers")
-        .fetch_all(&mut sqlite_connection)
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query("DROP TABLE IF EXISTS supplier_groups")
-        .fetch_all(&mut sqlite_connection)
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
@@ -142,38 +136,36 @@ async fn main() {
     dbg!(&insert_into_suppliers.to_string(SqliteQueryBuilder));
 
     sqlx::query(&create_table.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_connection)
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query(&insert_into_table.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_connection)
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query(&table_create_supplier_groups.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_connection)
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query(&table_create_suppliers.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_connection)
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query(&insert_into_supplier_groups.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_connection)
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query(&insert_into_suppliers.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_connection)
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
-    let discovered_schema = SchemaDiscovery::new("test.db")
-        .await
-        .unwrap()
+    let discovered_schema = SchemaDiscovery::new(sqlite_pool)
         .discover()
         .await
         .unwrap()
