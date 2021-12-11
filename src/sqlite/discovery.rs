@@ -1,16 +1,11 @@
 use crate::sqlite::{DiscoveryResult, TableDef};
 use sea_query::{Alias, Expr, SelectStatement, SqliteQueryBuilder};
-use sqlx::{
-    sqlite::{SqliteConnectOptions, SqliteConnection, SqliteJournalMode, SqliteRow},
-    ConnectOptions,
-};
-use std::str::FromStr;
+use sqlx::sqlite::{SqlitePool, SqliteRow};
 
 /// Performs all the methods for schema discovery of a SQLite database
 #[derive(Debug)]
 pub struct SchemaDiscovery {
-    pub database: String,
-    pub connection: SqliteConnection,
+    pub pool: SqlitePool,
     pub tables: Vec<TableDef>,
 }
 
@@ -19,24 +14,14 @@ impl SchemaDiscovery {
     ///
     /// ### Usage
     /// ```
-    /// SchemaDiscovery::new("foo.db")
+    /// SchemaDiscovery::new(sqlite_pool)
     ///     .await?
     /// ```
-    pub async fn new(database_name: &str) -> DiscoveryResult<Self> {
-        let mut database = String::default();
-        database.push_str("sqlite://");
-        database.push_str(database_name);
-
-        let sqlite_connection = SqliteConnectOptions::from_str(&database)?
-            .journal_mode(SqliteJournalMode::Wal)
-            .connect()
-            .await?;
-
-        Ok(SchemaDiscovery {
-            database: database.to_owned(),
-            connection: sqlite_connection,
+    pub fn new(sqlite_pool: SqlitePool) -> Self {
+        SchemaDiscovery {
+            pool: sqlite_pool,
             tables: Vec::default(),
-        })
+        }
     }
 
     /// Discover all the tables in a SQLite database
@@ -48,14 +33,14 @@ impl SchemaDiscovery {
             .to_string(SqliteQueryBuilder);
 
         let rows: Vec<SqliteRow> = sqlx::query(&get_tables)
-            .fetch_all(&mut self.connection)
+            .fetch_all(&mut self.pool.acquire().await?)
             .await?;
         for row in &rows {
             let mut table: TableDef = row.into();
-            table.pk_is_autoincrement(&mut self.connection).await?;
-            table.get_indexes(&mut self.connection).await?;
-            table.get_foreign_keys(&mut self.connection).await?;
-            table.get_column_info(&mut self.connection).await?;
+            table.pk_is_autoincrement(&mut self.pool).await?;
+            table.get_indexes(&mut self.pool).await?;
+            table.get_foreign_keys(&mut self.pool).await?;
+            table.get_column_info(&mut self.pool).await?;
             self.tables.push(table);
         }
 
