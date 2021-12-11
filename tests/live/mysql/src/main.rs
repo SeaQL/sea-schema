@@ -3,7 +3,7 @@ use regex::Regex;
 use sea_schema::mysql::{def::TableDef, discovery::SchemaDiscovery};
 use sea_schema::sea_query::{
     Alias, ColumnDef, ForeignKey, ForeignKeyAction, Index, MysqlQueryBuilder, Table,
-    TableCreateStatement,
+    TableCreateStatement, TableRef,
 };
 use sqlx::{MySql, MySqlPool, Pool};
 use std::collections::HashMap;
@@ -11,6 +11,11 @@ use std::collections::HashMap;
 #[cfg_attr(test, async_std::test)]
 #[cfg_attr(not(test), async_std::main)]
 async fn main() {
+    // env_logger::builder()
+    //     .filter_level(log::LevelFilter::Debug)
+    //     .is_test(true)
+    //     .init();
+
     let connection = setup("mysql://sea:sea@localhost", "sea-schema").await;
     let mut executor = connection.acquire().await.unwrap();
 
@@ -45,7 +50,11 @@ async fn main() {
 
     for tbl_create_stmt in tbl_create_stmts.into_iter() {
         let expected_sql = tbl_create_stmt.to_string(MysqlQueryBuilder);
-        let table = map.get(&tbl_create_stmt.get_table_name().unwrap()).unwrap();
+        let tbl_name = match tbl_create_stmt.get_table_name() {
+            Some(TableRef::Table(tbl)) => tbl.to_string(),
+            _ => unimplemented!(),
+        };
+        let table = map.get(&tbl_name).unwrap();
         let sql = table.write().to_string(MysqlQueryBuilder);
         let sql = strip_generated_sql(sql);
         println!("Expected SQL:");
