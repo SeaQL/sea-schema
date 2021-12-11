@@ -1,9 +1,10 @@
 use crate::sqlite::{
     ColumnInfo, DefaultType, DiscoveryResult, ForeignKeysInfo, IndexInfo, IndexedColumns,
-    PartialIndexInfo, PrimaryKeyAutoincrement, SqliteDiscoveryError,
+    PartialIndexInfo, PrimaryKeyAutoincrement,
 };
 use sea_query::{
-    Alias, ColumnDef, Expr, ForeignKey, Index, Query, SqliteQueryBuilder, Table, Value,
+    Alias, ColumnDef, Expr, ForeignKey, Query, SqliteQueryBuilder, Table, TableCreateStatement,
+    Value,
 };
 use sqlx::{sqlite::SqliteRow, Row, SqlitePool};
 
@@ -12,8 +13,6 @@ use sqlx::{sqlite::SqliteRow, Row, SqlitePool};
 pub struct TableDef {
     /// The table name
     pub name: String,
-    /// A list of indexes for the table
-    pub indexes: Vec<IndexInfo>,
     /// A list of foreign keys in the table
     pub foreign_keys: Vec<ForeignKeysInfo>,
     /// A list of all the columns and their types
@@ -28,7 +27,6 @@ impl From<&SqliteRow> for TableDef {
         let row: String = row.get(0);
         TableDef {
             name: row,
-            indexes: Vec::default(),
             foreign_keys: Vec::default(),
             columns: Vec::default(),
             auto_increment: bool::default(),
@@ -75,7 +73,11 @@ impl TableDef {
     /// Get a list of all the indexes in the table.
     /// Note that this does not get the column name mapped by the index.
     /// To get the column name mapped by the index, the `self.get_single_indexinfo` method is invoked
-    pub async fn get_indexes(&mut self, pool: &mut SqlitePool) -> DiscoveryResult<&mut Self> {
+    pub async fn get_indexes(
+        &mut self,
+        pool: &mut SqlitePool,
+        indexes: &mut Vec<IndexInfo>,
+    ) -> DiscoveryResult<()> {
         let mut index_query = String::default();
         index_query.push_str("pragma index_list('");
         index_query.push_str(&self.name);
@@ -98,7 +100,7 @@ impl TableDef {
             let partial_index_column: IndexedColumns =
                 self.get_single_indexinfo(pool, &partial_index.name).await?;
 
-            self.indexes.push(IndexInfo {
+            indexes.push(IndexInfo {
                 r#type: partial_index_column.r#type,
                 index_name: partial_index_column.name,
                 table_name: partial_index_column.table,
@@ -109,7 +111,7 @@ impl TableDef {
             });
         }
 
-        Ok(self)
+        Ok(())
     }
 
     /// Get a list of all the foreign keys in the table
@@ -170,9 +172,7 @@ impl TableDef {
         Ok(index_info.into())
     }
 
-    /// Map the table definition into a SQL create statement.
-    /// This is useful for simple assertions
-    pub fn to_sql_statement(&self) -> String {
+    pub fn write(&self) -> TableCreateStatement {
         let mut new_table = Table::create();
         new_table.table(Alias::new(&self.name));
 
@@ -219,105 +219,6 @@ impl TableDef {
                     .to_owned(),
             );
         });
-        let table_as_statement = new_table.to_string(SqliteQueryBuilder);
-
-        table_as_statement
-    }
-
-    /// Maps all the information inside a table including foreign keys and indexes.
-    pub fn to_sql_statement_with_indexes(&mut self) -> String {
-        let mut new_table = Table::create();
-        new_table.table(Alias::new(&self.name));
-
-        self.columns.iter().for_each(|column_info| {
-            let mut new_column = ColumnDef::new(Alias::new(&column_info.name));
-            if column_info.not_null {
-                new_column.not_null();
-            }
-
-            if column_info.primary_key {
-                new_column.primary_key();
-            }
-
-            if self.auto_increment {
-                new_column.auto_increment();
-            }
-
-            match &column_info.default_value {
-                DefaultType::Integer(integer_value) => {
-                    new_column.default(Value::Int(Some(*integer_value)));
-                }
-                DefaultType::Float(float_value) => {
-                    new_column.default(Value::Float(Some(*float_value)));
-                }
-                DefaultType::String(string_value) => {
-                    new_column.default(Value::String(Some(Box::new(string_value.to_string()))));
-                }
-                DefaultType::Null => (),
-                DefaultType::Unspecified => (),
-            }
-
-            new_table.col(&mut new_column);
-        });
-
-        self.foreign_keys.iter().for_each(|foreign_key| {
-            new_table.foreign_key(
-                &mut ForeignKey::create()
-                    .from(Alias::new(&self.name), Alias::new(&foreign_key.from))
-                    .to(Alias::new(&foreign_key.table), Alias::new(&foreign_key.to))
-                    .on_delete(foreign_key.on_delete.to_seaquery_foreign_key_action())
-                    .on_update(foreign_key.on_update.to_seaquery_foreign_key_action())
-                    .to_owned(),
-            );
-        });
-
-        self.indexes.iter_mut().for_each(|index| {
-            let mut new_index = Index::create();
-            new_index
-                .name(&index.index_name)
-                .table(Alias::new(&index.table_name));
-
-            if index.unique {
-                new_index.unique();
-            }
-
-            index.columns.iter().for_each(|column| {
-                new_index.col(Alias::new(&column));
-            });
-
-            new_table.index(&mut new_index);
-        });
-
-        let table_as_statement = new_table.to_string(SqliteQueryBuilder);
-
-        table_as_statement
-    }
-
-    /// Map SQLite indexes into a sql statement
-    pub fn create_indexes(&mut self) -> DiscoveryResult<Vec<String>> {
-        let mut indexes: Vec<String> = Vec::default();
-
-        if self.indexes.is_empty() {
-            return Err(SqliteDiscoveryError::NoIndexesFound);
-        }
-
-        self.indexes.iter_mut().for_each(|index| {
-            let mut new_index = Index::create();
-            new_index
-                .name(&index.index_name)
-                .table(Alias::new(&index.table_name));
-
-            if index.unique {
-                new_index.unique();
-            }
-
-            index.columns.iter().for_each(|column| {
-                new_index.col(Alias::new(&column));
-            });
-
-            indexes.push(new_index.to_string(SqliteQueryBuilder));
-        });
-
-        Ok(indexes)
+        new_table
     }
 }
