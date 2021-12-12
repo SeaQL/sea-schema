@@ -21,7 +21,7 @@ impl Iterator for ForeignKeyQueryResultParser {
     type Item = ForeignKeyInfo;
 
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some(result) = self.results.next() {
+        for result in self.results.by_ref() {
             let mut foreign_key = parse_foreign_key_query_result(result);
             if let Some(curr) = &mut self.curr {
                 // group by `foreign_key.name`

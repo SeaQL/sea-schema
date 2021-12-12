@@ -6,6 +6,8 @@ publish = false
 
 [dependencies]
 async-std = { version = "1.8", features = [ "attributes" ] }
-sea-schema = { path = "../../../", default-features = false, features = [ "with-serde", "sqlx-postgres", "runtime-async-std-native-tls", "discovery" ] }
+sea-schema = { path = "../../../", default-features = false, features = [ "with-serde", "sqlx-postgres", "runtime-async-std-native-tls", "discovery", "debug-print" ] }
 serde_json = { version = "^1" }
 sqlx = { version = "^0" }
+env_logger = { version = "^0" }
+log = { version = "^0" }

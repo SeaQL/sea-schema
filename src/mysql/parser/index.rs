@@ -21,7 +21,7 @@ impl Iterator for IndexQueryResultParser {
     type Item = IndexInfo;
 
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some(result) = self.results.next() {
+        for result in self.results.by_ref() {
             let mut index = parse_index_query_result(result);
             if let Some(curr) = &mut self.curr {
                 // group by `index.name`, consolidate to `index.parts`
@@ -65,10 +65,7 @@ pub fn parse_index_query_result(mut result: IndexQueryResult) -> IndexInfo {
                 },
                 None => IndexOrder::Unordered,
             },
-            sub_part: match result.sub_part {
-                Some(v) => Some(v as u32),
-                None => None,
-            },
+            sub_part: result.sub_part.map(|v| v as u32),
         }],
         nullable: matches!(result.nullable.as_str(), "YES"),
         idx_type: IndexType::from_str(result.index_type.as_str()).unwrap(),

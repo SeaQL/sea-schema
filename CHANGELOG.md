@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.3.1 - 2021-12-12
+
+* Add support for the Postgres interval type by @autarch in https://github.com/SeaQL/sea-schema/pull/20
+* CI: Clippy, MySQL & Postgres by @billy1624 in https://github.com/SeaQL/sea-schema/pull/21
+* Write MySQL & Postgres Enum Columns by @billy1624 in https://github.com/SeaQL/sea-schema/pull/29
+
+**Full Changelog**: https://github.com/SeaQL/sea-schema/compare/0.2.9...0.3.1
+
 ## 0.2.9 - 2021-09-24
 
 + [[#18]] MySQL: handle panic upon unique constraint

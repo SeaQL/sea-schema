@@ -24,10 +24,8 @@ impl Iterator for TableConstraintsQueryResultParser {
     fn next(&mut self) -> Option<Self::Item> {
         let result = if let Some(result) = self.curr.take() {
             result
-        } else if let Some(result) = self.results.next() {
-            result
         } else {
-            return None;
+            self.results.next()?
         };
 
         let constraint_name = result.constraint_name;
@@ -35,7 +33,7 @@ impl Iterator for TableConstraintsQueryResultParser {
             "CHECK" => {
                 Some(Constraint::Check(Check {
                     name: constraint_name,
-                    expr: result.check_clause.unwrap().to_string(),
+                    expr: result.check_clause.unwrap(),
                     // TODO: How to find?
                     no_inherit: false,
                 }))
@@ -53,7 +51,7 @@ impl Iterator for TableConstraintsQueryResultParser {
                 let on_delete =
                     ForeignKeyAction::from_str(&result.delete_rule.clone().unwrap_or_default());
 
-                while let Some(result) = self.results.next() {
+                for result in self.results.by_ref() {
                     if result.constraint_name != constraint_name {
                         self.curr = Some(result);
                         return Some(Constraint::References(References {
@@ -81,11 +79,9 @@ impl Iterator for TableConstraintsQueryResultParser {
             }
 
             "PRIMARY KEY" => {
-                let mut columns = Vec::new();
+                let mut columns = vec![result.column_name.unwrap()];
 
-                columns.push(result.column_name.unwrap());
-
-                while let Some(result) = self.results.next() {
+                for result in self.results.by_ref() {
                     if result.constraint_name != constraint_name {
                         self.curr = Some(result);
                         return Some(Constraint::PrimaryKey(PrimaryKey {
@@ -104,11 +100,9 @@ impl Iterator for TableConstraintsQueryResultParser {
             }
 
             "UNIQUE" => {
-                let mut columns = Vec::new();
+                let mut columns = vec![result.column_name.unwrap()];
 
-                columns.push(result.column_name.unwrap());
-
-                while let Some(result) = self.results.next() {
+                for result in self.results.by_ref() {
                     if result.constraint_name != constraint_name {
                         self.curr = Some(result);
                         return Some(Constraint::Unique(Unique {
