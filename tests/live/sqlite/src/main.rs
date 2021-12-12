@@ -1,7 +1,7 @@
 use async_std::fs::File;
-use sea_query::{
-    Alias, ColumnDef, ForeignKeyAction, ForeignKeyCreateStatement, Index, Query,
-    SqliteQueryBuilder, Table,
+use sea_schema::sea_query::{
+    Alias, ColumnDef, ForeignKeyAction, ForeignKeyCreateStatement, Index, IndexCreateStatement,
+    Query, SqliteQueryBuilder, Table,
 };
 use sea_schema::sqlite::SchemaDiscovery;
 use sqlx::sqlite::SqlitePoolOptions;
@@ -241,7 +241,7 @@ async fn main() {
 
     let mut index_create_statements = Vec::default();
     discover_indexes.iter().for_each(|index| {
-        let index_statement: sea_query::IndexCreateStatement = index.write();
+        let index_statement: IndexCreateStatement = index.write();
         index_create_statements.push(index_statement.to_string(SqliteQueryBuilder));
     });
 

@@ -7,7 +7,6 @@ edition = "2021"
 
 [dependencies]
 async-std = { version = "1.8", features = ["attributes"] }
-sea-query = "^0.18.1"
 sea-schema = { path = "../../../", default-features = false, features = [
     "runtime-async-std-native-tls",
     "discovery",
