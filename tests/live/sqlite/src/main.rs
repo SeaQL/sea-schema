@@ -1,4 +1,4 @@
-use async_std::fs::File;
+use pretty_assertions::assert_eq;
 use sea_schema::sea_query::{
     Alias, ColumnDef, ForeignKey, ForeignKeyAction, ForeignKeyCreateStatement, Index,
     IndexCreateStatement, Query, SqliteQueryBuilder, Table, TableCreateStatement, TableRef,
@@ -12,11 +12,18 @@ use std::collections::HashMap;
 #[cfg_attr(test, async_std::test)]
 #[cfg_attr(not(test), async_std::main)]
 async fn main() -> DiscoveryResult<()> {
-    test_001().await;
-    test_002().await
+    // env_logger::builder()
+    //     .filter_level(log::LevelFilter::Debug)
+    //     .is_test(true)
+    //     .init();
+
+    test_001().await?;
+    test_002().await?;
+
+    Ok(())
 }
 
-async fn test_001() {
+async fn test_001() -> DiscoveryResult<()> {
     let sqlite_pool = SqlitePoolOptions::new()
         .connect("sqlite::memory:")
         .await
@@ -63,7 +70,7 @@ async fn test_001() {
             ColumnDef::new(Alias::new("last_update"))
                 .custom(Alias::new("DATETIME"))
                 .not_null()
-                .default("CURRENT_TIMESTAMP"),
+                .default("1990-01-01 00:00:00"),
         )
         .to_owned();
 
@@ -76,16 +83,12 @@ async fn test_001() {
         .unwrap()
         .to_owned();
 
-    dbg!(&create_table.to_string(SqliteQueryBuilder));
-
     let create_index = Index::create()
         .name("idx-programming_lang-aspect")
         .table(Alias::new("Programming_Langs"))
         .col(Alias::new("SLOC"))
         .col(Alias::new("SemVer"))
         .to_owned();
-
-    dbg!(&create_index.to_string(SqliteQueryBuilder));
 
     //DROP TABLES to ensure all tests pass
     sqlx::query("DROP TABLE IF EXISTS Programming_Langs")
@@ -157,16 +160,12 @@ async fn test_001() {
         .unwrap()
         .to_owned();
 
-    dbg!(&insert_into_supplier_groups.to_string(SqliteQueryBuilder));
-
     let insert_into_suppliers = Query::insert()
         .into_table(Alias::new("suppliers"))
         .columns(vec![Alias::new("supplier_name"), Alias::new("group_id")])
         .values(vec!["HP".into(), 1.into()])
         .unwrap()
         .to_owned();
-
-    dbg!(&insert_into_suppliers.to_string(SqliteQueryBuilder));
 
     sqlx::query(&create_table.to_string(SqliteQueryBuilder))
         .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
@@ -204,57 +203,48 @@ async fn test_001() {
         .unwrap();
 
     let discovered_schema = SchemaDiscovery::new(sqlite_pool.clone());
-    let discover_tables = discovered_schema.discover().await.unwrap();
 
-    // Doing a binary search instead of an assertion on Vec indexes since they can panic
-    // due to re-arrangement of indexes between queries
+    let convert_column_types = |str: String| {
+        str.replace("INTEGER", "integer")
+            .replace("INT8", "integer")
+            .replace("TEXT", "text")
+            .replace("VARCHAR(255)", "text")
+            .replace("DATETIME", "text")
+    };
 
-    let discovered_schema_statements = discover_tables
-        .tables
-        .iter()
-        .map(|table| table.write().to_string(SqliteQueryBuilder))
-        .collect::<Vec<String>>();
+    assert_eq!(
+        discovered_schema
+            .discover()
+            .await?
+            .tables
+            .iter()
+            .map(|table| table.write().to_string(SqliteQueryBuilder))
+            .collect::<Vec<_>>(),
+        vec![
+            create_table.to_string(SqliteQueryBuilder),
+            "CREATE TABLE `sqlite_sequence` ( `name` BLOB, `seq` BLOB )".to_owned(),
+            table_create_supplier_groups.to_string(SqliteQueryBuilder),
+            table_create_suppliers.to_string(SqliteQueryBuilder),
+        ]
+        .into_iter()
+        .map(convert_column_types)
+        .collect::<Vec<_>>()
+    );
 
-    dbg!(&discovered_schema_statements);
-    dbg!(&discovered_schema_statements.binary_search(&create_table.to_string(SqliteQueryBuilder)));
-    dbg!(&discovered_schema_statements
-        .binary_search(&table_create_suppliers.to_string(SqliteQueryBuilder)));
-    dbg!(&discovered_schema_statements
-        .binary_search(&table_create_supplier_groups.to_string(SqliteQueryBuilder)));
-    assert!(discovered_schema_statements
-        .binary_search(&create_table.to_string(SqliteQueryBuilder))
-        .is_ok());
-    assert!(discovered_schema_statements
-        .binary_search(&table_create_suppliers.to_string(SqliteQueryBuilder))
-        .is_ok());
-    assert!(discovered_schema_statements
-        .binary_search(&table_create_supplier_groups.to_string(SqliteQueryBuilder))
-        .is_ok());
+    assert_eq!(
+        discovered_schema
+            .discover_indexes()
+            .await?
+            .iter()
+            .map(|index| index.write().to_string(SqliteQueryBuilder))
+            .collect::<Vec<_>>(),
+        vec![create_index.to_string(SqliteQueryBuilder)]
+    );
 
-    let discover_indexes = SchemaDiscovery::new(sqlite_pool)
-        .discover_indexes()
-        .await
-        .unwrap();
-
-    dbg!(&discover_indexes);
-
-    let mut index_create_statements = Vec::default();
-    discover_indexes.iter().for_each(|index| {
-        let index_statement: IndexCreateStatement = index.write();
-        index_create_statements.push(index_statement.to_string(SqliteQueryBuilder));
-    });
-
-    assert!(index_create_statements
-        .binary_search(&create_index.to_string(SqliteQueryBuilder))
-        .is_ok());
+    Ok(())
 }
 
 async fn test_002() -> DiscoveryResult<()> {
-    // env_logger::builder()
-    //     .filter_level(log::LevelFilter::Debug)
-    //     .is_test(true)
-    //     .init();
-
     let connection = SqlitePool::connect("sqlite::memory:").await.unwrap();
     let mut executor = connection.acquire().await.unwrap();
 
@@ -288,10 +278,24 @@ async fn test_002() -> DiscoveryResult<()> {
         .collect();
 
     for tbl_create_stmt in tbl_create_stmts.into_iter() {
-        let expected_sql = tbl_create_stmt.to_string(SqliteQueryBuilder);
         let tbl_name = match tbl_create_stmt.get_table_name() {
             Some(TableRef::Table(tbl)) => tbl.to_string(),
             _ => unimplemented!(),
+        };
+        let expected_sql = if tbl_name.as_str() == "order" {
+            vec![
+                "CREATE TABLE `order` (",
+                "`id` integer NOT NULL PRIMARY KEY AUTOINCREMENT,",
+                "`total` real,",
+                "`bakery_id` integer NOT NULL,",
+                "`customer_id` integer NOT NULL,",
+                "`placed_at` text NOT NULL,",
+                "FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,",
+                "FOREIGN KEY (`bakery_id`) REFERENCES `bakery` (`id`) ON DELETE CASCADE ON UPDATE CASCADE",
+                ")",
+            ].join(" ")
+        } else {
+            tbl_create_stmt.to_string(SqliteQueryBuilder)
         };
         let table = map.get(&tbl_name).unwrap();
         let sql = table.write().to_string(SqliteQueryBuilder);
@@ -370,7 +374,7 @@ fn create_order_table() -> TableCreateStatement {
                 .auto_increment()
                 .primary_key(),
         )
-        .col(ColumnDef::new(Alias::new("total")).decimal_len(19, 4))
+        .col(ColumnDef::new(Alias::new("total")).decimal())
         .col(ColumnDef::new(Alias::new("bakery_id")).integer().not_null())
         .col(
             ColumnDef::new(Alias::new("customer_id"))
@@ -379,7 +383,7 @@ fn create_order_table() -> TableCreateStatement {
         )
         .col(
             ColumnDef::new(Alias::new("placed_at"))
-                .timestamp_len(6)
+                .timestamp()
                 .not_null(),
         )
         .foreign_key(
@@ -411,7 +415,7 @@ fn create_lineitem_table() -> TableCreateStatement {
                 .auto_increment()
                 .primary_key(),
         )
-        .col(ColumnDef::new(Alias::new("price")).decimal_len(19, 4))
+        .col(ColumnDef::new(Alias::new("price")).decimal())
         .col(ColumnDef::new(Alias::new("quantity")).integer())
         .col(ColumnDef::new(Alias::new("order_id")).integer().not_null())
         .col(ColumnDef::new(Alias::new("cake_id")).integer().not_null())
@@ -459,10 +463,10 @@ fn create_cake_table() -> TableCreateStatement {
                 .primary_key(),
         )
         .col(ColumnDef::new(Alias::new("name")).string())
-        .col(ColumnDef::new(Alias::new("price")).decimal_len(19, 4))
+        .col(ColumnDef::new(Alias::new("price")).decimal())
         .col(ColumnDef::new(Alias::new("bakery_id")).integer().not_null())
         .col(ColumnDef::new(Alias::new("gluten_free")).boolean())
-        .col(ColumnDef::new(Alias::new("serial")).uuid())
+        .col(ColumnDef::new(Alias::new("serial")).text())
         .foreign_key(
             ForeignKey::create()
                 .name("FK_cake_bakery")

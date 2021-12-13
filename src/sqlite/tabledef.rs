@@ -162,7 +162,7 @@ impl TableDef {
                 new_column.auto_increment();
             }
 
-            new_column.custom(Alias::new(&column_info.r#type.stringify_type()));
+            column_info.r#type.write_type(&mut new_column);
 
             match &column_info.default_value {
                 DefaultType::Integer(integer_value) => {
