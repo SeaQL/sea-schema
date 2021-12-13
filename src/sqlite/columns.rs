@@ -26,7 +26,7 @@ impl ColumnInfo {
             cid: row.get(0),
             name: row.get(1),
             r#type: Type::to_type(row.get(2))?,
-            not_null: if col_not_null == 0 { false } else { true },
+            not_null: col_not_null != 0,
             default_value: if default_value == "NULL" {
                 DefaultType::Null
             } else if default_value.is_empty() {
@@ -42,7 +42,7 @@ impl ColumnInfo {
                     DefaultType::String(value)
                 }
             },
-            primary_key: if is_pk == 0 { false } else { true },
+            primary_key: is_pk != 0,
         })
     }
 }
@@ -75,7 +75,7 @@ impl IndexInfo {
         }
 
         self.columns.iter().for_each(|column| {
-            new_index.col(Alias::new(&column));
+            new_index.col(Alias::new(column));
         });
 
         new_index
@@ -99,7 +99,7 @@ impl From<&SqliteRow> for PartialIndexInfo {
         Self {
             seq: row.get(0),
             name: row.get(1),
-            unique: if is_unique == 0 { false } else { true },
+            unique: is_unique != 0,
             origin: row.get(3),
             partial: row.get(4),
         }
@@ -121,11 +121,11 @@ impl From<&SqliteRow> for IndexedColumns {
     fn from(row: &SqliteRow) -> Self {
         let indexed_columns_new: String = row.get(4);
         let split_at_on = indexed_columns_new.split("ON").collect::<Vec<_>>();
-        let split_at_open_bracket = split_at_on[1].trim().split("(").collect::<Vec<_>>();
+        let split_at_open_bracket = split_at_on[1].trim().split('(').collect::<Vec<_>>();
         let columns_to_index = split_at_open_bracket[1]
-            .replace(")", "")
-            .split(",")
-            .map(|column| column.trim().replace("`", ""))
+            .replace(')', "")
+            .split(',')
+            .map(|column| column.trim().replace('`', ""))
             .collect::<Vec<String>>();
 
         Self {

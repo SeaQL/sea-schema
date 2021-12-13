@@ -213,24 +213,15 @@ async fn main() {
         .binary_search(&table_create_suppliers.to_string(SqliteQueryBuilder)));
     dbg!(&discovered_schema_statements
         .binary_search(&table_create_supplier_groups.to_string(SqliteQueryBuilder)));
-    assert!(match &discovered_schema_statements
+    assert!(discovered_schema_statements
         .binary_search(&create_table.to_string(SqliteQueryBuilder))
-    {
-        Ok(_) => true,
-        Err(_) => false,
-    });
-    assert!(match &discovered_schema_statements
+        .is_ok());
+    assert!(discovered_schema_statements
         .binary_search(&table_create_suppliers.to_string(SqliteQueryBuilder))
-    {
-        Ok(_) => true,
-        Err(_) => false,
-    });
-    assert!(match &discovered_schema_statements
+        .is_ok());
+    assert!(discovered_schema_statements
         .binary_search(&table_create_supplier_groups.to_string(SqliteQueryBuilder))
-    {
-        Ok(_) => true,
-        Err(_) => false,
-    });
+        .is_ok());
 
     let discover_indexes = SchemaDiscovery::new(sqlite_pool)
         .discover_indexes()
@@ -245,12 +236,9 @@ async fn main() {
         index_create_statements.push(index_statement.to_string(SqliteQueryBuilder));
     });
 
-    assert!(
-        match index_create_statements.binary_search(&create_index.to_string(SqliteQueryBuilder)) {
-            Ok(_) => true,
-            Err(_) => false,
-        }
-    );
+    assert!(index_create_statements
+        .binary_search(&create_index.to_string(SqliteQueryBuilder))
+        .is_ok());
 }
 
 /*

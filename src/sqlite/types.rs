@@ -37,7 +37,7 @@ impl Type {
     pub fn to_type(data_type: &str) -> Result<Type, ParseIntError> {
         let data_type = data_type.to_uppercase();
 
-        let split_type: Vec<&str> = data_type.split("(").collect();
+        let split_type: Vec<&str> = data_type.split('(').collect();
         let type_result = match split_type[0] {
             "INT" => Type::Int,
             "INTEGER" => Type::Integer,
@@ -108,11 +108,11 @@ impl Type {
             } => {
                 let mut value = String::default();
                 value.push_str("DECIMAL");
-                value.push_str("(");
+                value.push('(');
                 value.push_str(&integral.to_string());
-                value.push_str(",");
+                value.push(',');
                 value.push_str(&fractional.to_string());
-                value.push_str(")");
+                value.push(')');
 
                 value
             }
@@ -125,16 +125,16 @@ impl Type {
     fn concat_type(&self, type_name: &str, length: &u8) -> String {
         let mut value = String::default();
         value.push_str(type_name);
-        value.push_str("(");
+        value.push('(');
         value.push_str(&length.to_string());
-        value.push_str(")");
+        value.push(')');
 
         value
     }
 
-    fn variable_types(split_type: &Vec<&str>) -> Result<Type, ParseIntError> {
+    fn variable_types(split_type: &[&str]) -> Result<Type, ParseIntError> {
         let length = if !split_type.len() == 1 {
-            let maybe_size = split_type[1].replace(")", "");
+            let maybe_size = split_type[1].replace(')', "");
             maybe_size.parse::<u8>()?
         } else {
             255_u8

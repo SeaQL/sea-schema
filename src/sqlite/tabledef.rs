@@ -91,7 +91,7 @@ impl TableDef {
         partial_index_info_rows.iter().for_each(|info| {
             let partial_index_info: PartialIndexInfo = info.into();
 
-            if partial_index_info.origin != String::from("pk") {
+            if partial_index_info.origin.as_str() != "pk" {
                 partial_indexes.push(partial_index_info);
             }
         });
