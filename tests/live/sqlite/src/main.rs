@@ -17,10 +17,8 @@ async fn main() -> DiscoveryResult<()> {
 }
 
 async fn test_001() {
-    File::create("test.db").await.unwrap();
-
     let sqlite_pool = SqlitePoolOptions::new()
-        .connect("sqlite://test.db")
+        .connect("sqlite::memory:")
         .await
         .unwrap();
 
