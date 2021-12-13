@@ -1,3 +1,4 @@
+use crate::sqlite::IntoExecutor;
 use sea_query::{PostgresQueryBuilder, SelectStatement};
 use sqlx::{postgres::PgRow, PgPool};
 

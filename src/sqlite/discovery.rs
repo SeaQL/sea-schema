@@ -1,12 +1,10 @@
-use crate::sqlite::{DiscoveryResult, IndexInfo, TableDef};
-use sea_query::{Alias, Expr, SelectStatement, SqliteQueryBuilder};
-use sqlx::sqlite::{SqlitePool, SqliteRow};
+use crate::sqlite::{DiscoveryResult, Executor, IndexInfo, IntoExecutor, Schema, TableDef};
+use sea_query::{Alias, Expr, SelectStatement};
+use sqlx::SqlitePool;
 
 /// Performs all the methods for schema discovery of a SQLite database
-#[derive(Debug)]
 pub struct SchemaDiscovery {
-    pub pool: SqlitePool,
-    pub tables: Vec<TableDef>,
+    pub executor: Executor,
 }
 
 impl SchemaDiscovery {
@@ -19,54 +17,50 @@ impl SchemaDiscovery {
     /// ```
     pub fn new(sqlite_pool: SqlitePool) -> Self {
         SchemaDiscovery {
-            pool: sqlite_pool,
-            tables: Vec::default(),
+            executor: sqlite_pool.into_executor(),
         }
     }
 
     /// Discover all the tables in a SQLite database
-    pub async fn discover(&mut self) -> DiscoveryResult<&mut Self> {
+    pub async fn discover(&self) -> DiscoveryResult<Schema> {
         let get_tables = SelectStatement::new()
             .column(Alias::new("name"))
             .from(Alias::new("sqlite_master"))
             .and_where(Expr::col(Alias::new("type")).eq("table"))
-            .to_string(SqliteQueryBuilder);
+            .to_owned();
 
-        let rows: Vec<SqliteRow> = sqlx::query(&get_tables)
-            .fetch_all(&mut self.pool.acquire().await?)
-            .await?;
-        for row in &rows {
-            let mut table: TableDef = row.into();
-            table.pk_is_autoincrement(&mut self.pool).await?;
-            table.get_foreign_keys(&mut self.pool).await?;
-            table.get_column_info(&mut self.pool).await?;
-            self.tables.push(table);
+        let mut tables = Vec::new();
+        for row in self.executor.fetch_all(get_tables).await {
+            let mut table: TableDef = (&row).into();
+            table.pk_is_autoincrement(&self.executor).await?;
+            table.get_foreign_keys(&self.executor).await?;
+            table.get_column_info(&self.executor).await?;
+            tables.push(table);
         }
 
-        Ok(self)
+        Ok(Schema { tables })
     }
 
     /// Discover table indexes
-    pub async fn discover_indexes(&mut self) -> DiscoveryResult<Vec<IndexInfo>> {
+    pub async fn discover_indexes(&self) -> DiscoveryResult<Vec<IndexInfo>> {
         let get_tables = SelectStatement::new()
             .column(Alias::new("name"))
             .from(Alias::new("sqlite_master"))
             .and_where(Expr::col(Alias::new("type")).eq("table"))
-            .to_string(SqliteQueryBuilder);
+            .to_owned();
 
-        let rows: Vec<SqliteRow> = sqlx::query(&get_tables)
-            .fetch_all(&mut self.pool.acquire().await?)
-            .await?;
-        for row in &rows {
-            let table: TableDef = row.into();
-            self.tables.push(table);
+        let mut tables = Vec::new();
+        let rows = self.executor.fetch_all(get_tables).await;
+        for row in rows {
+            let table: TableDef = (&row).into();
+            tables.push(table);
         }
 
         let mut discovered_indexes: Vec<IndexInfo> = Vec::default();
 
-        for table in self.tables.iter_mut() {
+        for table in tables.iter_mut() {
             table
-                .get_indexes(&mut self.pool, &mut discovered_indexes)
+                .get_indexes(&self.executor, &mut discovered_indexes)
                 .await?
         }
 

@@ -21,3 +21,4 @@ sqlx = { version = "0.5.9", features = [
     "sqlite",
     "runtime-async-std-native-tls",
 ] }
+pretty_assertions = { version = "^0.7" }

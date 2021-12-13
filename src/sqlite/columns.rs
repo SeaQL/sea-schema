@@ -1,8 +1,8 @@
 use crate::sqlite::{DefaultType, Type};
+use crate::sqlx_types::{sqlite::SqliteRow, Row};
 use sea_query::{
     foreign_key::ForeignKeyAction as SeaQueryForeignKeyAction, Alias, Index, IndexCreateStatement,
 };
-use sqlx::{sqlite::SqliteRow, Row};
 use std::num::ParseIntError;
 
 /// An SQLite column definition

@@ -1,15 +1,24 @@
 use async_std::fs::File;
 use sea_schema::sea_query::{
-    Alias, ColumnDef, ForeignKeyAction, ForeignKeyCreateStatement, Index, IndexCreateStatement,
-    Query, SqliteQueryBuilder, Table,
+    Alias, ColumnDef, ForeignKey, ForeignKeyAction, ForeignKeyCreateStatement, Index,
+    IndexCreateStatement, Query, SqliteQueryBuilder, Table, TableCreateStatement, TableRef,
 };
 use sea_schema::sqlite::SchemaDiscovery;
+use sea_schema::sqlite::*;
 use sqlx::sqlite::SqlitePoolOptions;
+use sqlx::SqlitePool;
+use std::collections::HashMap;
 
 #[cfg_attr(test, async_std::test)]
 #[cfg_attr(not(test), async_std::main)]
-async fn main() {
+async fn main() -> DiscoveryResult<()> {
+    test_001().await;
+    test_002().await
+}
+
+async fn test_001() {
     File::create("test.db").await.unwrap();
+
     let sqlite_pool = SqlitePoolOptions::new()
         .connect("sqlite://test.db")
         .await
@@ -69,7 +78,7 @@ async fn main() {
         .unwrap()
         .to_owned();
 
-    //dbg!(&create_table.to_string(SqliteQueryBuilder));
+    dbg!(&create_table.to_string(SqliteQueryBuilder));
 
     let create_index = Index::create()
         .name("idx-programming_lang-aspect")
@@ -196,7 +205,7 @@ async fn main() {
         .await
         .unwrap();
 
-    let mut discovered_schema = SchemaDiscovery::new(sqlite_pool.clone());
+    let discovered_schema = SchemaDiscovery::new(sqlite_pool.clone());
     let discover_tables = discovered_schema.discover().await.unwrap();
 
     // Doing a binary search instead of an assertion on Vec indexes since they can panic
@@ -208,6 +217,7 @@ async fn main() {
         .map(|table| table.write().to_string(SqliteQueryBuilder))
         .collect::<Vec<String>>();
 
+    dbg!(&discovered_schema_statements);
     dbg!(&discovered_schema_statements.binary_search(&create_table.to_string(SqliteQueryBuilder)));
     dbg!(&discovered_schema_statements
         .binary_search(&table_create_suppliers.to_string(SqliteQueryBuilder)));
@@ -241,16 +251,227 @@ async fn main() {
         .is_ok());
 }
 
-/*
-use sea_query::{
-    Alias, ColumnDef, ForeignKeyAction, ForeignKeyCreateStatement, Query, SqliteQueryBuilder, Table,
-};
-use sea_schema::sqlite::SchemaDiscovery;
-use sqlx::sqlite::{SqlitePool, SqlitePoolOptions};
+async fn test_002() -> DiscoveryResult<()> {
+    // env_logger::builder()
+    //     .filter_level(log::LevelFilter::Debug)
+    //     .is_test(true)
+    //     .init();
 
-#[cfg_attr(test, async_std::test)]
-#[cfg_attr(not(test), async_std::main)]
-async fn main() {
+    let connection = SqlitePool::connect("sqlite::memory:").await.unwrap();
+    let mut executor = connection.acquire().await.unwrap();
 
+    let tbl_create_stmts = vec![
+        create_bakery_table(),
+        create_baker_table(),
+        create_customer_table(),
+        create_order_table(),
+        create_cake_table(),
+        create_cakes_bakers_table(),
+        create_lineitem_table(),
+    ];
+
+    for tbl_create_stmt in tbl_create_stmts.iter() {
+        let sql = tbl_create_stmt.to_string(SqliteQueryBuilder);
+        println!("{};", sql);
+        println!();
+        sqlx::query(&sql).execute(&mut executor).await.unwrap();
+    }
+
+    let schema_discovery = SchemaDiscovery::new(connection);
+
+    let schema = schema_discovery.discover().await?;
+
+    println!("{:#?}", schema);
+
+    let map: HashMap<String, TableDef> = schema
+        .tables
+        .iter()
+        .map(|table| (table.name.clone(), table.clone()))
+        .collect();
+
+    for tbl_create_stmt in tbl_create_stmts.into_iter() {
+        let expected_sql = tbl_create_stmt.to_string(SqliteQueryBuilder);
+        let tbl_name = match tbl_create_stmt.get_table_name() {
+            Some(TableRef::Table(tbl)) => tbl.to_string(),
+            _ => unimplemented!(),
+        };
+        let table = map.get(&tbl_name).unwrap();
+        let sql = table.write().to_string(SqliteQueryBuilder);
+        println!("Expected SQL:");
+        println!("{};", expected_sql);
+        println!("Generated SQL:");
+        println!("{};", sql);
+        println!();
+        assert_eq!(expected_sql, sql);
+    }
+
+    Ok(())
 }
-*/
+
+fn create_bakery_table() -> TableCreateStatement {
+    Table::create()
+        .table(Alias::new("bakery"))
+        .col(
+            ColumnDef::new(Alias::new("id"))
+                .integer()
+                .not_null()
+                .auto_increment()
+                .primary_key(),
+        )
+        .col(ColumnDef::new(Alias::new("name")).string())
+        .col(ColumnDef::new(Alias::new("profit_margin")).double())
+        .to_owned()
+}
+
+fn create_baker_table() -> TableCreateStatement {
+    Table::create()
+        .table(Alias::new("baker"))
+        .col(
+            ColumnDef::new(Alias::new("id"))
+                .integer()
+                .not_null()
+                .auto_increment()
+                .primary_key(),
+        )
+        .col(ColumnDef::new(Alias::new("name")).string())
+        .col(ColumnDef::new(Alias::new("contact_details")).json())
+        .col(ColumnDef::new(Alias::new("bakery_id")).integer())
+        .foreign_key(
+            ForeignKey::create()
+                .name("FK_baker_bakery")
+                .from(Alias::new("baker"), Alias::new("bakery_id"))
+                .to(Alias::new("bakery"), Alias::new("id"))
+                .on_delete(ForeignKeyAction::Cascade)
+                .on_update(ForeignKeyAction::Cascade),
+        )
+        .to_owned()
+}
+
+fn create_customer_table() -> TableCreateStatement {
+    Table::create()
+        .table(Alias::new("customer"))
+        .col(
+            ColumnDef::new(Alias::new("id"))
+                .integer()
+                .not_null()
+                .auto_increment()
+                .primary_key(),
+        )
+        .col(ColumnDef::new(Alias::new("name")).string())
+        .col(ColumnDef::new(Alias::new("notes")).text())
+        .to_owned()
+}
+
+fn create_order_table() -> TableCreateStatement {
+    Table::create()
+        .table(Alias::new("order"))
+        .col(
+            ColumnDef::new(Alias::new("id"))
+                .integer()
+                .not_null()
+                .auto_increment()
+                .primary_key(),
+        )
+        .col(ColumnDef::new(Alias::new("total")).decimal_len(19, 4))
+        .col(ColumnDef::new(Alias::new("bakery_id")).integer().not_null())
+        .col(
+            ColumnDef::new(Alias::new("customer_id"))
+                .integer()
+                .not_null(),
+        )
+        .col(
+            ColumnDef::new(Alias::new("placed_at"))
+                .timestamp_len(6)
+                .not_null(),
+        )
+        .foreign_key(
+            ForeignKey::create()
+                .name("FK_order_bakery")
+                .from(Alias::new("order"), Alias::new("bakery_id"))
+                .to(Alias::new("bakery"), Alias::new("id"))
+                .on_delete(ForeignKeyAction::Cascade)
+                .on_update(ForeignKeyAction::Cascade),
+        )
+        .foreign_key(
+            ForeignKey::create()
+                .name("FK_order_customer")
+                .from(Alias::new("order"), Alias::new("customer_id"))
+                .to(Alias::new("customer"), Alias::new("id"))
+                .on_delete(ForeignKeyAction::Cascade)
+                .on_update(ForeignKeyAction::Cascade),
+        )
+        .to_owned()
+}
+
+fn create_lineitem_table() -> TableCreateStatement {
+    Table::create()
+        .table(Alias::new("lineitem"))
+        .col(
+            ColumnDef::new(Alias::new("id"))
+                .integer()
+                .not_null()
+                .auto_increment()
+                .primary_key(),
+        )
+        .col(ColumnDef::new(Alias::new("price")).decimal_len(19, 4))
+        .col(ColumnDef::new(Alias::new("quantity")).integer())
+        .col(ColumnDef::new(Alias::new("order_id")).integer().not_null())
+        .col(ColumnDef::new(Alias::new("cake_id")).integer().not_null())
+        .foreign_key(
+            ForeignKey::create()
+                .name("FK_lineitem_cake")
+                .from(Alias::new("lineitem"), Alias::new("cake_id"))
+                .to(Alias::new("cake"), Alias::new("id"))
+                .on_delete(ForeignKeyAction::Cascade)
+                .on_update(ForeignKeyAction::Cascade),
+        )
+        .foreign_key(
+            ForeignKey::create()
+                .name("FK_lineitem_order")
+                .from(Alias::new("lineitem"), Alias::new("order_id"))
+                .to(Alias::new("order"), Alias::new("id"))
+                .on_delete(ForeignKeyAction::Cascade)
+                .on_update(ForeignKeyAction::Cascade),
+        )
+        .to_owned()
+}
+
+fn create_cakes_bakers_table() -> TableCreateStatement {
+    Table::create()
+        .table(Alias::new("cakes_bakers"))
+        .col(ColumnDef::new(Alias::new("cake_id")).integer().not_null())
+        .col(ColumnDef::new(Alias::new("baker_id")).integer().not_null())
+        .primary_key(
+            Index::create()
+                .name("cakes_bakers_pkey")
+                .col(Alias::new("cake_id"))
+                .col(Alias::new("baker_id")),
+        )
+        .to_owned()
+}
+
+fn create_cake_table() -> TableCreateStatement {
+    Table::create()
+        .table(Alias::new("cake"))
+        .col(
+            ColumnDef::new(Alias::new("id"))
+                .integer()
+                .not_null()
+                .auto_increment()
+                .primary_key(),
+        )
+        .col(ColumnDef::new(Alias::new("name")).string())
+        .col(ColumnDef::new(Alias::new("price")).decimal_len(19, 4))
+        .col(ColumnDef::new(Alias::new("bakery_id")).integer().not_null())
+        .col(ColumnDef::new(Alias::new("gluten_free")).boolean())
+        .col(ColumnDef::new(Alias::new("serial")).uuid())
+        .foreign_key(
+            ForeignKey::create()
+                .name("FK_cake_bakery")
+                .from(Alias::new("cake"), Alias::new("bakery_id"))
+                .to(Alias::new("bakery"), Alias::new("id"))
+                .on_delete(ForeignKeyAction::Cascade)
+                .on_update(ForeignKeyAction::Cascade),
+        )
+        .to_owned()
+}
