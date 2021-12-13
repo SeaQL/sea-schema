@@ -1,4 +1,7 @@
-use crate::sqlite::{DiscoveryResult, Executor, IndexInfo, IntoExecutor, Schema, TableDef};
+use crate::sqlite::{
+    executor::{Executor, IntoExecutor},
+    DiscoveryResult, IndexInfo, Schema, TableDef,
+};
 use sea_query::{Alias, Expr, SelectStatement};
 use sqlx::SqlitePool;
 

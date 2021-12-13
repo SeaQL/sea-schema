@@ -1,6 +1,6 @@
 use crate::sqlite::{
-    ColumnInfo, DefaultType, DiscoveryResult, Executor, ForeignKeysInfo, IndexInfo, IndexedColumns,
-    PartialIndexInfo, PrimaryKeyAutoincrement,
+    executor::Executor, ColumnInfo, DefaultType, DiscoveryResult, ForeignKeysInfo, IndexInfo,
+    IndexedColumns, PartialIndexInfo, PrimaryKeyAutoincrement,
 };
 use sea_query::{Alias, ColumnDef, Expr, ForeignKey, Query, Table, TableCreateStatement, Value};
 use sqlx::{sqlite::SqliteRow, Row};

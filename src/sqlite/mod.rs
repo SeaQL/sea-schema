@@ -24,7 +24,6 @@ mod types;
 pub use columns::*;
 pub use discovery::*;
 pub use errors::*;
-pub use executor::*;
 pub use schema::*;
 pub use tabledef::*;
 pub use types::*;

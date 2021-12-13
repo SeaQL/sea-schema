@@ -7,7 +7,7 @@ async fn main() -> DiscoveryResult<()> {
         .await
         .unwrap();
 
-    let mut schema_discovery = SchemaDiscovery::new(connection);
+    let schema_discovery = SchemaDiscovery::new(connection);
 
     let schema = schema_discovery.discover().await?;
 
