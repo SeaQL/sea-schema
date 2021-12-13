@@ -36,17 +36,14 @@ impl TableDef {
     /// `SELECT COUNT(*) from sqlite_sequence where name = 'table_name';
     pub async fn pk_is_autoincrement(&mut self, executor: &Executor) -> DiscoveryResult<&mut Self> {
         let check_autoincrement = Query::select()
-            .expr(Expr::cust("COUNT(*)"))
-            .from(Alias::new("sqlite_sequence"))
+            .expr(Expr::val(1))
+            .from(Alias::new("sqlite_master"))
+            .and_where(Expr::col(Alias::new("type")).eq("table"))
             .and_where(Expr::col(Alias::new("name")).eq(self.name.as_str()))
+            .and_where(Expr::col(Alias::new("sql")).like("%AUTOINCREMENT%"))
             .to_owned();
 
-        let autoincrement_enabled = executor.fetch_one(check_autoincrement).await;
-
-        let autoincrement_result: &SqliteRow = &autoincrement_enabled;
-        let autoincrement: PrimaryKeyAutoincrement = autoincrement_result.into();
-
-        if autoincrement.0 == 1_u8 {
+        if !executor.fetch_all(check_autoincrement).await.is_empty() {
             self.auto_increment = true;
         }
 
