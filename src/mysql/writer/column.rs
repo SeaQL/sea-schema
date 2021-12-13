@@ -198,9 +198,8 @@ impl ColumnInfo {
                 // FIXME: Unresolved type mapping
                 col_def.custom(self.col_type.clone());
             }
-            Type::Enum(_) => {
-                // FIXME: Unresolved type mapping
-                col_def.custom(self.col_type.clone());
+            Type::Enum(enum_attr) => {
+                col_def.enumeration(&self.name, &enum_attr.values);
             }
             Type::Set(_) => {
                 // FIXME: Unresolved type mapping

@@ -5,6 +5,10 @@ use std::{collections::HashMap, time::Duration};
 
 #[async_std::main]
 async fn main() {
+    // env_logger::builder()
+    //     .filter_level(log::LevelFilter::Debug)
+    //     .is_test(true)
+    //     .init();
     {
         // Testing writer on `sakila` database
         let connection = PgPool::connect("postgres://sea:sea@localhost/sakila")
