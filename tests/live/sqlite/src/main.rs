@@ -216,7 +216,6 @@ async fn test_001() -> DiscoveryResult<()> {
             .collect::<Vec<_>>(),
         vec![
             create_table.to_string(SqliteQueryBuilder),
-            "CREATE TABLE `sqlite_sequence` ( `name` BLOB, `seq` BLOB )".to_owned(),
             table_create_supplier_groups.to_string(SqliteQueryBuilder),
             table_create_suppliers.to_string(SqliteQueryBuilder),
         ]

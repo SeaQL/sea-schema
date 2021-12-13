@@ -34,3 +34,16 @@ impl From<sqlx::Error> for SqliteDiscoveryError {
         SqliteDiscoveryError::SqlxError(error)
     }
 }
+
+impl std::error::Error for SqliteDiscoveryError {}
+
+impl std::fmt::Display for SqliteDiscoveryError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            SqliteDiscoveryError::ParseIntError => write!(f, "Parse Integer Error"),
+            SqliteDiscoveryError::ParseFloatError => write!(f, "Parse Float Error Error"),
+            SqliteDiscoveryError::SqlxError(e) => write!(f, "SQLx Error: {}", e),
+            SqliteDiscoveryError::NoIndexesFound => write!(f, "No Indexes Found Error"),
+        }
+    }
+}

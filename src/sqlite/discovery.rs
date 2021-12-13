@@ -30,6 +30,7 @@ impl SchemaDiscovery {
             .column(Alias::new("name"))
             .from(Alias::new("sqlite_master"))
             .and_where(Expr::col(Alias::new("type")).eq("table"))
+            .and_where(Expr::col(Alias::new("name")).ne("sqlite_sequence"))
             .to_owned();
 
         let mut tables = Vec::new();
@@ -50,6 +51,7 @@ impl SchemaDiscovery {
             .column(Alias::new("name"))
             .from(Alias::new("sqlite_master"))
             .and_where(Expr::col(Alias::new("type")).eq("table"))
+            .and_where(Expr::col(Alias::new("name")).ne("sqlite_sequence"))
             .to_owned();
 
         let mut tables = Vec::new();

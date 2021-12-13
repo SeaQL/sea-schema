@@ -31,6 +31,7 @@ pub enum Type {
     Boolean,
     Date,
     DateTime,
+    Timestamp,
 }
 
 impl Type {
@@ -71,6 +72,7 @@ impl Type {
             "BOOLEAN" => Type::Boolean,
             "DATE" => Type::Date,
             "DATETIME" => Type::DateTime,
+            "TIMESTAMP" => Type::Timestamp,
             _ => Type::variable_types(&split_type)?,
         };
 
@@ -100,7 +102,7 @@ impl Type {
             | Self::NvarChar { .. }
             | Self::Text
             | Self::Clob => {
-                column_def.text();
+                column_def.string();
             }
             Self::Blob => {
                 column_def.custom(Alias::new("BLOB"));
@@ -122,6 +124,9 @@ impl Type {
             }
             Self::DateTime => {
                 column_def.date_time();
+            }
+            Self::Timestamp => {
+                column_def.timestamp();
             }
         }
     }
