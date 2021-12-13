@@ -1,3 +1,4 @@
+use sea_query::{Alias, ColumnDef};
 use std::num::ParseIntError;
 
 /// A list of the offical SQLite types as outline at the official [SQLite Docs](https://www.sqlite.org/datatype3.html)
@@ -37,7 +38,7 @@ impl Type {
     pub fn to_type(data_type: &str) -> Result<Type, ParseIntError> {
         let data_type = data_type.to_uppercase();
 
-        let split_type: Vec<&str> = data_type.split("(").collect();
+        let split_type: Vec<&str> = data_type.split('(').collect();
         let type_result = match split_type[0] {
             "INT" => Type::Int,
             "INTEGER" => Type::Integer,
@@ -76,65 +77,68 @@ impl Type {
         Ok(type_result)
     }
 
-    /// Map a [Type] into a [String] in order to pass into a column when invoking `ColumnDef`
-    pub fn stringify_type(&self) -> String {
+    /// Write a [Type] to a [ColumnDef]
+    pub fn write_type(&self, column_def: &mut ColumnDef) {
         match self {
-            Self::Int => "INT".into(),
-            Self::Integer => "INTEGER".into(),
-            Self::TinyInt => "TINY INT".into(),
-            Self::SmallInt => "SMALL INT".into(),
-            Self::MediumInt => "MEDIUM INT".into(),
-            Self::BigInt => "BIG INT".into(),
-            Self::UnsignedBigInt => "UNSIGNED BIG INT".into(),
-            Self::Int2 => "INT2".into(),
-            Self::Int8 => "INT8".into(),
-            Self::Character { length } => self.concat_type("CHARACTER", length),
-            Self::VarChar { length } => self.concat_type("VARCHAR", length),
-            Self::VaryingCharacter { length } => self.concat_type("VARYING CHARACTER", length),
-            Self::Nchar { length } => self.concat_type("NCHAR", length),
-            Self::NativeCharacter { length } => self.concat_type("NATIVE CHARACTER", length),
-            Self::NvarChar { length } => self.concat_type("NVARCHAR", length),
-            Self::Text => "TEXT".into(),
-            Self::Clob => "CLOB".into(),
-            Self::Blob => "BLOB".into(), //No datatype specified
-            Self::Real => "REAL".into(),
-            Self::Double => "DOUBLE".into(),
-            Self::DoublePrecision => "DOUBLE PRECISION".into(),
-            Self::Float => "FLOAT".into(),
-            Self::Numeric => "NUMERIC".into(),
+            Self::Int | Self::Integer | Self::MediumInt | Self::Int2 | Self::Int8 => {
+                column_def.integer();
+            }
+            Self::TinyInt => {
+                column_def.tiny_integer();
+            }
+            Self::SmallInt => {
+                column_def.small_integer();
+            }
+            Self::BigInt | Self::UnsignedBigInt => {
+                column_def.big_integer();
+            }
+            Self::Character { .. }
+            | Self::VarChar { .. }
+            | Self::VaryingCharacter { .. }
+            | Self::Nchar { .. }
+            | Self::NativeCharacter { .. }
+            | Self::NvarChar { .. }
+            | Self::Text
+            | Self::Clob => {
+                column_def.text();
+            }
+            Self::Blob => {
+                column_def.custom(Alias::new("BLOB"));
+            }
+            Self::Real | Self::Double | Self::DoublePrecision | Self::Float | Self::Numeric => {
+                column_def.decimal();
+            }
             Self::Decimal {
                 integral,
                 fractional,
             } => {
-                let mut value = String::default();
-                value.push_str("DECIMAL");
-                value.push_str("(");
-                value.push_str(&integral.to_string());
-                value.push_str(",");
-                value.push_str(&fractional.to_string());
-                value.push_str(")");
-
-                value
+                column_def.decimal_len((*integral) as u32, (*fractional) as u32);
             }
-            Self::Boolean => "BOOLEAN".into(),
-            Self::Date => "DATE".into(),
-            Self::DateTime => "DATETIME".into(),
+            Self::Boolean => {
+                column_def.boolean();
+            }
+            Self::Date => {
+                column_def.date();
+            }
+            Self::DateTime => {
+                column_def.date_time();
+            }
         }
     }
 
     fn concat_type(&self, type_name: &str, length: &u8) -> String {
         let mut value = String::default();
         value.push_str(type_name);
-        value.push_str("(");
+        value.push('(');
         value.push_str(&length.to_string());
-        value.push_str(")");
+        value.push(')');
 
         value
     }
 
-    fn variable_types(split_type: &Vec<&str>) -> Result<Type, ParseIntError> {
+    fn variable_types(split_type: &[&str]) -> Result<Type, ParseIntError> {
         let length = if !split_type.len() == 1 {
-            let maybe_size = split_type[1].replace(")", "");
+            let maybe_size = split_type[1].replace(')', "");
             maybe_size.parse::<u8>()?
         } else {
             255_u8

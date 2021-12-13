@@ -13,13 +13,17 @@
 //!     .to_sql()
 //! ```
 
-mod errors;
-pub use errors::*;
 mod columns;
-pub use columns::*;
-mod types;
-pub use types::*;
-mod tabledef;
-pub use tabledef::*;
 mod discovery;
+mod errors;
+mod executor;
+mod schema;
+mod tabledef;
+mod types;
+
+pub use columns::*;
 pub use discovery::*;
+pub use errors::*;
+pub use schema::*;
+pub use tabledef::*;
+pub use types::*;

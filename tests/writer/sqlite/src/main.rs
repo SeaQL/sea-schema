@@ -8,7 +8,7 @@ async fn main() -> DiscoveryResult<()> {
         .await
         .unwrap();
 
-    let mut schema_discovery = SchemaDiscovery::new(sqlite_pool);
+    let schema_discovery = SchemaDiscovery::new(sqlite_pool);
 
     let discover_tables = schema_discovery.discover().await?;
 

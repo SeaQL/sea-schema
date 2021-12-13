@@ -1,12 +1,11 @@
 use crate::sqlite::{
-    ColumnInfo, DefaultType, DiscoveryResult, ForeignKeysInfo, IndexInfo, IndexedColumns,
-    PartialIndexInfo, PrimaryKeyAutoincrement,
+    executor::Executor, ColumnInfo, DefaultType, DiscoveryResult, ForeignKeysInfo, IndexInfo,
+    IndexedColumns, PartialIndexInfo,
 };
 use sea_query::{
-    Alias, ColumnDef, Expr, ForeignKey, Query, SqliteQueryBuilder, Table, TableCreateStatement,
-    Value,
+    Alias, ColumnDef, Expr, ForeignKey, Index, Query, Table, TableCreateStatement, Value,
 };
-use sqlx::{sqlite::SqliteRow, Row, SqlitePool};
+use sqlx::{sqlite::SqliteRow, Row};
 
 /// Defines a table for SQLite
 #[derive(Debug, Clone)]
@@ -37,45 +36,27 @@ impl From<&SqliteRow> for TableDef {
 impl TableDef {
     /// Check if the primary key in the table is set to autoincrement as a result of using query
     /// `SELECT COUNT(*) from sqlite_sequence where name = 'table_name';
-    pub async fn pk_is_autoincrement(
-        &mut self,
-        pool: &mut SqlitePool,
-    ) -> DiscoveryResult<&mut Self> {
+    pub async fn pk_is_autoincrement(&mut self, executor: &Executor) -> DiscoveryResult<&mut Self> {
         let check_autoincrement = Query::select()
-            .expr(Expr::cust("COUNT(*)"))
-            .from(Alias::new("sqlite_sequence"))
+            .expr(Expr::val(1))
+            .from(Alias::new("sqlite_master"))
+            .and_where(Expr::col(Alias::new("type")).eq("table"))
             .and_where(Expr::col(Alias::new("name")).eq(self.name.as_str()))
-            .to_string(SqliteQueryBuilder);
+            .and_where(Expr::col(Alias::new("sql")).like("%AUTOINCREMENT%"))
+            .to_owned();
 
-        match sqlx::query(&check_autoincrement)
-            .fetch_one(&mut pool.acquire().await?)
-            .await
-        {
-            Ok(autoincrement_enabled) => {
-                let autoincrement_result: &SqliteRow = &autoincrement_enabled;
-                let autoincrement: PrimaryKeyAutoincrement = autoincrement_result.into();
-
-                if autoincrement.0 == 1_u8 {
-                    self.auto_increment = true;
-                }
-
-                Ok(self)
-            }
-            Err(err) => {
-                if err.to_string().contains("no such table") {
-                    Ok(self)
-                } else {
-                    Err(err.into())
-                }
-            }
+        if !executor.fetch_all(check_autoincrement).await.is_empty() {
+            self.auto_increment = true;
         }
+
+        Ok(self)
     }
     /// Get a list of all the indexes in the table.
     /// Note that this does not get the column name mapped by the index.
     /// To get the column name mapped by the index, the `self.get_single_indexinfo` method is invoked
     pub async fn get_indexes(
         &mut self,
-        pool: &mut SqlitePool,
+        executor: &Executor,
         indexes: &mut Vec<IndexInfo>,
     ) -> DiscoveryResult<()> {
         let mut index_query = String::default();
@@ -83,22 +64,21 @@ impl TableDef {
         index_query.push_str(&self.name);
         index_query.push_str("')");
 
-        let partial_index_info_rows: Vec<SqliteRow> = sqlx::query(&index_query)
-            .fetch_all(&mut pool.acquire().await?)
-            .await?;
+        let partial_index_info_rows = executor.fetch_all_raw(index_query).await;
         let mut partial_indexes: Vec<PartialIndexInfo> = Vec::default();
 
         partial_index_info_rows.iter().for_each(|info| {
             let partial_index_info: PartialIndexInfo = info.into();
 
-            if partial_index_info.origin != String::from("pk") {
+            if partial_index_info.origin.as_str() != "pk" {
                 partial_indexes.push(partial_index_info);
             }
         });
 
         for partial_index in partial_indexes {
-            let partial_index_column: IndexedColumns =
-                self.get_single_indexinfo(pool, &partial_index.name).await?;
+            let partial_index_column: IndexedColumns = self
+                .get_single_indexinfo(executor, &partial_index.name)
+                .await?;
 
             indexes.push(IndexInfo {
                 r#type: partial_index_column.r#type,
@@ -115,15 +95,13 @@ impl TableDef {
     }
 
     /// Get a list of all the foreign keys in the table
-    pub async fn get_foreign_keys(&mut self, pool: &mut SqlitePool) -> DiscoveryResult<&mut Self> {
+    pub async fn get_foreign_keys(&mut self, executor: &Executor) -> DiscoveryResult<&mut Self> {
         let mut index_query = String::default();
         index_query.push_str("pragma foreign_key_list('");
         index_query.push_str(&self.name);
         index_query.push_str("')");
 
-        let index_info_rows: Vec<SqliteRow> = sqlx::query(&index_query)
-            .fetch_all(&mut pool.acquire().await?)
-            .await?;
+        let index_info_rows = executor.fetch_all_raw(index_query).await;
 
         index_info_rows.iter().for_each(|info| {
             let index_info: ForeignKeysInfo = info.into();
@@ -135,15 +113,13 @@ impl TableDef {
     }
 
     /// Get a list of all the columns in the table mapped as [ColumnInfo]
-    pub async fn get_column_info(&mut self, pool: &mut SqlitePool) -> DiscoveryResult<&TableDef> {
+    pub async fn get_column_info(&mut self, executor: &Executor) -> DiscoveryResult<&TableDef> {
         let mut index_query = String::default();
         index_query.push_str("pragma table_info('");
         index_query.push_str(&self.name);
         index_query.push_str("')");
 
-        let index_info_rows: Vec<SqliteRow> = sqlx::query(&index_query)
-            .fetch_all(&mut pool.acquire().await?)
-            .await?;
+        let index_info_rows = executor.fetch_all_raw(index_query).await;
 
         for info in index_info_rows {
             let column = ColumnInfo::to_column_def(&info)?;
@@ -156,23 +132,23 @@ impl TableDef {
     /// Checks the column that is mapped to an index
     pub(crate) async fn get_single_indexinfo(
         &mut self,
-        pool: &mut SqlitePool,
+        executor: &Executor,
         index_name: &str,
     ) -> DiscoveryResult<IndexedColumns> {
         let index_query = Query::select()
             .expr(Expr::cust("*"))
             .from(Alias::new("sqlite_master"))
             .and_where(Expr::col(Alias::new("name")).eq(index_name))
-            .to_string(SqliteQueryBuilder);
+            .to_owned();
 
-        let index_info: &SqliteRow = &sqlx::query(&index_query)
-            .fetch_one(&mut pool.acquire().await?)
-            .await?;
+        let index_info = executor.fetch_one(index_query).await;
 
-        Ok(index_info.into())
+        Ok((&index_info).into())
     }
 
     pub fn write(&self) -> TableCreateStatement {
+        let mut primary_keys = Vec::new();
+
         let mut new_table = Table::create();
         new_table.table(Alias::new(&self.name));
 
@@ -182,15 +158,13 @@ impl TableDef {
                 new_column.not_null();
             }
 
-            if column_info.primary_key {
-                new_column.primary_key();
-            }
-
             if self.auto_increment && column_info.primary_key {
-                new_column.auto_increment();
+                new_column.primary_key().auto_increment();
+            } else if column_info.primary_key {
+                primary_keys.push(column_info.name.clone());
             }
 
-            new_column.custom(Alias::new(&column_info.r#type.stringify_type()));
+            column_info.r#type.write_type(&mut new_column);
 
             match &column_info.default_value {
                 DefaultType::Integer(integer_value) => {
@@ -219,6 +193,15 @@ impl TableDef {
                     .to_owned(),
             );
         });
+
+        if !primary_keys.is_empty() {
+            let mut primary_key_stmt = Index::create();
+            for primary_key in primary_keys.iter() {
+                primary_key_stmt.col(Alias::new(primary_key));
+            }
+            new_table.primary_key(&mut primary_key_stmt);
+        }
+
         new_table
     }
 }
