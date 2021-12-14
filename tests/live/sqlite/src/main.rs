@@ -1,7 +1,7 @@
 use pretty_assertions::assert_eq;
 use sea_schema::sea_query::{
-    Alias, ColumnDef, ForeignKey, ForeignKeyAction, ForeignKeyCreateStatement, Index,
-    IndexCreateStatement, Query, SqliteQueryBuilder, Table, TableCreateStatement, TableRef,
+    Alias, ColumnDef, ForeignKey, ForeignKeyAction, ForeignKeyCreateStatement, Index, Query,
+    SqliteQueryBuilder, Table, TableCreateStatement, TableRef,
 };
 use sea_schema::sqlite::SchemaDiscovery;
 use sea_schema::sqlite::*;
@@ -109,11 +109,7 @@ async fn test_001() -> DiscoveryResult<()> {
     // Tests foreign key discovery
     let table_create_suppliers = Table::create()
         .table(Alias::new("suppliers"))
-        .col(
-            ColumnDef::new(Alias::new("supplier_id"))
-                .custom(Alias::new("INTEGER"))
-                .primary_key(),
-        )
+        .col(ColumnDef::new(Alias::new("supplier_id")).custom(Alias::new("INTEGER")))
         .col(
             ColumnDef::new(Alias::new("supplier_name"))
                 .custom(Alias::new("TEXT"))
@@ -124,6 +120,7 @@ async fn test_001() -> DiscoveryResult<()> {
                 .custom(Alias::new("INTEGER"))
                 .not_null(),
         )
+        .primary_key(Index::create().col(Alias::new("supplier_id")))
         .foreign_key(
             ForeignKeyCreateStatement::new()
                 .name("group_id")
@@ -136,16 +133,13 @@ async fn test_001() -> DiscoveryResult<()> {
 
     let table_create_supplier_groups = Table::create()
         .table(Alias::new("supplier_groups"))
-        .col(
-            ColumnDef::new(Alias::new("group_id"))
-                .custom(Alias::new("INTEGER"))
-                .primary_key(),
-        )
+        .col(ColumnDef::new(Alias::new("group_id")).custom(Alias::new("INTEGER")))
         .col(
             ColumnDef::new(Alias::new("group_name"))
                 .custom(Alias::new("TEXT"))
                 .not_null(),
         )
+        .primary_key(Index::create().col(Alias::new("group_id")))
         .to_owned();
 
     println!(
@@ -294,6 +288,18 @@ async fn test_002() -> DiscoveryResult<()> {
                 "FOREIGN KEY (`bakery_id`) REFERENCES `bakery` (`id`) ON DELETE CASCADE ON UPDATE CASCADE",
                 ")",
             ].join(" ")
+        } else if tbl_name.as_str() == "lineitem" {
+            vec![
+                "CREATE TABLE `lineitem` (",
+                "`id` integer NOT NULL PRIMARY KEY AUTOINCREMENT,",
+                "`price` real,",
+                "`quantity` integer,",
+                "`order_id` integer NOT NULL,",
+                "`cake_id` integer NOT NULL,",
+                "FOREIGN KEY (`order_id`) REFERENCES `order` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,",
+                "FOREIGN KEY (`cake_id`) REFERENCES `cake` (`id`) ON DELETE CASCADE ON UPDATE CASCADE",
+                ")",
+            ].join(" ")
         } else {
             tbl_create_stmt.to_string(SqliteQueryBuilder)
         };
@@ -388,7 +394,6 @@ fn create_order_table() -> TableCreateStatement {
         )
         .foreign_key(
             ForeignKey::create()
-                .name("FK_order_bakery")
                 .from(Alias::new("order"), Alias::new("bakery_id"))
                 .to(Alias::new("bakery"), Alias::new("id"))
                 .on_delete(ForeignKeyAction::Cascade)
@@ -396,7 +401,6 @@ fn create_order_table() -> TableCreateStatement {
         )
         .foreign_key(
             ForeignKey::create()
-                .name("FK_order_customer")
                 .from(Alias::new("order"), Alias::new("customer_id"))
                 .to(Alias::new("customer"), Alias::new("id"))
                 .on_delete(ForeignKeyAction::Cascade)
@@ -421,7 +425,6 @@ fn create_lineitem_table() -> TableCreateStatement {
         .col(ColumnDef::new(Alias::new("cake_id")).integer().not_null())
         .foreign_key(
             ForeignKey::create()
-                .name("FK_lineitem_cake")
                 .from(Alias::new("lineitem"), Alias::new("cake_id"))
                 .to(Alias::new("cake"), Alias::new("id"))
                 .on_delete(ForeignKeyAction::Cascade)
@@ -429,7 +432,6 @@ fn create_lineitem_table() -> TableCreateStatement {
         )
         .foreign_key(
             ForeignKey::create()
-                .name("FK_lineitem_order")
                 .from(Alias::new("lineitem"), Alias::new("order_id"))
                 .to(Alias::new("order"), Alias::new("id"))
                 .on_delete(ForeignKeyAction::Cascade)
@@ -445,7 +447,6 @@ fn create_cakes_bakers_table() -> TableCreateStatement {
         .col(ColumnDef::new(Alias::new("baker_id")).integer().not_null())
         .primary_key(
             Index::create()
-                .name("cakes_bakers_pkey")
                 .col(Alias::new("cake_id"))
                 .col(Alias::new("baker_id")),
         )
@@ -469,7 +470,6 @@ fn create_cake_table() -> TableCreateStatement {
         .col(ColumnDef::new(Alias::new("serial")).text())
         .foreign_key(
             ForeignKey::create()
-                .name("FK_cake_bakery")
                 .from(Alias::new("cake"), Alias::new("bakery_id"))
                 .to(Alias::new("bakery"), Alias::new("id"))
                 .on_delete(ForeignKeyAction::Cascade)

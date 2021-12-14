@@ -1,8 +1,10 @@
 use crate::sqlite::{
     executor::Executor, ColumnInfo, DefaultType, DiscoveryResult, ForeignKeysInfo, IndexInfo,
-    IndexedColumns, PartialIndexInfo, PrimaryKeyAutoincrement,
+    IndexedColumns, PartialIndexInfo,
 };
-use sea_query::{Alias, ColumnDef, Expr, ForeignKey, Query, Table, TableCreateStatement, Value};
+use sea_query::{
+    Alias, ColumnDef, Expr, ForeignKey, Index, Query, Table, TableCreateStatement, Value,
+};
 use sqlx::{sqlite::SqliteRow, Row};
 
 /// Defines a table for SQLite
@@ -145,6 +147,8 @@ impl TableDef {
     }
 
     pub fn write(&self) -> TableCreateStatement {
+        let mut primary_keys = Vec::new();
+
         let mut new_table = Table::create();
         new_table.table(Alias::new(&self.name));
 
@@ -154,12 +158,10 @@ impl TableDef {
                 new_column.not_null();
             }
 
-            if column_info.primary_key {
-                new_column.primary_key();
-            }
-
             if self.auto_increment && column_info.primary_key {
-                new_column.auto_increment();
+                new_column.primary_key().auto_increment();
+            } else if column_info.primary_key {
+                primary_keys.push(column_info.name.clone());
             }
 
             column_info.r#type.write_type(&mut new_column);
@@ -191,6 +193,15 @@ impl TableDef {
                     .to_owned(),
             );
         });
+
+        if !primary_keys.is_empty() {
+            let mut primary_key_stmt = Index::create();
+            for primary_key in primary_keys.iter() {
+                primary_key_stmt.col(Alias::new(primary_key));
+            }
+            new_table.primary_key(&mut primary_key_stmt);
+        }
+
         new_table
     }
 }
