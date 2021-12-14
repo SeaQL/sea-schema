@@ -78,19 +78,19 @@ impl Type {
     }
 
     /// Write a [Type] to a [ColumnDef]
-    pub fn write_type(&self, mut column_def: &mut ColumnDef) {
+    pub fn write_type(&self, column_def: &mut ColumnDef) {
         match self {
             Self::Int | Self::Integer | Self::MediumInt | Self::Int2 | Self::Int8 => {
-                column_def = column_def.integer();
+                column_def.integer();
             }
             Self::TinyInt => {
-                column_def = column_def.tiny_integer();
+                column_def.tiny_integer();
             }
             Self::SmallInt => {
-                column_def = column_def.small_integer();
+                column_def.small_integer();
             }
             Self::BigInt | Self::UnsignedBigInt => {
-                column_def = column_def.big_integer();
+                column_def.big_integer();
             }
             Self::Character { .. }
             | Self::VarChar { .. }
@@ -100,28 +100,28 @@ impl Type {
             | Self::NvarChar { .. }
             | Self::Text
             | Self::Clob => {
-                column_def = column_def.text();
+                column_def.text();
             }
             Self::Blob => {
-                column_def = column_def.custom(Alias::new("BLOB"));
+                column_def.custom(Alias::new("BLOB"));
             }
             Self::Real | Self::Double | Self::DoublePrecision | Self::Float | Self::Numeric => {
-                column_def = column_def.decimal();
+                column_def.decimal();
             }
             Self::Decimal {
                 integral,
                 fractional,
             } => {
-                column_def = column_def.decimal_len((*integral) as u32, (*fractional) as u32);
+                column_def.decimal_len((*integral) as u32, (*fractional) as u32);
             }
             Self::Boolean => {
-                column_def = column_def.boolean();
+                column_def.boolean();
             }
             Self::Date => {
-                column_def = column_def.date();
+                column_def.date();
             }
             Self::DateTime => {
-                column_def = column_def.date_time();
+                column_def.date_time();
             }
         }
     }
