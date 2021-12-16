@@ -37,7 +37,7 @@ impl ColumnInfo {
             Type::Serial => {
                 col_def
                     .big_integer()
-                    .extra("UNSIGNED".into())
+                    .unsigned()
                     .not_null()
                     .auto_increment()
                     .unique_key();
@@ -249,7 +249,7 @@ impl ColumnInfo {
 
     pub fn write_num_attr(&self, mut col_def: ColumnDef, num_attr: &NumericAttr) -> ColumnDef {
         if num_attr.unsigned.is_some() {
-            col_def.extra("UNSIGNED".into());
+            col_def.unsigned();
         }
         if num_attr.zero_fill.is_some() {
             col_def.extra("ZEROFILL".into());
