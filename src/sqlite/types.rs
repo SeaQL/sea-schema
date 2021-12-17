@@ -102,7 +102,7 @@ impl Type {
             | Self::NvarChar { .. }
             | Self::Text
             | Self::Clob => {
-                column_def.text();
+                column_def.string();
             }
             Self::Blob => {
                 column_def.custom(Alias::new("BLOB"));
