@@ -1,8 +1,8 @@
 use crate::postgres::def::TableDef;
-use sea_query::{Alias, Table, TableStatement};
+use sea_query::{Alias, Table, TableCreateStatement};
 
 impl TableDef {
-    pub fn write(&self) -> TableStatement {
+    pub fn write(&self) -> TableCreateStatement {
         let mut table = Table::create();
         table.table(Alias::new(self.info.name.as_ref()));
         for col in self.columns.iter() {
@@ -17,6 +17,6 @@ impl TableDef {
         for reference in self.reference_constraints.iter() {
             table.foreign_key(&mut reference.write());
         }
-        TableStatement::Create(table)
+        table
     }
 }
