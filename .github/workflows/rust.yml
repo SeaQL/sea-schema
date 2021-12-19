@@ -127,6 +127,42 @@ jobs:
             --manifest-path tests/${{ matrix.project }}/postgres/Cargo.toml
             --no-run
 
+  compile-sqlite:
+    name: Compile SQLite
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        project: [live, discovery, writer]
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            Cargo.lock
+            target
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-sqlite-${{ matrix.project }}
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: >
+            --manifest-path tests/${{ matrix.project }}/sqlite/Cargo.toml
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: >
+            --manifest-path tests/${{ matrix.project }}/sqlite/Cargo.toml
+            --no-run
   mysql:
     name: MySQL
     runs-on: ubuntu-20.04
@@ -330,3 +366,41 @@ jobs:
           command: test
           args: >
             --manifest-path tests/${{ matrix.project }}/postgres/Cargo.toml
+
+  sqlite:
+    name: SQLite
+    needs: compile-sqlite
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [live, discovery, writer]
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            Cargo.lock
+            target
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-sqlite-${{ matrix.project }}
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: run
+          args: >
+            --manifest-path tests/${{ matrix.project }}/sqlite/Cargo.toml
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: >
+            --manifest-path tests/${{ matrix.project }}/sqlite/Cargo.toml
