@@ -115,7 +115,11 @@ fn create_bakery_table() -> TableCreateStatement {
                 .auto_increment(),
         )
         .col(ColumnDef::new(Alias::new("name")).string())
-        .col(ColumnDef::new(Alias::new("profit_margin")).double())
+        .col(
+            ColumnDef::new(Alias::new("profit_margin"))
+                .double()
+                .extra("UNSIGNED".to_owned()),
+        )
         .primary_key(Index::create().col(Alias::new("id")))
         .engine("InnoDB")
         .character_set("utf8mb4")
@@ -182,7 +186,11 @@ fn create_order_table() -> TableCreateStatement {
                 .not_null()
                 .auto_increment(),
         )
-        .col(ColumnDef::new(Alias::new("total")).decimal_len(19, 4))
+        .col(
+            ColumnDef::new(Alias::new("total"))
+                .decimal_len(19, 4)
+                .extra("UNSIGNED".to_owned()),
+        )
         .col(ColumnDef::new(Alias::new("bakery_id")).integer().not_null())
         .col(
             ColumnDef::new(Alias::new("customer_id"))
@@ -237,7 +245,7 @@ fn create_lineitem_table() -> TableCreateStatement {
                 .auto_increment(),
         )
         .col(ColumnDef::new(Alias::new("price")).decimal_len(19, 4))
-        .col(ColumnDef::new(Alias::new("quantity")).integer())
+        .col(ColumnDef::new(Alias::new("quantity")).unsigned().not_null())
         .col(ColumnDef::new(Alias::new("order_id")).integer().not_null())
         .col(ColumnDef::new(Alias::new("cake_id")).integer().not_null())
         .index(
@@ -301,7 +309,11 @@ fn create_cake_table() -> TableCreateStatement {
         .col(ColumnDef::new(Alias::new("name")).string())
         .col(ColumnDef::new(Alias::new("price")).decimal_len(19, 4))
         .col(ColumnDef::new(Alias::new("bakery_id")).integer().not_null())
-        .col(ColumnDef::new(Alias::new("gluten_free")).tiny_integer())
+        .col(
+            ColumnDef::new(Alias::new("gluten_free"))
+                .tiny_unsigned()
+                .not_null(),
+        )
         .col(ColumnDef::new(Alias::new("serial")).uuid())
         .index(
             Index::create()

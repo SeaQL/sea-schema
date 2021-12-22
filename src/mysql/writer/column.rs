@@ -36,8 +36,7 @@ impl ColumnInfo {
         match &self.col_type {
             Type::Serial => {
                 col_def
-                    .big_integer()
-                    .extra("UNSIGNED".into())
+                    .big_unsigned()
                     .not_null()
                     .auto_increment()
                     .unique_key();
@@ -47,20 +46,34 @@ impl ColumnInfo {
                 col_def.custom(self.col_type.clone());
             }
             Type::TinyInt(num_attr) => {
-                match num_attr.maximum {
-                    Some(maximum) => col_def.tiny_integer_len(maximum),
-                    None => col_def.tiny_integer(),
-                };
+                if num_attr.unsigned.is_some() {
+                    match num_attr.maximum {
+                        Some(maximum) => col_def.tiny_unsigned_len(maximum),
+                        None => col_def.tiny_unsigned(),
+                    };
+                } else {
+                    match num_attr.maximum {
+                        Some(maximum) => col_def.tiny_integer_len(maximum),
+                        None => col_def.tiny_integer(),
+                    };
+                }
                 col_def = self.write_num_attr(col_def, num_attr);
             }
             Type::Bool => {
                 col_def.boolean();
             }
             Type::SmallInt(num_attr) => {
-                match num_attr.maximum {
-                    Some(maximum) => col_def.small_integer_len(maximum),
-                    None => col_def.small_integer(),
-                };
+                if num_attr.unsigned.is_some() {
+                    match num_attr.maximum {
+                        Some(maximum) => col_def.small_unsigned_len(maximum),
+                        None => col_def.small_unsigned(),
+                    };
+                } else {
+                    match num_attr.maximum {
+                        Some(maximum) => col_def.small_integer_len(maximum),
+                        None => col_def.small_integer(),
+                    };
+                }
                 col_def = self.write_num_attr(col_def, num_attr);
             }
             Type::MediumInt(_) => {
@@ -68,17 +81,31 @@ impl ColumnInfo {
                 col_def.custom(self.col_type.clone());
             }
             Type::Int(num_attr) => {
-                match num_attr.maximum {
-                    Some(maximum) => col_def.integer_len(maximum),
-                    None => col_def.integer(),
-                };
+                if num_attr.unsigned.is_some() {
+                    match num_attr.maximum {
+                        Some(maximum) => col_def.unsigned_len(maximum),
+                        None => col_def.unsigned(),
+                    };
+                } else {
+                    match num_attr.maximum {
+                        Some(maximum) => col_def.integer_len(maximum),
+                        None => col_def.integer(),
+                    };
+                }
                 col_def = self.write_num_attr(col_def, num_attr);
             }
             Type::BigInt(num_attr) => {
-                match num_attr.maximum {
-                    Some(maximum) => col_def.big_integer_len(maximum),
-                    None => col_def.big_integer(),
-                };
+                if num_attr.unsigned.is_some() {
+                    match num_attr.maximum {
+                        Some(maximum) => col_def.big_unsigned_len(maximum),
+                        None => col_def.big_unsigned(),
+                    };
+                } else {
+                    match num_attr.maximum {
+                        Some(maximum) => col_def.big_integer_len(maximum),
+                        None => col_def.big_integer(),
+                    };
+                }
                 col_def = self.write_num_attr(col_def, num_attr);
             }
             Type::Decimal(num_attr) => {
@@ -248,7 +275,11 @@ impl ColumnInfo {
     }
 
     pub fn write_num_attr(&self, mut col_def: ColumnDef, num_attr: &NumericAttr) -> ColumnDef {
-        if num_attr.unsigned.is_some() {
+        if matches!(
+            &self.col_type,
+            Type::Decimal(_) | Type::Float(_) | Type::Double(_)
+        ) && num_attr.unsigned.is_some()
+        {
             col_def.extra("UNSIGNED".into());
         }
         if num_attr.zero_fill.is_some() {
