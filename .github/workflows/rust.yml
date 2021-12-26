@@ -308,23 +308,16 @@ jobs:
             target
           key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-postgres-${{ matrix.project }}
 
-      - name: Create sakila DB
+      - name: Create DB
         run: psql -q postgres://sea:sea@localhost/postgres -c 'CREATE DATABASE "sakila"'
 
-      - name: Import sakila DB Schema
+      - name: Import DB Schema
         run: psql -q postgres://sea:sea@localhost/sakila < sakila-schema.sql
         working-directory: ./tests/sakila/postgres
 
-      - name: Import sakila DB Data
+      - name: Import DB Data
         run: psql -q postgres://sea:sea@localhost/sakila < sakila-data.sql
         working-directory: ./tests/sakila/postgres
-      
-      - name: Create musicbrainz DB
-        run: psql -q postgres://sea:sea@localhost/postgres -c 'CREATE DATABASE "musicbrainz"'
-
-      - name: Import musicbrainz DB Schema
-        run: psql -q postgres://sea:sea@localhost/musicbrainz < musicbrainz-schema.sql
-        working-directory: ./tests/musicbrainz/postgres
 
       - uses: actions-rs/cargo@v1
         with:
