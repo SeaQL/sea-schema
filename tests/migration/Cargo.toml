@@ -1,0 +1,13 @@
+[package]
+name = "sea-schema-migration-test"
+version = "0.1.0"
+edition = "2018"
+publish = false
+
+[dependencies]
+async-trait = { version = "^0.1"}
+async-std = { version = "1.8", features = [ "attributes" ] }
+sea-schema = { path = "../../", default-features = false, features = [ "migration", "debug-print" ] }
+sea-orm = { git = "https://github.com/SeaQL/sea-orm.git", branch = "migration", default-features = false, features = [ "sqlx-all", "runtime-async-std-native-tls" ] }
+env_logger = { version = "^0" }
+log = { version = "^0" }
