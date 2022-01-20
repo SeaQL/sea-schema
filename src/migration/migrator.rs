@@ -1,5 +1,3 @@
-use std::fmt::Display;
-
 use super::{seaql_migrations, MigrationTrait, SchemaManager};
 use chrono::Local;
 use sea_orm::{
@@ -7,6 +5,8 @@ use sea_orm::{
     EntityTrait, QueryFilter, QueryOrder, Schema, Statement,
 };
 use sea_query::{Alias, Expr, ForeignKey, IntoTableRef, Query, SelectStatement, Table};
+use std::fmt::Display;
+use tracing::info;
 
 #[derive(Debug, PartialEq)]
 /// Status of migration
@@ -34,7 +34,7 @@ impl Display for MigrationStatus {
 
 /// Performing migrations on a database
 #[async_trait::async_trait]
-pub trait MigratorTrait {
+pub trait MigratorTrait: Send {
     /// Vector of migrations in time sequence
     fn migrations() -> Vec<Box<dyn MigrationTrait>>;
 
@@ -131,18 +131,18 @@ pub trait MigratorTrait {
 
         // Temporarily disable the foreign key check
         if db_backend == DbBackend::Sqlite {
-            println!("Disabling foreign key check");
+            info!("Disabling foreign key check");
             db.execute(Statement::from_string(
                 db_backend,
                 "PRAGMA foreign_keys = OFF".to_owned(),
             ))
             .await?;
-            println!("Foreign key check disabled");
+            info!("Foreign key check disabled");
         }
 
         // Drop all foreign keys
         if db_backend == DbBackend::MySql {
-            println!("Dropping all foreign keys");
+            info!("Dropping all foreign keys");
             let mut stmt = Query::select();
             stmt.columns([Alias::new("TABLE_NAME"), Alias::new("CONSTRAINT_NAME")])
                 .from((
@@ -166,7 +166,7 @@ pub trait MigratorTrait {
             for row in rows.into_iter() {
                 let constraint_name: String = row.try_get("", "CONSTRAINT_NAME")?;
                 let table_name: String = row.try_get("", "TABLE_NAME")?;
-                println!(
+                info!(
                     "Dropping foreign key '{}' from table '{}'",
                     constraint_name, table_name
                 );
@@ -174,9 +174,9 @@ pub trait MigratorTrait {
                 stmt.table(Alias::new(table_name.as_str()))
                     .name(constraint_name.as_str());
                 db.execute(db_backend.build(&stmt)).await?;
-                println!("Foreign key '{}' has been dropped", constraint_name);
+                info!("Foreign key '{}' has been dropped", constraint_name);
             }
-            println!("All foreign keys dropped");
+            info!("All foreign keys dropped");
         }
 
         // Drop all tables
@@ -184,24 +184,24 @@ pub trait MigratorTrait {
         let rows = db.query_all(db_backend.build(&stmt)).await?;
         for row in rows.into_iter() {
             let table_name: String = row.try_get("", "table_name")?;
-            println!("Dropping table '{}'", table_name);
+            info!("Dropping table '{}'", table_name);
             let mut stmt = Table::drop();
             stmt.table(Alias::new(table_name.as_str()))
                 .if_exists()
                 .cascade();
             db.execute(db_backend.build(&stmt)).await?;
-            println!("Table '{}' has been dropped", table_name);
+            info!("Table '{}' has been dropped", table_name);
         }
 
         // Restore the foreign key check
         if db_backend == DbBackend::Sqlite {
-            println!("Restoring foreign key check");
+            info!("Restoring foreign key check");
             db.execute(Statement::from_string(
                 db_backend,
                 "PRAGMA foreign_keys = ON".to_owned(),
             ))
             .await?;
-            println!("Foreign key check restored");
+            info!("Foreign key check restored");
         }
 
         // Reapply all migrations
@@ -232,8 +232,10 @@ pub trait MigratorTrait {
     {
         Self::install(db).await?;
 
+        info!("Checking migration status");
+
         for Migration { migration, status } in Self::get_migration_with_status(db).await? {
-            println!("Migration '{}'... {}", migration.name(), status);
+            info!("Migration '{}'... {}", migration.name(), status);
         }
 
         Ok(())
@@ -247,16 +249,26 @@ pub trait MigratorTrait {
         Self::install(db).await?;
         let manager = SchemaManager::new(db);
 
-        for Migration { migration, .. } in Self::get_pending_migrations(db).await?.into_iter() {
+        if let Some(steps) = steps {
+            info!("Appling {} pending migrations", steps);
+        } else {
+            info!("Appling all pending migrations");
+        }
+
+        let migrations = Self::get_pending_migrations(db).await?.into_iter();
+        if migrations.len() == 0 {
+            info!("No pending migrations");
+        }
+        for Migration { migration, .. } in migrations {
             if let Some(steps) = steps.as_mut() {
                 if steps == &0 {
                     break;
                 }
                 *steps -= 1;
             }
-            println!("Appling migration '{}'", migration.name());
+            info!("Appling migration '{}'", migration.name());
             migration.up(&manager).await?;
-            println!("Migration '{}' has been applied", migration.name());
+            info!("Migration '{}' has been applied", migration.name());
             seaql_migrations::ActiveModel {
                 version: ActiveValue::Set(migration.name().to_owned()),
                 applied_at: ActiveValue::Set(Local::now().into()),
@@ -276,17 +288,26 @@ pub trait MigratorTrait {
         Self::install(db).await?;
         let manager = SchemaManager::new(db);
 
-        for Migration { migration, .. } in Self::get_applied_migrations(db).await?.into_iter().rev()
-        {
+        if let Some(steps) = steps {
+            info!("Rolling back {} applied migrations", steps);
+        } else {
+            info!("Rolling back all applied migrations");
+        }
+
+        let migrations = Self::get_applied_migrations(db).await?.into_iter().rev();
+        if migrations.len() == 0 {
+            info!("No applied migrations");
+        }
+        for Migration { migration, .. } in migrations {
             if let Some(steps) = steps.as_mut() {
                 if steps == &0 {
                     break;
                 }
                 *steps -= 1;
             }
-            println!("Rolling back migration '{}'", migration.name());
+            info!("Rolling back migration '{}'", migration.name());
             migration.down(&manager).await?;
-            println!("Migration '{}' has been rollbacked", migration.name());
+            info!("Migration '{}' has been rollbacked", migration.name());
             seaql_migrations::Entity::delete_many()
                 .filter(seaql_migrations::Column::Version.eq(migration.name()))
                 .exec(db)
