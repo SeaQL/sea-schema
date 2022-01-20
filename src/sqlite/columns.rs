@@ -84,6 +84,7 @@ impl IndexInfo {
 
 /// Maps the index all columns as a result of using query
 /// `PRAGMA index_list(table_name)`
+#[allow(dead_code)]
 #[derive(Debug, Default, Clone)]
 pub(crate) struct PartialIndexInfo {
     pub(crate) seq: i32,
@@ -108,6 +109,7 @@ impl From<&SqliteRow> for PartialIndexInfo {
 
 /// Maps all the columns in an index as a result of using query
 /// `SELECT * FROM sqlite_master where name = 'index_name'`
+#[allow(dead_code)]
 #[derive(Debug, Default, Clone)]
 pub(crate) struct IndexedColumns {
     pub(crate) r#type: String,
@@ -150,6 +152,7 @@ impl From<&SqliteRow> for PrimaryKeyAutoincrement {
 }
 
 /// Indexes the foreign keys
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct ForeignKeysInfo {
     pub(crate) id: i32,

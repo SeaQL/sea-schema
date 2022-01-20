@@ -131,6 +131,7 @@ impl Type {
         }
     }
 
+    #[allow(dead_code)]
     fn concat_type(&self, type_name: &str, length: &u8) -> String {
         let mut value = String::default();
         value.push_str(type_name);
