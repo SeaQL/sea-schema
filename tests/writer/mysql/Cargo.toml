@@ -5,7 +5,7 @@ edition = "2018"
 publish = false
 
 [dependencies]
-async-std = { version = "1.8", features = [ "attributes" ] }
+async-std = { version = "1.8", features = [ "attributes", "tokio1" ] }
 sea-schema = { path = "../../../", default-features = false, features = [ "sqlx-mysql", "runtime-async-std-native-tls", "discovery", "writer", "debug-print" ] }
 serde_json = { version = "^1" }
 sqlx = { version = "^0" }
