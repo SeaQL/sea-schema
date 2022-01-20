@@ -29,6 +29,10 @@ impl<'c> SchemaManager<'c> {
     pub fn get_database_backend(&self) -> DbBackend {
         self.conn.get_database_backend()
     }
+
+    pub fn get_connection(&self) -> &'c dyn ConnectionTrait {
+        self.conn
+    }
 }
 
 /// Schema Creation
