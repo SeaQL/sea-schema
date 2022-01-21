@@ -7,6 +7,9 @@ pub use cli::*;
 pub use manager::*;
 pub use migrator::*;
 
+pub use sea_orm;
+pub use async_std;
+pub use async_trait;
 pub use sea_orm::DbErr;
 
 pub trait MigrationName {

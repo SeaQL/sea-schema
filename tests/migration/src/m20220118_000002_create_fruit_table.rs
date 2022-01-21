@@ -1,7 +1,6 @@
 use crate::m20220118_000001_create_cake_table::Cake;
-use sea_orm::DbBackend;
 use sea_schema::{
-    migration::*,
+    migration::{*, sea_orm::DbBackend},
     sea_query::{self, *},
 };
 
