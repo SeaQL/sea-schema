@@ -3,26 +3,29 @@ members = [
     ".",
     "tests/discovery/mysql",
     "tests/discovery/postgres",
+    "tests/discovery/sqlite",
     "tests/writer/mysql",
     "tests/writer/postgres",
+    "tests/writer/sqlite",
     "tests/live/mysql",
     "tests/live/postgres",
+    "tests/live/sqlite",
 ]
 
 [package]
 name = "sea-schema"
-version = "0.3.1"
+version = "0.4.0"
 authors = [ "Chris Tsang <tyt2y7@gmail.com>" ]
-edition = "2018"
+edition = "2021"
 description = "🌿 SQL schema definition and discovery"
 license = "MIT OR Apache-2.0"
 documentation = "https://docs.rs/sea-schema"
 repository = "https://github.com/SeaQL/sea-schema"
-categories = [ "database" ]
-keywords = [ "database", "sql", "mysql", "postgres" ]
+categories = ["database"]
+keywords = ["database", "sql", "mysql", "postgres"]
 
 [package.metadata.docs.rs]
-features = [ "discovery" ]
+features = ["discovery"]
 rustdoc-args = ["--cfg", "docsrs"]
 
 [lib]
@@ -38,22 +41,42 @@ sqlx = { version = "^0", optional = true }
 log = { version = "^0.4", optional = true }
 
 [features]
-debug-print = [ "log" ]
-default = [ "mysql", "postgres", "discovery", "writer" ]
+debug-print = ["log"]
+default = ["mysql", "postgres", "discovery", "writer"]
 mysql = []
 postgres = []
+sqlite = []
 def = []
-discovery = [ "futures", "parser" ]
-parser = [ "query" ]
-query = [ "def" ]
-writer = [ "def" ]
-sqlx-dep = [ "sqlx" ]
-sqlx-mysql = [ "mysql", "futures", "sqlx-dep", "sea-query/sqlx-mysql", "sqlx/mysql" ]
-sqlx-postgres = [ "postgres", "futures", "sqlx-dep", "sea-query/sqlx-postgres", "sqlx/postgres" ]
-runtime-actix-native-tls = [ "sqlx/runtime-actix-native-tls" ]
-runtime-async-std-native-tls = [ "sqlx/runtime-async-std-native-tls" ]
-runtime-tokio-native-tls = [ "sqlx/runtime-tokio-native-tls" ]
-runtime-actix-rustls = [ "sqlx/runtime-actix-rustls" ]
-runtime-async-std-rustls = [ "sqlx/runtime-async-std-rustls" ]
-runtime-tokio-rustls = [ "sqlx/runtime-tokio-rustls" ]
-with-serde = [ "serde" ]
+discovery = ["futures", "parser"]
+parser = ["query"]
+query = ["def"]
+writer = ["def"]
+sqlx-dep = ["sqlx"]
+sqlx-mysql = [
+    "mysql",
+    "futures",
+    "sqlx-dep",
+    "sea-query/sqlx-mysql",
+    "sqlx/mysql",
+]
+sqlx-postgres = [
+    "postgres",
+    "futures",
+    "sqlx-dep",
+    "sea-query/sqlx-postgres",
+    "sqlx/postgres",
+]
+sqlx-sqlite = [
+    "sqlite",
+    "futures",
+    "sqlx-dep",
+    "sea-query/sqlx-sqlite",
+    "sqlx/sqlite",
+]
+runtime-actix-native-tls = ["sqlx/runtime-actix-native-tls"]
+runtime-async-std-native-tls = ["sqlx/runtime-async-std-native-tls"]
+runtime-tokio-native-tls = ["sqlx/runtime-tokio-native-tls"]
+runtime-actix-rustls = ["sqlx/runtime-actix-rustls"]
+runtime-async-std-rustls = ["sqlx/runtime-async-std-rustls"]
+runtime-tokio-rustls = ["sqlx/runtime-tokio-rustls"]
+with-serde = ["serde"]

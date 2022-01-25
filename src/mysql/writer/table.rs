@@ -1,8 +1,8 @@
 use crate::mysql::def::TableDef;
-use sea_query::{Alias, Iden, Table, TableStatement};
+use sea_query::{Alias, Iden, Table, TableCreateStatement};
 
 impl TableDef {
-    pub fn write(&self) -> TableStatement {
+    pub fn write(&self) -> TableCreateStatement {
         let mut table = Table::create();
         table.table(Alias::new(self.info.name.as_ref()));
         for col in self.columns.iter() {
@@ -17,7 +17,7 @@ impl TableDef {
         for key in self.foreign_keys.iter() {
             table.foreign_key(&mut key.write());
         }
-        TableStatement::Create(table)
+        table
     }
 }
 
