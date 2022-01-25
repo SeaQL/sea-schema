@@ -277,27 +277,27 @@ async fn test_002() -> DiscoveryResult<()> {
         };
         let expected_sql = if tbl_name.as_str() == "order" {
             vec![
-                "CREATE TABLE `order` (",
-                "`id` integer NOT NULL PRIMARY KEY AUTOINCREMENT,",
-                "`total` real,",
-                "`bakery_id` integer NOT NULL,",
-                "`customer_id` integer NOT NULL,",
-                "`placed_at` text NOT NULL,",
-                "FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,",
-                "FOREIGN KEY (`bakery_id`) REFERENCES `bakery` (`id`) ON DELETE CASCADE ON UPDATE CASCADE",
-                ")",
+                r#"CREATE TABLE "order" ("#,
+                r#""id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,"#,
+                r#""total" real,"#,
+                r#""bakery_id" integer NOT NULL,"#,
+                r#""customer_id" integer NOT NULL,"#,
+                r#""placed_at" text NOT NULL,"#,
+                r#"FOREIGN KEY ("customer_id") REFERENCES "customer" ("id") ON DELETE CASCADE ON UPDATE CASCADE,"#,
+                r#"FOREIGN KEY ("bakery_id") REFERENCES "bakery" ("id") ON DELETE CASCADE ON UPDATE CASCADE"#,
+                r#")"#,
             ].join(" ")
         } else if tbl_name.as_str() == "lineitem" {
             vec![
-                "CREATE TABLE `lineitem` (",
-                "`id` integer NOT NULL PRIMARY KEY AUTOINCREMENT,",
-                "`price` real,",
-                "`quantity` integer,",
-                "`order_id` integer NOT NULL,",
-                "`cake_id` integer NOT NULL,",
-                "FOREIGN KEY (`order_id`) REFERENCES `order` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,",
-                "FOREIGN KEY (`cake_id`) REFERENCES `cake` (`id`) ON DELETE CASCADE ON UPDATE CASCADE",
-                ")",
+                r#"CREATE TABLE "lineitem" ("#,
+                r#""id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,"#,
+                r#""price" real,"#,
+                r#""quantity" integer,"#,
+                r#""order_id" integer NOT NULL,"#,
+                r#""cake_id" integer NOT NULL,"#,
+                r#"FOREIGN KEY ("order_id") REFERENCES "order" ("id") ON DELETE CASCADE ON UPDATE CASCADE,"#,
+                r#"FOREIGN KEY ("cake_id") REFERENCES "cake" ("id") ON DELETE CASCADE ON UPDATE CASCADE"#,
+                r#")"#,
             ].join(" ")
         } else {
             tbl_create_stmt.to_string(SqliteQueryBuilder)
