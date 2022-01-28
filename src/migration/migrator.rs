@@ -1,11 +1,11 @@
 use super::{seaql_migrations, MigrationTrait, SchemaManager};
-use chrono::Local;
 use sea_orm::{
     ActiveModelTrait, ActiveValue, ColumnTrait, Condition, ConnectionTrait, DbBackend, DbErr,
     EntityTrait, QueryFilter, QueryOrder, Schema, Statement,
 };
 use sea_query::{Alias, Expr, ForeignKey, IntoTableRef, Query, SelectStatement, Table};
 use std::fmt::Display;
+use std::time::SystemTime;
 use tracing::info;
 
 #[derive(Debug, PartialEq)]
@@ -269,9 +269,12 @@ pub trait MigratorTrait: Send {
             info!("Appling migration '{}'", migration.name());
             migration.up(&manager).await?;
             info!("Migration '{}' has been applied", migration.name());
+            let now = SystemTime::now()
+                .duration_since(SystemTime::UNIX_EPOCH)
+                .expect("SystemTime before UNIX EPOCH!");
             seaql_migrations::ActiveModel {
                 version: ActiveValue::Set(migration.name().to_owned()),
-                applied_at: ActiveValue::Set(Local::now().into()),
+                applied_at: ActiveValue::Set(now.as_secs() as i64),
             }
             .insert(db)
             .await?;
