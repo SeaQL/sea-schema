@@ -3,7 +3,7 @@ use sea_orm::{
     ActiveModelTrait, ActiveValue, ColumnTrait, Condition, ConnectionTrait, DbBackend, DbErr,
     EntityTrait, QueryFilter, QueryOrder, Schema, Statement,
 };
-use sea_query::{Alias, Expr, ForeignKey, IntoTableRef, Query, SelectStatement, Table};
+use sea_query::{Alias, Expr, ForeignKey, IntoTableRef, Query, SelectStatement, SimpleExpr, Table};
 use std::fmt::Display;
 use std::time::SystemTime;
 use tracing::info;
@@ -152,7 +152,7 @@ pub trait MigratorTrait: Send {
                 .cond_where(
                     Condition::all()
                         .add(
-                            Expr::expr(Expr::cust("DATABASE()")).equals(
+                            Expr::expr(get_current_schema(db)).equals(
                                 Alias::new("table_constraints"),
                                 Alias::new("table_schema"),
                             ),
@@ -331,7 +331,7 @@ where
             Expr::col(Alias::new("table_name")),
             (Alias::new("information_schema"), Alias::new("tables")).into_table_ref(),
             Condition::all().add(
-                Expr::expr(Expr::cust("DATABASE()"))
+                Expr::expr(get_current_schema(db))
                     .equals(Alias::new("tables"), Alias::new("table_schema")),
             ),
         ),
@@ -340,7 +340,7 @@ where
             (Alias::new("information_schema"), Alias::new("tables")).into_table_ref(),
             Condition::all()
                 .add(
-                    Expr::expr(Expr::cust("CURRENT_SCHEMA()"))
+                    Expr::expr(get_current_schema(db))
                         .equals(Alias::new("tables"), Alias::new("table_schema")),
                 )
                 .add(Expr::col(Alias::new("table_type")).eq("BASE TABLE")),
@@ -357,4 +357,15 @@ where
         .from(tbl_ref)
         .cond_where(condition);
     stmt
+}
+
+pub(crate) fn get_current_schema<C>(db: &C) -> SimpleExpr
+where
+    C: ConnectionTrait + ?Sized,
+{
+    match db.get_database_backend() {
+        DbBackend::MySql => Expr::cust("DATABASE()"),
+        DbBackend::Postgres => Expr::cust("CURRENT_SCHEMA()"),
+        DbBackend::Sqlite => unimplemented!(),
+    }
 }
