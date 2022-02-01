@@ -125,7 +125,7 @@ impl From<&SqliteRow> for IndexedColumns {
         let columns_to_index = split_at_open_bracket[1]
             .replace(')', "")
             .split(',')
-            .map(|column| column.trim().replace('`', ""))
+            .map(|column| column.trim().replace('`', "").replace('"', ""))
             .collect::<Vec<String>>();
 
         Self {
