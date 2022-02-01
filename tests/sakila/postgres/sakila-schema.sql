@@ -169,10 +169,19 @@ CREATE TABLE film (
     last_update timestamp without time zone DEFAULT now() NOT NULL,
     special_features text[],
     fulltext tsvector NOT NULL
-);
+) PARTITION BY RANGE (film_id);
 
 
 ALTER TABLE public.film OWNER TO postgres;
+
+CREATE TABLE film_1000 PARTITION OF film
+    FOR VALUES FROM (1) TO (999);
+
+CREATE TABLE film_2000 PARTITION OF film
+    FOR VALUES FROM (1000) TO (1999);
+
+CREATE TABLE film_3000 PARTITION OF film
+    FOR VALUES FROM (2000) TO (2999);
 
 --
 -- Name: film_actor; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
@@ -1445,7 +1454,7 @@ ALTER TABLE ONLY film_category
 -- Name: film_language_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY film
+ALTER TABLE film
     ADD CONSTRAINT film_language_id_fkey FOREIGN KEY (language_id) REFERENCES language(language_id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
@@ -1453,7 +1462,7 @@ ALTER TABLE ONLY film
 -- Name: film_original_language_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY film
+ALTER TABLE film
     ADD CONSTRAINT film_original_language_id_fkey FOREIGN KEY (original_language_id) REFERENCES language(language_id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 

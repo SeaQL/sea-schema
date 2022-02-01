@@ -5,6 +5,7 @@ edition = "2018"
 publish = false
 
 [dependencies]
+pretty_assertions = { version = "^0.7" }
 async-std = { version = "1.8", features = [ "attributes" ] }
 sea-schema = { path = "../../../", default-features = false, features = [ "sqlx-postgres", "runtime-async-std-native-tls", "discovery", "writer", "debug-print" ] }
 serde_json = { version = "^1" }

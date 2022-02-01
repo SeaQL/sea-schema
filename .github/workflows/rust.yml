@@ -310,7 +310,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: [13.3, 12.7, 11.12, 10.17, 9.6.22]
+        version: [13.3, 12.7, 11.12]
         project: [live, discovery, writer]
     services:
       postgres:
