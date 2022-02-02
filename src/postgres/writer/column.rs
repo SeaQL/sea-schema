@@ -1,5 +1,5 @@
 use crate::postgres::def::{ColumnInfo, Type};
-use sea_query::{Alias, ColumnDef, PgInterval};
+use sea_query::{Alias, ColumnDef, IntervalField};
 use std::{convert::TryFrom, fmt::Write};
 
 impl ColumnInfo {
@@ -131,7 +131,7 @@ impl ColumnInfo {
             }
             Type::Interval(interval_attr) => {
                 let field = match &interval_attr.field {
-                    Some(field) => PgInterval::try_from(field).ok(),
+                    Some(field) => IntervalField::try_from(field).ok(),
                     None => None,
                 };
                 let precision = interval_attr.precision.map(Into::into);

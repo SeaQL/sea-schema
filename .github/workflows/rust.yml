@@ -58,7 +58,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        project: [live, discovery, writer]
+        project: [live/mysql, discovery/mysql, writer/mysql, migration]
     steps:
       - uses: actions/checkout@v2
 
@@ -81,13 +81,13 @@ jobs:
         with:
           command: build
           args: >
-            --manifest-path tests/${{ matrix.project }}/mysql/Cargo.toml
+            --manifest-path tests/${{ matrix.project }}/Cargo.toml
 
       - uses: actions-rs/cargo@v1
         with:
           command: test
           args: >
-            --manifest-path tests/${{ matrix.project }}/mysql/Cargo.toml
+            --manifest-path tests/${{ matrix.project }}/Cargo.toml
             --no-run
 
   compile-postgres:
@@ -95,7 +95,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        project: [live, discovery, writer]
+        project: [live/postgres, discovery/postgres, writer/postgres, migration]
     steps:
       - uses: actions/checkout@v2
 
@@ -118,13 +118,13 @@ jobs:
         with:
           command: build
           args: >
-            --manifest-path tests/${{ matrix.project }}/postgres/Cargo.toml
+            --manifest-path tests/${{ matrix.project }}/Cargo.toml
 
       - uses: actions-rs/cargo@v1
         with:
           command: test
           args: >
-            --manifest-path tests/${{ matrix.project }}/postgres/Cargo.toml
+            --manifest-path tests/${{ matrix.project }}/Cargo.toml
             --no-run
 
   compile-sqlite:
@@ -132,7 +132,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        project: [live, discovery, writer]
+        project: [live/sqlite, discovery/sqlite, writer/sqlite, migration]
     steps:
       - uses: actions/checkout@v2
 
@@ -155,23 +155,25 @@ jobs:
         with:
           command: build
           args: >
-            --manifest-path tests/${{ matrix.project }}/sqlite/Cargo.toml
+            --manifest-path tests/${{ matrix.project }}/Cargo.toml
 
       - uses: actions-rs/cargo@v1
         with:
           command: test
           args: >
-            --manifest-path tests/${{ matrix.project }}/sqlite/Cargo.toml
+            --manifest-path tests/${{ matrix.project }}/Cargo.toml
             --no-run
   mysql:
     name: MySQL
     runs-on: ubuntu-20.04
     needs: compile-mysql
+    env:
+      DATABASE_URL: "mysql://sea:sea@localhost/sakila"
     strategy:
       fail-fast: false
       matrix:
         version: [8.0, 5.7]
-        project: [live, discovery, writer]
+        project: [live/mysql, discovery/mysql, writer/mysql, migration]
     services:
       mysql:
         image: mysql:${{ matrix.version }}
@@ -225,23 +227,25 @@ jobs:
         with:
           command: run
           args: >
-            --manifest-path tests/${{ matrix.project }}/mysql/Cargo.toml
+            --manifest-path tests/${{ matrix.project }}/Cargo.toml
 
       - uses: actions-rs/cargo@v1
         with:
           command: test
           args: >
-            --manifest-path tests/${{ matrix.project }}/mysql/Cargo.toml
+            --manifest-path tests/${{ matrix.project }}/Cargo.toml
 
   mariadb:
     name: MariaDB
     runs-on: ubuntu-20.04
     needs: compile-mysql
+    env:
+      DATABASE_URL: "mysql://sea:sea@localhost/sakila"
     strategy:
       fail-fast: false
       matrix:
         version: [10.6]
-        project: [live, discovery, writer]
+        project: [live/mysql, discovery/mysql, writer/mysql, migration]
     services:
       mysql:
         image: mariadb:${{ matrix.version }}
@@ -295,23 +299,25 @@ jobs:
         with:
           command: run
           args: >
-            --manifest-path tests/${{ matrix.project }}/mysql/Cargo.toml
+            --manifest-path tests/${{ matrix.project }}/Cargo.toml
 
       - uses: actions-rs/cargo@v1
         with:
           command: test
           args: >
-            --manifest-path tests/${{ matrix.project }}/mysql/Cargo.toml
+            --manifest-path tests/${{ matrix.project }}/Cargo.toml
 
   postgres:
     name: Postgres
     needs: compile-postgres
     runs-on: ubuntu-20.04
+    env:
+      DATABASE_URL: "postgres://sea:sea@localhost/sakila"
     strategy:
       fail-fast: false
       matrix:
         version: [13.3, 12.7, 11.12]
-        project: [live, discovery, writer]
+        project: [live/postgres, discovery/postgres, writer/postgres, migration]
     services:
       postgres:
         image: postgres:${{ matrix.version }}
@@ -359,22 +365,24 @@ jobs:
         with:
           command: run
           args: >
-            --manifest-path tests/${{ matrix.project }}/postgres/Cargo.toml
+            --manifest-path tests/${{ matrix.project }}/Cargo.toml
 
       - uses: actions-rs/cargo@v1
         with:
           command: test
           args: >
-            --manifest-path tests/${{ matrix.project }}/postgres/Cargo.toml
+            --manifest-path tests/${{ matrix.project }}/Cargo.toml
 
   sqlite:
     name: SQLite
     needs: compile-sqlite
     runs-on: ubuntu-20.04
+    env:
+      DATABASE_URL: "sqlite::memory:"
     strategy:
       fail-fast: false
       matrix:
-        project: [live, discovery, writer]
+        project: [live/sqlite, discovery/sqlite, writer/sqlite, migration]
     steps:
       - uses: actions/checkout@v2
 
@@ -397,10 +405,10 @@ jobs:
         with:
           command: run
           args: >
-            --manifest-path tests/${{ matrix.project }}/sqlite/Cargo.toml
+            --manifest-path tests/${{ matrix.project }}/Cargo.toml
 
       - uses: actions-rs/cargo@v1
         with:
           command: test
           args: >
-            --manifest-path tests/${{ matrix.project }}/sqlite/Cargo.toml
+            --manifest-path tests/${{ matrix.project }}/Cargo.toml

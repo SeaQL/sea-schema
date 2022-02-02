@@ -10,6 +10,7 @@ members = [
     "tests/live/mysql",
     "tests/live/postgres",
     "tests/live/sqlite",
+    "tests/migration",
 ]
 
 [package]
@@ -35,7 +36,14 @@ path = "src/lib.rs"
 [dependencies]
 futures = { version = "0.3", optional = true }
 sea-schema-derive = { version = "0.1.0", path = "sea-schema-derive" }
-sea-query = { version = "^0.21.0" }
+sea-query = { version = "^0.20.0" }
+sea-orm = { git = "https://github.com/SeaQL/sea-orm.git", branch = "migration", default-features = false, features = ["macros"], optional = true }
+clap = { version = "^2.33.3", optional = true }
+tracing-subscriber = { version = "0.3", features = ["env-filter"], optional = true }
+tracing = { version = "0.1", features = ["log"], optional = true }
+dotenv = { version = "^0.15", optional = true }
+async-trait = { version = "^0.1", optional = true }
+async-std = { version = "^1", features = [ "attributes", "tokio1" ], optional = true }
 serde = { version = "^1", features = ["derive"], optional = true }
 sqlx = { version = "^0", optional = true }
 log = { version = "^0.4", optional = true }
@@ -49,6 +57,7 @@ sqlite = []
 def = []
 discovery = ["futures", "parser"]
 parser = ["query"]
+migration = [ "async-trait", "async-std", "sea-orm", "clap", "tracing-subscriber", "tracing", "dotenv", "debug-print" ]
 query = ["def"]
 writer = ["def"]
 sqlx-dep = ["sqlx"]
