@@ -1,10 +1,10 @@
-use sea_orm::{Condition, ConnectionTrait, DbBackend, DbErr, Statement, StatementBuilder};
-use sea_query::{
+use sea_orm::sea_query::{
     extension::postgres::{TypeAlterStatement, TypeCreateStatement, TypeDropStatement},
     Alias, Expr, ForeignKeyCreateStatement, ForeignKeyDropStatement, IndexCreateStatement,
     IndexDropStatement, Query, TableAlterStatement, TableCreateStatement, TableDropStatement,
     TableRenameStatement, TableTruncateStatement,
 };
+use sea_orm::{Condition, ConnectionTrait, DbBackend, DbErr, Statement, StatementBuilder};
 
 use super::query_tables;
 
