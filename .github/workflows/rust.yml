@@ -317,7 +317,7 @@ jobs:
       fail-fast: false
       matrix:
         version: [13.3, 12.7, 11.12]
-        project: [live, discovery, writer]
+        project: [live/postgres, discovery/postgres, writer/postgres, migration]
     services:
       postgres:
         image: postgres:${{ matrix.version }}
