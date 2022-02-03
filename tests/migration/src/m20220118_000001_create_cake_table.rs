@@ -1,5 +1,7 @@
-use sea_orm::sea_query::{self, *};
-use sea_schema::migration::*;
+use sea_schema::migration::{
+    sea_query::{self, *},
+    *,
+};
 
 pub struct Migration;
 
