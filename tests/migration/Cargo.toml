@@ -6,7 +6,7 @@ publish = false
 
 [dependencies]
 sea-schema = { path = "../../", default-features = false, features = [ "migration" ] }
-sea-orm = { git = "https://github.com/SeaQL/sea-orm.git", branch = "migration", default-features = false, features = ["sqlx-all", "runtime-async-std-native-tls"] }
+sea-orm = { version = "0.6.0", default-features = false, features = ["sqlx-all", "runtime-async-std-native-tls"] }
 
 [dev-dependencies]
 env_logger = { version = "^0" }
