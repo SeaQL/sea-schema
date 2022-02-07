@@ -1,4 +1,4 @@
-use sea_schema::migration::*;
+use sea_schema::migration::prelude::*;
 
 mod m20220118_000001_create_cake_table;
 mod m20220118_000002_create_fruit_table;

@@ -1,9 +1,6 @@
 use crate::m20220118_000001_create_cake_table::Cake;
-use sea_schema::migration::{
-    sea_orm::DbBackend,
-    sea_query::{self, *},
-    *,
-};
+use sea_orm::DbBackend;
+use sea_schema::migration::prelude::*;
 
 pub struct Migration;
 
