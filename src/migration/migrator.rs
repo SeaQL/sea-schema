@@ -252,9 +252,9 @@ pub trait MigratorTrait: Send {
         let manager = SchemaManager::new(db);
 
         if let Some(steps) = steps {
-            info!("Appling {} pending migrations", steps);
+            info!("Applying {} pending migrations", steps);
         } else {
-            info!("Appling all pending migrations");
+            info!("Applying all pending migrations");
         }
 
         let migrations = Self::get_pending_migrations(db).await?.into_iter();
@@ -268,7 +268,7 @@ pub trait MigratorTrait: Send {
                 }
                 *steps -= 1;
             }
-            info!("Appling migration '{}'", migration.name());
+            info!("Applying migration '{}'", migration.name());
             migration.up(&manager).await?;
             info!("Migration '{}' has been applied", migration.name());
             let now = SystemTime::now()
