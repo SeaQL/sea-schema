@@ -1,6 +1,7 @@
 pub mod cli;
 pub mod manager;
 pub mod migrator;
+pub mod prelude;
 pub mod seaql_migrations;
 
 pub use cli::*;
