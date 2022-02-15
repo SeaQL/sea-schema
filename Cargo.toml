@@ -37,7 +37,7 @@ path = "src/lib.rs"
 futures = { version = "0.3", optional = true }
 sea-schema-derive = { version = "0.1.0", path = "sea-schema-derive" }
 sea-query = { version = "^0.21.0" }
-sea-orm = { version = "0.6.0", default-features = false, features = ["macros"], optional = true }
+sea-orm = { git = "https://github.com/SeaQL/sea-orm.git", branch = "try-cockroach-db", version = "^0.6.0", default-features = false, features = ["macros"], optional = true }
 clap = { version = "^2.33.3", optional = true }
 tracing-subscriber = { version = "0.3", features = ["env-filter"], optional = true }
 tracing = { version = "0.1", features = ["log"], optional = true }
