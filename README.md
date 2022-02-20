@@ -16,11 +16,11 @@
 
 ## About
 
-SeaSchema is a library to help you manage database schema. It provides a suite of tools, including schema definition, discovery and manipulation.
+SeaSchema is a library to help you manage database schema for MySQL, Postgres and SQLite. It provides a suite of tools, including schema definition, discovery and migration.
 
 ## Architecture
 
-You can use SeaSchema for many purposes, so the crate is divided into different modules:
+The crate is divided into different modules:
 
 + `def`: type definitions
 + `query`: for querying information_schema
