@@ -105,7 +105,7 @@ impl Type {
                 column_def.string();
             }
             Self::Blob => {
-                column_def.custom(Alias::new("BLOB"));
+                column_def.binary();
             }
             Self::Real | Self::Double | Self::DoublePrecision | Self::Float | Self::Numeric => {
                 column_def.decimal();
