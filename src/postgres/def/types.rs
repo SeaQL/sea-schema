@@ -140,6 +140,9 @@ pub enum Type {
     Unknown(String),
     /// Defines an PostgreSQL
     Enum(EnumDef),
+    /// Postgres LTree
+    #[cfg(feature = "postgres")]
+    LTree,
 }
 
 impl Type {
