@@ -33,7 +33,7 @@ JSON de/serialize on type definitions can be enabled with `with-serde`.
 
 ## Schema Discovery
 
-Take the MySQL [Sakila Sample Database](tests/sakila/sakila-schema.sql) as example, given the following table:
+Take the MySQL [Sakila Sample Database](tests/sakila/mysql/sakila-schema.sql) as example, given the following table:
 
 ```SQL
 CREATE TABLE film_actor (
@@ -48,7 +48,7 @@ CREATE TABLE film_actor (
 
 ```
 
-The [discovered schema result](tests/discovery/schema.rs):
+The [discovered schema result](tests/discovery/mysql/schema.rs):
 
 ```rust
 TableDef {
