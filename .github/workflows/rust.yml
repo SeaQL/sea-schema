@@ -23,7 +23,7 @@ jobs:
           toolchain: stable
           components: clippy
           override: true
-          
+
       - uses: actions-rs/cargo@v1
         with:
           command: clippy
@@ -52,6 +52,8 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: test
+          args: >
+            --features "runtime-async-std-native-tls"
 
   compile-mysql:
     name: Compile MySQL
