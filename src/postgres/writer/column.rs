@@ -230,6 +230,10 @@ impl ColumnInfo {
             Type::Enum(enum_def) => {
                 col_def.enumeration(&enum_def.typename, &enum_def.values);
             }
+            #[cfg(feature = "postgres")]
+            Type::LTree => {
+                col_def.ltree();
+            }
         };
         col_def
     }
