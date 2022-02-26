@@ -10,7 +10,7 @@ pub use table_constraints::*;
 
 use super::{InformationSchema, SchemaQueryBuilder};
 use crate::sqlx_types::postgres::PgRow;
-use sea_query::{Alias, Expr, Iden, JoinType, Order, Query, SeaRc, SelectStatement};
+use sea_query::{Alias, Condition, Expr, Iden, JoinType, Order, Query, SeaRc, SelectStatement};
 
 #[derive(Debug, Default)]
 pub struct TableConstraintsQueryResult {
@@ -88,18 +88,53 @@ impl SchemaQueryBuilder {
             .join(
                 JoinType::LeftJoin,
                 (Schema::Schema, Schema::CheckConstraints),
-                Expr::tbl(Schema::TableConstraints, Tcf::ConstraintName)
-                    .equals(Schema::CheckConstraints, Cf::ConstraintName),
+                Condition::all()
+                    .add(
+                        Expr::tbl(Schema::TableConstraints, Tcf::ConstraintName)
+                            .equals(Schema::CheckConstraints, Cf::ConstraintName),
+                    )
+                    .add(
+                        Expr::tbl(Schema::TableConstraints, Tcf::ConstraintCatalog)
+                            .equals(Schema::CheckConstraints, Cf::ConstraintCatalog),
+                    )
+                    .add(
+                        Expr::tbl(Schema::TableConstraints, Tcf::ConstraintSchema)
+                            .equals(Schema::CheckConstraints, Cf::ConstraintSchema),
+                    ),
             )
             .join(
                 JoinType::LeftJoin,
                 (Schema::Schema, Schema::KeyColumnUsage),
-                Expr::tbl(Schema::TableConstraints, Tcf::ConstraintName)
-                    .equals(Schema::KeyColumnUsage, Kcuf::ConstraintName),
+                Condition::all()
+                    .add(
+                        Expr::tbl(Schema::TableConstraints, Tcf::ConstraintName)
+                            .equals(Schema::KeyColumnUsage, Kcuf::ConstraintName),
+                    )
+                    .add(
+                        Expr::tbl(Schema::TableConstraints, Tcf::ConstraintCatalog)
+                            .equals(Schema::KeyColumnUsage, Kcuf::ConstraintCatalog),
+                    )
+                    .add(
+                        Expr::tbl(Schema::TableConstraints, Tcf::ConstraintSchema)
+                            .equals(Schema::KeyColumnUsage, Kcuf::ConstraintSchema),
+                    )
+                    .add(
+                        Expr::tbl(Schema::TableConstraints, Tcf::TableCatalog)
+                            .equals(Schema::KeyColumnUsage, Kcuf::TableCatalog),
+                    )
+                    .add(
+                        Expr::tbl(Schema::TableConstraints, Tcf::TableSchema)
+                            .equals(Schema::KeyColumnUsage, Kcuf::TableSchema),
+                    )
+                    .add(
+                        Expr::tbl(Schema::TableConstraints, Tcf::TableName)
+                            .equals(Schema::KeyColumnUsage, Kcuf::TableName),
+                    ),
             )
             .join_subquery(
                 JoinType::LeftJoin,
                 Query::select()
+                    .distinct()
                     .columns(vec![
                         (Schema::ReferentialConstraints, RefC::ConstraintName),
                         (Schema::ReferentialConstraints, RefC::UniqueConstraintSchema),

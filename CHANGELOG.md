@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.5.1 - 2022-02-07
+
+* Add `migration::prelude` to replace wildcard imports #43
+
+## 0.5.0 - 2022-02-07
+
+* Fix Postgres discover duplicated foreign keys by @billy1624 in https://github.com/SeaQL/sea-schema/pull/30
+* Schema Manager by @billy1624 in https://github.com/SeaQL/sea-schema/pull/26
+
+**Full Changelog**: https://github.com/SeaQL/sea-schema/compare/0.4.0...0.5.0
+
 ## 0.4.0 - 2021-12-25
 
 * SQLite schema discovery https://github.com/SeaQL/sea-schema/pull/34

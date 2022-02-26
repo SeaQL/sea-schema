@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use sea_query::{Token, Tokenizer};
 
 pub struct Parser {

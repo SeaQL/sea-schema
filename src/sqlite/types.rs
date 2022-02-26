@@ -105,7 +105,7 @@ impl Type {
                 column_def.string();
             }
             Self::Blob => {
-                column_def.custom(Alias::new("BLOB"));
+                column_def.binary();
             }
             Self::Real | Self::Double | Self::DoublePrecision | Self::Float | Self::Numeric => {
                 column_def.decimal();
@@ -131,6 +131,7 @@ impl Type {
         }
     }
 
+    #[allow(dead_code)]
     fn concat_type(&self, type_name: &str, length: &u8) -> String {
         let mut value = String::default();
         value.push_str(type_name);
