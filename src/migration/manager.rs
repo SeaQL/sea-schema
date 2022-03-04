@@ -4,17 +4,17 @@ use sea_orm::sea_query::{
     IndexDropStatement, Query, TableAlterStatement, TableCreateStatement, TableDropStatement,
     TableRenameStatement, TableTruncateStatement,
 };
-use sea_orm::{Condition, ConnectionTrait, DbBackend, DbErr, Statement, StatementBuilder};
+use sea_orm::{Condition, ConnectionTrait, DbBackend, DbConn, DbErr, Statement, StatementBuilder};
 
 use super::query_tables;
 
 /// Helper struct for writing migration scripts in migration file
 pub struct SchemaManager<'c> {
-    conn: &'c dyn ConnectionTrait,
+    conn: &'c DbConn,
 }
 
 impl<'c> SchemaManager<'c> {
-    pub fn new(conn: &'c dyn ConnectionTrait) -> Self {
+    pub fn new(conn: &'c DbConn) -> Self {
         Self { conn }
     }
 
@@ -30,7 +30,7 @@ impl<'c> SchemaManager<'c> {
         self.conn.get_database_backend()
     }
 
-    pub fn get_connection(&self) -> &'c dyn ConnectionTrait {
+    pub fn get_connection(&self) -> &'c DbConn {
         self.conn
     }
 }
