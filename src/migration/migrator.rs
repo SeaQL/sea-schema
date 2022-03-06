@@ -3,8 +3,8 @@ use sea_orm::sea_query::{
     Alias, Expr, ForeignKey, IntoTableRef, Query, SelectStatement, SimpleExpr, Table,
 };
 use sea_orm::{
-    ActiveModelTrait, ActiveValue, ColumnTrait, Condition, ConnectionTrait, DbBackend, DbErr,
-    EntityTrait, QueryFilter, QueryOrder, Schema, Statement,
+    ActiveModelTrait, ActiveValue, ColumnTrait, Condition, ConnectionTrait, DbBackend, DbConn,
+    DbErr, EntityTrait, QueryFilter, QueryOrder, Schema, Statement,
 };
 use std::fmt::Display;
 use std::time::SystemTime;
@@ -52,10 +52,7 @@ pub trait MigratorTrait: Send {
     }
 
     /// Get list of applied migrations from database
-    async fn get_migration_models<C>(db: &C) -> Result<Vec<seaql_migrations::Model>, DbErr>
-    where
-        C: ConnectionTrait,
-    {
+    async fn get_migration_models(db: &DbConn) -> Result<Vec<seaql_migrations::Model>, DbErr> {
         Self::install(db).await?;
         seaql_migrations::Entity::find()
             .order_by_asc(seaql_migrations::Column::Version)
@@ -64,10 +61,7 @@ pub trait MigratorTrait: Send {
     }
 
     /// Get list of migrations with status
-    async fn get_migration_with_status<C>(db: &C) -> Result<Vec<Migration>, DbErr>
-    where
-        C: ConnectionTrait,
-    {
+    async fn get_migration_with_status(db: &DbConn) -> Result<Vec<Migration>, DbErr> {
         Self::install(db).await?;
         let mut migration_files = Self::get_migration_files();
         let migration_models = Self::get_migration_models(db).await?;
@@ -86,10 +80,7 @@ pub trait MigratorTrait: Send {
     }
 
     /// Get list of pending migrations
-    async fn get_pending_migrations<C>(db: &C) -> Result<Vec<Migration>, DbErr>
-    where
-        C: ConnectionTrait,
-    {
+    async fn get_pending_migrations(db: &DbConn) -> Result<Vec<Migration>, DbErr> {
         Self::install(db).await?;
         Ok(Self::get_migration_with_status(db)
             .await?
@@ -99,10 +90,7 @@ pub trait MigratorTrait: Send {
     }
 
     /// Get list of applied migrations
-    async fn get_applied_migrations<C>(db: &C) -> Result<Vec<Migration>, DbErr>
-    where
-        C: ConnectionTrait,
-    {
+    async fn get_applied_migrations(db: &DbConn) -> Result<Vec<Migration>, DbErr> {
         Self::install(db).await?;
         Ok(Self::get_migration_with_status(db)
             .await?
@@ -112,10 +100,7 @@ pub trait MigratorTrait: Send {
     }
 
     /// Create migration table `seaql_migrations` in the database
-    async fn install<C>(db: &C) -> Result<(), DbErr>
-    where
-        C: ConnectionTrait,
-    {
+    async fn install(db: &DbConn) -> Result<(), DbErr> {
         let builder = db.get_database_backend();
         let schema = Schema::new(builder);
         let mut stmt = schema.create_table_from_entity(seaql_migrations::Entity);
@@ -124,10 +109,7 @@ pub trait MigratorTrait: Send {
     }
 
     /// Drop all tables from the database, then reapply all migrations
-    async fn fresh<C>(db: &C) -> Result<(), DbErr>
-    where
-        C: ConnectionTrait,
-    {
+    async fn fresh(db: &DbConn) -> Result<(), DbErr> {
         Self::install(db).await?;
         let db_backend = db.get_database_backend();
 
@@ -211,27 +193,18 @@ pub trait MigratorTrait: Send {
     }
 
     /// Rollback all applied migrations, then reapply all migrations
-    async fn refresh<C>(db: &C) -> Result<(), DbErr>
-    where
-        C: ConnectionTrait,
-    {
+    async fn refresh(db: &DbConn) -> Result<(), DbErr> {
         Self::down(db, None).await?;
         Self::up(db, None).await
     }
 
     /// Rollback all applied migrations
-    async fn reset<C>(db: &C) -> Result<(), DbErr>
-    where
-        C: ConnectionTrait,
-    {
+    async fn reset(db: &DbConn) -> Result<(), DbErr> {
         Self::down(db, None).await
     }
 
     /// Check the status of all migrations
-    async fn status<C>(db: &C) -> Result<(), DbErr>
-    where
-        C: ConnectionTrait,
-    {
+    async fn status(db: &DbConn) -> Result<(), DbErr> {
         Self::install(db).await?;
 
         info!("Checking migration status");
@@ -244,10 +217,7 @@ pub trait MigratorTrait: Send {
     }
 
     /// Apply pending migrations
-    async fn up<C>(db: &C, mut steps: Option<u32>) -> Result<(), DbErr>
-    where
-        C: ConnectionTrait,
-    {
+    async fn up(db: &DbConn, mut steps: Option<u32>) -> Result<(), DbErr> {
         Self::install(db).await?;
         let manager = SchemaManager::new(db);
 
@@ -286,10 +256,7 @@ pub trait MigratorTrait: Send {
     }
 
     /// Rollback applied migrations
-    async fn down<C>(db: &C, mut steps: Option<u32>) -> Result<(), DbErr>
-    where
-        C: ConnectionTrait,
-    {
+    async fn down(db: &DbConn, mut steps: Option<u32>) -> Result<(), DbErr> {
         Self::install(db).await?;
         let manager = SchemaManager::new(db);
 
@@ -323,10 +290,7 @@ pub trait MigratorTrait: Send {
     }
 }
 
-pub(crate) fn query_tables<C>(db: &C) -> SelectStatement
-where
-    C: ConnectionTrait + ?Sized,
-{
+pub(crate) fn query_tables(db: &DbConn) -> SelectStatement {
     let mut stmt = Query::select();
     let (expr, tbl_ref, condition) = match db.get_database_backend() {
         DbBackend::MySql => (
@@ -361,10 +325,7 @@ where
     stmt
 }
 
-pub(crate) fn get_current_schema<C>(db: &C) -> SimpleExpr
-where
-    C: ConnectionTrait + ?Sized,
-{
+pub(crate) fn get_current_schema(db: &DbConn) -> SimpleExpr {
     match db.get_database_backend() {
         DbBackend::MySql => Expr::cust("DATABASE()"),
         DbBackend::Postgres => Expr::cust("CURRENT_SCHEMA()"),
