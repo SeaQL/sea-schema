@@ -7,12 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 0.6.0
 
-* Migrate with `sea_orm::DbConn` https://github.com/SeaQL/sea-schema/pull/49
-
-## 0.5.2
-
-* Fix Sqlite BLOB type https://github.com/SeaQL/sea-schema/pull/44
 * Write MySQL unsigned integer types https://github.com/SeaQL/sea-schema/pull/37
+* Fix Sqlite BLOB type https://github.com/SeaQL/sea-schema/pull/44
+* Migrate with `sea_orm::DbConn` https://github.com/SeaQL/sea-schema/pull/49
 
 ## 0.5.1 - 2022-02-07
 
