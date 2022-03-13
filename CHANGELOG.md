@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.6.0
+
+* Migrate with `sea_orm::DbConn` https://github.com/SeaQL/sea-schema/pull/49
+
 ## 0.5.2
 
 * Fix Sqlite BLOB type https://github.com/SeaQL/sea-schema/pull/44
