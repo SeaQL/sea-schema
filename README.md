@@ -18,6 +18,12 @@
 
 SeaSchema is a library to help you manage database schema for MySQL, Postgres and SQLite. It provides a suite of tools, including schema definition, discovery and migration.
 
+[![GitHub stars](https://img.shields.io/github/stars/SeaQL/sea-schema.svg?style=social&label=Star&maxAge=1)](https://github.com/SeaQL/sea-schema/stargazers/)
+If you like what we do, consider starring, commenting, sharing and contributing!
+
+[![Discord](https://img.shields.io/discord/873880840487206962?label=Discord)](https://discord.com/invite/uCPdDXzbdv)
+Join our Discord server to chat with others in the SeaQL community!
+
 ## Architecture
 
 The crate is divided into different modules:
