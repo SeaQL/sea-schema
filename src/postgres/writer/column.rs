@@ -200,6 +200,9 @@ impl ColumnInfo {
             Type::Json => {
                 col_def.json();
             }
+            Type::JsonBinary => {
+                col_def.json_binary();
+            }
             Type::Array => {
                 col_def.custom(Alias::new("array"));
             }
