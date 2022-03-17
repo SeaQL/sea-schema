@@ -4,7 +4,7 @@ use sea_orm::sea_query::{
 };
 use sea_orm::{
     ActiveModelTrait, ActiveValue, ColumnTrait, Condition, ConnectionTrait, DbBackend, DbConn,
-    DbErr, EntityTrait, QueryFilter, QueryOrder, Schema, Statement,
+    DbErr, EntityTrait, QueryFilter, QueryOrder, Schema, Statement, TransactionTrait,
 };
 use std::fmt::Display;
 use std::time::SystemTime;
@@ -219,7 +219,6 @@ pub trait MigratorTrait: Send {
     /// Apply pending migrations
     async fn up(db: &DbConn, mut steps: Option<u32>) -> Result<(), DbErr> {
         Self::install(db).await?;
-        let manager = SchemaManager::new(db);
 
         if let Some(steps) = steps {
             info!("Applying {} pending migrations", steps);
@@ -239,8 +238,11 @@ pub trait MigratorTrait: Send {
                 *steps -= 1;
             }
             info!("Applying migration '{}'", migration.name());
+
+            let transaction = db.begin().await?;
+            let manager = SchemaManager::new(&transaction);
             migration.up(&manager).await?;
-            info!("Migration '{}' has been applied", migration.name());
+
             let now = SystemTime::now()
                 .duration_since(SystemTime::UNIX_EPOCH)
                 .expect("SystemTime before UNIX EPOCH!");
@@ -248,8 +250,11 @@ pub trait MigratorTrait: Send {
                 version: ActiveValue::Set(migration.name().to_owned()),
                 applied_at: ActiveValue::Set(now.as_secs() as i64),
             }
-            .insert(db)
+            .insert(&transaction)
             .await?;
+
+            transaction.commit().await?;
+            info!("Migration '{}' has been applied", migration.name());
         }
 
         Ok(())
@@ -258,7 +263,6 @@ pub trait MigratorTrait: Send {
     /// Rollback applied migrations
     async fn down(db: &DbConn, mut steps: Option<u32>) -> Result<(), DbErr> {
         Self::install(db).await?;
-        let manager = SchemaManager::new(db);
 
         if let Some(steps) = steps {
             info!("Rolling back {} applied migrations", steps);
@@ -278,19 +282,25 @@ pub trait MigratorTrait: Send {
                 *steps -= 1;
             }
             info!("Rolling back migration '{}'", migration.name());
+
+            let transaction = db.begin().await?;
+            let manager = SchemaManager::new(&transaction);
             migration.down(&manager).await?;
-            info!("Migration '{}' has been rollbacked", migration.name());
+
             seaql_migrations::Entity::delete_many()
                 .filter(seaql_migrations::Column::Version.eq(migration.name()))
                 .exec(db)
                 .await?;
+
+            transaction.commit().await?;
+            info!("Migration '{}' has been rollbacked", migration.name());
         }
 
         Ok(())
     }
 }
 
-pub(crate) fn query_tables(db: &DbConn) -> SelectStatement {
+pub(crate) fn query_tables(db: &dyn ConnectionTrait) -> SelectStatement {
     let mut stmt = Query::select();
     let (expr, tbl_ref, condition) = match db.get_database_backend() {
         DbBackend::MySql => (
@@ -325,7 +335,7 @@ pub(crate) fn query_tables(db: &DbConn) -> SelectStatement {
     stmt
 }
 
-pub(crate) fn get_current_schema(db: &DbConn) -> SimpleExpr {
+pub(crate) fn get_current_schema(db: &dyn ConnectionTrait) -> SimpleExpr {
     match db.get_database_backend() {
         DbBackend::MySql => Expr::cust("DATABASE()"),
         DbBackend::Postgres => Expr::cust("CURRENT_SCHEMA()"),

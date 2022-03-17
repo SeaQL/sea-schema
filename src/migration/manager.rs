@@ -4,17 +4,17 @@ use sea_orm::sea_query::{
     IndexDropStatement, Query, TableAlterStatement, TableCreateStatement, TableDropStatement,
     TableRenameStatement, TableTruncateStatement,
 };
-use sea_orm::{Condition, ConnectionTrait, DbBackend, DbConn, DbErr, Statement, StatementBuilder};
+use sea_orm::{Condition, ConnectionTrait, DbBackend, DbErr, Statement, StatementBuilder};
 
 use super::query_tables;
 
 /// Helper struct for writing migration scripts in migration file
 pub struct SchemaManager<'c> {
-    conn: &'c DbConn,
+    conn: &'c dyn ConnectionTrait,
 }
 
 impl<'c> SchemaManager<'c> {
-    pub fn new(conn: &'c DbConn) -> Self {
+    pub fn new<C: ConnectionTrait>(conn: &'c C) -> Self {
         Self { conn }
     }
 
@@ -30,7 +30,7 @@ impl<'c> SchemaManager<'c> {
         self.conn.get_database_backend()
     }
 
-    pub fn get_connection(&self) -> &'c DbConn {
+    pub fn get_connection(&self) -> &'c dyn ConnectionTrait {
         self.conn
     }
 }
@@ -96,7 +96,7 @@ impl<'c> SchemaManager<'c> {
         T: AsRef<str>,
     {
         let mut stmt = Query::select();
-        let mut subquery = query_tables(self.conn);
+        let mut subquery = query_tables(self.get_connection());
         subquery.cond_where(Expr::col(Alias::new("table_name")).eq(table.as_ref()));
         stmt.expr_as(Expr::cust("COUNT(*)"), Alias::new("rows"))
             .from_subquery(subquery, Alias::new("subquery"));
