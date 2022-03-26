@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.7.1 - 2022-03-26
+
+* Support SeaORM 0.7.0
+* Support Postgres jsonb in entity generation https://github.com/SeaQL/sea-schema/pull/51
+
 ## 0.6.0 - 2022-03-14
 
 * Write MySQL unsigned integer types https://github.com/SeaQL/sea-schema/pull/37
