@@ -1,5 +1,5 @@
+use sea_orm::migration::prelude::*;
 use sea_orm::{Database, DbErr};
-use sea_schema::migration::*;
 use sea_schema_migration_test::Migrator;
 
 #[async_std::test]

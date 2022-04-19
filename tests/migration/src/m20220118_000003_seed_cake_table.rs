@@ -1,5 +1,5 @@
+use sea_orm::migration::prelude::*;
 use sea_orm::{entity::prelude::*, Set};
-use sea_schema::migration::prelude::*;
 
 pub struct Migration;
 
