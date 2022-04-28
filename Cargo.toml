@@ -73,11 +73,13 @@ migration = [
     "tracing",
     "dotenv",
     "debug-print",
-    # eable all connection discover
-    "sea-orm/sqlx-all",
-    # enable sqlx run time 
-    "runtime-async-std-native-tls"
 ]
+migration-mysql = ["sea-orm/sqlx-mysql"]
+migration-postgres = ["sea-orm/sqlx-postgres"]
+migration-sqlite = ["sea-orm/sqlx-sqlite"]
+migration-all = ["sea-orm/sqlx-all"]
+migration-native-tls = ["runtime-async-std-native-tls"]
+migration-rustls = ["runtime-async-std-rustls"]
 query = ["def"]
 writer = ["def"]
 sqlx-dep = ["sqlx"]
