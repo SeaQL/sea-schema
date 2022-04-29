@@ -16,7 +16,7 @@ members = [
 [package]
 name = "sea-schema"
 version = "0.7.1"
-authors = ["Chris Tsang <tyt2y7@gmail.com>"]
+authors = [ "Chris Tsang <tyt2y7@gmail.com>" ]
 edition = "2021"
 description = "🌿 SQL schema definition and discovery"
 license = "MIT OR Apache-2.0"
@@ -43,7 +43,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"], optional = tr
 tracing = { version = "0.1", features = ["log"], optional = true }
 dotenv = { version = "^0.15", optional = true }
 async-trait = { version = "^0.1", optional = true }
-async-std = { version = "^1", features = ["attributes", "tokio1"], optional = true }
+async-std = { version = "^1", features = [ "attributes", "tokio1" ], optional = true }
 serde = { version = "^1", features = ["derive"], optional = true }
 sqlx = { version = "^0", optional = true }
 log = { version = "^0.4", optional = true }
@@ -57,7 +57,7 @@ sqlite = []
 def = []
 discovery = ["futures", "parser"]
 parser = ["query"]
-migration = ["async-trait", "async-std", "sea-orm", "clap", "tracing-subscriber", "tracing", "dotenv", "debug-print",]
+migration = [ "async-trait", "async-std", "sea-orm", "clap", "tracing-subscriber", "tracing", "dotenv", "debug-print" ]
 migration-mysql = ["sea-orm/sqlx-mysql"]
 migration-postgres = ["sea-orm/sqlx-postgres"]
 migration-sqlite = ["sea-orm/sqlx-sqlite"]
