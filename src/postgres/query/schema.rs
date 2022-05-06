@@ -12,4 +12,5 @@ pub enum InformationSchema {
     ReferentialConstraints,
     Tables,
     TableConstraints,
+    ConstraintColumnUsage,
 }
