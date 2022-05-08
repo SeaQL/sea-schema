@@ -5,7 +5,7 @@
   <h1>SeaSchema</h1>
 
   <p>
-    <strong>🌿 SQL schema management suite</strong>
+    <strong>🌿 SQL schema definition and discovery</strong>
   </p>
 
   [![crate](https://img.shields.io/crates/v/sea-schema.svg)](https://crates.io/crates/sea-schema)
@@ -16,7 +16,7 @@
 
 ## About
 
-SeaSchema is a library to help you manage database schema for MySQL, Postgres and SQLite. It provides a suite of tools, including schema definition, discovery and migration.
+SeaSchema is a library to help you manage database schema for MySQL, Postgres and SQLite. It provides 1) type definitions for representing database schema mapping each database closely and 2) utilities to discover them.
 
 [![GitHub stars](https://img.shields.io/github/stars/SeaQL/sea-schema.svg?style=social&label=Star&maxAge=1)](https://github.com/SeaQL/sea-schema/stargazers/)
 If you like what we do, consider starring, commenting, sharing and contributing!
@@ -33,7 +33,6 @@ The crate is divided into different modules:
 + `parser`: for parsing information_schema (parsing sqldump is WIP)
 + `writer`: for exporting `Schema` into SeaQuery and SQL
 + `discovery`: query, parse and construct a `Schema`
-+ `migration`: schema manager and migrator
 
 JSON de/serialize on type definitions can be enabled with `with-serde`.
 
