@@ -15,10 +15,6 @@ pub mod discovery;
 mod error;
 mod executor;
 
-#[cfg(feature = "mutate")]
-#[cfg_attr(docsrs, doc(cfg(feature = "mutate")))]
-pub mod mutate;
-
 #[cfg(feature = "probe")]
 #[cfg_attr(docsrs, doc(cfg(feature = "probe")))]
 pub mod probe;

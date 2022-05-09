@@ -21,8 +21,5 @@ pub(crate) mod util;
 pub mod name;
 pub use name::*;
 
-#[cfg(feature = "mutate")]
-pub mod mutate;
-
 #[cfg(feature = "probe")]
 pub mod probe;

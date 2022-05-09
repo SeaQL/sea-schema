@@ -41,7 +41,7 @@ sqlx = { version = "^0", optional = true }
 log = { version = "^0.4", optional = true }
 
 [features]
-default = ["mysql", "postgres", "sqlite", "discovery", "writer", "mutate", "probe"]
+default = ["mysql", "postgres", "sqlite", "discovery", "writer", "probe"]
 debug-print = ["log"]
 mysql = []
 postgres = []
@@ -51,7 +51,6 @@ discovery = ["futures", "parser"]
 parser = ["query"]
 query = ["def"]
 writer = ["def"]
-mutate = []
 probe = []
 sqlx-dep = ["sqlx"]
 sqlx-all = ["sqlx-mysql", "sqlx-postgres", "sqlx-sqlite"]

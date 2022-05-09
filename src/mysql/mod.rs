@@ -20,10 +20,6 @@ pub mod query;
 #[cfg_attr(docsrs, doc(cfg(feature = "writer")))]
 pub mod writer;
 
-#[cfg(feature = "mutate")]
-#[cfg_attr(docsrs, doc(cfg(feature = "mutate")))]
-pub mod mutate;
-
 #[cfg(feature = "probe")]
 #[cfg_attr(docsrs, doc(cfg(feature = "probe")))]
 pub mod probe;
