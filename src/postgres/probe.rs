@@ -10,20 +10,17 @@ impl SchemaProbe for Postgres {
     }
 
     fn query_tables() -> SelectStatement {
-        let (expr, tbl_ref, condition) = (
-            Expr::col(TablesFields::TableName),
-            (Schema::Schema, Schema::Tables).into_table_ref(),
-            Condition::all()
-                .add(
-                    Expr::expr(Self::get_current_schema())
-                        .equals(Schema::Tables, TablesFields::TableSchema),
-                )
-                .add(Expr::col(TablesFields::TableType).eq("BASE TABLE")),
-        );
         Query::select()
-            .expr_as(expr, TablesFields::TableName)
-            .from(tbl_ref)
-            .cond_where(condition)
+            .expr_as(Expr::col(TablesFields::TableName), TablesFields::TableName)
+            .from((Schema::Schema, Schema::Tables).into_table_ref())
+            .cond_where(
+                Condition::all()
+                    .add(
+                        Expr::expr(Self::get_current_schema())
+                            .equals(Schema::Tables, TablesFields::TableSchema),
+                    )
+                    .add(Expr::col(TablesFields::TableType).eq("BASE TABLE")),
+            )
             .take()
     }
 }
