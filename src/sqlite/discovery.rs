@@ -1,9 +1,11 @@
-use crate::sqlite::{
-    executor::{Executor, IntoExecutor},
-    DiscoveryResult, IndexInfo, Schema, TableDef,
-};
 use sea_query::{Alias, Expr, SelectStatement};
-use sqlx::SqlitePool;
+
+use super::def::{IndexInfo, Schema, TableDef};
+use super::{
+    error::DiscoveryResult,
+    executor::{Executor, IntoExecutor},
+};
+use crate::sqlx_types::SqlitePool;
 
 /// Performs all the methods for schema discovery of a SQLite database
 pub struct SchemaDiscovery {

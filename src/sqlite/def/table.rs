@@ -1,14 +1,15 @@
-use crate::sqlite::{
-    executor::Executor, ColumnInfo, DefaultType, DiscoveryResult, ForeignKeysInfo, IndexInfo,
-    IndexedColumns, PartialIndexInfo,
-};
 use sea_query::{
     Alias, ColumnDef, Expr, ForeignKey, Index, Query, Table, TableCreateStatement, Value,
 };
-use sqlx::{sqlite::SqliteRow, Row};
+
+use super::{
+    ColumnInfo, DefaultType, ForeignKeysInfo, IndexInfo, IndexedColumns, PartialIndexInfo,
+};
+use crate::sqlite::{error::DiscoveryResult, executor::Executor};
+use crate::sqlx_types::{sqlite::SqliteRow, Row};
 
 /// Defines a table for SQLite
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct TableDef {
     /// The table name
     pub name: String,
@@ -20,6 +21,7 @@ pub struct TableDef {
     pub auto_increment: bool,
 }
 
+#[cfg(feature = "sqlx-sqlite")]
 /// Gets the table name from a `SqliteRow` and maps it to the [TableDef]
 impl From<&SqliteRow> for TableDef {
     fn from(row: &SqliteRow) -> Self {
@@ -30,6 +32,14 @@ impl From<&SqliteRow> for TableDef {
             columns: Vec::default(),
             auto_increment: bool::default(),
         }
+    }
+}
+
+#[cfg(not(feature = "sqlx-sqlite"))]
+/// Gets the table name from a `SqliteRow` and maps it to the [TableDef]
+impl From<&SqliteRow> for TableDef {
+    fn from(row: &SqliteRow) -> Self {
+        Self::default()
     }
 }
 

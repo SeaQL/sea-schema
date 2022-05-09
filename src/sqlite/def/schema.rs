@@ -1,4 +1,4 @@
-use crate::sqlite::TableDef;
+use super::TableDef;
 
 #[derive(Clone, Debug)]
 pub struct Schema {

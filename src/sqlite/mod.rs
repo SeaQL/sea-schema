@@ -13,17 +13,13 @@
 //!     .to_sql()
 //! ```
 
-mod columns;
-mod discovery;
-mod errors;
-mod executor;
-mod schema;
-mod tabledef;
-mod types;
+#[cfg(feature = "def")]
+#[cfg_attr(docsrs, doc(cfg(feature = "def")))]
+pub mod def;
 
-pub use columns::*;
-pub use discovery::*;
-pub use errors::*;
-pub use schema::*;
-pub use tabledef::*;
-pub use types::*;
+#[cfg(feature = "discovery")]
+#[cfg_attr(docsrs, doc(cfg(feature = "discovery")))]
+pub mod discovery;
+
+mod error;
+mod executor;

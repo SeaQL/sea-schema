@@ -1,4 +1,4 @@
-use crate::sqlite::{DefaultType, Type};
+use super::{DefaultType, Type};
 use crate::sqlx_types::{sqlite::SqliteRow, Row};
 use sea_query::{
     foreign_key::ForeignKeyAction as SeaQueryForeignKeyAction, Alias, Index, IndexCreateStatement,
@@ -16,6 +16,7 @@ pub struct ColumnInfo {
     pub primary_key: bool,
 }
 
+#[cfg(feature = "sqlx-sqlite")]
 impl ColumnInfo {
     /// Map an [SqliteRow] into a column definition type [ColumnInfo]
     pub fn to_column_def(row: &SqliteRow) -> Result<ColumnInfo, ParseIntError> {
@@ -44,6 +45,14 @@ impl ColumnInfo {
             },
             primary_key: is_pk != 0,
         })
+    }
+}
+
+#[cfg(not(feature = "sqlx-sqlite"))]
+impl ColumnInfo {
+    pub fn to_column_def(row: &SqliteRow) -> Result<ColumnInfo, ParseIntError> {
+        i32::from_str_radix("", 10)?;
+        unimplemented!()
     }
 }
 
@@ -94,6 +103,7 @@ pub(crate) struct PartialIndexInfo {
     pub(crate) partial: i32,
 }
 
+#[cfg(feature = "sqlx-sqlite")]
 impl From<&SqliteRow> for PartialIndexInfo {
     fn from(row: &SqliteRow) -> Self {
         let is_unique: i8 = row.get(2);
@@ -104,6 +114,13 @@ impl From<&SqliteRow> for PartialIndexInfo {
             origin: row.get(3),
             partial: row.get(4),
         }
+    }
+}
+
+#[cfg(not(feature = "sqlx-sqlite"))]
+impl From<&SqliteRow> for PartialIndexInfo {
+    fn from(row: &SqliteRow) -> Self {
+        Self::default()
     }
 }
 
@@ -119,6 +136,7 @@ pub(crate) struct IndexedColumns {
     pub(crate) indexed_columns: Vec<String>,
 }
 
+#[cfg(feature = "sqlx-sqlite")]
 impl From<&SqliteRow> for IndexedColumns {
     fn from(row: &SqliteRow) -> Self {
         let indexed_columns_new: String = row.get(4);
@@ -140,20 +158,35 @@ impl From<&SqliteRow> for IndexedColumns {
     }
 }
 
+#[cfg(not(feature = "sqlx-sqlite"))]
+impl From<&SqliteRow> for IndexedColumns {
+    fn from(row: &SqliteRow) -> Self {
+        Self::default()
+    }
+}
+
 /// Confirms if a table's primary key is set to autoincrement as a result of using query
 /// `SELECT COUNT(*) from sqlite_sequence where name = 'table_name';
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub(crate) struct PrimaryKeyAutoincrement(pub(crate) u8);
 
+#[cfg(feature = "sqlx-sqlite")]
 impl From<&SqliteRow> for PrimaryKeyAutoincrement {
     fn from(row: &SqliteRow) -> Self {
         Self(row.get(0))
     }
 }
 
+#[cfg(not(feature = "sqlx-sqlite"))]
+impl From<&SqliteRow> for PrimaryKeyAutoincrement {
+    fn from(row: &SqliteRow) -> Self {
+        Self::default()
+    }
+}
+
 /// Indexes the foreign keys
 #[allow(dead_code)]
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct ForeignKeysInfo {
     pub(crate) id: i32,
     pub(crate) seq: i32,
@@ -165,6 +198,7 @@ pub struct ForeignKeysInfo {
     pub(crate) r#match: MatchAction,
 }
 
+#[cfg(feature = "sqlx-sqlite")]
 impl From<&SqliteRow> for ForeignKeysInfo {
     fn from(row: &SqliteRow) -> Self {
         Self {
@@ -189,6 +223,13 @@ impl From<&SqliteRow> for ForeignKeysInfo {
     }
 }
 
+#[cfg(not(feature = "sqlx-sqlite"))]
+impl From<&SqliteRow> for ForeignKeysInfo {
+    fn from(row: &SqliteRow) -> Self {
+        Self::default()
+    }
+}
+
 /// Indexes the actions performed on the foreign keys of a table
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum ForeignKeyAction {
@@ -197,6 +238,12 @@ pub enum ForeignKeyAction {
     SetNull,
     SetDefault,
     Cascade,
+}
+
+impl Default for ForeignKeyAction {
+    fn default() -> Self {
+        Self::NoAction
+    }
 }
 
 impl From<&str> for ForeignKeyAction {
@@ -231,6 +278,12 @@ pub enum MatchAction {
     Partial,
     Full,
     None,
+}
+
+impl Default for MatchAction {
+    fn default() -> Self {
+        Self::None
+    }
 }
 
 impl From<&str> for MatchAction {

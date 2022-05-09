@@ -1,5 +1,7 @@
 use std::num::{ParseFloatError, ParseIntError};
 
+use crate::sqlx_types::Error as SqlxError;
+
 /// This type simplifies error handling
 pub type DiscoveryResult<T> = Result<T, SqliteDiscoveryError>;
 
@@ -11,7 +13,7 @@ pub enum SqliteDiscoveryError {
     /// An error parsing a string from the result of an SQLite query into an rust-language float
     ParseFloatError,
     /// The error as defined in [sqlx::Error]
-    SqlxError(sqlx::Error),
+    SqlxError(SqlxError),
     /// An operation to discover the indexes in a table was invoked
     /// but the target table contains no indexes
     NoIndexesFound,
@@ -29,8 +31,8 @@ impl From<ParseFloatError> for SqliteDiscoveryError {
     }
 }
 
-impl From<sqlx::Error> for SqliteDiscoveryError {
-    fn from(error: sqlx::Error) -> Self {
+impl From<SqlxError> for SqliteDiscoveryError {
+    fn from(error: SqlxError) -> Self {
         SqliteDiscoveryError::SqlxError(error)
     }
 }
@@ -42,7 +44,7 @@ impl std::fmt::Display for SqliteDiscoveryError {
         match self {
             SqliteDiscoveryError::ParseIntError => write!(f, "Parse Integer Error"),
             SqliteDiscoveryError::ParseFloatError => write!(f, "Parse Float Error Error"),
-            SqliteDiscoveryError::SqlxError(e) => write!(f, "SQLx Error: {}", e),
+            SqliteDiscoveryError::SqlxError(e) => write!(f, "SQLx Error: {:?}", e),
             SqliteDiscoveryError::NoIndexesFound => write!(f, "No Indexes Found Error"),
         }
     }

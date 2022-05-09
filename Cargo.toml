@@ -41,8 +41,8 @@ sqlx = { version = "^0", optional = true }
 log = { version = "^0.4", optional = true }
 
 [features]
+default = ["mysql", "postgres", "sqlite", "discovery", "writer"]
 debug-print = ["log"]
-default = ["mysql", "postgres", "discovery", "writer"]
 mysql = []
 postgres = []
 sqlite = []

@@ -1,4 +1,4 @@
-use sea_query::{Alias, ColumnDef};
+use sea_query::ColumnDef;
 use std::num::ParseIntError;
 
 /// A list of the offical SQLite types as outline at the official [SQLite Docs](https://www.sqlite.org/datatype3.html)
