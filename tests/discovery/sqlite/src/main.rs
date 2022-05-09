@@ -1,4 +1,4 @@
-use sea_schema::sqlite::{DiscoveryResult, SchemaDiscovery};
+use sea_schema::sqlite::discovery::{DiscoveryResult, SchemaDiscovery};
 use sqlx::SqlitePool;
 
 #[async_std::main]

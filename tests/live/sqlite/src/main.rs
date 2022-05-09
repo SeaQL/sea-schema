@@ -1,13 +1,16 @@
 use pretty_assertions::assert_eq;
+use sqlx::sqlite::SqlitePoolOptions;
+use sqlx::SqlitePool;
+use std::collections::HashMap;
+
 use sea_schema::sea_query::{
     Alias, ColumnDef, ForeignKey, ForeignKeyAction, ForeignKeyCreateStatement, Index, Query,
     SqliteQueryBuilder, Table, TableCreateStatement, TableRef,
 };
-use sea_schema::sqlite::SchemaDiscovery;
-use sea_schema::sqlite::*;
-use sqlx::sqlite::SqlitePoolOptions;
-use sqlx::SqlitePool;
-use std::collections::HashMap;
+use sea_schema::sqlite::{
+    def::TableDef,
+    discovery::{DiscoveryResult, SchemaDiscovery},
+};
 
 #[cfg_attr(test, async_std::test)]
 #[cfg_attr(not(test), async_std::main)]

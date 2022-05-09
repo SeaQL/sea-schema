@@ -1,5 +1,5 @@
 use sea_schema::sea_query::SqliteQueryBuilder;
-use sea_schema::sqlite::{DiscoveryResult, SchemaDiscovery};
+use sea_schema::sqlite::discovery::{DiscoveryResult, SchemaDiscovery};
 use sqlx::sqlite::SqlitePool;
 
 #[async_std::main]

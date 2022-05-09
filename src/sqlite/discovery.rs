@@ -1,10 +1,8 @@
 use sea_query::{Alias, Expr, SelectStatement};
 
 use super::def::{IndexInfo, Schema, TableDef};
-use super::{
-    error::DiscoveryResult,
-    executor::{Executor, IntoExecutor},
-};
+pub use super::error::DiscoveryResult;
+use super::executor::{Executor, IntoExecutor};
 use crate::sqlx_types::SqlitePool;
 
 /// Performs all the methods for schema discovery of a SQLite database
@@ -14,12 +12,6 @@ pub struct SchemaDiscovery {
 
 impl SchemaDiscovery {
     /// Instantiate a new database connection to the database specified
-    ///
-    /// ### Usage
-    /// ```
-    /// SchemaDiscovery::new(sqlite_pool)
-    ///     .await?
-    /// ```
     pub fn new(sqlite_pool: SqlitePool) -> Self {
         SchemaDiscovery {
             executor: sqlite_pool.into_executor(),
