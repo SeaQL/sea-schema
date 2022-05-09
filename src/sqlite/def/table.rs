@@ -61,6 +61,7 @@ impl TableDef {
 
         Ok(self)
     }
+
     /// Get a list of all the indexes in the table.
     /// Note that this does not get the column name mapped by the index.
     /// To get the column name mapped by the index, the `self.get_single_indexinfo` method is invoked
@@ -70,7 +71,7 @@ impl TableDef {
         indexes: &mut Vec<IndexInfo>,
     ) -> DiscoveryResult<()> {
         let mut index_query = String::default();
-        index_query.push_str("pragma index_list('");
+        index_query.push_str("PRAGMA index_list('");
         index_query.push_str(&self.name);
         index_query.push_str("')");
 
@@ -107,7 +108,7 @@ impl TableDef {
     /// Get a list of all the foreign keys in the table
     pub async fn get_foreign_keys(&mut self, executor: &Executor) -> DiscoveryResult<&mut Self> {
         let mut index_query = String::default();
-        index_query.push_str("pragma foreign_key_list('");
+        index_query.push_str("PRAGMA foreign_key_list('");
         index_query.push_str(&self.name);
         index_query.push_str("')");
 
@@ -125,7 +126,7 @@ impl TableDef {
     /// Get a list of all the columns in the table mapped as [ColumnInfo]
     pub async fn get_column_info(&mut self, executor: &Executor) -> DiscoveryResult<&TableDef> {
         let mut index_query = String::default();
-        index_query.push_str("pragma table_info('");
+        index_query.push_str("PRAGMA table_info('");
         index_query.push_str(&self.name);
         index_query.push_str("')");
 

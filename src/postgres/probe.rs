@@ -9,7 +9,6 @@ impl SchemaProbe for Postgres {
     }
 
     fn query_tables() -> SelectStatement {
-        let mut stmt = Query::select();
         let (expr, tbl_ref, condition) = (
             Expr::col(Alias::new("table_name")),
             (Alias::new("information_schema"), Alias::new("tables")).into_table_ref(),
@@ -20,9 +19,10 @@ impl SchemaProbe for Postgres {
                 )
                 .add(Expr::col(Alias::new("table_type")).eq("BASE TABLE")),
         );
-        stmt.expr_as(expr, Alias::new("table_name"))
+        Query::select()
+            .expr_as(expr, Alias::new("table_name"))
             .from(tbl_ref)
-            .cond_where(condition);
-        stmt
+            .cond_where(condition)
+            .take()
     }
 }
