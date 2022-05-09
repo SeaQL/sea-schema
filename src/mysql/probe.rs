@@ -1,5 +1,6 @@
-use sea_query::{Alias, Condition, Expr, IntoTableRef, Query, SelectStatement, SimpleExpr};
+use sea_query::{Condition, Expr, IntoTableRef, Query, SelectStatement, SimpleExpr};
 
+use super::query::{InformationSchema as Schema, TablesFields};
 use super::MySql;
 use crate::probe::SchemaProbe;
 
@@ -10,15 +11,15 @@ impl SchemaProbe for MySql {
 
     fn query_tables() -> SelectStatement {
         let (expr, tbl_ref, condition) = (
-            Expr::col(Alias::new("table_name")),
-            (Alias::new("information_schema"), Alias::new("tables")).into_table_ref(),
+            Expr::col(TablesFields::TableName),
+            (Schema::Schema, Schema::Tables).into_table_ref(),
             Condition::all().add(
                 Expr::expr(Self::get_current_schema())
-                    .equals(Alias::new("tables"), Alias::new("table_schema")),
+                    .equals(Schema::Tables, TablesFields::TableSchema),
             ),
         );
         Query::select()
-            .expr_as(expr, Alias::new("table_name"))
+            .expr_as(expr, TablesFields::TableName)
             .from(tbl_ref)
             .cond_where(condition)
             .take()
