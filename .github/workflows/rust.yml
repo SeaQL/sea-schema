@@ -58,7 +58,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        project: [live/mysql, discovery/mysql, writer/mysql, migration]
+        project: [live/mysql, discovery/mysql, writer/mysql]
     steps:
       - uses: actions/checkout@v2
 
@@ -95,7 +95,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        project: [live/postgres, discovery/postgres, writer/postgres, migration]
+        project: [live/postgres, discovery/postgres, writer/postgres]
     steps:
       - uses: actions/checkout@v2
 
@@ -132,7 +132,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        project: [live/sqlite, discovery/sqlite, writer/sqlite, migration]
+        project: [live/sqlite, discovery/sqlite, writer/sqlite]
     steps:
       - uses: actions/checkout@v2
 
@@ -173,7 +173,7 @@ jobs:
       fail-fast: false
       matrix:
         version: [8.0, 5.7]
-        project: [live/mysql, discovery/mysql, writer/mysql, migration]
+        project: [live/mysql, discovery/mysql, writer/mysql]
     services:
       mysql:
         image: mysql:${{ matrix.version }}
@@ -245,7 +245,7 @@ jobs:
       fail-fast: false
       matrix:
         version: [10.6]
-        project: [live/mysql, discovery/mysql, writer/mysql, migration]
+        project: [live/mysql, discovery/mysql, writer/mysql]
     services:
       mysql:
         image: mariadb:${{ matrix.version }}
@@ -317,7 +317,7 @@ jobs:
       fail-fast: false
       matrix:
         version: [13.3, 12.7, 11.12]
-        project: [live/postgres, discovery/postgres, writer/postgres, migration]
+        project: [live/postgres, discovery/postgres, writer/postgres]
     services:
       postgres:
         image: postgres:${{ matrix.version }}
@@ -382,7 +382,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        project: [live/sqlite, discovery/sqlite, writer/sqlite, migration]
+        project: [live/sqlite, discovery/sqlite, writer/sqlite]
     steps:
       - uses: actions/checkout@v2
 

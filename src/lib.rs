@@ -12,10 +12,6 @@ pub mod postgres;
 #[cfg_attr(docsrs, doc(cfg(feature = "sqlite")))]
 pub mod sqlite;
 
-#[cfg(feature = "migration")]
-#[cfg_attr(docsrs, doc(cfg(feature = "migration")))]
-pub mod migration;
-
 pub use sea_query;
 
 pub(crate) mod parser;
