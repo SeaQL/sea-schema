@@ -1,4 +1,4 @@
-use sea_query::{Condition, Expr, IntoTableRef, Query, SelectStatement, SimpleExpr};
+use sea_query::{Condition, Expr, Query, SelectStatement, SimpleExpr};
 
 use super::query::{InformationSchema as Schema, TablesFields};
 use super::MySql;
@@ -12,7 +12,7 @@ impl SchemaProbe for MySql {
     fn query_tables() -> SelectStatement {
         Query::select()
             .expr_as(Expr::col(TablesFields::TableName), TablesFields::TableName)
-            .from((Schema::Schema, Schema::Tables).into_table_ref())
+            .from((Schema::Schema, Schema::Tables))
             .cond_where(
                 Condition::all().add(
                     Expr::expr(Self::get_current_schema())
