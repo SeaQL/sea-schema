@@ -144,14 +144,14 @@ impl SchemaQueryBuilder {
                         (Schema::ReferentialConstraints, RefC::DeleteRule),
                     ])
                     .columns(vec![
-                        (Schema::KeyColumnUsage, Kcuf::TableName),
-                        (Schema::KeyColumnUsage, Kcuf::ColumnName),
+                        (Schema::ConstraintColumnUsage, Kcuf::TableName),
+                        (Schema::ConstraintColumnUsage, Kcuf::ColumnName),
                     ])
                     .from((Schema::Schema, Schema::ReferentialConstraints))
                     .left_join(
-                        (Schema::Schema, Schema::KeyColumnUsage),
-                        Expr::tbl(Schema::ReferentialConstraints, RefC::UniqueConstraintName)
-                            .equals(Schema::KeyColumnUsage, Kcuf::ConstraintName),
+                        (Schema::Schema, Schema::ConstraintColumnUsage),
+                        Expr::tbl(Schema::ReferentialConstraints, RefC::ConstraintName)
+                            .equals(Schema::ConstraintColumnUsage, Kcuf::ConstraintName),
                     )
                     .take(),
                 rcsq.clone(),
