@@ -207,7 +207,7 @@ fn create_order_table() -> TableCreateStatement {
         )
         .col(
             ColumnDef::new(Alias::new("placed_at"))
-                .timestamp_len(6)
+                .date_time_len(6)
                 .not_null(),
         )
         .primary_key(

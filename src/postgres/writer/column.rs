@@ -103,9 +103,11 @@ impl ColumnInfo {
                 col_def.binary();
             }
             Type::Timestamp(time_attr) => {
+                // The SQL standard requires that writing just timestamp be equivalent to timestamp without time zone,
+                // and PostgreSQL honors that behavior. (https://www.postgresql.org/docs/current/datatype-datetime.html)
                 match time_attr.precision {
-                    Some(precision) => col_def.timestamp_len(precision.into()),
-                    None => col_def.timestamp(),
+                    Some(precision) => col_def.date_time_len(precision.into()),
+                    None => col_def.date_time(),
                 };
             }
             Type::TimestampWithTimeZone(time_attr) => {
