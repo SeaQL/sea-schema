@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.8.1 - 2022-06-17
+
+* Fix SQLx version to ^0.5 https://github.com/SeaQL/sea-schema/pull/70
+* PostgreSQL query non-key foreign key info https://github.com/SeaQL/sea-schema/pull/65
+
 ## 0.8.0 - 2022-05-09
 
 * Dropping `migration` entirely; introducing `SchemaProbe`
