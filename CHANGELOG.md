@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## 0.9.0 - 2022-07-01
 
 * PostgreSQL datetime and timestamp datatype are equivalent #69
+* MySQL VarBinary column type mapping #67
 
 ## 0.8.1 - 2022-06-17
 
