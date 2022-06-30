@@ -1,5 +1,5 @@
 use crate::mysql::def::{CharSet, ColumnInfo, NumericAttr, StringAttr, Type};
-use sea_query::{escape_string, Alias, ColumnDef, Iden};
+use sea_query::{escape_string, Alias, BlobSize, ColumnDef, Iden};
 use std::fmt::Write;
 
 impl ColumnInfo {
@@ -211,21 +211,20 @@ impl ColumnInfo {
                 // FIXME: Unresolved type mapping
                 col_def.custom(self.col_type.clone());
             }
-            Type::Blob(_) => {
-                // FIXME: Unresolved type mapping
-                col_def.custom(self.col_type.clone());
+            Type::Blob(blob_attr) => {
+                match blob_attr.length {
+                    Some(length) => col_def.binary_len(length),
+                    None => col_def.binary(),
+                };
             }
             Type::TinyBlob => {
-                // FIXME: Unresolved type mapping
-                col_def.custom(self.col_type.clone());
+                col_def.blob(BlobSize::Tiny);
             }
             Type::MediumBlob => {
-                // FIXME: Unresolved type mapping
-                col_def.custom(self.col_type.clone());
+                col_def.blob(BlobSize::Medium);
             }
             Type::LongBlob => {
-                // FIXME: Unresolved type mapping
-                col_def.custom(self.col_type.clone());
+                col_def.blob(BlobSize::Long);
             }
             Type::Enum(enum_attr) => {
                 col_def.enumeration(&self.name, &enum_attr.values);
