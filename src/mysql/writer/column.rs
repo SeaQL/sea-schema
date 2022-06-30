@@ -189,9 +189,11 @@ impl ColumnInfo {
                 };
                 col_def = self.write_str_attr(col_def, str_attr);
             }
-            Type::Varbinary(_) => {
-                // FIXME: Unresolved type mapping
-                col_def.custom(self.col_type.clone());
+            Type::Varbinary(str_attr) => {
+                match str_attr.length {
+                    Some(length) => col_def.var_binary(length),
+                    None => col_def.binary(),
+                };
             }
             Type::Text(str_attr) => {
                 col_def.text();
