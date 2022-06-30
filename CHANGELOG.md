@@ -5,10 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## 0.9.0 - 2022-07-01
+## 0.9.1 - Pending
 
 * PostgreSQL datetime and timestamp datatype are equivalent #69
 * MySQL VarBinary column type mapping #67
+* Upgrade `sqlx` to 0.6
 
 ## 0.8.1 - 2022-06-17
 
