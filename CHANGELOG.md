@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 0.9.1 - Pending
 
-* PostgreSQL datetime and timestamp datatype are equivalent #69
-* MySQL VarBinary column type mapping #67
+* PostgreSQL datetime and timestamp datatype are equivalent (#69)
+* MySQL VarBinary column type mapping (#67)
 * Upgrade `sqlx` to 0.6
 * Upgrade `sea-query` to 0.26
 
