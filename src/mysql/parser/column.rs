@@ -1,7 +1,7 @@
 use crate::mysql::def::*;
 use crate::mysql::query::ColumnQueryResult;
 use crate::{parser::Parser, Name};
-use sea_query::unescape_string;
+use sea_query::{EscapeBuilder, MysqlQueryBuilder};
 
 impl ColumnQueryResult {
     pub fn parse(self) -> ColumnInfo {
@@ -195,7 +195,7 @@ fn parse_enum_definition(parser: &mut Parser, mut ctype: ColumnType) -> ColumnTy
                 ctype
                     .get_enum_def_mut()
                     .values
-                    .push(unescape_string(word.unquote().unwrap().as_str()));
+                    .push(MysqlQueryBuilder.unescape_string(word.unquote().unwrap().as_str()));
                 parser.next_if_punctuation(",");
             } else if parser.curr_is_unquoted() {
                 todo!("there can actually be numeric enum values but is very confusing");
@@ -218,7 +218,7 @@ fn parse_set_definition(parser: &mut Parser, mut ctype: ColumnType) -> ColumnTyp
                 ctype
                     .get_set_def_mut()
                     .members
-                    .push(unescape_string(word.unquote().unwrap().as_str()));
+                    .push(MysqlQueryBuilder.unescape_string(word.unquote().unwrap().as_str()));
                 parser.next_if_punctuation(",");
             } else if parser.curr_is_unquoted() {
                 todo!("there can actually be numeric set values but is very confusing");

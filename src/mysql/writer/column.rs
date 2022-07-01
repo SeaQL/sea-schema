@@ -1,5 +1,5 @@
 use crate::mysql::def::{CharSet, ColumnInfo, NumericAttr, StringAttr, Type};
-use sea_query::{escape_string, Alias, BlobSize, ColumnDef, Iden};
+use sea_query::{Alias, BlobSize, ColumnDef, EscapeBuilder, Iden, MysqlQueryBuilder};
 use std::fmt::Write;
 
 impl ColumnInfo {
@@ -23,7 +23,12 @@ impl ColumnInfo {
         }
         if !self.comment.is_empty() {
             let mut string = "".to_owned();
-            write!(&mut string, "COMMENT '{}'", escape_string(&self.comment)).unwrap();
+            write!(
+                &mut string,
+                "COMMENT '{}'",
+                MysqlQueryBuilder.escape_string(&self.comment)
+            )
+            .unwrap();
             extras.push(string);
         }
         if !extras.is_empty() {

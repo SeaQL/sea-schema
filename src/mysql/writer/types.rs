@@ -1,7 +1,7 @@
 use crate::mysql::def::{
     BlobAttr, EnumDef, GeometryAttr, NumericAttr, SetDef, StringAttr, TimeAttr, Type,
 };
-use sea_query::{escape_string, Iden};
+use sea_query::{EscapeBuilder, Iden, MysqlQueryBuilder};
 
 impl Iden for Type {
     fn unquoted(&self, s: &mut dyn std::fmt::Write) {
@@ -226,7 +226,7 @@ impl Type {
             if i > 0 {
                 write!(s, ", ").unwrap();
             }
-            write!(s, "\'{}\'", escape_string(val.as_str())).unwrap();
+            write!(s, "\'{}\'", MysqlQueryBuilder.escape_string(val.as_str())).unwrap();
         }
         write!(s, ")").unwrap();
         Self::write_string_attr(s, &def.attr);
@@ -238,7 +238,7 @@ impl Type {
             if i > 0 {
                 write!(s, ", ").unwrap();
             }
-            write!(s, "\'{}\'", escape_string(val.as_str())).unwrap();
+            write!(s, "\'{}\'", MysqlQueryBuilder.escape_string(val.as_str())).unwrap();
         }
         write!(s, ")").unwrap();
         Self::write_string_attr(s, &def.attr);
