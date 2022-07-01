@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 * PostgreSQL datetime and timestamp datatype are equivalent #69
 * MySQL VarBinary column type mapping #67
 * Upgrade `sqlx` to 0.6
+* Upgrade `sea-query` to 0.26
 
 ## 0.8.1 - 2022-06-17
 
