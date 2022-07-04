@@ -4,6 +4,7 @@ use sea_query::{Func, Query, SelectStatement};
 
 #[derive(sea_query::Iden)]
 enum MysqlFunc {
+    #[iden = "version()"]
     Version,
 }
 
