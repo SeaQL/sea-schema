@@ -108,7 +108,7 @@ impl Type {
                 column_def.binary();
             }
             Self::Real | Self::Double | Self::DoublePrecision | Self::Float | Self::Numeric => {
-                column_def.decimal();
+                column_def.double();
             }
             Self::Decimal {
                 integral,
