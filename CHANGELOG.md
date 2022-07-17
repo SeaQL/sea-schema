@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.9.3 - Pending
+
+* SQLite real datatype maps to double (#75)
+* Discover SYSTEM VERSIONED tables for MariaDB (#76)
+
 ## 0.9.2 - 2022-07-04
 
 * PostgreSQL datetime and timestamp datatype are equivalent (#69)
