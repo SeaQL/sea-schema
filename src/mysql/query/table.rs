@@ -35,6 +35,8 @@ pub enum TableType {
     View,
     #[iden = "SYSTEM VIEW"]
     SystemView,
+    #[iden = "SYSTEM VERSIONED"]
+    SystemVersioned,
 }
 
 #[derive(Debug, Default)]
@@ -74,7 +76,10 @@ impl SchemaQueryBuilder {
                 .equals(Schema::Tables, TablesFields::TableCollation),
             )
             .and_where(Expr::col(TablesFields::TableSchema).eq(schema.to_string()))
-            .and_where(Expr::col(TablesFields::TableType).eq(TableType::BaseTable.to_string()))
+            .and_where(Expr::col(TablesFields::TableType).is_in([
+                TableType::BaseTable.to_string(),
+                TableType::SystemVersioned.to_string(),
+            ]))
             .order_by(TablesFields::TableName, Order::Asc)
             .take()
     }
