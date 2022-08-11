@@ -225,4 +225,4 @@ SeaSchema is a community driven project. We welcome you to participate, contribu
 
 A big shout out to our contributors:
 
-[![Contributors](https://opencollective.com/sea-schema/contributors.svg?width=1000)](https://github.com/SeaQL/sea-schema/graphs/contributors)
+[![Contributors](https://opencollective.com/sea-schema/contributors.svg?width=1000&button=false)](https://github.com/SeaQL/sea-schema/graphs/contributors)
