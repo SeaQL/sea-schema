@@ -44,7 +44,7 @@ impl Type {
             "INT" => Type::Int,
             "INTEGER" => Type::Integer,
             "TINY INT" | "TINYINT" => Type::TinyInt,
-            "SMALL INT" |"SMALLINT" => Type::SmallInt,
+            "SMALL INT" | "SMALLINT" => Type::SmallInt,
             "MEDIUM INT" | "MEDIUMINT" => Type::MediumInt,
             "BIG INT" | "BIGINT" => Type::BigInt,
             "UNSIGNED INT" | "UNSIGNEDBIGINT" => Type::UnsignedBigInt,
