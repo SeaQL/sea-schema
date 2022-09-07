@@ -8,9 +8,10 @@ async fn main() {
     //     .is_test(true)
     //     .init();
 
-    let connection = MySqlPool::connect("mysql://sea:sea@localhost/sakila")
-        .await
-        .unwrap();
+    let url =
+        std::env::var("DATABASE_URL_SAKILA").unwrap_or("mysql://root:root@localhost".to_owned());
+
+    let connection = MySqlPool::connect(&url).await.unwrap();
 
     let schema_discovery = SchemaDiscovery::new(connection, "sakila");
 

@@ -16,7 +16,10 @@ async fn main() {
     //     .is_test(true)
     //     .init();
 
-    let connection = setup("postgres://sea:sea@localhost", "sea-schema").await;
+    let url =
+        std::env::var("DATABASE_URL_LIVE").unwrap_or("postgres://root:root@localhost".to_owned());
+
+    let connection = setup(&url, "sea-schema").await;
     let mut executor = connection.acquire().await.unwrap();
 
     let create_enum_stmt = Type::create()

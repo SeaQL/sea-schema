@@ -8,9 +8,10 @@ async fn main() {
     //     .is_test(true)
     //     .init();
 
-    let connection = PgPool::connect("postgres://sea:sea@localhost/sakila")
-        .await
-        .unwrap();
+    let url = std::env::var("DATABASE_URL_SAKILA")
+        .unwrap_or("postgres://root:root@localhost/sakila".to_owned());
+
+    let connection = PgPool::connect(&url).await.unwrap();
 
     let schema_discovery = SchemaDiscovery::new(connection, "public");
 
