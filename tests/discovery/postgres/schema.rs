@@ -4,7 +4,6 @@ Schema {
         TableDef {
             info: TableInfo {
                 name: "actor",
-                of_type: None,
             },
             columns: [
                 ColumnInfo {
@@ -108,7 +107,6 @@ Schema {
         TableDef {
             info: TableInfo {
                 name: "film",
-                of_type: None,
             },
             columns: [
                 ColumnInfo {
@@ -373,7 +371,6 @@ Schema {
         TableDef {
             info: TableInfo {
                 name: "payment_p2007_02",
-                of_type: None,
             },
             columns: [
                 ColumnInfo {
@@ -545,7 +542,6 @@ Schema {
         TableDef {
             info: TableInfo {
                 name: "payment_p2007_03",
-                of_type: None,
             },
             columns: [
                 ColumnInfo {
@@ -717,7 +713,6 @@ Schema {
         TableDef {
             info: TableInfo {
                 name: "payment_p2007_04",
-                of_type: None,
             },
             columns: [
                 ColumnInfo {
@@ -889,7 +884,6 @@ Schema {
         TableDef {
             info: TableInfo {
                 name: "payment_p2007_05",
-                of_type: None,
             },
             columns: [
                 ColumnInfo {
@@ -1061,7 +1055,6 @@ Schema {
         TableDef {
             info: TableInfo {
                 name: "payment_p2007_06",
-                of_type: None,
             },
             columns: [
                 ColumnInfo {
@@ -1233,7 +1226,6 @@ Schema {
         TableDef {
             info: TableInfo {
                 name: "payment_p2007_01",
-                of_type: None,
             },
             columns: [
                 ColumnInfo {
@@ -1405,7 +1397,6 @@ Schema {
         TableDef {
             info: TableInfo {
                 name: "address",
-                of_type: None,
             },
             columns: [
                 ColumnInfo {
@@ -1586,7 +1577,6 @@ Schema {
         TableDef {
             info: TableInfo {
                 name: "category",
-                of_type: None,
             },
             columns: [
                 ColumnInfo {
@@ -1670,7 +1660,6 @@ Schema {
         TableDef {
             info: TableInfo {
                 name: "city",
-                of_type: None,
             },
             columns: [
                 ColumnInfo {
@@ -1785,7 +1774,6 @@ Schema {
         TableDef {
             info: TableInfo {
                 name: "country",
-                of_type: None,
             },
             columns: [
                 ColumnInfo {
@@ -1869,7 +1857,6 @@ Schema {
         TableDef {
             info: TableInfo {
                 name: "customer",
-                of_type: None,
             },
             columns: [
                 ColumnInfo {
@@ -2083,7 +2070,6 @@ Schema {
         TableDef {
             info: TableInfo {
                 name: "film_actor",
-                of_type: None,
             },
             columns: [
                 ColumnInfo {
@@ -2191,7 +2177,6 @@ Schema {
         TableDef {
             info: TableInfo {
                 name: "film_category",
-                of_type: None,
             },
             columns: [
                 ColumnInfo {
@@ -2299,7 +2284,6 @@ Schema {
         TableDef {
             info: TableInfo {
                 name: "inventory",
-                of_type: None,
             },
             columns: [
                 ColumnInfo {
@@ -2424,7 +2408,6 @@ Schema {
         TableDef {
             info: TableInfo {
                 name: "language",
-                of_type: None,
             },
             columns: [
                 ColumnInfo {
@@ -2508,7 +2491,6 @@ Schema {
         TableDef {
             info: TableInfo {
                 name: "rental",
-                of_type: None,
             },
             columns: [
                 ColumnInfo {
@@ -2696,7 +2678,6 @@ Schema {
         TableDef {
             info: TableInfo {
                 name: "staff",
-                of_type: None,
             },
             columns: [
                 ColumnInfo {
@@ -2932,7 +2913,6 @@ Schema {
         TableDef {
             info: TableInfo {
                 name: "store",
-                of_type: None,
             },
             columns: [
                 ColumnInfo {
@@ -3057,7 +3037,6 @@ Schema {
         TableDef {
             info: TableInfo {
                 name: "payment",
-                of_type: None,
             },
             columns: [
                 ColumnInfo {

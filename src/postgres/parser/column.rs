@@ -49,9 +49,9 @@ pub fn parse_column_type(result: &ColumnQueryResult) -> ColumnType {
 }
 
 pub fn parse_numeric_attributes(
-    num_precision: Option<i32>,
-    num_precision_radix: Option<i32>,
-    num_scale: Option<i32>,
+    num_precision: Option<i64>,
+    num_precision_radix: Option<i64>,
+    num_scale: Option<i64>,
     mut ctype: ColumnType,
 ) -> ColumnType {
     let numeric_precision: Option<u16> = match num_precision {
@@ -88,7 +88,7 @@ pub fn parse_numeric_attributes(
 }
 
 pub fn parse_string_attributes(
-    character_maximum_length: Option<i32>,
+    character_maximum_length: Option<i64>,
     mut ctype: ColumnType,
 ) -> ColumnType {
     match ctype {
@@ -107,7 +107,7 @@ pub fn parse_string_attributes(
     ctype
 }
 
-pub fn parse_time_attributes(datetime_precision: Option<i32>, mut ctype: ColumnType) -> ColumnType {
+pub fn parse_time_attributes(datetime_precision: Option<i64>, mut ctype: ColumnType) -> ColumnType {
     match ctype {
         Type::Timestamp(ref mut attr)
         | Type::TimestampWithTimeZone(ref mut attr)
@@ -129,7 +129,7 @@ pub fn parse_time_attributes(datetime_precision: Option<i32>, mut ctype: ColumnT
 
 pub fn parse_interval_attributes(
     interval_type: &Option<String>,
-    interval_precision: Option<i32>,
+    interval_precision: Option<i64>,
     mut ctype: ColumnType,
 ) -> ColumnType {
     match ctype {
@@ -150,7 +150,7 @@ pub fn parse_interval_attributes(
 }
 
 pub fn parse_bit_attributes(
-    character_maximum_length: Option<i32>,
+    character_maximum_length: Option<i64>,
     mut ctype: ColumnType,
 ) -> ColumnType {
     match ctype {

@@ -1,0 +1,8 @@
+version: "3.2"
+
+services:
+
+    cockroachdb_latest_21_2:
+        image: cockroachdb/cockroach:latest-v21.2
+        command: [ start-single-node, --insecure ]
+        ports: [ 8080:8080, 26257:26257 ]

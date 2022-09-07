@@ -1,4 +1,4 @@
-use super::{InformationSchema, SchemaQueryBuilder};
+use super::{cast_cols_as_int8, InformationSchema, SchemaQueryBuilder};
 use crate::sqlx_types::postgres::PgRow;
 use sea_query::{Expr, Iden, Query, SeaRc, SelectStatement};
 
@@ -53,17 +53,17 @@ pub struct ColumnQueryResult {
     pub is_identity: String,
 
     // Declared or implicit parameters of numeric types; null for other data types
-    pub numeric_precision: Option<i32>,
-    pub numeric_precision_radix: Option<i32>,
-    pub numeric_scale: Option<i32>,
+    pub numeric_precision: Option<i64>,
+    pub numeric_precision_radix: Option<i64>,
+    pub numeric_scale: Option<i64>,
 
-    pub character_maximum_length: Option<i32>,
-    pub character_octet_length: Option<i32>,
+    pub character_maximum_length: Option<i64>,
+    pub character_octet_length: Option<i64>,
 
-    pub datetime_precision: Option<i32>,
+    pub datetime_precision: Option<i64>,
 
     pub interval_type: Option<String>,
-    pub interval_precision: Option<i32>,
+    pub interval_precision: Option<i64>,
 
     pub udt_name: Option<String>,
 }
@@ -75,23 +75,25 @@ impl SchemaQueryBuilder {
         table: SeaRc<dyn Iden>,
     ) -> SelectStatement {
         Query::select()
-            .columns(vec![
+            .columns([
                 ColumnsField::ColumnName,
                 ColumnsField::DataType,
                 ColumnsField::ColumnDefault,
                 ColumnsField::GenerationExpression,
                 ColumnsField::IsNullable,
                 ColumnsField::IsIdentity,
+            ])
+            .exprs(cast_cols_as_int8([
                 ColumnsField::NumericPrecision,
                 ColumnsField::NumericPrecisionRadix,
                 ColumnsField::NumericScale,
                 ColumnsField::CharacterMaximumLength,
                 ColumnsField::CharacterOctetLength,
                 ColumnsField::DatetimePrecision,
-                ColumnsField::IntervalType,
-                ColumnsField::IntervalPrecision,
-                ColumnsField::UdtName,
-            ])
+            ]))
+            .column(ColumnsField::IntervalType)
+            .exprs(cast_cols_as_int8([ColumnsField::IntervalPrecision]))
+            .column(ColumnsField::UdtName)
             .from((InformationSchema::Schema, InformationSchema::Columns))
             .and_where(Expr::col(ColumnsField::TableSchema).eq(schema.to_string()))
             .and_where(Expr::col(ColumnsField::TableName).eq(table.to_string()))

@@ -380,6 +380,65 @@ jobs:
           args: >
             --manifest-path tests/${{ matrix.project }}/Cargo.toml
 
+  cockroachdb:
+    name: CockroachDB
+    needs: compile-postgres
+    runs-on: ubuntu-20.04
+    env:
+      DATABASE_URL_SAKILA: "postgres://root@localhost:26257/sakila"
+    strategy:
+      fail-fast: false
+      matrix:
+        version: [latest_21_2]
+        project: [discovery/postgres, writer/postgres]
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            Cargo.lock
+            target
+          key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-postgres-${{ matrix.project }}
+
+      - name: Setup CockroachDB
+        run: docker-compose -f build-tools/docker-compose.yml up -d cockroachdb_${{ matrix.version }}
+
+      - name: Wait CockroachDB ready
+        run: sleep 15s
+        shell: bash
+
+      - name: Create DB
+        run: psql -q postgres://root@localhost:26257/postgres -c 'CREATE DATABASE "sakila"'
+
+      - name: Import DB Schema
+        run: psql -q postgres://root@localhost:26257/sakila < sakila-schema.sql
+        working-directory: ./tests/sakila/postgres
+
+      - name: Import DB Data
+        run: psql -q postgres://root@localhost:26257/sakila < sakila-data.sql
+        working-directory: ./tests/sakila/postgres
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: run
+          args: >
+            --manifest-path tests/${{ matrix.project }}/Cargo.toml
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: >
+            --manifest-path tests/${{ matrix.project }}/Cargo.toml
+
   sqlite:
     name: SQLite
     needs: compile-sqlite

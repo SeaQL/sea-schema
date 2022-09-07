@@ -9,7 +9,7 @@ pub use referential_constraints::*;
 pub use table_constraints::*;
 
 use super::{InformationSchema, SchemaQueryBuilder};
-use crate::sqlx_types::postgres::PgRow;
+use crate::{postgres::query::cast_cols_as_int8, sqlx_types::postgres::PgRow};
 use sea_query::{Alias, Condition, Expr, Iden, JoinType, Order, Query, SeaRc, SelectStatement};
 
 #[derive(Debug, Default)]
@@ -28,8 +28,8 @@ pub struct TableConstraintsQueryResult {
 
     // From key_column_usage
     pub column_name: Option<String>,
-    pub ordinal_position: Option<i32>,
-    pub position_in_unique_constraint: Option<i32>,
+    pub ordinal_position: Option<i64>,
+    pub position_in_unique_constraint: Option<i64>,
 
     // From referential_constraints
     pub unique_constraint_schema: Option<String>,
@@ -68,11 +68,11 @@ impl SchemaQueryBuilder {
                 (Schema::TableConstraints, Tcf::InitiallyDeferred),
             ])
             .column((Schema::CheckConstraints, Cf::CheckClause))
-            .columns(vec![
-                (Schema::KeyColumnUsage, Kcuf::ColumnName),
+            .column((Schema::KeyColumnUsage, Kcuf::ColumnName))
+            .exprs(cast_cols_as_int8([
                 (Schema::KeyColumnUsage, Kcuf::OrdinalPosition),
                 (Schema::KeyColumnUsage, Kcuf::PositionInUniqueConstraint),
-            ])
+            ]))
             .columns(vec![
                 (rcsq.clone(), RefC::UniqueConstraintSchema),
                 (rcsq.clone(), RefC::UniqueConstraintName),
@@ -162,6 +162,21 @@ impl SchemaQueryBuilder {
                 Expr::col((Schema::TableConstraints, Tcf::TableSchema)).eq(schema.to_string()),
             )
             .and_where(Expr::col((Schema::TableConstraints, Tcf::TableName)).eq(table.to_string()))
+            .cond_where(
+                Condition::any()
+                    .add(Expr::col((Schema::TableConstraints, Tcf::ConstraintType)).ne("CHECK"))
+                    .add(
+                        Condition::all()
+                            .add(
+                                Expr::col((Schema::TableConstraints, Tcf::ConstraintType))
+                                    .eq("CHECK"),
+                            )
+                            .add(
+                                Expr::col((Schema::CheckConstraints, Cf::CheckClause))
+                                    .is_not_null(),
+                            ),
+                    ),
+            )
             .order_by((Schema::TableConstraints, Tcf::ConstraintName), Order::Asc)
             .order_by((Schema::KeyColumnUsage, Kcuf::OrdinalPosition), Order::Asc)
             .order_by((rcsq.clone(), RefC::UniqueConstraintName), Order::Asc)

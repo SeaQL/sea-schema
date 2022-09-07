@@ -1,4 +1,3 @@
-use super::*;
 #[cfg(feature = "with-serde")]
 use serde::{Deserialize, Serialize};
 
@@ -8,7 +7,6 @@ use serde::{Deserialize, Serialize};
 /// table including its columns and constraints, use [`TableDef`]
 pub struct TableInfo {
     pub name: String,
-    pub of_type: Option<Type>,
     // TODO:
     // pub comment: String
 }
