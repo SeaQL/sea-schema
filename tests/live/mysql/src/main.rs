@@ -16,7 +16,10 @@ async fn main() {
     //     .is_test(true)
     //     .init();
 
-    let connection = setup("mysql://sea:sea@localhost", "sea-schema").await;
+    let url =
+        std::env::var("DATABASE_URL_LIVE").unwrap_or("mysql://root:root@localhost".to_owned());
+
+    let connection = setup(&url, "sea-schema").await;
     let mut executor = connection.acquire().await.unwrap();
 
     let tbl_create_stmts = vec![

@@ -27,10 +27,9 @@ async fn main() -> DiscoveryResult<()> {
 }
 
 async fn test_001() -> DiscoveryResult<()> {
-    let sqlite_pool = SqlitePoolOptions::new()
-        .connect("sqlite::memory:")
-        .await
-        .unwrap();
+    let url = std::env::var("DATABASE_URL_LIVE").unwrap_or("sqlite::memory:".to_owned());
+
+    let sqlite_pool = SqlitePoolOptions::new().connect(&url).await.unwrap();
 
     //DROP TABLES to ensure all tests pass
     sqlx::query("DROP TABLE IF EXISTS Programming_Langs")
@@ -241,7 +240,9 @@ async fn test_001() -> DiscoveryResult<()> {
 }
 
 async fn test_002() -> DiscoveryResult<()> {
-    let connection = SqlitePool::connect("sqlite::memory:").await.unwrap();
+    let url = std::env::var("DATABASE_URL_LIVE").unwrap_or("sqlite::memory:".to_owned());
+
+    let connection = SqlitePool::connect(&url).await.unwrap();
     let mut executor = connection.acquire().await.unwrap();
 
     let tbl_create_stmts = vec![

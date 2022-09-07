@@ -172,7 +172,8 @@ jobs:
     runs-on: ubuntu-20.04
     needs: compile-mysql
     env:
-      DATABASE_URL: "mysql://sea:sea@localhost/sakila"
+      DATABASE_URL_SAKILA: "mysql://sea:sea@localhost/sakila"
+      DATABASE_URL_LIVE: "mysql://sea:sea@localhost"
     strategy:
       fail-fast: false
       matrix:
@@ -244,7 +245,8 @@ jobs:
     runs-on: ubuntu-20.04
     needs: compile-mysql
     env:
-      DATABASE_URL: "mysql://sea:sea@localhost/sakila"
+      DATABASE_URL_SAKILA: "mysql://sea:sea@localhost/sakila"
+      DATABASE_URL_LIVE: "mysql://sea:sea@localhost"
     strategy:
       fail-fast: false
       matrix:
@@ -316,7 +318,8 @@ jobs:
     needs: compile-postgres
     runs-on: ubuntu-20.04
     env:
-      DATABASE_URL: "postgres://sea:sea@localhost/sakila"
+      DATABASE_URL_SAKILA: "postgres://sea:sea@localhost/sakila"
+      DATABASE_URL_LIVE: "postgres://sea:sea@localhost"
     strategy:
       fail-fast: false
       matrix:
@@ -382,7 +385,8 @@ jobs:
     needs: compile-sqlite
     runs-on: ubuntu-20.04
     env:
-      DATABASE_URL: "sqlite::memory:"
+      DATABASE_URL_SAKILA: "sqlite://tests/sakila/sqlite/sakila.db"
+      DATABASE_URL_LIVE: "sqlite::memory:"
     strategy:
       fail-fast: false
       matrix:
