@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.9.4 - 2022-09-16
+
+* Parsing SQLite integer column types without space in it https://github.com/SeaQL/sea-schema/pull/77
+
 ## 0.9.3 - 2022-07-17
 
 * SQLite real datatype maps to double https://github.com/SeaQL/sea-schema/pull/75
