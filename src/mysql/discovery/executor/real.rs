@@ -1,8 +1,6 @@
 use sea_query::{MysqlQueryBuilder, SelectStatement};
+use sea_query_binder::SqlxBinder;
 use sqlx::{mysql::MySqlRow, MySqlPool};
-
-sea_query::sea_query_driver_mysql!();
-use sea_query_driver_mysql::bind_query;
 
 use crate::debug_print;
 
@@ -22,11 +20,10 @@ impl IntoExecutor for MySqlPool {
 
 impl Executor {
     pub async fn fetch_all(&self, select: SelectStatement) -> Vec<MySqlRow> {
-        let (sql, values) = select.build(MysqlQueryBuilder);
+        let (sql, values) = select.build_sqlx(MysqlQueryBuilder);
         debug_print!("{}, {:?}", sql, values);
 
-        let query = bind_query(sqlx::query(&sql), &values);
-        query
+        sqlx::query_with(&sql, values)
             .fetch_all(&mut self.pool.acquire().await.unwrap())
             .await
             .unwrap()

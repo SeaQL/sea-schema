@@ -1,8 +1,6 @@
 use sea_query::{SelectStatement, SqliteQueryBuilder};
+use sea_query_binder::SqlxBinder;
 use sqlx::{sqlite::SqliteRow, SqlitePool};
-
-sea_query::sea_query_driver_sqlite!();
-use sea_query_driver_sqlite::bind_query;
 
 use crate::debug_print;
 
@@ -22,22 +20,20 @@ impl IntoExecutor for SqlitePool {
 
 impl Executor {
     pub async fn fetch_all(&self, select: SelectStatement) -> Vec<SqliteRow> {
-        let (sql, values) = select.build(SqliteQueryBuilder);
+        let (sql, values) = select.build_salx(SqliteQueryBuilder);
         debug_print!("{}, {:?}", sql, values);
 
-        let query = bind_query(sqlx::query(&sql), &values);
-        query
+        sqlx::query_with(&sql, values)
             .fetch_all(&mut self.pool.acquire().await.unwrap())
             .await
             .unwrap()
     }
 
     pub async fn fetch_one(&self, select: SelectStatement) -> SqliteRow {
-        let (sql, values) = select.build(SqliteQueryBuilder);
+        let (sql, values) = select.build_salx(SqliteQueryBuilder);
         debug_print!("{}, {:?}", sql, values);
 
-        let query = bind_query(sqlx::query(&sql), &values);
-        query
+        sqlx::query_with(&sql, values)
             .fetch_one(&mut self.pool.acquire().await.unwrap())
             .await
             .unwrap()
