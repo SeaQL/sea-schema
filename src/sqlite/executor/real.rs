@@ -20,7 +20,7 @@ impl IntoExecutor for SqlitePool {
 
 impl Executor {
     pub async fn fetch_all(&self, select: SelectStatement) -> Vec<SqliteRow> {
-        let (sql, values) = select.build_salx(SqliteQueryBuilder);
+        let (sql, values) = select.build_sqlx(SqliteQueryBuilder);
         debug_print!("{}, {:?}", sql, values);
 
         sqlx::query_with(&sql, values)
@@ -30,7 +30,7 @@ impl Executor {
     }
 
     pub async fn fetch_one(&self, select: SelectStatement) -> SqliteRow {
-        let (sql, values) = select.build_salx(SqliteQueryBuilder);
+        let (sql, values) = select.build_sqlx(SqliteQueryBuilder);
         debug_print!("{}, {:?}", sql, values);
 
         sqlx::query_with(&sql, values)
