@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.10.0 - 2022-10-18
+
+* Upgrade SeaQuery to 0.27 https://github.com/SeaQL/sea-schema/pull/81
+
 ## 0.9.4 - 2022-09-16
 
 * Parsing SQLite integer column types without space in it https://github.com/SeaQL/sea-schema/pull/77
