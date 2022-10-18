@@ -1,5 +1,7 @@
 use crate::mysql::def::{CharSet, ColumnInfo, NumericAttr, StringAttr, Type};
-use sea_query::{Alias, BlobSize, ColumnDef, EscapeBuilder, Iden, MysqlQueryBuilder};
+use sea_query::{
+    Alias, BlobSize, ColumnDef, DynIden, EscapeBuilder, Iden, IntoIden, MysqlQueryBuilder,
+};
 use std::fmt::Write;
 
 impl ColumnInfo {
@@ -232,7 +234,13 @@ impl ColumnInfo {
                 col_def.blob(BlobSize::Long);
             }
             Type::Enum(enum_attr) => {
-                col_def.enumeration(&self.name, &enum_attr.values);
+                let name = Alias::new(&self.name);
+                let variants: Vec<DynIden> = enum_attr
+                    .values
+                    .iter()
+                    .map(|variant| Alias::new(variant).into_iden())
+                    .collect();
+                col_def.enumeration(name, variants);
             }
             Type::Set(_) => {
                 // FIXME: Unresolved type mapping

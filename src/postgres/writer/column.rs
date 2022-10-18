@@ -1,5 +1,5 @@
 use crate::postgres::def::{ColumnInfo, Type};
-use sea_query::{Alias, ColumnDef, PgInterval};
+use sea_query::{Alias, ColumnDef, DynIden, IntoIden, PgInterval};
 use std::{convert::TryFrom, fmt::Write};
 
 impl ColumnInfo {
@@ -233,7 +233,13 @@ impl ColumnInfo {
                 col_def.custom(Alias::new(s));
             }
             Type::Enum(enum_def) => {
-                col_def.enumeration(&enum_def.typename, &enum_def.values);
+                let name = Alias::new(&enum_def.typename);
+                let variants: Vec<DynIden> = enum_def
+                    .values
+                    .iter()
+                    .map(|variant| Alias::new(variant).into_iden())
+                    .collect();
+                col_def.enumeration(name, variants);
             }
         };
         col_def
