@@ -1,6 +1,6 @@
 use super::{InformationSchema, SchemaQueryBuilder};
 use crate::sqlx_types::postgres::PgRow;
-use sea_query::{Alias, BinOper, Expr, Iden, IntoTableRef, Query, SeaRc, SelectStatement};
+use sea_query::{Alias, BinOper, Expr, Iden, Query, SeaRc, SelectStatement};
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://www.postgresql.org/docs/13/infoschema-columns.html

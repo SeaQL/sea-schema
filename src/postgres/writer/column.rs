@@ -17,14 +17,14 @@ impl ColumnInfo {
         }
         let col_type = col_info.write_col_type();
         let mut col_def = ColumnDef::new_with_type(Alias::new(self.name.as_str()), col_type);
+        if self.is_identity {
+            col_info = Self::convert_to_serial(col_info);
+        }
         if matches!(
             col_info.col_type,
             Type::SmallSerial | Type::Serial | Type::BigSerial
         ) {
             col_def.auto_increment();
-        }
-        if self.is_identity {
-            col_info = Self::convert_to_serial(col_info);
         }
         if self.not_null.is_some() {
             col_def.not_null();
@@ -61,8 +61,8 @@ impl ColumnInfo {
                     match (num_attr.precision, num_attr.scale) {
                         (None, None) => ColumnType::Decimal(None),
                         (precision, scale) => ColumnType::Decimal(Some((
-                            num_attr.precision.unwrap_or(0).into(),
-                            num_attr.scale.unwrap_or(0).into(),
+                            precision.unwrap_or(0).into(),
+                            scale.unwrap_or(0).into(),
                         ))),
                     }
                 }
