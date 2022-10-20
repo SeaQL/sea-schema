@@ -331,7 +331,11 @@ fn create_collection_table() -> TableCreateStatement {
                 .not_null()
                 .auto_increment(),
         )
-        .col(ColumnDef::new(Alias::new("integers")).array(ColumnType::Integer(None)).not_null())
+        .col(
+            ColumnDef::new(Alias::new("integers"))
+                .array(ColumnType::Integer(None))
+                .not_null(),
+        )
         .col(ColumnDef::new(Alias::new("integers_opt")).array(ColumnType::Integer(None)))
         .to_owned()
 }
