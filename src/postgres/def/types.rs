@@ -1,3 +1,4 @@
+use sea_query::SeaRc;
 #[cfg(feature = "with-serde")]
 use serde::{Deserialize, Serialize};
 
@@ -110,7 +111,7 @@ pub enum Type {
     JsonBinary,
 
     /// Variable-length multidimensional array
-    Array,
+    Array(SeaRc<Type>),
 
     // TODO:
     // /// The structure of a row or record; a list of field names and types
@@ -148,61 +149,66 @@ impl Type {
     // TODO: Support more types
     #[allow(clippy::should_implement_trait)]
     pub fn from_str(name: &str) -> Type {
-        match name.to_lowercase().as_str() {
-            "smallint" | "int2" => Type::SmallInt,
-            "integer" | "int" | "int4" => Type::Integer,
-            "bigint" | "int8" => Type::BigInt,
-            "decimal" => Type::Decimal(ArbitraryPrecisionNumericAttr::default()),
-            "numeric" => Type::Numeric(ArbitraryPrecisionNumericAttr::default()),
-            "real" | "float4" => Type::Real,
-            "double precision" | "double" | "float8" => Type::DoublePrecision,
-            "smallserial" | "serial2" => Type::SmallSerial,
-            "serial" | "serial4" => Type::Serial,
-            "bigserial" | "serial8" => Type::BigSerial,
-            "money" => Type::Money,
-            "character varying" | "varchar" => Type::Varchar(StringAttr::default()),
-            "character" | "char" => Type::Char(StringAttr::default()),
-            "text" => Type::Text,
-            "bytea" => Type::Bytea,
-            "timestamp" | "timestamp without time zone" => Type::Timestamp(TimeAttr::default()),
-            "timestamp with time zone" => Type::TimestampWithTimeZone(TimeAttr::default()),
-            "date" => Type::Date,
-            "time" | "time without time zone" => Type::Time(TimeAttr::default()),
-            "time with time zone" => Type::TimeWithTimeZone(TimeAttr::default()),
-            "interval" => Type::Interval(IntervalAttr::default()),
-            "boolean" => Type::Boolean,
-            "point" => Type::Point,
-            "line" => Type::Line,
-            "lseg" => Type::Lseg,
-            "box" => Type::Box,
-            "path" => Type::Path,
-            "polygon" => Type::Polygon,
-            "circle" => Type::Circle,
-            "cidr" => Type::Cidr,
-            "inet" => Type::Inet,
-            "macaddr" => Type::MacAddr,
-            "macaddr8" => Type::MacAddr8,
-            "bit" => Type::Bit(BitAttr::default()),
-            "tsvector" => Type::TsVector,
-            "tsquery" => Type::TsQuery,
-            "uuid" => Type::Uuid,
-            "xml" => Type::Xml,
-            "json" => Type::Json,
-            "jsonb" => Type::JsonBinary,
-            "array" => Type::Array,
-            // "" => Type::Composite,
-            "int4range" => Type::Int4Range,
-            "int8range" => Type::Int8Range,
-            "numrange" => Type::NumRange,
-            "tsrange" => Type::TsRange,
-            "tstzrange" => Type::TsTzRange,
-            "daterange" => Type::DateRange,
-            // "" => Type::Domain,
-            "pg_lsn" => Type::PgLsn,
-            "user-defined" => Type::Enum(EnumDef::default()),
-
-            _ => Type::Unknown(name.to_owned()),
+        fn parse_type(name: &str) -> Type {
+            match name.to_lowercase().as_str() {
+                "smallint" | "int2" => Type::SmallInt,
+                "integer" | "int" | "int4" => Type::Integer,
+                "bigint" | "int8" => Type::BigInt,
+                "decimal" => Type::Decimal(ArbitraryPrecisionNumericAttr::default()),
+                "numeric" => Type::Numeric(ArbitraryPrecisionNumericAttr::default()),
+                "real" | "float4" => Type::Real,
+                "double precision" | "double" | "float8" => Type::DoublePrecision,
+                "smallserial" | "serial2" => Type::SmallSerial,
+                "serial" | "serial4" => Type::Serial,
+                "bigserial" | "serial8" => Type::BigSerial,
+                "money" => Type::Money,
+                "character varying" | "varchar" => Type::Varchar(StringAttr::default()),
+                "character" | "char" => Type::Char(StringAttr::default()),
+                "text" => Type::Text,
+                "bytea" => Type::Bytea,
+                "timestamp" | "timestamp without time zone" => Type::Timestamp(TimeAttr::default()),
+                "timestamp with time zone" => Type::TimestampWithTimeZone(TimeAttr::default()),
+                "date" => Type::Date,
+                "time" | "time without time zone" => Type::Time(TimeAttr::default()),
+                "time with time zone" => Type::TimeWithTimeZone(TimeAttr::default()),
+                "interval" => Type::Interval(IntervalAttr::default()),
+                "boolean" => Type::Boolean,
+                "point" => Type::Point,
+                "line" => Type::Line,
+                "lseg" => Type::Lseg,
+                "box" => Type::Box,
+                "path" => Type::Path,
+                "polygon" => Type::Polygon,
+                "circle" => Type::Circle,
+                "cidr" => Type::Cidr,
+                "inet" => Type::Inet,
+                "macaddr" => Type::MacAddr,
+                "macaddr8" => Type::MacAddr8,
+                "bit" => Type::Bit(BitAttr::default()),
+                "tsvector" => Type::TsVector,
+                "tsquery" => Type::TsQuery,
+                "uuid" => Type::Uuid,
+                "xml" => Type::Xml,
+                "json" => Type::Json,
+                "jsonb" => Type::JsonBinary,
+                // "" => Type::Composite,
+                "int4range" => Type::Int4Range,
+                "int8range" => Type::Int8Range,
+                "numrange" => Type::NumRange,
+                "tsrange" => Type::TsRange,
+                "tstzrange" => Type::TsTzRange,
+                "daterange" => Type::DateRange,
+                // "" => Type::Domain,
+                "pg_lsn" => Type::PgLsn,
+                "user-defined" => Type::Enum(EnumDef::default()),
+                _ if name.ends_with("[]") => {
+                    let col_type = parse_type(&name.replacen("[]", "", 1));
+                    Type::Array(SeaRc::new(col_type))
+                }
+                _ => Type::Unknown(name.to_owned()),
+            }
         }
+        parse_type(name)
     }
 }
 

@@ -1,6 +1,6 @@
 use super::{InformationSchema, SchemaQueryBuilder};
 use crate::sqlx_types::postgres::PgRow;
-use sea_query::{Expr, Iden, Query, SeaRc, SelectStatement};
+use sea_query::{Alias, BinOper, Expr, Iden, IntoTableRef, Query, SeaRc, SelectStatement};
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://www.postgresql.org/docs/13/infoschema-columns.html
@@ -75,9 +75,12 @@ impl SchemaQueryBuilder {
         table: SeaRc<dyn Iden>,
     ) -> SelectStatement {
         Query::select()
-            .columns(vec![
-                ColumnsField::ColumnName,
-                ColumnsField::DataType,
+            .column(ColumnsField::ColumnName)
+            .expr(
+                Expr::expr(Expr::cust("udt_name::regtype").cast_as(Alias::new("text")))
+                    .binary(BinOper::As, Expr::col(ColumnsField::DataType)),
+            )
+            .columns([
                 ColumnsField::ColumnDefault,
                 ColumnsField::GenerationExpression,
                 ColumnsField::IsNullable,
