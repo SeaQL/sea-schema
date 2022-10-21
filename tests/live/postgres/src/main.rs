@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use sea_schema::postgres::{def::TableDef, discovery::SchemaDiscovery};
 use sea_schema::sea_query::TableRef;
 use sea_schema::sea_query::{
-    extension::postgres::Type, Alias, ColumnDef, ForeignKey, ForeignKeyAction, Index,
+    extension::postgres::Type, Alias, ColumnDef, ColumnType, ForeignKey, ForeignKeyAction, Index,
     PostgresQueryBuilder, Table, TableCreateStatement,
 };
 use sqlx::{PgPool, Pool, Postgres};
@@ -46,6 +46,7 @@ async fn main() {
         create_cake_table(),
         create_cakes_bakers_table(),
         create_lineitem_table(),
+        create_collection_table(),
     ];
 
     for tbl_create_stmt in tbl_create_stmts.iter() {
@@ -318,5 +319,23 @@ fn create_cake_table() -> TableCreateStatement {
                 .on_delete(ForeignKeyAction::Cascade)
                 .on_update(ForeignKeyAction::Cascade),
         )
+        .to_owned()
+}
+
+fn create_collection_table() -> TableCreateStatement {
+    Table::create()
+        .table(Alias::new("collection"))
+        .col(
+            ColumnDef::new(Alias::new("id"))
+                .integer()
+                .not_null()
+                .auto_increment(),
+        )
+        .col(
+            ColumnDef::new(Alias::new("integers"))
+                .array(ColumnType::Integer(None))
+                .not_null(),
+        )
+        .col(ColumnDef::new(Alias::new("integers_opt")).array(ColumnType::Integer(None)))
         .to_owned()
 }
