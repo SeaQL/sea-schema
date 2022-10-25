@@ -1,4 +1,5 @@
 use crate::postgres::{def::*, parser::yes_or_no_to_bool, query::ColumnQueryResult};
+use sea_query::SeaRc;
 use std::{collections::HashMap, convert::TryFrom};
 
 impl ColumnQueryResult {
@@ -43,6 +44,9 @@ pub fn parse_column_type(result: &ColumnQueryResult) -> ColumnType {
     }
     if ctype.has_enum_attr() {
         ctype = parse_enum_attributes(result.udt_name.as_ref(), ctype);
+    }
+    if ctype.has_array_attr() {
+        ctype = parse_array_attributes(result.udt_name_regtype.as_ref(), ctype);
     }
 
     ctype
@@ -178,6 +182,23 @@ pub fn parse_enum_attributes(udt_name: Option<&String>, mut ctype: ColumnType) -
             };
         }
         _ => panic!("parse_enum_attributes(_) received a type that does not have EnumDef"),
+    };
+
+    ctype
+}
+
+pub fn parse_array_attributes(
+    udt_name_regtype: Option<&String>,
+    mut ctype: ColumnType,
+) -> ColumnType {
+    match ctype {
+        Type::Array(ref mut def) => {
+            def.col_type = match udt_name_regtype {
+                None => panic!("parse_array_attributes(_) received an empty udt_name_regtype"),
+                Some(typename) => Some(SeaRc::new(Type::from_str(&typename.replacen("[]", "", 1)))),
+            };
+        }
+        _ => panic!("parse_array_attributes(_) received a type that does not have EnumDef"),
     };
 
     ctype

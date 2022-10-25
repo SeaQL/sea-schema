@@ -66,6 +66,7 @@ pub struct ColumnQueryResult {
     pub interval_precision: Option<i32>,
 
     pub udt_name: Option<String>,
+    pub udt_name_regtype: Option<String>,
 }
 
 impl SchemaQueryBuilder {
@@ -75,12 +76,9 @@ impl SchemaQueryBuilder {
         table: SeaRc<dyn Iden>,
     ) -> SelectStatement {
         Query::select()
-            .column(ColumnsField::ColumnName)
-            .expr(
-                Expr::expr(Expr::cust("udt_name::regtype").cast_as(Alias::new("text")))
-                    .binary(BinOper::As, Expr::col(ColumnsField::DataType)),
-            )
             .columns([
+                ColumnsField::ColumnName,
+                ColumnsField::DataType,
                 ColumnsField::ColumnDefault,
                 ColumnsField::GenerationExpression,
                 ColumnsField::IsNullable,
@@ -95,6 +93,10 @@ impl SchemaQueryBuilder {
                 ColumnsField::IntervalPrecision,
                 ColumnsField::UdtName,
             ])
+            .expr(
+                Expr::expr(Expr::cust("udt_name::regtype").cast_as(Alias::new("text")))
+                    .binary(BinOper::As, Expr::col(Alias::new("udt_name_regtype"))),
+            )
             .from((InformationSchema::Schema, InformationSchema::Columns))
             .and_where(Expr::col(ColumnsField::TableSchema).eq(schema.to_string()))
             .and_where(Expr::col(ColumnsField::TableName).eq(table.to_string()))
@@ -122,6 +124,7 @@ impl From<&PgRow> for ColumnQueryResult {
             interval_type: row.get(12),
             interval_precision: row.get(13),
             udt_name: row.get(14),
+            udt_name_regtype: row.get(15),
         }
     }
 }
