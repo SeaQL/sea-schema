@@ -146,9 +146,9 @@ impl ColumnInfo {
                         .collect();
                     ColumnType::Enum { name, variants }
                 }
-                Type::Array(col_type) => {
-                    ColumnType::Array(SeaRc::new(Box::new(write_type(col_type))))
-                }
+                Type::Array(array_def) => ColumnType::Array(SeaRc::new(Box::new(write_type(
+                    array_def.col_type.as_ref().expect("Array type not defined"),
+                )))),
             }
         }
         write_type(&self.col_type)
