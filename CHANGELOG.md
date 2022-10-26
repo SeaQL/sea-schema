@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.10.2 - 2022-10-26
+
+* Fix parsing of Postgres user-defined types https://github.com/SeaQL/sea-schema/pull/84
+
 ## 0.10.1 - 2022-10-23
 
 * Parse & write Postgres array datatypes https://github.com/SeaQL/sea-schema/pull/83
