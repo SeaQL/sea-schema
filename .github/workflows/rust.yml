@@ -205,7 +205,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: [8.0, 5.7]
+        version: [8.0, 5.7, 5.6]
         project: [live/mysql, discovery/mysql, writer/mysql]
     services:
       mysql:
