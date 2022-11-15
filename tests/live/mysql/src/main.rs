@@ -22,19 +22,15 @@ async fn main() {
     let connection = setup(&url, "sea-schema").await;
     let mut executor = connection.acquire().await.unwrap();
 
-    let mut tbl_create_stmts = vec![
+    let tbl_create_stmts = vec![
         create_bakery_table(),
+        create_baker_table(),
         create_customer_table(),
         create_order_table(),
         create_cake_table(),
         create_cakes_bakers_table(),
         create_lineitem_table(),
     ];
-
-    // Test discovery of table contains JSON column if and only if on MySQL 5.7+
-    if std::env::var("MYSQL_VERSION").unwrap_or_default().as_str() != "5.6" {
-        tbl_create_stmts.push(create_baker_table());
-    }
 
     for tbl_create_stmt in tbl_create_stmts.iter() {
         let sql = tbl_create_stmt.to_string(MysqlQueryBuilder);
