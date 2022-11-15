@@ -200,6 +200,7 @@ jobs:
     runs-on: ubuntu-20.04
     needs: compile-mysql
     env:
+      MYSQL_VERSION: ${{ matrix.version }}
       DATABASE_URL_SAKILA: "mysql://sea:sea@localhost/sakila"
       DATABASE_URL_LIVE: "mysql://sea:sea@localhost"
     strategy:
