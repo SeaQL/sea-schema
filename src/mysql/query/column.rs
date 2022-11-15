@@ -1,6 +1,6 @@
 use super::{InformationSchema, SchemaQueryBuilder};
 use crate::sqlx_types::mysql::MySqlRow;
-use sea_query::{Expr, Iden, Order, Query, SeaRc, SelectStatement};
+use sea_query::{Expr, Iden, Order, Query, SeaRc, SelectStatement, Value};
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-columns-table.html
@@ -48,16 +48,24 @@ impl SchemaQueryBuilder {
         table: SeaRc<dyn Iden>,
     ) -> SelectStatement {
         Query::select()
-            .columns(vec![
+            .columns([
                 ColumnFields::ColumnName,
                 ColumnFields::ColumnType,
                 ColumnFields::IsNullable,
                 ColumnFields::ColumnKey,
                 ColumnFields::ColumnDefault,
                 ColumnFields::Extra,
-                ColumnFields::GenerationExpression,
-                ColumnFields::ColumnComment,
             ])
+            .conditions(
+                self.system.is_mysql() && self.system.version >= 50700,
+                |q| {
+                    q.column(ColumnFields::GenerationExpression);
+                },
+                |q| {
+                    q.expr(Expr::val(Value::String(None)));
+                },
+            )
+            .column(ColumnFields::ColumnComment)
             .from((InformationSchema::Schema, InformationSchema::Columns))
             .and_where(Expr::col(ColumnFields::TableSchema).eq(schema.to_string()))
             .and_where(Expr::col(ColumnFields::TableName).eq(table.to_string()))
