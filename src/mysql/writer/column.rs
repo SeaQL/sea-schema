@@ -102,13 +102,13 @@ impl ColumnInfo {
             Type::Date => {
                 col_def.date();
             }
-            Type::Time(time_attr) => {
+            Type::Time(_) => {
                 col_def.time();
             }
-            Type::DateTime(time_attr) => {
+            Type::DateTime(_) => {
                 col_def.date_time();
             }
-            Type::Timestamp(time_attr) => {
+            Type::Timestamp(_) => {
                 col_def.timestamp();
             }
             Type::Year => {

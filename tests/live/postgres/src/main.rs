@@ -211,7 +211,7 @@ fn create_order_table() -> TableCreateStatement {
         )
         .col(
             ColumnDef::new(Alias::new("placed_at"))
-                .date_time_len(6)
+                .date_time()
                 .not_null(),
         )
         .primary_key(
@@ -333,9 +333,9 @@ fn create_collection_table() -> TableCreateStatement {
         )
         .col(
             ColumnDef::new(Alias::new("integers"))
-                .array(ColumnType::Integer(None))
+                .array(ColumnType::Integer)
                 .not_null(),
         )
-        .col(ColumnDef::new(Alias::new("integers_opt")).array(ColumnType::Integer(None)))
+        .col(ColumnDef::new(Alias::new("integers_opt")).array(ColumnType::Integer))
         .to_owned()
 }

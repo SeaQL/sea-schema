@@ -37,7 +37,7 @@ path = "src/lib.rs"
 futures = { version = "0.3", optional = true }
 sea-schema-derive = { version = "0.1.0", path = "sea-schema-derive" }
 sea-query = { version = "^0.28.0", git = "https://github.com/SeaQL/sea-query" }
-sea-query-binder = { version = "^0.2", optional = true  }
+sea-query-binder = { version = "^0.2", optional = true, git = "https://github.com/SeaQL/sea-query" }
 serde = { version = "^1", features = ["derive"], optional = true }
 sqlx = { version = "^0.6", optional = true }
 log = { version = "^0.4", optional = true }
