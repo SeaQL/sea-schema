@@ -73,7 +73,7 @@ impl SchemaQueryBuilder {
                     Schema::CollationCharacterSet,
                     CharacterSetFields::CollationName,
                 )
-                .equals(Schema::Tables, TablesFields::TableCollation),
+                .equals((Schema::Tables, TablesFields::TableCollation)),
             )
             .and_where(Expr::col(TablesFields::TableSchema).eq(schema.to_string()))
             .and_where(Expr::col(TablesFields::TableType).is_in([

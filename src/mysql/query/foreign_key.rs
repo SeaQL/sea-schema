@@ -64,10 +64,10 @@ impl SchemaQueryBuilder {
             .inner_join(
                 (Schema::Schema, Schema::ReferentialConstraints),
                 Expr::tbl(Schema::KeyColumnUsage, Key::ConstraintSchema)
-                    .equals(Schema::ReferentialConstraints, Ref::ConstraintSchema)
+                    .equals((Schema::ReferentialConstraints, Ref::ConstraintSchema))
                     .and(
                         Expr::tbl(Schema::KeyColumnUsage, Key::ConstraintName)
-                            .equals(Schema::ReferentialConstraints, Ref::ConstraintName),
+                            .equals((Schema::ReferentialConstraints, Ref::ConstraintName)),
                     ),
             )
             .and_where(

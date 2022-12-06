@@ -36,7 +36,7 @@ impl SchemaQueryBuilder {
             .from(PgType::Table)
             .inner_join(
                 PgEnum::Table,
-                Expr::tbl(PgEnum::Table, PgEnum::EnumTypeId).equals(PgType::Table, PgType::Oid),
+                Expr::tbl(PgEnum::Table, PgEnum::EnumTypeId).equals((PgType::Table, PgType::Oid)),
             )
             .order_by((PgType::Table, PgType::TypeName), Order::Asc)
             .order_by((PgEnum::Table, PgEnum::EnumLabel), Order::Asc)

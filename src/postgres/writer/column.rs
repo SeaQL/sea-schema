@@ -54,9 +54,9 @@ impl ColumnInfo {
     pub fn write_col_type(&self) -> ColumnType {
         fn write_type(col_type: &Type) -> ColumnType {
             match col_type {
-                Type::SmallInt => ColumnType::SmallInteger(None),
-                Type::Integer => ColumnType::Integer(None),
-                Type::BigInt => ColumnType::BigInteger(None),
+                Type::SmallInt => ColumnType::SmallInteger,
+                Type::Integer => ColumnType::Integer,
+                Type::BigInt => ColumnType::BigInteger,
                 Type::Decimal(num_attr) | Type::Numeric(num_attr) => {
                     match (num_attr.precision, num_attr.scale) {
                         (None, None) => ColumnType::Decimal(None),
@@ -66,11 +66,11 @@ impl ColumnInfo {
                         ))),
                     }
                 }
-                Type::Real => ColumnType::Float(None),
-                Type::DoublePrecision => ColumnType::Double(None),
-                Type::SmallSerial => ColumnType::SmallInteger(None),
-                Type::Serial => ColumnType::Integer(None),
-                Type::BigSerial => ColumnType::BigInteger(None),
+                Type::Real => ColumnType::Float,
+                Type::DoublePrecision => ColumnType::Double,
+                Type::SmallSerial => ColumnType::SmallInteger,
+                Type::Serial => ColumnType::Integer,
+                Type::BigSerial => ColumnType::BigInteger,
                 Type::Money => ColumnType::Money(None),
                 Type::Varchar(string_attr) => {
                     ColumnType::String(string_attr.length.map(Into::into))
@@ -80,17 +80,11 @@ impl ColumnInfo {
                 Type::Bytea => ColumnType::Binary(BlobSize::Blob(None)),
                 // The SQL standard requires that writing just timestamp be equivalent to timestamp without time zone,
                 // and PostgreSQL honors that behavior. (https://www.postgresql.org/docs/current/datatype-datetime.html)
-                Type::Timestamp(time_attr) => {
-                    ColumnType::DateTime(time_attr.precision.map(Into::into))
-                }
-                Type::TimestampWithTimeZone(time_attr) => {
-                    ColumnType::TimestampWithTimeZone(time_attr.precision.map(Into::into))
-                }
+                Type::Timestamp(_) => ColumnType::DateTime,
+                Type::TimestampWithTimeZone(_) => ColumnType::TimestampWithTimeZone,
                 Type::Date => ColumnType::Date,
-                Type::Time(time_attr) => ColumnType::Time(time_attr.precision.map(Into::into)),
-                Type::TimeWithTimeZone(time_attr) => {
-                    ColumnType::Time(time_attr.precision.map(Into::into))
-                }
+                Type::Time(_) => ColumnType::Time,
+                Type::TimeWithTimeZone(_) => ColumnType::Time,
                 Type::Interval(interval_attr) => {
                     let field = match &interval_attr.field {
                         Some(field) => PgInterval::try_from(field).ok(),
@@ -146,9 +140,9 @@ impl ColumnInfo {
                         .collect();
                     ColumnType::Enum { name, variants }
                 }
-                Type::Array(array_def) => ColumnType::Array(SeaRc::new(Box::new(write_type(
+                Type::Array(array_def) => ColumnType::Array(SeaRc::new(write_type(
                     array_def.col_type.as_ref().expect("Array type not defined"),
-                )))),
+                ))),
             }
         }
         write_type(&self.col_type)
