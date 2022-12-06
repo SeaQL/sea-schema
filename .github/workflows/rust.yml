@@ -12,6 +12,7 @@ on:
     branches:
       - master
       - pr/**/ci
+      - ci-rust-toolchain
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref || github.run_id }}
@@ -27,63 +28,31 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@master
         with:
-          profile: minimal
-          toolchain: stable
+          toolchain: nightly
           components: rustfmt
-          override: true
-          
-      - uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: >
-            --all
-            --
-            --check
+      - run: cargo fmt --all -- --check
 
   clippy:
     name: Clippy
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@master
         with:
-          profile: minimal
           toolchain: stable
           components: clippy
-          override: true
-          
-      - uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: >
-            --all-targets
-            --all
+      - run: cargo clippy --all-targets --all
 
   test:
     name: Unit Test
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: >
-            --all
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --all
+      - run: cargo test
 
   compile-mysql:
     name: Compile MySQL
@@ -93,13 +62,7 @@ jobs:
         project: [live/mysql, discovery/mysql, writer/mysql]
     steps:
       - uses: actions/checkout@v2
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
+      - uses: dtolnay/rust-toolchain@stable
       - uses: actions/cache@v2
         with:
           path: |
@@ -108,19 +71,8 @@ jobs:
             Cargo.lock
             target
           key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-mysql-${{ matrix.project }}
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: >
-            --manifest-path tests/${{ matrix.project }}/Cargo.toml
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: >
-            --manifest-path tests/${{ matrix.project }}/Cargo.toml
-            --no-run
+      - run: cargo build --manifest-path tests/${{ matrix.project }}/Cargo.toml
+      - run: cargo test --manifest-path tests/${{ matrix.project }}/Cargo.toml --no-run
 
   compile-postgres:
     name: Compile Postgres
@@ -130,13 +82,7 @@ jobs:
         project: [live/postgres, discovery/postgres, writer/postgres]
     steps:
       - uses: actions/checkout@v2
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
+      - uses: dtolnay/rust-toolchain@stable
       - uses: actions/cache@v2
         with:
           path: |
@@ -145,19 +91,8 @@ jobs:
             Cargo.lock
             target
           key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-postgres-${{ matrix.project }}
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: >
-            --manifest-path tests/${{ matrix.project }}/Cargo.toml
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: >
-            --manifest-path tests/${{ matrix.project }}/Cargo.toml
-            --no-run
+      - run: cargo build --manifest-path tests/${{ matrix.project }}/Cargo.toml
+      - run: cargo test --manifest-path tests/${{ matrix.project }}/Cargo.toml --no-run
 
   compile-sqlite:
     name: Compile SQLite
@@ -167,13 +102,7 @@ jobs:
         project: [live/sqlite, discovery/sqlite, writer/sqlite]
     steps:
       - uses: actions/checkout@v2
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
+      - uses: dtolnay/rust-toolchain@stable
       - uses: actions/cache@v2
         with:
           path: |
@@ -182,19 +111,9 @@ jobs:
             Cargo.lock
             target
           key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-sqlite-${{ matrix.project }}
+      - run: cargo build --manifest-path tests/${{ matrix.project }}/Cargo.toml
+      - run: cargo test --manifest-path tests/${{ matrix.project }}/Cargo.toml --no-run
 
-      - uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: >
-            --manifest-path tests/${{ matrix.project }}/Cargo.toml
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: >
-            --manifest-path tests/${{ matrix.project }}/Cargo.toml
-            --no-run
   mysql:
     name: MySQL
     runs-on: ubuntu-20.04
@@ -226,13 +145,7 @@ jobs:
           --health-retries=3
     steps:
       - uses: actions/checkout@v2
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
+      - uses: dtolnay/rust-toolchain@stable
       - uses: actions/cache@v2
         with:
           path: |
@@ -241,32 +154,14 @@ jobs:
             Cargo.lock
             target
           key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-mysql-${{ matrix.project }}
-
-      - name: Create DB
-        run: mysql -uroot -h 127.0.0.1 mysql -e 'CREATE DATABASE `sakila`'
-
-      - name: Grant Privilege
-        run: mysql -uroot -h 127.0.0.1 mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'sea'@'%'"
-
-      - name: Import DB Schema
-        run: mysql -uroot -h 127.0.0.1 sakila < sakila-schema.sql
+      - run: mysql -uroot -h 127.0.0.1 mysql -e 'CREATE DATABASE `sakila`'
+      - run: mysql -uroot -h 127.0.0.1 mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'sea'@'%'"
+      - run: mysql -uroot -h 127.0.0.1 sakila < sakila-schema.sql
         working-directory: ./tests/sakila/mysql
-
-      - name: Import DB Data
-        run: mysql -uroot -h 127.0.0.1 sakila < sakila-data.sql
+      - run: mysql -uroot -h 127.0.0.1 sakila < sakila-data.sql
         working-directory: ./tests/sakila/mysql
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: run
-          args: >
-            --manifest-path tests/${{ matrix.project }}/Cargo.toml
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: >
-            --manifest-path tests/${{ matrix.project }}/Cargo.toml
+      - run: cargo run --manifest-path tests/${{ matrix.project }}/Cargo.toml
+      - run: cargo test --manifest-path tests/${{ matrix.project }}/Cargo.toml
 
   mariadb:
     name: MariaDB
@@ -299,13 +194,7 @@ jobs:
           --health-retries=3
     steps:
       - uses: actions/checkout@v2
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
+      - uses: dtolnay/rust-toolchain@stable
       - uses: actions/cache@v2
         with:
           path: |
@@ -314,32 +203,14 @@ jobs:
             Cargo.lock
             target
           key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-mysql-${{ matrix.project }}
-
-      - name: Create DB
-        run: mysql -uroot -h 127.0.0.1 mysql -e 'CREATE DATABASE `sakila`'
-
-      - name: Grant Privilege
-        run: mysql -uroot -h 127.0.0.1 mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'sea'@'%'"
-
-      - name: Import DB Schema
-        run: mysql -uroot -h 127.0.0.1 sakila < sakila-schema.sql
+      - run: mysql -uroot -h 127.0.0.1 mysql -e 'CREATE DATABASE `sakila`'
+      - run: mysql -uroot -h 127.0.0.1 mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'sea'@'%'"
+      - run: mysql -uroot -h 127.0.0.1 sakila < sakila-schema.sql
         working-directory: ./tests/sakila/mysql
-
-      - name: Import DB Data
-        run: mysql -uroot -h 127.0.0.1 sakila < sakila-data.sql
+      - run: mysql -uroot -h 127.0.0.1 sakila < sakila-data.sql
         working-directory: ./tests/sakila/mysql
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: run
-          args: >
-            --manifest-path tests/${{ matrix.project }}/Cargo.toml
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: >
-            --manifest-path tests/${{ matrix.project }}/Cargo.toml
+      - run: cargo run --manifest-path tests/${{ matrix.project }}/Cargo.toml
+      - run: cargo test --manifest-path tests/${{ matrix.project }}/Cargo.toml
 
   postgres:
     name: Postgres
@@ -369,13 +240,7 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@v2
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
+      - uses: dtolnay/rust-toolchain@stable
       - uses: actions/cache@v2
         with:
           path: |
@@ -384,29 +249,13 @@ jobs:
             Cargo.lock
             target
           key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-postgres-${{ matrix.project }}
-
-      - name: Create DB
-        run: psql -q postgres://sea:sea@localhost/postgres -c 'CREATE DATABASE "sakila"'
-
-      - name: Import DB Schema
-        run: psql -q postgres://sea:sea@localhost/sakila < sakila-schema.sql
+      - run: psql -q postgres://sea:sea@localhost/postgres -c 'CREATE DATABASE "sakila"'
+      - run: psql -q postgres://sea:sea@localhost/sakila < sakila-schema.sql
         working-directory: ./tests/sakila/postgres
-
-      - name: Import DB Data
-        run: psql -q postgres://sea:sea@localhost/sakila < sakila-data.sql
+      - run: psql -q postgres://sea:sea@localhost/sakila < sakila-data.sql
         working-directory: ./tests/sakila/postgres
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: run
-          args: >
-            --manifest-path tests/${{ matrix.project }}/Cargo.toml
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: >
-            --manifest-path tests/${{ matrix.project }}/Cargo.toml
+      - run: cargo run --manifest-path tests/${{ matrix.project }}/Cargo.toml
+      - run: cargo test --manifest-path tests/${{ matrix.project }}/Cargo.toml
 
   sqlite:
     name: SQLite
@@ -421,13 +270,7 @@ jobs:
         project: [live/sqlite, discovery/sqlite, writer/sqlite]
     steps:
       - uses: actions/checkout@v2
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
+      - uses: dtolnay/rust-toolchain@stable
       - uses: actions/cache@v2
         with:
           path: |
@@ -436,15 +279,5 @@ jobs:
             Cargo.lock
             target
           key: ${{ github.sha }}-${{ github.run_id }}-${{ runner.os }}-sqlite-${{ matrix.project }}
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: run
-          args: >
-            --manifest-path tests/${{ matrix.project }}/Cargo.toml
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: >
-            --manifest-path tests/${{ matrix.project }}/Cargo.toml
+      - run: cargo run --manifest-path tests/${{ matrix.project }}/Cargo.toml
+      - run: cargo test --manifest-path tests/${{ matrix.project }}/Cargo.toml
