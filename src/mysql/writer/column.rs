@@ -88,7 +88,10 @@ impl ColumnInfo {
                 col_def = self.write_num_attr(col_def, num_attr);
             }
             Type::Decimal(num_attr) => {
-                col_def.decimal();
+                match (num_attr.maximum, num_attr.decimal) {
+                    (Some(maximum), Some(decimal)) => col_def.decimal_len(maximum, decimal),
+                    _ => col_def.decimal(),
+                };
                 col_def = self.write_num_attr(col_def, num_attr);
             }
             Type::Float(num_attr) => {
