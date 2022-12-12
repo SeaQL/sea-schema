@@ -36,11 +36,11 @@ path = "src/lib.rs"
 [dependencies]
 futures = { version = "0.3", optional = true }
 sea-schema-derive = { version = "0.1.0", path = "sea-schema-derive" }
-sea-query = { version = "^0.28.0" }
-sea-query-binder = { version = "^0.3", optional = true }
-serde = { version = "^1", features = ["derive"], optional = true }
-sqlx = { version = "^0.6", optional = true }
-log = { version = "^0.4", optional = true }
+sea-query = { version = "0.28.0" }
+sea-query-binder = { version = "0.3", optional = true }
+serde = { version = "1", features = ["derive"], optional = true }
+sqlx = { version = "0.6", optional = true }
+log = { version = "0.4", optional = true }
 
 [features]
 default = ["mysql", "postgres", "sqlite", "discovery", "writer", "probe"]

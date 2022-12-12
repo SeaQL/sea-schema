@@ -16,9 +16,9 @@ sea-schema = { path = "../../../", default-features = false, features = [
     "sqlx-sqlite",
     "sqlite",
 ] }
-serde_json = { version = "^1" }
-sqlx = { version = "^0.6", features = [
+serde_json = { version = "1" }
+sqlx = { version = "0.6", features = [
     "sqlite",
     "runtime-async-std-native-tls",
 ] }
-pretty_assertions = { version = "^0.7" }
+pretty_assertions = { version = "0.7" }

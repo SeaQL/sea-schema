@@ -7,5 +7,5 @@ publish = false
 [dependencies]
 async-std = { version = "1.8", features = [ "attributes", "tokio1" ] }
 sea-schema = { path = "../../../", default-features = false, features = [ "sqlx-sqlite", "runtime-async-std-native-tls", "discovery", "writer", "debug-print" ] }
-serde_json = { version = "^1" }
-sqlx = { version = "^0.6" }
+serde_json = { version = "1" }
+sqlx = { version = "0.6" }
