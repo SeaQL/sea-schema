@@ -91,15 +91,15 @@ impl SchemaQueryBuilder {
                 Condition::all()
                     .add(
                         Expr::tbl(Schema::TableConstraints, Tcf::ConstraintName)
-                            .equals(Schema::CheckConstraints, Cf::ConstraintName),
+                            .equals((Schema::CheckConstraints, Cf::ConstraintName)),
                     )
                     .add(
                         Expr::tbl(Schema::TableConstraints, Tcf::ConstraintCatalog)
-                            .equals(Schema::CheckConstraints, Cf::ConstraintCatalog),
+                            .equals((Schema::CheckConstraints, Cf::ConstraintCatalog)),
                     )
                     .add(
                         Expr::tbl(Schema::TableConstraints, Tcf::ConstraintSchema)
-                            .equals(Schema::CheckConstraints, Cf::ConstraintSchema),
+                            .equals((Schema::CheckConstraints, Cf::ConstraintSchema)),
                     ),
             )
             .join(
@@ -108,27 +108,27 @@ impl SchemaQueryBuilder {
                 Condition::all()
                     .add(
                         Expr::tbl(Schema::TableConstraints, Tcf::ConstraintName)
-                            .equals(Schema::KeyColumnUsage, Kcuf::ConstraintName),
+                            .equals((Schema::KeyColumnUsage, Kcuf::ConstraintName)),
                     )
                     .add(
                         Expr::tbl(Schema::TableConstraints, Tcf::ConstraintCatalog)
-                            .equals(Schema::KeyColumnUsage, Kcuf::ConstraintCatalog),
+                            .equals((Schema::KeyColumnUsage, Kcuf::ConstraintCatalog)),
                     )
                     .add(
                         Expr::tbl(Schema::TableConstraints, Tcf::ConstraintSchema)
-                            .equals(Schema::KeyColumnUsage, Kcuf::ConstraintSchema),
+                            .equals((Schema::KeyColumnUsage, Kcuf::ConstraintSchema)),
                     )
                     .add(
                         Expr::tbl(Schema::TableConstraints, Tcf::TableCatalog)
-                            .equals(Schema::KeyColumnUsage, Kcuf::TableCatalog),
+                            .equals((Schema::KeyColumnUsage, Kcuf::TableCatalog)),
                     )
                     .add(
                         Expr::tbl(Schema::TableConstraints, Tcf::TableSchema)
-                            .equals(Schema::KeyColumnUsage, Kcuf::TableSchema),
+                            .equals((Schema::KeyColumnUsage, Kcuf::TableSchema)),
                     )
                     .add(
                         Expr::tbl(Schema::TableConstraints, Tcf::TableName)
-                            .equals(Schema::KeyColumnUsage, Kcuf::TableName),
+                            .equals((Schema::KeyColumnUsage, Kcuf::TableName)),
                     ),
             )
             .join_subquery(
@@ -151,12 +151,12 @@ impl SchemaQueryBuilder {
                     .left_join(
                         (Schema::Schema, Schema::ConstraintColumnUsage),
                         Expr::tbl(Schema::ReferentialConstraints, RefC::ConstraintName)
-                            .equals(Schema::ConstraintColumnUsage, Kcuf::ConstraintName),
+                            .equals((Schema::ConstraintColumnUsage, Kcuf::ConstraintName)),
                     )
                     .take(),
                 rcsq.clone(),
                 Expr::tbl(Schema::TableConstraints, Tcf::ConstraintName)
-                    .equals(rcsq.clone(), RefC::ConstraintName),
+                    .equals((rcsq.clone(), RefC::ConstraintName)),
             )
             .and_where(
                 Expr::col((Schema::TableConstraints, Tcf::TableSchema)).eq(schema.to_string()),

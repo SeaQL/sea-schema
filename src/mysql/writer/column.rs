@@ -53,34 +53,20 @@ impl ColumnInfo {
                 col_def.custom(self.col_type.clone());
             }
             Type::TinyInt(num_attr) => {
-                if num_attr.unsigned.is_some() {
-                    match num_attr.maximum {
-                        Some(maximum) => col_def.tiny_unsigned_len(maximum),
-                        None => col_def.tiny_unsigned(),
-                    };
-                } else {
-                    match num_attr.maximum {
-                        Some(maximum) => col_def.tiny_integer_len(maximum),
-                        None => col_def.tiny_integer(),
-                    };
-                }
+                match num_attr.unsigned {
+                    Some(_) => col_def.tiny_unsigned(),
+                    None => col_def.tiny_integer(),
+                };
                 col_def = self.write_num_attr(col_def, num_attr);
             }
             Type::Bool => {
                 col_def.boolean();
             }
             Type::SmallInt(num_attr) => {
-                if num_attr.unsigned.is_some() {
-                    match num_attr.maximum {
-                        Some(maximum) => col_def.small_unsigned_len(maximum),
-                        None => col_def.small_unsigned(),
-                    };
-                } else {
-                    match num_attr.maximum {
-                        Some(maximum) => col_def.small_integer_len(maximum),
-                        None => col_def.small_integer(),
-                    };
-                }
+                match num_attr.unsigned {
+                    Some(_) => col_def.small_unsigned(),
+                    None => col_def.small_integer(),
+                };
                 col_def = self.write_num_attr(col_def, num_attr);
             }
             Type::MediumInt(_) => {
@@ -88,31 +74,17 @@ impl ColumnInfo {
                 col_def.custom(self.col_type.clone());
             }
             Type::Int(num_attr) => {
-                if num_attr.unsigned.is_some() {
-                    match num_attr.maximum {
-                        Some(maximum) => col_def.unsigned_len(maximum),
-                        None => col_def.unsigned(),
-                    };
-                } else {
-                    match num_attr.maximum {
-                        Some(maximum) => col_def.integer_len(maximum),
-                        None => col_def.integer(),
-                    };
-                }
+                match num_attr.unsigned {
+                    Some(_) => col_def.unsigned(),
+                    None => col_def.integer(),
+                };
                 col_def = self.write_num_attr(col_def, num_attr);
             }
             Type::BigInt(num_attr) => {
-                if num_attr.unsigned.is_some() {
-                    match num_attr.maximum {
-                        Some(maximum) => col_def.big_unsigned_len(maximum),
-                        None => col_def.big_unsigned(),
-                    };
-                } else {
-                    match num_attr.maximum {
-                        Some(maximum) => col_def.big_integer_len(maximum),
-                        None => col_def.big_integer(),
-                    };
-                }
+                match num_attr.unsigned {
+                    Some(_) => col_def.big_unsigned(),
+                    None => col_def.big_integer(),
+                };
                 col_def = self.write_num_attr(col_def, num_attr);
             }
             Type::Decimal(num_attr) => {
@@ -123,39 +95,24 @@ impl ColumnInfo {
                 col_def = self.write_num_attr(col_def, num_attr);
             }
             Type::Float(num_attr) => {
-                match num_attr.decimal {
-                    Some(decimal) => col_def.float_len(decimal),
-                    _ => col_def.float(),
-                };
+                col_def.float();
                 col_def = self.write_num_attr(col_def, num_attr);
             }
             Type::Double(num_attr) => {
-                match num_attr.decimal {
-                    Some(decimal) => col_def.double_len(decimal),
-                    _ => col_def.double(),
-                };
+                col_def.double();
                 col_def = self.write_num_attr(col_def, num_attr);
             }
             Type::Date => {
                 col_def.date();
             }
-            Type::Time(time_attr) => {
-                match time_attr.fractional {
-                    Some(fractional) => col_def.time_len(fractional),
-                    _ => col_def.time(),
-                };
+            Type::Time(_) => {
+                col_def.time();
             }
-            Type::DateTime(time_attr) => {
-                match time_attr.fractional {
-                    Some(fractional) => col_def.date_time_len(fractional),
-                    _ => col_def.date_time(),
-                };
+            Type::DateTime(_) => {
+                col_def.date_time();
             }
-            Type::Timestamp(time_attr) => {
-                match time_attr.fractional {
-                    Some(fractional) => col_def.timestamp_len(fractional),
-                    _ => col_def.timestamp(),
-                };
+            Type::Timestamp(_) => {
+                col_def.timestamp();
             }
             Type::Year => {
                 // FIXME: Unresolved type mapping

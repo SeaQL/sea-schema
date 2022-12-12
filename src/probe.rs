@@ -29,7 +29,7 @@ pub trait SchemaProbe {
                 Condition::all()
                     .add(
                         Expr::expr(Self::get_current_schema())
-                            .equals(Alias::new("columns"), Alias::new("table_schema")),
+                            .equals((Alias::new("columns"), Alias::new("table_schema"))),
                     )
                     .add(Expr::col(Alias::new("table_name")).eq(table.as_ref()))
                     .add(Expr::col(Alias::new("column_name")).eq(column.as_ref())),
