@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.11.0 - Pending
+
+* Upgrade SeaQuery to 0.28 https://github.com/SeaQL/sea-schema/pull/90
+
 ## 0.10.3 - 2022-11-16
 
 * Backward compatible schema discovery for MySQL 5.6 https://github.com/SeaQL/sea-schema/pull/86
