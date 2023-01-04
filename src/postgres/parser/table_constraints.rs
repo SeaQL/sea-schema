@@ -31,12 +31,17 @@ impl Iterator for TableConstraintsQueryResultParser {
         let constraint_name = result.constraint_name;
         match result.constraint_type.as_str() {
             "CHECK" => {
-                Some(Constraint::Check(Check {
-                    name: constraint_name,
-                    expr: result.check_clause.unwrap(),
-                    // TODO: How to find?
-                    no_inherit: false,
-                }))
+                match result.check_clause {
+                    Some(check_clause) => {
+                        Some(Constraint::Check(Check {
+                            name: constraint_name,
+                            expr: check_clause,
+                            // TODO: How to find?
+                            no_inherit: false,
+                        }))
+                    }
+                    None => self.next(),
+                }
             }
 
             "FOREIGN KEY" => {
