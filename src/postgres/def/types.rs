@@ -148,8 +148,8 @@ pub enum Type {
 impl Type {
     // TODO: Support more types
     #[allow(clippy::should_implement_trait)]
-    pub fn from_str(name: &str) -> Type {
-        match name.to_lowercase().as_str() {
+    pub fn from_str(column_type: &str, udt_name: Option<&String>, is_enum: bool) -> Type {
+        match column_type.to_lowercase().as_str() {
             "smallint" | "int2" => Type::SmallInt,
             "integer" | "int" | "int4" => Type::Integer,
             "bigint" | "int8" => Type::BigInt,
@@ -199,9 +199,12 @@ impl Type {
             "daterange" => Type::DateRange,
             // "" => Type::Domain,
             "pg_lsn" => Type::PgLsn,
-            "user-defined" => Type::Enum(EnumDef::default()),
+            "user-defined" if is_enum => Type::Enum(EnumDef::default()),
+            "user-defined" if !is_enum && udt_name.is_some() => {
+                Type::Unknown(udt_name.unwrap().to_owned())
+            }
             "array" => Type::Array(ArrayDef::default()),
-            _ => Type::Unknown(name.to_owned()),
+            _ => Type::Unknown(column_type.to_owned()),
         }
     }
 }

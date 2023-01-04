@@ -22,6 +22,11 @@ async fn main() {
     let connection = setup(&url, "sea-schema").await;
     let mut executor = connection.acquire().await.unwrap();
 
+    sqlx::query("CREATE EXTENSION IF NOT EXISTS citext")
+        .execute(&mut executor)
+        .await
+        .unwrap();
+
     let create_enum_stmt = Type::create()
         .as_enum(Alias::new("crazy_enum"))
         .values(vec![
@@ -337,5 +342,10 @@ fn create_collection_table() -> TableCreateStatement {
                 .not_null(),
         )
         .col(ColumnDef::new(Alias::new("integers_opt")).array(ColumnType::Integer))
+        .col(
+            ColumnDef::new(Alias::new("case_insensitive_text"))
+                .custom(Alias::new("citext"))
+                .not_null(),
+        )
         .to_owned()
 }
