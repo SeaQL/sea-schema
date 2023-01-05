@@ -1,17 +1,18 @@
-use crate::postgres::{def::*, parser::yes_or_no_to_bool, query::ColumnQueryResult};
+use crate::postgres::{
+    def::*, discovery::EnumVariantMap, parser::yes_or_no_to_bool, query::ColumnQueryResult,
+};
 use sea_query::SeaRc;
-use std::{collections::HashMap, convert::TryFrom};
 
 impl ColumnQueryResult {
-    pub fn parse(self) -> ColumnInfo {
-        parse_column_query_result(self)
+    pub fn parse(self, enums: &EnumVariantMap) -> ColumnInfo {
+        parse_column_query_result(self, enums)
     }
 }
 
-pub fn parse_column_query_result(result: ColumnQueryResult) -> ColumnInfo {
+pub fn parse_column_query_result(result: ColumnQueryResult, enums: &EnumVariantMap) -> ColumnInfo {
     ColumnInfo {
         name: result.column_name.clone(),
-        col_type: parse_column_type(&result),
+        col_type: parse_column_type(&result, enums),
         default: ColumnExpression::from_option_string(result.column_default),
         generated: ColumnExpression::from_option_string(result.column_generated),
         not_null: NotNull::from_bool(!yes_or_no_to_bool(&result.is_nullable)),
@@ -19,8 +20,16 @@ pub fn parse_column_query_result(result: ColumnQueryResult) -> ColumnInfo {
     }
 }
 
-pub fn parse_column_type(result: &ColumnQueryResult) -> ColumnType {
-    let mut ctype = Type::from_str(result.column_type.as_str());
+pub fn parse_column_type(result: &ColumnQueryResult, enums: &EnumVariantMap) -> ColumnType {
+    let is_enum = result
+        .udt_name
+        .as_ref()
+        .map_or(false, |udt_name| enums.contains_key(udt_name));
+    let mut ctype = Type::from_str(
+        result.column_type.as_str(),
+        result.udt_name.as_deref(),
+        is_enum,
+    );
 
     if ctype.has_numeric_attr() {
         ctype = parse_numeric_attributes(
@@ -43,10 +52,10 @@ pub fn parse_column_type(result: &ColumnQueryResult) -> ColumnType {
         ctype = parse_bit_attributes(result.character_maximum_length, ctype);
     }
     if ctype.has_enum_attr() {
-        ctype = parse_enum_attributes(result.udt_name.as_ref(), ctype);
+        ctype = parse_enum_attributes(result.udt_name.as_deref(), ctype, enums);
     }
     if ctype.has_array_attr() {
-        ctype = parse_array_attributes(result.udt_name_regtype.as_ref(), ctype);
+        ctype = parse_array_attributes(result.udt_name_regtype.as_deref(), ctype, enums);
     }
 
     ctype
@@ -173,13 +182,20 @@ pub fn parse_bit_attributes(
     ctype
 }
 
-pub fn parse_enum_attributes(udt_name: Option<&String>, mut ctype: ColumnType) -> ColumnType {
+pub fn parse_enum_attributes(
+    udt_name: Option<&str>,
+    mut ctype: ColumnType,
+    enums: &EnumVariantMap,
+) -> ColumnType {
     match ctype {
         Type::Enum(ref mut def) => {
             def.typename = match udt_name {
                 None => panic!("parse_enum_attributes(_) received an empty udt_name"),
                 Some(typename) => typename.to_string(),
             };
+            if let Some(variants) = enums.get(&def.typename) {
+                def.values = variants.clone()
+            }
         }
         _ => panic!("parse_enum_attributes(_) received a type that does not have EnumDef"),
     };
@@ -188,29 +204,27 @@ pub fn parse_enum_attributes(udt_name: Option<&String>, mut ctype: ColumnType) -
 }
 
 pub fn parse_array_attributes(
-    udt_name_regtype: Option<&String>,
+    udt_name_regtype: Option<&str>,
     mut ctype: ColumnType,
+    enums: &EnumVariantMap,
 ) -> ColumnType {
     match ctype {
         Type::Array(ref mut def) => {
             def.col_type = match udt_name_regtype {
                 None => panic!("parse_array_attributes(_) received an empty udt_name_regtype"),
-                Some(typename) => Some(SeaRc::new(Type::from_str(&typename.replacen("[]", "", 1)))),
+                Some(typename) => {
+                    let typename = typename.replacen("[]", "", 1);
+                    let is_enum = enums.contains_key(&typename);
+                    Some(SeaRc::new(Type::from_str(
+                        &typename,
+                        Some(&typename),
+                        is_enum,
+                    )))
+                }
             };
         }
         _ => panic!("parse_array_attributes(_) received a type that does not have EnumDef"),
     };
 
     ctype
-}
-
-impl ColumnInfo {
-    pub fn parse_enum_variants(mut self, enums: &HashMap<String, Vec<String>>) -> Self {
-        if let Type::Enum(ref mut enum_def) = self.col_type {
-            if let Some(def) = enums.get(&enum_def.typename) {
-                enum_def.values = def.clone()
-            }
-        }
-        self
-    }
 }

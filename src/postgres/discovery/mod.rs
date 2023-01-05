@@ -14,6 +14,8 @@ use std::collections::HashMap;
 mod executor;
 pub use executor::*;
 
+pub(crate) type EnumVariantMap = HashMap<String, Vec<String>>;
+
 pub struct SchemaDiscovery {
     pub query: SchemaQueryBuilder,
     pub executor: Executor,
@@ -33,30 +35,20 @@ impl SchemaDiscovery {
     }
 
     pub async fn discover(&self) -> Schema {
-        let enums: HashMap<_, _> = self
+        let enums: EnumVariantMap = self
             .discover_enums()
             .await
             .into_iter()
             .map(|enum_def| (enum_def.typename, enum_def.values))
             .collect();
-        let tables = self.discover_tables().await;
         let tables = future::join_all(
-            tables
+            self.discover_tables()
+                .await
                 .into_iter()
-                .map(|t| (self, t))
+                .map(|t| (self, t, &enums))
                 .map(Self::discover_table_static),
         )
-        .await
-        .into_iter()
-        .map(|mut table| {
-            table.columns = table
-                .columns
-                .into_iter()
-                .map(|col| col.parse_enum_variants(&enums))
-                .collect();
-            table
-        })
-        .collect();
+        .await;
 
         Schema {
             schema: self.schema.to_string(),
@@ -84,16 +76,17 @@ impl SchemaDiscovery {
         tables
     }
 
-    async fn discover_table_static(params: (&Self, TableInfo)) -> TableDef {
+    async fn discover_table_static(params: (&Self, TableInfo, &EnumVariantMap)) -> TableDef {
         let this = params.0;
         let info = params.1;
-        Self::discover_table(this, info).await
+        let enums = params.2;
+        Self::discover_table(this, info, enums).await
     }
 
-    pub async fn discover_table(&self, info: TableInfo) -> TableDef {
+    pub async fn discover_table(&self, info: TableInfo, enums: &EnumVariantMap) -> TableDef {
         let table = SeaRc::new(Alias::new(info.name.as_str()));
         let columns = self
-            .discover_columns(self.schema.clone(), table.clone())
+            .discover_columns(self.schema.clone(), table.clone(), enums)
             .await;
         let constraints = self
             .discover_constraints(self.schema.clone(), table.clone())
@@ -143,6 +136,7 @@ impl SchemaDiscovery {
         &self,
         schema: SeaRc<dyn Iden>,
         table: SeaRc<dyn Iden>,
+        enums: &EnumVariantMap,
     ) -> Vec<ColumnInfo> {
         let rows = self
             .executor
@@ -153,7 +147,7 @@ impl SchemaDiscovery {
             .map(|row| {
                 let result: ColumnQueryResult = (&row).into();
                 debug_print!("{:?}", result);
-                let column = result.parse();
+                let column = result.parse(enums);
                 debug_print!("{:?}", column);
                 column
             })
