@@ -6,6 +6,8 @@ use super::{
     ColumnInfo, DefaultType, ForeignKeysInfo, IndexInfo, IndexedColumns, PartialIndexInfo,
 };
 use crate::sqlite::{error::DiscoveryResult, executor::Executor};
+
+#[allow(unused_imports)]
 use crate::sqlx_types::{sqlite::SqliteRow, Row};
 
 /// Defines a table for SQLite
@@ -38,7 +40,7 @@ impl From<&SqliteRow> for TableDef {
 #[cfg(not(feature = "sqlx-sqlite"))]
 /// Gets the table name from a `SqliteRow` and maps it to the [TableDef]
 impl From<&SqliteRow> for TableDef {
-    fn from(row: &SqliteRow) -> Self {
+    fn from(_: &SqliteRow) -> Self {
         Self::default()
     }
 }

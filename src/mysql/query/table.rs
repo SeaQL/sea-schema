@@ -69,10 +69,10 @@ impl SchemaQueryBuilder {
             .from((Schema::Schema, Schema::Tables))
             .left_join(
                 (Schema::Schema, Schema::CollationCharacterSet),
-                Expr::tbl(
+                Expr::col((
                     Schema::CollationCharacterSet,
                     CharacterSetFields::CollationName,
-                )
+                ))
                 .equals((Schema::Tables, TablesFields::TableCollation)),
             )
             .and_where(Expr::col(TablesFields::TableSchema).eq(schema.to_string()))
@@ -103,7 +103,7 @@ impl From<&MySqlRow> for TableQueryResult {
 
 #[cfg(not(feature = "sqlx-mysql"))]
 impl From<&MySqlRow> for TableQueryResult {
-    fn from(row: &MySqlRow) -> Self {
+    fn from(_: &MySqlRow) -> Self {
         Self::default()
     }
 }

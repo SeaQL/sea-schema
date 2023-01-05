@@ -27,7 +27,7 @@ async fn main() -> DiscoveryResult<()> {
 }
 
 async fn test_001() -> DiscoveryResult<()> {
-    let url = std::env::var("DATABASE_URL_LIVE").unwrap_or("sqlite::memory:".to_owned());
+    let url = std::env::var("DATABASE_URL_LIVE").unwrap_or_else(|_| "sqlite::memory:".to_owned());
 
     let sqlite_pool = SqlitePoolOptions::new().connect(&url).await.unwrap();
 
@@ -240,7 +240,7 @@ async fn test_001() -> DiscoveryResult<()> {
 }
 
 async fn test_002() -> DiscoveryResult<()> {
-    let url = std::env::var("DATABASE_URL_LIVE").unwrap_or("sqlite::memory:".to_owned());
+    let url = std::env::var("DATABASE_URL_LIVE").unwrap_or_else(|_| "sqlite::memory:".to_owned());
 
     let connection = SqlitePool::connect(&url).await.unwrap();
     let mut executor = connection.acquire().await.unwrap();

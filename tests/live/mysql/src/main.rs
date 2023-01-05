@@ -16,8 +16,8 @@ async fn main() {
     //     .is_test(true)
     //     .init();
 
-    let url =
-        std::env::var("DATABASE_URL_LIVE").unwrap_or("mysql://root:root@localhost".to_owned());
+    let url = std::env::var("DATABASE_URL_LIVE")
+        .unwrap_or_else(|_| "mysql://root:root@localhost".to_owned());
 
     let connection = setup(&url, "sea-schema").await;
     let mut executor = connection.acquire().await.unwrap();
