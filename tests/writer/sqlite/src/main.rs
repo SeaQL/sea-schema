@@ -5,7 +5,7 @@ use sqlx::sqlite::SqlitePool;
 #[async_std::main]
 async fn main() -> DiscoveryResult<()> {
     let url = std::env::var("DATABASE_URL_SAKILA")
-        .unwrap_or("sqlite://tests/sakila/sqlite/sakila.db".to_owned());
+        .unwrap_or_else(|_| "sqlite://tests/sakila/sqlite/sakila.db".to_owned());
 
     let sqlite_pool = SqlitePool::connect(&url).await.unwrap();
 

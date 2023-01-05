@@ -30,7 +30,7 @@ impl From<&MySqlRow> for VersionQueryResult {
 
 #[cfg(not(feature = "sqlx-mysql"))]
 impl From<&MySqlRow> for VersionQueryResult {
-    fn from(row: &MySqlRow) -> Self {
+    fn from(_: &MySqlRow) -> Self {
         Self::default()
     }
 }

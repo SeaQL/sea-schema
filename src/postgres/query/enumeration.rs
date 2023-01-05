@@ -36,7 +36,7 @@ impl SchemaQueryBuilder {
             .from(PgType::Table)
             .inner_join(
                 PgEnum::Table,
-                Expr::tbl(PgEnum::Table, PgEnum::EnumTypeId).equals((PgType::Table, PgType::Oid)),
+                Expr::col((PgEnum::Table, PgEnum::EnumTypeId)).equals((PgType::Table, PgType::Oid)),
             )
             .order_by((PgType::Table, PgType::TypeName), Order::Asc)
             .order_by((PgEnum::Table, PgEnum::EnumLabel), Order::Asc)
@@ -57,7 +57,7 @@ impl From<&PgRow> for EnumQueryResult {
 
 #[cfg(not(feature = "sqlx-postgres"))]
 impl From<&PgRow> for EnumQueryResult {
-    fn from(row: &PgRow) -> Self {
+    fn from(_: &PgRow) -> Self {
         Self::default()
     }
 }

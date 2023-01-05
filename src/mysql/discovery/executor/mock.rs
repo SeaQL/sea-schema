@@ -3,6 +3,7 @@ use sea_query::{MysqlQueryBuilder, SelectStatement};
 
 use crate::debug_print;
 
+#[allow(dead_code)]
 pub struct Executor {
     pool: MySqlPool,
 }
@@ -19,8 +20,8 @@ impl IntoExecutor for MySqlPool {
 
 impl Executor {
     pub async fn fetch_all(&self, select: SelectStatement) -> Vec<MySqlRow> {
-        let (sql, values) = select.build(MysqlQueryBuilder);
-        debug_print!("{}, {:?}", sql, values);
+        let (_sql, _values) = select.build(MysqlQueryBuilder);
+        debug_print!("{}, {:?}", _sql, _values);
 
         panic!("This is a mock Executor");
     }

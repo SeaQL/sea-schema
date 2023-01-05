@@ -9,7 +9,7 @@ async fn main() {
     //     .init();
 
     let url = std::env::var("DATABASE_URL_SAKILA")
-        .unwrap_or("postgres://root:root@localhost/sakila".to_owned());
+        .unwrap_or_else(|_| "postgres://root:root@localhost/sakila".to_owned());
 
     let connection = PgPool::connect(&url).await.unwrap();
 

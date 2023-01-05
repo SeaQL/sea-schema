@@ -3,6 +3,7 @@ use sea_query::{PostgresQueryBuilder, SelectStatement};
 
 use crate::debug_print;
 
+#[allow(dead_code)]
 pub struct Executor {
     pool: PgPool,
 }
@@ -19,8 +20,8 @@ impl IntoExecutor for PgPool {
 
 impl Executor {
     pub async fn fetch_all(&self, select: SelectStatement) -> Vec<PgRow> {
-        let (sql, values) = select.build(PostgresQueryBuilder);
-        debug_print!("{}, {:?}", sql, values);
+        let (_sql, _values) = select.build(PostgresQueryBuilder);
+        debug_print!("{}, {:?}", _sql, _values);
 
         panic!("This is a mock Executor");
     }

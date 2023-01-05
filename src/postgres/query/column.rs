@@ -131,7 +131,7 @@ impl From<&PgRow> for ColumnQueryResult {
 
 #[cfg(not(feature = "sqlx-postgres"))]
 impl From<&PgRow> for ColumnQueryResult {
-    fn from(row: &PgRow) -> Self {
+    fn from(_: &PgRow) -> Self {
         Self::default()
     }
 }

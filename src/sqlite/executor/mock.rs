@@ -3,6 +3,7 @@ use sea_query::{SelectStatement, SqliteQueryBuilder};
 
 use crate::debug_print;
 
+#[allow(dead_code)]
 pub struct Executor {
     pool: SqlitePool,
 }
@@ -19,21 +20,21 @@ impl IntoExecutor for SqlitePool {
 
 impl Executor {
     pub async fn fetch_all(&self, select: SelectStatement) -> Vec<SqliteRow> {
-        let (sql, values) = select.build(SqliteQueryBuilder);
-        debug_print!("{}, {:?}", sql, values);
+        let (_sql, _values) = select.build(SqliteQueryBuilder);
+        debug_print!("{}, {:?}", _sql, _values);
 
         panic!("This is a mock Executor");
     }
 
     pub async fn fetch_one(&self, select: SelectStatement) -> SqliteRow {
-        let (sql, values) = select.build(SqliteQueryBuilder);
-        debug_print!("{}, {:?}", sql, values);
+        let (_sql, _values) = select.build(SqliteQueryBuilder);
+        debug_print!("{}, {:?}", _sql, _values);
 
         panic!("This is a mock Executor");
     }
 
-    pub async fn fetch_all_raw(&self, sql: String) -> Vec<SqliteRow> {
-        debug_print!("{}", sql);
+    pub async fn fetch_all_raw(&self, _sql: String) -> Vec<SqliteRow> {
+        debug_print!("{}", _sql);
 
         panic!("This is a mock Executor");
     }

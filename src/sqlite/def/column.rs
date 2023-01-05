@@ -1,9 +1,11 @@
 use super::{DefaultType, Type};
-use crate::sqlx_types::{sqlite::SqliteRow, Row};
 use sea_query::{
     foreign_key::ForeignKeyAction as SeaQueryForeignKeyAction, Alias, Index, IndexCreateStatement,
 };
 use std::num::ParseIntError;
+
+#[allow(unused_imports)]
+use crate::sqlx_types::{sqlite::SqliteRow, Row};
 
 /// An SQLite column definition
 #[derive(Debug, PartialEq, Clone)]
@@ -33,7 +35,7 @@ impl ColumnInfo {
             } else if default_value.is_empty() {
                 DefaultType::Unspecified
             } else {
-                let value = default_value.to_owned().replace("'", "");
+                let value = default_value.to_owned().replace('\'', "");
 
                 if let Ok(is_int) = value.parse::<i32>() {
                     DefaultType::Integer(is_int)
@@ -50,7 +52,7 @@ impl ColumnInfo {
 
 #[cfg(not(feature = "sqlx-sqlite"))]
 impl ColumnInfo {
-    pub fn to_column_def(row: &SqliteRow) -> Result<ColumnInfo, ParseIntError> {
+    pub fn to_column_def(_: &SqliteRow) -> Result<ColumnInfo, ParseIntError> {
         i32::from_str_radix("", 10)?;
         unimplemented!()
     }
@@ -119,7 +121,7 @@ impl From<&SqliteRow> for PartialIndexInfo {
 
 #[cfg(not(feature = "sqlx-sqlite"))]
 impl From<&SqliteRow> for PartialIndexInfo {
-    fn from(row: &SqliteRow) -> Self {
+    fn from(_: &SqliteRow) -> Self {
         Self::default()
     }
 }
@@ -145,7 +147,7 @@ impl From<&SqliteRow> for IndexedColumns {
         let columns_to_index = split_at_open_bracket[1]
             .replace(')', "")
             .split(',')
-            .map(|column| column.trim().replace('`', "").replace('"', ""))
+            .map(|column| column.trim().replace(['`', '"'], ""))
             .collect::<Vec<String>>();
 
         Self {
@@ -160,7 +162,7 @@ impl From<&SqliteRow> for IndexedColumns {
 
 #[cfg(not(feature = "sqlx-sqlite"))]
 impl From<&SqliteRow> for IndexedColumns {
-    fn from(row: &SqliteRow) -> Self {
+    fn from(_: &SqliteRow) -> Self {
         Self::default()
     }
 }
@@ -179,7 +181,7 @@ impl From<&SqliteRow> for PrimaryKeyAutoincrement {
 
 #[cfg(not(feature = "sqlx-sqlite"))]
 impl From<&SqliteRow> for PrimaryKeyAutoincrement {
-    fn from(row: &SqliteRow) -> Self {
+    fn from(_: &SqliteRow) -> Self {
         Self::default()
     }
 }
@@ -225,7 +227,7 @@ impl From<&SqliteRow> for ForeignKeysInfo {
 
 #[cfg(not(feature = "sqlx-sqlite"))]
 impl From<&SqliteRow> for ForeignKeysInfo {
-    fn from(row: &SqliteRow) -> Self {
+    fn from(_: &SqliteRow) -> Self {
         Self::default()
     }
 }

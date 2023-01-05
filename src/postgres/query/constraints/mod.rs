@@ -90,15 +90,15 @@ impl SchemaQueryBuilder {
                 (Schema::Schema, Schema::CheckConstraints),
                 Condition::all()
                     .add(
-                        Expr::tbl(Schema::TableConstraints, Tcf::ConstraintName)
+                        Expr::col((Schema::TableConstraints, Tcf::ConstraintName))
                             .equals((Schema::CheckConstraints, Cf::ConstraintName)),
                     )
                     .add(
-                        Expr::tbl(Schema::TableConstraints, Tcf::ConstraintCatalog)
+                        Expr::col((Schema::TableConstraints, Tcf::ConstraintCatalog))
                             .equals((Schema::CheckConstraints, Cf::ConstraintCatalog)),
                     )
                     .add(
-                        Expr::tbl(Schema::TableConstraints, Tcf::ConstraintSchema)
+                        Expr::col((Schema::TableConstraints, Tcf::ConstraintSchema))
                             .equals((Schema::CheckConstraints, Cf::ConstraintSchema)),
                     ),
             )
@@ -107,27 +107,27 @@ impl SchemaQueryBuilder {
                 (Schema::Schema, Schema::KeyColumnUsage),
                 Condition::all()
                     .add(
-                        Expr::tbl(Schema::TableConstraints, Tcf::ConstraintName)
+                        Expr::col((Schema::TableConstraints, Tcf::ConstraintName))
                             .equals((Schema::KeyColumnUsage, Kcuf::ConstraintName)),
                     )
                     .add(
-                        Expr::tbl(Schema::TableConstraints, Tcf::ConstraintCatalog)
+                        Expr::col((Schema::TableConstraints, Tcf::ConstraintCatalog))
                             .equals((Schema::KeyColumnUsage, Kcuf::ConstraintCatalog)),
                     )
                     .add(
-                        Expr::tbl(Schema::TableConstraints, Tcf::ConstraintSchema)
+                        Expr::col((Schema::TableConstraints, Tcf::ConstraintSchema))
                             .equals((Schema::KeyColumnUsage, Kcuf::ConstraintSchema)),
                     )
                     .add(
-                        Expr::tbl(Schema::TableConstraints, Tcf::TableCatalog)
+                        Expr::col((Schema::TableConstraints, Tcf::TableCatalog))
                             .equals((Schema::KeyColumnUsage, Kcuf::TableCatalog)),
                     )
                     .add(
-                        Expr::tbl(Schema::TableConstraints, Tcf::TableSchema)
+                        Expr::col((Schema::TableConstraints, Tcf::TableSchema))
                             .equals((Schema::KeyColumnUsage, Kcuf::TableSchema)),
                     )
                     .add(
-                        Expr::tbl(Schema::TableConstraints, Tcf::TableName)
+                        Expr::col((Schema::TableConstraints, Tcf::TableName))
                             .equals((Schema::KeyColumnUsage, Kcuf::TableName)),
                     ),
             )
@@ -150,12 +150,12 @@ impl SchemaQueryBuilder {
                     .from((Schema::Schema, Schema::ReferentialConstraints))
                     .left_join(
                         (Schema::Schema, Schema::ConstraintColumnUsage),
-                        Expr::tbl(Schema::ReferentialConstraints, RefC::ConstraintName)
+                        Expr::col((Schema::ReferentialConstraints, RefC::ConstraintName))
                             .equals((Schema::ConstraintColumnUsage, Kcuf::ConstraintName)),
                     )
                     .take(),
                 rcsq.clone(),
-                Expr::tbl(Schema::TableConstraints, Tcf::ConstraintName)
+                Expr::col((Schema::TableConstraints, Tcf::ConstraintName))
                     .equals((rcsq.clone(), RefC::ConstraintName)),
             )
             .and_where(
@@ -203,7 +203,7 @@ impl From<&PgRow> for TableConstraintsQueryResult {
 
 #[cfg(not(feature = "sqlx-postgres"))]
 impl From<&PgRow> for TableConstraintsQueryResult {
-    fn from(_row: &PgRow) -> Self {
+    fn from(_: &PgRow) -> Self {
         Self::default()
     }
 }

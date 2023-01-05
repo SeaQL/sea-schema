@@ -93,7 +93,7 @@ impl From<&MySqlRow> for ColumnQueryResult {
 
 #[cfg(not(feature = "sqlx-mysql"))]
 impl From<&MySqlRow> for ColumnQueryResult {
-    fn from(row: &MySqlRow) -> Self {
+    fn from(_: &MySqlRow) -> Self {
         Self::default()
     }
 }

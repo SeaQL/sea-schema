@@ -63,19 +63,19 @@ impl SchemaQueryBuilder {
             .from((Schema::Schema, Schema::KeyColumnUsage))
             .inner_join(
                 (Schema::Schema, Schema::ReferentialConstraints),
-                Expr::tbl(Schema::KeyColumnUsage, Key::ConstraintSchema)
+                Expr::col((Schema::KeyColumnUsage, Key::ConstraintSchema))
                     .equals((Schema::ReferentialConstraints, Ref::ConstraintSchema))
                     .and(
-                        Expr::tbl(Schema::KeyColumnUsage, Key::ConstraintName)
+                        Expr::col((Schema::KeyColumnUsage, Key::ConstraintName))
                             .equals((Schema::ReferentialConstraints, Ref::ConstraintName)),
                     ),
             )
             .and_where(
-                Expr::tbl(Schema::KeyColumnUsage, Key::ConstraintSchema).eq(schema.to_string()),
+                Expr::col((Schema::KeyColumnUsage, Key::ConstraintSchema)).eq(schema.to_string()),
             )
-            .and_where(Expr::tbl(Schema::KeyColumnUsage, Key::TableName).eq(table.to_string()))
-            .and_where(Expr::tbl(Schema::KeyColumnUsage, Key::ReferencedTableName).is_not_null())
-            .and_where(Expr::tbl(Schema::KeyColumnUsage, Key::ReferencedColumnName).is_not_null())
+            .and_where(Expr::col((Schema::KeyColumnUsage, Key::TableName)).eq(table.to_string()))
+            .and_where(Expr::col((Schema::KeyColumnUsage, Key::ReferencedTableName)).is_not_null())
+            .and_where(Expr::col((Schema::KeyColumnUsage, Key::ReferencedColumnName)).is_not_null())
             .order_by(Key::ConstraintName, Order::Asc)
             .order_by(Key::OrdinalPosition, Order::Asc)
             .take()
@@ -99,7 +99,7 @@ impl From<&MySqlRow> for ForeignKeyQueryResult {
 
 #[cfg(not(feature = "sqlx-mysql"))]
 impl From<&MySqlRow> for ForeignKeyQueryResult {
-    fn from(row: &MySqlRow) -> Self {
+    fn from(_: &MySqlRow) -> Self {
         Self::default()
     }
 }

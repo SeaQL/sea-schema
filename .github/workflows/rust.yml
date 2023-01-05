@@ -43,7 +43,7 @@ jobs:
         with:
           toolchain: stable
           components: clippy
-      - run: cargo clippy --all-targets --all
+      - run: cargo clippy --all-targets --all -- -D warnings
 
   test:
     name: Unit Test
