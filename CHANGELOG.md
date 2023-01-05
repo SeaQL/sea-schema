@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 * Upgrade SeaQuery to 0.28 https://github.com/SeaQL/sea-schema/pull/90
 * Changed all version = "^x.y.z" into version = "x.y.z" and disabled default features and enable only the needed ones https://github.com/SeaQL/sea-schema/pull/93
+* Skip parsing Postgres check constraints when check expression is empty https://github.com/SeaQL/sea-schema/pull/96
+* Parsing Postgres citext column type https://github.com/SeaQL/sea-schema/pull/94
 
 ## 0.10.3 - 2022-11-16
 
