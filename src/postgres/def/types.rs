@@ -148,7 +148,7 @@ pub enum Type {
 impl Type {
     // TODO: Support more types
     #[allow(clippy::should_implement_trait)]
-    pub fn from_str(column_type: &str, udt_name: Option<&String>, is_enum: bool) -> Type {
+    pub fn from_str(column_type: &str, udt_name: Option<&str>, is_enum: bool) -> Type {
         match column_type.to_lowercase().as_str() {
             "smallint" | "int2" => Type::SmallInt,
             "integer" | "int" | "int4" => Type::Integer,

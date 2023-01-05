@@ -27,7 +27,7 @@ pub fn parse_column_type(result: &ColumnQueryResult, enums: &EnumVariantMap) -> 
         .map_or(false, |udt_name| enums.contains_key(udt_name));
     let mut ctype = Type::from_str(
         result.column_type.as_str(),
-        result.udt_name.as_ref(),
+        result.udt_name.as_deref(),
         is_enum,
     );
 
@@ -52,10 +52,10 @@ pub fn parse_column_type(result: &ColumnQueryResult, enums: &EnumVariantMap) -> 
         ctype = parse_bit_attributes(result.character_maximum_length, ctype);
     }
     if ctype.has_enum_attr() {
-        ctype = parse_enum_attributes(result.udt_name.as_ref(), ctype, enums);
+        ctype = parse_enum_attributes(result.udt_name.as_deref(), ctype, enums);
     }
     if ctype.has_array_attr() {
-        ctype = parse_array_attributes(result.udt_name_regtype.as_ref(), ctype, enums);
+        ctype = parse_array_attributes(result.udt_name_regtype.as_deref(), ctype, enums);
     }
 
     ctype
@@ -183,7 +183,7 @@ pub fn parse_bit_attributes(
 }
 
 pub fn parse_enum_attributes(
-    udt_name: Option<&String>,
+    udt_name: Option<&str>,
     mut ctype: ColumnType,
     enums: &EnumVariantMap,
 ) -> ColumnType {
@@ -204,7 +204,7 @@ pub fn parse_enum_attributes(
 }
 
 pub fn parse_array_attributes(
-    udt_name_regtype: Option<&String>,
+    udt_name_regtype: Option<&str>,
     mut ctype: ColumnType,
     enums: &EnumVariantMap,
 ) -> ColumnType {
