@@ -33,6 +33,7 @@ impl SchemaDiscovery {
             table.pk_is_autoincrement(&self.executor).await?;
             table.get_foreign_keys(&self.executor).await?;
             table.get_column_info(&self.executor).await?;
+            table.get_indexes(&self.executor).await?;
             tables.push(table);
         }
 
@@ -58,9 +59,8 @@ impl SchemaDiscovery {
         let mut discovered_indexes: Vec<IndexInfo> = Vec::default();
 
         for table in tables.iter_mut() {
-            table
-                .get_indexes(&self.executor, &mut discovered_indexes)
-                .await?
+            table.get_indexes(&self.executor).await?;
+            discovered_indexes.append(&mut table.indexes);
         }
 
         Ok(discovered_indexes)

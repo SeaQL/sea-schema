@@ -139,16 +139,9 @@ pub(crate) struct IndexedColumns {
 }
 
 #[cfg(feature = "sqlx-sqlite")]
-impl From<&SqliteRow> for IndexedColumns {
-    fn from(row: &SqliteRow) -> Self {
-        let indexed_columns_new: String = row.get(4);
-        let split_at_on = indexed_columns_new.split("ON").collect::<Vec<_>>();
-        let split_at_open_bracket = split_at_on[1].trim().split('(').collect::<Vec<_>>();
-        let columns_to_index = split_at_open_bracket[1]
-            .replace(')', "")
-            .split(',')
-            .map(|column| column.trim().replace(['`', '"'], ""))
-            .collect::<Vec<String>>();
+impl From<(&SqliteRow, &[SqliteRow])> for IndexedColumns {
+    fn from((row, rows): (&SqliteRow, &[SqliteRow])) -> Self {
+        let columns_to_index = rows.iter().map(|row| row.get(2)).collect::<Vec<String>>();
 
         Self {
             r#type: row.get(0),
@@ -161,8 +154,8 @@ impl From<&SqliteRow> for IndexedColumns {
 }
 
 #[cfg(not(feature = "sqlx-sqlite"))]
-impl From<&SqliteRow> for IndexedColumns {
-    fn from(_: &SqliteRow) -> Self {
+impl From<(&SqliteRow, &[SqliteRow])> for IndexedColumns {
+    fn from(_: (&SqliteRow, &[SqliteRow])) -> Self {
         Self::default()
     }
 }
