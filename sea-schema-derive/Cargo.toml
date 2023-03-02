@@ -16,5 +16,5 @@ proc-macro = true
 [dependencies]
 syn = { version = "1", default-features = false, features = [ "derive", "parsing", "proc-macro", "printing" ] }
 quote = { version = "1", default-features = false }
-heck = { version = "0.3", default-features = false }
+heck = { version = "0.4", default-features = false }
 proc-macro2 = { version = "1", default-features = false }
