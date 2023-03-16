@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.12.0 - Pending
+
+* Upgrade `heck` dependency in `sea-schema-derive` to 0.4 https://github.com/SeaQL/sea-schema/pull/103
+
 ## 0.11.0 - 2023-01-05
 
 * Upgrade SeaQuery to 0.28 https://github.com/SeaQL/sea-schema/pull/90
