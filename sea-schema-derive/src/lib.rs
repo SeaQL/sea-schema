@@ -1,4 +1,4 @@
-use heck::SnakeCase;
+use heck::ToSnakeCase;
 use proc_macro::{self, TokenStream};
 use proc_macro2::Span;
 use quote::{quote, quote_spanned};
