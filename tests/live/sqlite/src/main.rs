@@ -74,6 +74,12 @@ async fn test_001() -> DiscoveryResult<()> {
                 .not_null()
                 .default("1990-01-01 00:00:00"),
         )
+        .index(
+            Index::create()
+                .col(Alias::new("SLOC"))
+                .col(Alias::new("SemVer"))
+                .unique(),
+        )
         .to_owned();
 
     // This ensures that the `sqlite_sequence` table is populated
@@ -90,6 +96,13 @@ async fn test_001() -> DiscoveryResult<()> {
         .table(Alias::new("Programming_Langs"))
         .col(Alias::new("SLOC"))
         .col(Alias::new("SemVer"))
+        .to_owned();
+
+    // Create a table with a PRIMARY KEY constraint that results in an index.
+    let create_table_primkey = Table::create()
+        .table(Alias::new("Inventors"))
+        .col(ColumnDef::new(Alias::new("Name")).text().not_null())
+        .index(Index::create().col(Alias::new("Name")).primary())
         .to_owned();
 
     //DROP TABLES to ensure all tests pass
@@ -144,10 +157,7 @@ async fn test_001() -> DiscoveryResult<()> {
         .primary_key(Index::create().col(Alias::new("group_id")))
         .to_owned();
 
-    println!(
-        "{:?}",
-        &table_create_suppliers.to_string(SqliteQueryBuilder)
-    );
+    println!("{}", table_create_suppliers.to_string(SqliteQueryBuilder));
 
     let insert_into_supplier_groups = Query::insert()
         .into_table(Alias::new("supplier_groups"))
@@ -164,6 +174,11 @@ async fn test_001() -> DiscoveryResult<()> {
         .to_owned();
 
     sqlx::query(&create_table.to_string(SqliteQueryBuilder))
+        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .await
+        .unwrap();
+
+    sqlx::query(&create_table_primkey.to_string(SqliteQueryBuilder))
         .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
@@ -218,6 +233,7 @@ async fn test_001() -> DiscoveryResult<()> {
             .collect::<Vec<_>>(),
         vec![
             create_table.to_string(SqliteQueryBuilder),
+            create_table_primkey.to_string(SqliteQueryBuilder),
             table_create_supplier_groups.to_string(SqliteQueryBuilder),
             table_create_suppliers.to_string(SqliteQueryBuilder),
         ]
@@ -233,7 +249,7 @@ async fn test_001() -> DiscoveryResult<()> {
             .iter()
             .map(|index| index.write().to_string(SqliteQueryBuilder))
             .collect::<Vec<_>>(),
-        vec![create_index.to_string(SqliteQueryBuilder)]
+        vec![create_index.to_string(SqliteQueryBuilder),]
     );
 
     Ok(())
