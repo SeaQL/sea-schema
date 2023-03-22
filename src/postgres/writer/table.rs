@@ -4,7 +4,7 @@ use sea_query::{Alias, Table, TableCreateStatement};
 impl TableDef {
     pub fn write(&self) -> TableCreateStatement {
         let mut table = Table::create();
-        table.table(Alias::new(self.info.name.as_ref()));
+        table.table(Alias::new(&self.info.name));
         for col in self.columns.iter() {
             table.col(&mut col.write());
         }

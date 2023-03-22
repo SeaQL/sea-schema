@@ -251,10 +251,10 @@ impl ColumnInfo {
             Type::Decimal(_) | Type::Float(_) | Type::Double(_)
         ) && num_attr.unsigned.is_some()
         {
-            col_def.extra("UNSIGNED".into());
+            col_def.extra("UNSIGNED");
         }
         if num_attr.zero_fill.is_some() {
-            col_def.extra("ZEROFILL".into());
+            col_def.extra("ZEROFILL");
         }
         col_def
     }
