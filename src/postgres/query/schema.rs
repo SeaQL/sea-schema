@@ -1,7 +1,9 @@
+use sea_query::{Condition, Expr, Iden, JoinType, Query, SelectStatement};
+
 #[derive(Debug, Default)]
 pub struct SchemaQueryBuilder;
 
-#[derive(Debug, sea_query::Iden)]
+#[derive(Debug, Iden)]
 /// Ref: https://www.postgresql.org/docs/13/information-schema.html
 pub enum InformationSchema {
     #[iden = "information_schema"]
@@ -13,4 +15,38 @@ pub enum InformationSchema {
     Tables,
     TableConstraints,
     ConstraintColumnUsage,
+}
+
+pub(crate) fn select_table_and_view() -> SelectStatement {
+    #[derive(Debug, Iden)]
+    pub enum PgClass {
+        Table,
+        Relname,
+        Relkind,
+        Oid,
+    }
+
+    #[derive(Debug, Iden)]
+    pub enum PgInherits {
+        Table,
+        Inhrelid,
+    }
+
+    Query::select()
+        .column((PgClass::Table, PgClass::Relname))
+        .from(PgInherits::Table)
+        .join(
+            JoinType::Join,
+            PgClass::Table,
+            Condition::all()
+                .add(
+                    Expr::col((PgInherits::Table, PgInherits::Inhrelid))
+                        .equals((PgClass::Table, PgClass::Oid)),
+                )
+                .add(
+                    Expr::col((PgClass::Table, PgClass::Relkind))
+                        .is_in(["r", "t", "v", "m", "f", "p"]),
+                ),
+        )
+        .to_owned()
 }
