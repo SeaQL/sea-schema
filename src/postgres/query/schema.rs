@@ -19,7 +19,7 @@ pub enum InformationSchema {
 
 pub(crate) fn select_table_and_view() -> SelectStatement {
     #[derive(Debug, Iden)]
-    pub enum PgClass {
+    enum PgClass {
         Table,
         Relname,
         Relkind,
@@ -27,7 +27,7 @@ pub(crate) fn select_table_and_view() -> SelectStatement {
     }
 
     #[derive(Debug, Iden)]
-    pub enum PgInherits {
+    enum PgInherits {
         Table,
         Inhrelid,
     }
