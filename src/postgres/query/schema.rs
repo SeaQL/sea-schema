@@ -17,7 +17,7 @@ pub enum InformationSchema {
     ConstraintColumnUsage,
 }
 
-pub(crate) fn select_table_and_view() -> SelectStatement {
+pub(crate) fn select_base_table_and_view() -> SelectStatement {
     #[derive(Debug, Iden)]
     enum PgClass {
         Table,
