@@ -44,6 +44,21 @@ pub(crate) fn select_table_and_view() -> SelectStatement {
                         .equals((PgClass::Table, PgClass::Oid)),
                 )
                 .add(
+                    // List of possible value of the `relkind` column.
+                    // ========
+                    // r = ordinary table
+                    // i = index
+                    // S = sequence
+                    // t = TOAST table
+                    // v = view
+                    // m = materialized view
+                    // c = composite type
+                    // f = foreign table
+                    // p = partitioned table
+                    // I = partitioned index
+                    // Extracted from https://www.postgresql.org/docs/current/catalog-pg-class.html
+                    //
+                    // We want to select tables and views only.
                     Expr::col((PgClass::Table, PgClass::Relkind))
                         .is_in(["r", "t", "v", "m", "f", "p"]),
                 ),
