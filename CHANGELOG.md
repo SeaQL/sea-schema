@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 * Upgrade `heck` dependency in `sea-schema-derive` to 0.4 https://github.com/SeaQL/sea-schema/pull/103
 * Upgrade `sea-query` to `0.29` https://github.com/SeaQL/sea-schema/pull/104
 * Upgrade `sea-query-binder` to `0.4` https://github.com/SeaQL/sea-schema/pull/104
+* Replace the use of `SeaRc<T>` where `T` isn't `dyn Iden` with `RcOrArc<T>` https://github.com/SeaQL/sea-schema/pull/107
 
 ## 0.11.0 - 2023-01-05
 
