@@ -1,7 +1,7 @@
 use crate::postgres::{
     def::*, discovery::EnumVariantMap, parser::yes_or_no_to_bool, query::ColumnQueryResult,
 };
-use sea_query::SeaRc;
+use sea_query::RcOrArc;
 
 impl ColumnQueryResult {
     pub fn parse(self, enums: &EnumVariantMap) -> ColumnInfo {
@@ -215,7 +215,7 @@ pub fn parse_array_attributes(
                 Some(typename) => {
                     let typename = typename.replacen("[]", "", 1);
                     let is_enum = enums.contains_key(&typename);
-                    Some(SeaRc::new(Type::from_str(
+                    Some(RcOrArc::new(Type::from_str(
                         &typename,
                         Some(&typename),
                         is_enum,
