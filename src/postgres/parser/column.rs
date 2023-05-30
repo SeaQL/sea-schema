@@ -55,7 +55,7 @@ pub fn parse_column_type(result: &ColumnQueryResult, enums: &EnumVariantMap) -> 
         ctype = parse_enum_attributes(result.udt_name.as_deref(), ctype, enums);
     }
     if ctype.has_array_attr() {
-        ctype = parse_array_attributes(result.udt_name_regtype.as_deref(), ctype, enums);
+        ctype = parse_array_attributes(result.elem_type.as_deref(), ctype, enums);
     }
 
     ctype
@@ -204,23 +204,22 @@ pub fn parse_enum_attributes(
 }
 
 pub fn parse_array_attributes(
-    udt_name_regtype: Option<&str>,
+    elem_type: Option<&str>,
     mut ctype: ColumnType,
     enums: &EnumVariantMap,
 ) -> ColumnType {
     match ctype {
         Type::Array(ref mut def) => {
-            def.col_type = match udt_name_regtype {
-                None => panic!("parse_array_attributes(_) received an empty udt_name_regtype"),
-                Some(typename) => {
-                    let typename = typename.replacen("[]", "", 1);
-                    let is_enum = enums.contains_key(&typename);
-                    Some(RcOrArc::new(Type::from_str(
-                        &typename,
-                        Some(&typename),
-                        is_enum,
-                    )))
-                }
+            def.col_type = match elem_type {
+                None => panic!("parse_array_attributes(_) received an empty elem_type"),
+                Some(typename) => Some(RcOrArc::new(if let Some(variants) = enums.get(typename) {
+                    Type::Enum(EnumDef {
+                        typename: typename.to_string(),
+                        values: variants.clone(),
+                    })
+                } else {
+                    Type::from_str(typename, Some(typename), false)
+                })),
             };
         }
         _ => panic!("parse_array_attributes(_) received a type that does not have EnumDef"),
