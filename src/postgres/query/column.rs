@@ -121,7 +121,7 @@ impl SchemaQueryBuilder {
                     .into_table_ref()
                     .alias(typ_alias.clone()),
                 Expr::col((typ_alias.clone(), PgTypeField::Typname).into_column_ref()).eq((
-                    col_alias.clone(),
+                    col_alias,
                     ColumnsField::UdtName,
                 )
                     .into_column_ref()),
@@ -130,8 +130,8 @@ impl SchemaQueryBuilder {
                 (PgCatalog::Schema, PgCatalog::PgType)
                     .into_table_ref()
                     .alias(elem_typ_alias.clone()),
-                Expr::col((elem_typ_alias.clone(), PgTypeField::Oid).into_column_ref()).eq((
-                    typ_alias.clone(),
+                Expr::col((elem_typ_alias, PgTypeField::Oid).into_column_ref()).eq((
+                    typ_alias,
                     PgTypeField::Typelem,
                 )
                     .into_column_ref()),
