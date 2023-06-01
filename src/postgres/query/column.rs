@@ -103,7 +103,7 @@ impl SchemaQueryBuilder {
                 ColumnsField::UdtName,
             ])
             .expr(
-                Expr::expr(Expr::cust("udt_name::regtype").cast_as(Text))
+                Expr::expr(Expr::cust("to_regtype(udt_name)").cast_as(Text))
                     .binary(BinOper::As, Expr::col(UdtNameRegtype)),
             )
             .expr(
