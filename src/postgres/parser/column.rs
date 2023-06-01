@@ -212,14 +212,17 @@ pub fn parse_array_attributes(
         Type::Array(ref mut def) => {
             def.col_type = match elem_type {
                 None => panic!("parse_array_attributes(_) received an empty elem_type"),
-                Some(typename) => Some(RcOrArc::new(if let Some(variants) = enums.get(typename) {
-                    Type::Enum(EnumDef {
-                        typename: typename.to_string(),
-                        values: variants.clone(),
-                    })
-                } else {
-                    Type::from_str(typename, Some(typename), false)
-                })),
+                Some(typename) => {
+                    let arr_col_type = if let Some(variants) = enums.get(typename) {
+                        Type::Enum(EnumDef {
+                            typename: typename.to_string(),
+                            values: variants.clone(),
+                        })
+                    } else {
+                        Type::from_str(typename, Some(typename), false)
+                    };
+                    Some(RcOrArc::new(arr_col_type))
+                }
             };
         }
         _ => panic!("parse_array_attributes(_) received a type that does not have EnumDef"),
