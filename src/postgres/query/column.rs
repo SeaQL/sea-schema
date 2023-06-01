@@ -1,6 +1,6 @@
 use super::{InformationSchema, PgCatalog, SchemaQueryBuilder};
 use crate::sqlx_types::postgres::PgRow;
-use sea_query::{Alias, BinOper, Expr, Iden, IntoTableRef, Query, SeaRc, SelectStatement};
+use sea_query::{BinOper, Expr, Iden, IntoTableRef, Query, SeaRc, SelectStatement};
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://www.postgresql.org/docs/13/infoschema-columns.html
@@ -103,12 +103,13 @@ impl SchemaQueryBuilder {
                 ColumnsField::UdtName,
             ])
             .expr(
-                Expr::expr(Expr::cust("udt_name::regtype").cast_as(Alias::new("text")))
-                    .binary(BinOper::As, Expr::col(Alias::new("udt_name_regtype"))),
+                Expr::expr(Expr::cust("udt_name::regtype").cast_as(Text))
+                    .binary(BinOper::As, Expr::col(UdtNameRegtype)),
             )
             .expr(
-                Expr::expr(Expr::cust("elem_typ.typname").cast_as(Alias::new("text")))
-                    .binary(BinOper::As, Expr::col(Alias::new("elem_type"))),
+                Expr::col((ElemTyp, PgTypeField::Typname))
+                    .cast_as(Text)
+                    .binary(BinOper::As, Expr::col(ElemType)),
             )
             .from(
                 (InformationSchema::Schema, InformationSchema::Columns)
@@ -128,8 +129,8 @@ impl SchemaQueryBuilder {
                     .alias(ElemTyp),
                 Expr::col((ElemTyp, PgTypeField::Oid)).equals((Typ, PgTypeField::Typelem)),
             )
-            .and_where(Expr::col(ColumnsField::TableSchema).eq(schema.to_string()))
-            .and_where(Expr::col(ColumnsField::TableName).eq(table.to_string()))
+            .and_where(Expr::col(ColumnsField::TableSchema).equals(schema))
+            .and_where(Expr::col(ColumnsField::TableName).equals(table))
             .take()
     }
 }
