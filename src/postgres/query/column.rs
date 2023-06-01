@@ -129,8 +129,8 @@ impl SchemaQueryBuilder {
                     .alias(ElemTyp),
                 Expr::col((ElemTyp, PgTypeField::Oid)).equals((Typ, PgTypeField::Typelem)),
             )
-            .and_where(Expr::col(ColumnsField::TableSchema).equals(schema))
-            .and_where(Expr::col(ColumnsField::TableName).equals(table))
+            .and_where(Expr::col(ColumnsField::TableSchema).eq(schema.to_string()))
+            .and_where(Expr::col(ColumnsField::TableName).eq(table.to_string()))
             .take()
     }
 }
