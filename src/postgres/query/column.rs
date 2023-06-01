@@ -1,8 +1,6 @@
 use super::{InformationSchema, PgCatalog, SchemaQueryBuilder};
 use crate::sqlx_types::postgres::PgRow;
-use sea_query::{
-    Alias, BinOper, Expr, Iden, IntoColumnRef, IntoTableRef, Query, SeaRc, SelectStatement,
-};
+use sea_query::{Alias, BinOper, Expr, Iden, IntoTableRef, Query, SeaRc, SelectStatement};
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://www.postgresql.org/docs/13/infoschema-columns.html
@@ -76,6 +74,7 @@ pub struct ColumnQueryResult {
     pub interval_precision: Option<i32>,
 
     pub udt_name: Option<String>,
+    pub udt_name_regtype: Option<String>,
     pub elem_type: Option<String>,
 }
 
@@ -85,9 +84,6 @@ impl SchemaQueryBuilder {
         schema: SeaRc<dyn Iden>,
         table: SeaRc<dyn Iden>,
     ) -> SelectStatement {
-        let col_alias = Alias::new("col");
-        let typ_alias = Alias::new("typ");
-        let elem_typ_alias = Alias::new("elem_typ");
         Query::select()
             .columns([
                 ColumnsField::ColumnName,
@@ -107,34 +103,30 @@ impl SchemaQueryBuilder {
                 ColumnsField::UdtName,
             ])
             .expr(
+                Expr::expr(Expr::cust("udt_name::regtype").cast_as(Alias::new("text")))
+                    .binary(BinOper::As, Expr::col(Alias::new("udt_name_regtype"))),
+            )
+            .expr(
                 Expr::expr(Expr::cust("elem_typ.typname").cast_as(Alias::new("text")))
                     .binary(BinOper::As, Expr::col(Alias::new("elem_type"))),
             )
             .from(
                 (InformationSchema::Schema, InformationSchema::Columns)
                     .into_table_ref()
-                    .alias(col_alias.clone()),
+                    .alias(Col),
             )
             .join(
                 sea_query::JoinType::Join,
                 (PgCatalog::Schema, PgCatalog::PgType)
                     .into_table_ref()
-                    .alias(typ_alias.clone()),
-                Expr::col((typ_alias.clone(), PgTypeField::Typname).into_column_ref()).eq((
-                    col_alias,
-                    ColumnsField::UdtName,
-                )
-                    .into_column_ref()),
+                    .alias(Typ),
+                Expr::col((Typ, PgTypeField::Typname)).equals((Col, ColumnsField::UdtName)),
             )
             .left_join(
                 (PgCatalog::Schema, PgCatalog::PgType)
                     .into_table_ref()
-                    .alias(elem_typ_alias.clone()),
-                Expr::col((elem_typ_alias, PgTypeField::Oid).into_column_ref()).eq((
-                    typ_alias,
-                    PgTypeField::Typelem,
-                )
-                    .into_column_ref()),
+                    .alias(ElemTyp),
+                Expr::col((ElemTyp, PgTypeField::Oid)).equals((Typ, PgTypeField::Typelem)),
             )
             .and_where(Expr::col(ColumnsField::TableSchema).eq(schema.to_string()))
             .and_where(Expr::col(ColumnsField::TableName).eq(table.to_string()))
@@ -162,7 +154,8 @@ impl From<&PgRow> for ColumnQueryResult {
             interval_type: row.get(12),
             interval_precision: row.get(13),
             udt_name: row.get(14),
-            elem_type: row.get(15),
+            udt_name_regtype: row.get(15),
+            elem_type: row.get(16),
         }
     }
 }
@@ -173,3 +166,16 @@ impl From<&PgRow> for ColumnQueryResult {
         Self::default()
     }
 }
+
+#[derive(Iden)]
+struct Col;
+#[derive(Iden)]
+struct Typ;
+#[derive(Iden)]
+struct ElemTyp;
+#[derive(Iden)]
+struct Text;
+#[derive(Iden)]
+struct UdtNameRegtype;
+#[derive(Iden)]
+struct ElemType;
