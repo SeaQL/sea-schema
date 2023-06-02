@@ -17,14 +17,6 @@ pub enum InformationSchema {
     ConstraintColumnUsage,
 }
 
-#[derive(Debug, Iden)]
-/// Ref: https://www.postgresql.org/docs/13/catalogs.html
-pub enum PgCatalog {
-    #[iden = "pg_catalog"]
-    Schema,
-    PgType,
-}
-
 pub(crate) fn select_base_table_and_view() -> SelectStatement {
     #[derive(Debug, Iden)]
     enum PgClass {

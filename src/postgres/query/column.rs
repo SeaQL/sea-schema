@@ -1,6 +1,6 @@
-use super::{InformationSchema, PgCatalog, SchemaQueryBuilder};
+use super::{InformationSchema, SchemaQueryBuilder};
 use crate::sqlx_types::postgres::PgRow;
-use sea_query::{BinOper, Expr, Iden, IntoTableRef, Query, SeaRc, SelectStatement};
+use sea_query::{BinOper, Expr, Iden, Query, SeaRc, SelectStatement};
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://www.postgresql.org/docs/13/infoschema-columns.html
@@ -43,14 +43,6 @@ pub enum ColumnsField {
     IsUpdatable,
 }
 
-#[derive(Debug, sea_query::Iden)]
-/// Ref: https://www.postgresql.org/docs/13/catalog-pg-type.html
-pub enum PgTypeField {
-    Oid,
-    Typname,
-    Typelem,
-}
-
 #[derive(Debug, Default)]
 pub struct ColumnQueryResult {
     pub column_name: String,
@@ -75,7 +67,6 @@ pub struct ColumnQueryResult {
 
     pub udt_name: Option<String>,
     pub udt_name_regtype: Option<String>,
-    pub elem_type: Option<String>,
 }
 
 impl SchemaQueryBuilder {
@@ -103,32 +94,12 @@ impl SchemaQueryBuilder {
                 ColumnsField::UdtName,
             ])
             .expr(
-                Expr::expr(Expr::cust("to_regtype(udt_name)").cast_as(Text))
+                // The double quotes are required to correctly handle user types containing
+                // upper case letters.
+                Expr::expr(Expr::cust("CONCAT('\"', udt_name, '\"')::regtype").cast_as(Text))
                     .binary(BinOper::As, Expr::col(UdtNameRegtype)),
             )
-            .expr(
-                Expr::col((ElemTyp, PgTypeField::Typname))
-                    .cast_as(Text)
-                    .binary(BinOper::As, Expr::col(ElemType)),
-            )
-            .from(
-                (InformationSchema::Schema, InformationSchema::Columns)
-                    .into_table_ref()
-                    .alias(Col),
-            )
-            .join(
-                sea_query::JoinType::Join,
-                (PgCatalog::Schema, PgCatalog::PgType)
-                    .into_table_ref()
-                    .alias(Typ),
-                Expr::col((Typ, PgTypeField::Typname)).equals((Col, ColumnsField::UdtName)),
-            )
-            .left_join(
-                (PgCatalog::Schema, PgCatalog::PgType)
-                    .into_table_ref()
-                    .alias(ElemTyp),
-                Expr::col((ElemTyp, PgTypeField::Oid)).equals((Typ, PgTypeField::Typelem)),
-            )
+            .from((InformationSchema::Schema, InformationSchema::Columns))
             .and_where(Expr::col(ColumnsField::TableSchema).eq(schema.to_string()))
             .and_where(Expr::col(ColumnsField::TableName).eq(table.to_string()))
             .take()
@@ -156,7 +127,6 @@ impl From<&PgRow> for ColumnQueryResult {
             interval_precision: row.get(13),
             udt_name: row.get(14),
             udt_name_regtype: row.get(15),
-            elem_type: row.get(16),
         }
     }
 }
@@ -169,14 +139,6 @@ impl From<&PgRow> for ColumnQueryResult {
 }
 
 #[derive(Iden)]
-struct Col;
-#[derive(Iden)]
-struct Typ;
-#[derive(Iden)]
-struct ElemTyp;
-#[derive(Iden)]
 struct Text;
 #[derive(Iden)]
 struct UdtNameRegtype;
-#[derive(Iden)]
-struct ElemType;

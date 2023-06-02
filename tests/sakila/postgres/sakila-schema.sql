@@ -1719,3 +1719,14 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 -- PostgreSQL database dump complete
 --
 
+
+-- Added manually to test case-sensitive type names and enum arrays
+
+CREATE TYPE "CaseSensitiveEnum" AS ENUM ('foo', 'bar');
+
+ALTER TYPE public."CaseSensitiveEnum" OWNER TO postgres;
+
+CREATE TABLE "CaseSensitiveTable" (
+    id serial PRIMARY KEY,
+    "enumArray" "CaseSensitiveEnum"[]
+);

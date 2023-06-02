@@ -55,7 +55,7 @@ pub fn parse_column_type(result: &ColumnQueryResult, enums: &EnumVariantMap) -> 
         ctype = parse_enum_attributes(result.udt_name.as_deref(), ctype, enums);
     }
     if ctype.has_array_attr() {
-        ctype = parse_array_attributes(result.elem_type.as_deref(), ctype, enums);
+        ctype = parse_array_attributes(result.udt_name_regtype.as_deref(), ctype, enums);
     }
 
     ctype
@@ -204,15 +204,16 @@ pub fn parse_enum_attributes(
 }
 
 pub fn parse_array_attributes(
-    elem_type: Option<&str>,
+    udt_name_regtype: Option<&str>,
     mut ctype: ColumnType,
     enums: &EnumVariantMap,
 ) -> ColumnType {
     match ctype {
         Type::Array(ref mut def) => {
-            def.col_type = match elem_type {
-                None => panic!("parse_array_attributes(_) received an empty elem_type"),
+            def.col_type = match udt_name_regtype {
+                None => panic!("parse_array_attributes(_) received an empty udt_name_regtype"),
                 Some(typename) => {
+                    let typename = &typename.replacen('"', "", 2).replacen("[]", "", 1);
                     let arr_col_type = if let Some(variants) = enums.get(typename) {
                         Type::Enum(EnumDef {
                             typename: typename.to_string(),
