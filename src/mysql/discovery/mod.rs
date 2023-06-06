@@ -33,12 +33,11 @@ impl SchemaDiscovery {
     }
 
     pub async fn discover(mut self) -> Result<Schema, SqlxError> {
-        let system_opt = self.discover_system().await?;
-        let system = match system_opt {
-            Some(system) => system,
-            None => return Err(SqlxError::RowNotFound),
-        };
-        self.query = SchemaQueryBuilder::new(system);
+        let system_info = self
+            .discover_system()
+            .await
+            .and_then(|system_info_opt| system_info_opt.ok_or(SqlxError::RowNotFound))?;
+        self.query = SchemaQueryBuilder::new(system_info);
         let tables = self.discover_tables().await?;
         let tables = future::try_join_all(
             tables
