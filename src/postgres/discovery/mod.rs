@@ -7,6 +7,7 @@ use crate::postgres::query::{
     ColumnQueryResult, EnumQueryResult, SchemaQueryBuilder, TableConstraintsQueryResult,
     TableQueryResult,
 };
+use crate::sqlx_types::SqlxError;
 use futures::future;
 use sea_query::{Alias, Iden, IntoIden, SeaRc};
 use std::collections::HashMap;
@@ -34,7 +35,7 @@ impl SchemaDiscovery {
         }
     }
 
-    pub async fn discover(&self) -> Result<Schema, sqlx::Error> {
+    pub async fn discover(&self) -> Result<Schema, SqlxError> {
         let enums: EnumVariantMap = self
             .discover_enums()
             .await?
@@ -56,7 +57,7 @@ impl SchemaDiscovery {
         })
     }
 
-    pub async fn discover_tables(&self) -> Result<Vec<TableInfo>, sqlx::Error> {
+    pub async fn discover_tables(&self) -> Result<Vec<TableInfo>, SqlxError> {
         let rows = self
             .executor
             .fetch_all(self.query.query_tables(self.schema.clone()))
@@ -78,7 +79,7 @@ impl SchemaDiscovery {
 
     async fn discover_table_static(
         params: (&Self, TableInfo, &EnumVariantMap),
-    ) -> Result<TableDef, sqlx::Error> {
+    ) -> Result<TableDef, SqlxError> {
         let this = params.0;
         let info = params.1;
         let enums = params.2;
@@ -89,7 +90,7 @@ impl SchemaDiscovery {
         &self,
         info: TableInfo,
         enums: &EnumVariantMap,
-    ) -> Result<TableDef, sqlx::Error> {
+    ) -> Result<TableDef, SqlxError> {
         let table = SeaRc::new(Alias::new(info.name.as_str()));
         let columns = self
             .discover_columns(self.schema.clone(), table.clone(), enums)
@@ -143,7 +144,7 @@ impl SchemaDiscovery {
         schema: SeaRc<dyn Iden>,
         table: SeaRc<dyn Iden>,
         enums: &EnumVariantMap,
-    ) -> Result<Vec<ColumnInfo>, sqlx::Error> {
+    ) -> Result<Vec<ColumnInfo>, SqlxError> {
         let rows = self
             .executor
             .fetch_all(self.query.query_columns(schema.clone(), table.clone()))
@@ -165,7 +166,7 @@ impl SchemaDiscovery {
         &self,
         schema: SeaRc<dyn Iden>,
         table: SeaRc<dyn Iden>,
-    ) -> Result<Vec<Constraint>, sqlx::Error> {
+    ) -> Result<Vec<Constraint>, SqlxError> {
         let rows = self
             .executor
             .fetch_all(
@@ -188,7 +189,7 @@ impl SchemaDiscovery {
             .collect())
     }
 
-    pub async fn discover_enums(&self) -> Result<Vec<EnumDef>, sqlx::Error> {
+    pub async fn discover_enums(&self) -> Result<Vec<EnumDef>, SqlxError> {
         let rows = self.executor.fetch_all(self.query.query_enums()).await?;
 
         let enum_rows = rows.into_iter().map(|row| {

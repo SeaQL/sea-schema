@@ -7,6 +7,7 @@ use crate::mysql::query::{
     ColumnQueryResult, ForeignKeyQueryResult, IndexQueryResult, SchemaQueryBuilder,
     TableQueryResult, VersionQueryResult,
 };
+use crate::sqlx_types::SqlxError;
 use futures::future;
 use sea_query::{Alias, Iden, IntoIden, SeaRc};
 
@@ -31,11 +32,11 @@ impl SchemaDiscovery {
         }
     }
 
-    pub async fn discover(mut self) -> Result<Schema, sqlx::Error> {
+    pub async fn discover(mut self) -> Result<Schema, SqlxError> {
         let system_opt = self.discover_system().await?;
         let system = match system_opt {
             Some(system) => system,
-            None => return Err(sqlx::Error::RowNotFound),
+            None => return Err(SqlxError::RowNotFound),
         };
         self.query = SchemaQueryBuilder::new(system);
         let tables = self.discover_tables().await?;
@@ -54,7 +55,7 @@ impl SchemaDiscovery {
         })
     }
 
-    pub async fn discover_system(&mut self) -> Result<Option<SystemInfo>, sqlx::Error> {
+    pub async fn discover_system(&mut self) -> Result<Option<SystemInfo>, SqlxError> {
         let rows = self.executor.fetch_all(self.query.query_version()).await?;
 
         #[allow(clippy::never_loop)]
@@ -68,7 +69,7 @@ impl SchemaDiscovery {
         Ok(None)
     }
 
-    pub async fn discover_tables(&mut self) -> Result<Vec<TableInfo>, sqlx::Error> {
+    pub async fn discover_tables(&mut self) -> Result<Vec<TableInfo>, SqlxError> {
         let rows = self
             .executor
             .fetch_all(self.query.query_tables(self.schema.clone()))
@@ -88,13 +89,13 @@ impl SchemaDiscovery {
         Ok(tables)
     }
 
-    async fn discover_table_static(params: (&Self, TableInfo)) -> Result<TableDef, sqlx::Error> {
+    async fn discover_table_static(params: (&Self, TableInfo)) -> Result<TableDef, SqlxError> {
         let this = params.0;
         let info = params.1;
         Self::discover_table(this, info).await
     }
 
-    pub async fn discover_table(&self, info: TableInfo) -> Result<TableDef, sqlx::Error> {
+    pub async fn discover_table(&self, info: TableInfo) -> Result<TableDef, SqlxError> {
         let table = SeaRc::new(Alias::new(info.name.as_str()));
         let columns = self
             .discover_columns(self.schema.clone(), table.clone())
@@ -118,7 +119,7 @@ impl SchemaDiscovery {
         &self,
         schema: SeaRc<dyn Iden>,
         table: SeaRc<dyn Iden>,
-    ) -> Result<Vec<ColumnInfo>, sqlx::Error> {
+    ) -> Result<Vec<ColumnInfo>, SqlxError> {
         let rows = self
             .executor
             .fetch_all(self.query.query_columns(schema.clone(), table.clone()))
@@ -142,7 +143,7 @@ impl SchemaDiscovery {
         &self,
         schema: SeaRc<dyn Iden>,
         table: SeaRc<dyn Iden>,
-    ) -> Result<Vec<IndexInfo>, sqlx::Error> {
+    ) -> Result<Vec<IndexInfo>, SqlxError> {
         let rows = self
             .executor
             .fetch_all(self.query.query_indexes(schema.clone(), table.clone()))
@@ -166,7 +167,7 @@ impl SchemaDiscovery {
         &self,
         schema: SeaRc<dyn Iden>,
         table: SeaRc<dyn Iden>,
-    ) -> Result<Vec<ForeignKeyInfo>, sqlx::Error> {
+    ) -> Result<Vec<ForeignKeyInfo>, SqlxError> {
         let rows = self
             .executor
             .fetch_all(self.query.query_foreign_key(schema.clone(), table.clone()))
