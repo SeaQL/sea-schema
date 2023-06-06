@@ -33,12 +33,7 @@ impl SchemaDiscovery {
     }
 
     pub async fn discover(mut self) -> Result<Schema, SqlxError> {
-        let system_opt = self.discover_system().await?;
-        let system = match system_opt {
-            Some(system) => system,
-            None => return Err(SqlxError::RowNotFound),
-        };
-        self.query = SchemaQueryBuilder::new(system);
+        self.query = SchemaQueryBuilder::new(self.discover_system().await?);
         let tables = self.discover_tables().await?;
         let tables = future::try_join_all(
             tables
@@ -55,7 +50,7 @@ impl SchemaDiscovery {
         })
     }
 
-    pub async fn discover_system(&mut self) -> Result<Option<SystemInfo>, SqlxError> {
+    pub async fn discover_system(&mut self) -> Result<SystemInfo, SqlxError> {
         let rows = self.executor.fetch_all(self.query.query_version()).await?;
 
         #[allow(clippy::never_loop)]
@@ -64,9 +59,9 @@ impl SchemaDiscovery {
             debug_print!("{:?}", result);
             let version = result.parse();
             debug_print!("{:?}", version);
-            return Ok(Some(version));
+            return Ok(version);
         }
-        Ok(None)
+        Err(SqlxError::RowNotFound)
     }
 
     pub async fn discover_tables(&mut self) -> Result<Vec<TableInfo>, SqlxError> {
