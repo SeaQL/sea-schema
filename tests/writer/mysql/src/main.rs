@@ -16,7 +16,10 @@ async fn main() {
 
     let schema_discovery = SchemaDiscovery::new(connection, "sakila");
 
-    let schema = schema_discovery.discover().await;
+    let schema = schema_discovery
+        .discover()
+        .await
+        .expect("Error discovering schema");
 
     for table in schema.tables.iter() {
         println!("{};", table.write().to_string(MysqlQueryBuilder));

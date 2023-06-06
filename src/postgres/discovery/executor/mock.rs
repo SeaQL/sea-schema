@@ -19,7 +19,7 @@ impl IntoExecutor for PgPool {
 }
 
 impl Executor {
-    pub async fn fetch_all(&self, select: SelectStatement) -> Vec<PgRow> {
+    pub async fn fetch_all(&self, select: SelectStatement) -> Result<Vec<PgRow>, sqlx::Error> {
         let (_sql, _values) = select.build(PostgresQueryBuilder);
         debug_print!("{}, {:?}", _sql, _values);
 

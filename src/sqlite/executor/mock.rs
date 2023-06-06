@@ -19,21 +19,21 @@ impl IntoExecutor for SqlitePool {
 }
 
 impl Executor {
-    pub async fn fetch_all(&self, select: SelectStatement) -> Vec<SqliteRow> {
+    pub async fn fetch_all(&self, select: SelectStatement) -> Result<Vec<SqliteRow>, sqlx::Error> {
         let (_sql, _values) = select.build(SqliteQueryBuilder);
         debug_print!("{}, {:?}", _sql, _values);
 
         panic!("This is a mock Executor");
     }
 
-    pub async fn fetch_one(&self, select: SelectStatement) -> SqliteRow {
+    pub async fn fetch_one(&self, select: SelectStatement) -> Result<SqliteRow, sqlx::Error> {
         let (_sql, _values) = select.build(SqliteQueryBuilder);
         debug_print!("{}, {:?}", _sql, _values);
 
         panic!("This is a mock Executor");
     }
 
-    pub async fn fetch_all_raw(&self, _sql: String) -> Vec<SqliteRow> {
+    pub async fn fetch_all_raw(&self, _sql: String) -> Result<Vec<SqliteRow>, sqlx::Error> {
         debug_print!("{}", _sql);
 
         panic!("This is a mock Executor");

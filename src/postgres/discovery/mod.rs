@@ -34,33 +34,33 @@ impl SchemaDiscovery {
         }
     }
 
-    pub async fn discover(&self) -> Schema {
+    pub async fn discover(&self) -> Result<Schema, sqlx::Error> {
         let enums: EnumVariantMap = self
             .discover_enums()
-            .await
+            .await?
             .into_iter()
             .map(|enum_def| (enum_def.typename, enum_def.values))
             .collect();
-        let tables = future::join_all(
+        let tables = future::try_join_all(
             self.discover_tables()
-                .await
+                .await?
                 .into_iter()
                 .map(|t| (self, t, &enums))
                 .map(Self::discover_table_static),
         )
-        .await;
+        .await?;
 
-        Schema {
+        Ok(Schema {
             schema: self.schema.to_string(),
             tables,
-        }
+        })
     }
 
-    pub async fn discover_tables(&self) -> Vec<TableInfo> {
+    pub async fn discover_tables(&self) -> Result<Vec<TableInfo>, sqlx::Error> {
         let rows = self
             .executor
             .fetch_all(self.query.query_tables(self.schema.clone()))
-            .await;
+            .await?;
 
         let tables: Vec<TableInfo> = rows
             .iter()
@@ -73,24 +73,30 @@ impl SchemaDiscovery {
             })
             .collect();
 
-        tables
+        Ok(tables)
     }
 
-    async fn discover_table_static(params: (&Self, TableInfo, &EnumVariantMap)) -> TableDef {
+    async fn discover_table_static(
+        params: (&Self, TableInfo, &EnumVariantMap),
+    ) -> Result<TableDef, sqlx::Error> {
         let this = params.0;
         let info = params.1;
         let enums = params.2;
         Self::discover_table(this, info, enums).await
     }
 
-    pub async fn discover_table(&self, info: TableInfo, enums: &EnumVariantMap) -> TableDef {
+    pub async fn discover_table(
+        &self,
+        info: TableInfo,
+        enums: &EnumVariantMap,
+    ) -> Result<TableDef, sqlx::Error> {
         let table = SeaRc::new(Alias::new(info.name.as_str()));
         let columns = self
             .discover_columns(self.schema.clone(), table.clone(), enums)
-            .await;
+            .await?;
         let constraints = self
             .discover_constraints(self.schema.clone(), table.clone())
-            .await;
+            .await?;
         let (
             check_constraints,
             not_null_constraints,
@@ -120,7 +126,7 @@ impl SchemaDiscovery {
             },
         );
 
-        TableDef {
+        Ok(TableDef {
             info,
             columns,
             check_constraints,
@@ -129,7 +135,7 @@ impl SchemaDiscovery {
             primary_key_constraints,
             reference_constraints,
             exclusion_constraints,
-        }
+        })
     }
 
     pub async fn discover_columns(
@@ -137,13 +143,14 @@ impl SchemaDiscovery {
         schema: SeaRc<dyn Iden>,
         table: SeaRc<dyn Iden>,
         enums: &EnumVariantMap,
-    ) -> Vec<ColumnInfo> {
+    ) -> Result<Vec<ColumnInfo>, sqlx::Error> {
         let rows = self
             .executor
             .fetch_all(self.query.query_columns(schema.clone(), table.clone()))
-            .await;
+            .await?;
 
-        rows.into_iter()
+        Ok(rows
+            .into_iter()
             .map(|row| {
                 let result: ColumnQueryResult = (&row).into();
                 debug_print!("{:?}", result);
@@ -151,21 +158,21 @@ impl SchemaDiscovery {
                 debug_print!("{:?}", column);
                 column
             })
-            .collect()
+            .collect())
     }
 
     pub async fn discover_constraints(
         &self,
         schema: SeaRc<dyn Iden>,
         table: SeaRc<dyn Iden>,
-    ) -> Vec<Constraint> {
+    ) -> Result<Vec<Constraint>, sqlx::Error> {
         let rows = self
             .executor
             .fetch_all(
                 self.query
                     .query_table_constriants(schema.clone(), table.clone()),
             )
-            .await;
+            .await?;
 
         let results = rows.into_iter().map(|row| {
             let result: TableConstraintsQueryResult = (&row).into();
@@ -173,16 +180,16 @@ impl SchemaDiscovery {
             result
         });
 
-        parse_table_constraint_query_results(Box::new(results))
+        Ok(parse_table_constraint_query_results(Box::new(results))
             .map(|index| {
                 debug_print!("{:?}", index);
                 index
             })
-            .collect()
+            .collect())
     }
 
-    pub async fn discover_enums(&self) -> Vec<EnumDef> {
-        let rows = self.executor.fetch_all(self.query.query_enums()).await;
+    pub async fn discover_enums(&self) -> Result<Vec<EnumDef>, sqlx::Error> {
+        let rows = self.executor.fetch_all(self.query.query_enums()).await?;
 
         let enum_rows = rows.into_iter().map(|row| {
             let result: EnumQueryResult = (&row).into();
@@ -206,8 +213,9 @@ impl SchemaDiscovery {
             },
         );
 
-        map.into_iter()
+        Ok(map
+            .into_iter()
             .map(|(typename, values)| EnumDef { values, typename })
-            .collect()
+            .collect())
     }
 }

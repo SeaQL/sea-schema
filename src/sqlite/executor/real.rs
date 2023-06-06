@@ -19,32 +19,29 @@ impl IntoExecutor for SqlitePool {
 }
 
 impl Executor {
-    pub async fn fetch_all(&self, select: SelectStatement) -> Vec<SqliteRow> {
+    pub async fn fetch_all(&self, select: SelectStatement) -> Result<Vec<SqliteRow>, sqlx::Error> {
         let (sql, values) = select.build_sqlx(SqliteQueryBuilder);
         debug_print!("{}, {:?}", sql, values);
 
         sqlx::query_with(&sql, values)
             .fetch_all(&mut self.pool.acquire().await.unwrap())
             .await
-            .unwrap()
     }
 
-    pub async fn fetch_one(&self, select: SelectStatement) -> SqliteRow {
+    pub async fn fetch_one(&self, select: SelectStatement) -> Result<SqliteRow, sqlx::Error> {
         let (sql, values) = select.build_sqlx(SqliteQueryBuilder);
         debug_print!("{}, {:?}", sql, values);
 
         sqlx::query_with(&sql, values)
             .fetch_one(&mut self.pool.acquire().await.unwrap())
             .await
-            .unwrap()
     }
 
-    pub async fn fetch_all_raw(&self, sql: String) -> Vec<SqliteRow> {
+    pub async fn fetch_all_raw(&self, sql: String) -> Result<Vec<SqliteRow>, sqlx::Error> {
         debug_print!("{}", sql);
 
         sqlx::query(&sql)
             .fetch_all(&mut self.pool.acquire().await.unwrap())
             .await
-            .unwrap()
     }
 }
