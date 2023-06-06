@@ -19,13 +19,12 @@ impl IntoExecutor for MySqlPool {
 }
 
 impl Executor {
-    pub async fn fetch_all(&self, select: SelectStatement) -> Vec<MySqlRow> {
+    pub async fn fetch_all(&self, select: SelectStatement) -> Result<Vec<MySqlRow>, sqlx::Error> {
         let (sql, values) = select.build_sqlx(MysqlQueryBuilder);
         debug_print!("{}, {:?}", sql, values);
 
         sqlx::query_with(&sql, values)
             .fetch_all(&mut self.pool.acquire().await.unwrap())
             .await
-            .unwrap()
     }
 }
