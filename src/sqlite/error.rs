@@ -1,6 +1,6 @@
 use std::num::{ParseFloatError, ParseIntError};
 
-use crate::sqlx_types::Error as SqlxError;
+use crate::sqlx_types::SqlxError;
 
 /// This type simplifies error handling
 pub type DiscoveryResult<T> = Result<T, SqliteDiscoveryError>;
@@ -12,7 +12,7 @@ pub enum SqliteDiscoveryError {
     ParseIntError,
     /// An error parsing a string from the result of an SQLite query into an rust-language float
     ParseFloatError,
-    /// The error as defined in [sqlx::Error]
+    /// The error as defined in [SqlxError]
     SqlxError(SqlxError),
     /// An operation to discover the indexes in a table was invoked
     /// but the target table contains no indexes

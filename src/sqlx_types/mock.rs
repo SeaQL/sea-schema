@@ -22,3 +22,8 @@ pub trait Row {}
 
 #[derive(Debug)]
 pub struct Error;
+
+#[derive(Debug)]
+pub enum SqlxError {
+    RowNotFound,
+}

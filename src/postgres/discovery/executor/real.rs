@@ -2,7 +2,7 @@ use sea_query::{PostgresQueryBuilder, SelectStatement};
 use sea_query_binder::SqlxBinder;
 use sqlx::{postgres::PgRow, PgPool};
 
-use crate::debug_print;
+use crate::{debug_print, sqlx_types::SqlxError};
 
 pub struct Executor {
     pool: PgPool,
@@ -19,7 +19,7 @@ impl IntoExecutor for PgPool {
 }
 
 impl Executor {
-    pub async fn fetch_all(&self, select: SelectStatement) -> Result<Vec<PgRow>, sqlx::Error> {
+    pub async fn fetch_all(&self, select: SelectStatement) -> Result<Vec<PgRow>, SqlxError> {
         let (sql, values) = select.build_sqlx(PostgresQueryBuilder);
         debug_print!("{}, {:?}", sql, values);
 
