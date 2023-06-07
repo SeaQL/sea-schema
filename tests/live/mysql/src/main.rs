@@ -2,7 +2,7 @@ use pretty_assertions::assert_eq;
 use regex::Regex;
 use sea_schema::mysql::{def::TableDef, discovery::SchemaDiscovery};
 use sea_schema::sea_query::{
-    Alias, ColumnDef, ForeignKey, ForeignKeyAction, Index, MysqlQueryBuilder, Table,
+    Alias, ColumnDef, Expr, ForeignKey, ForeignKeyAction, Index, MysqlQueryBuilder, Table,
     TableCreateStatement, TableRef,
 };
 use sqlx::{MySql, MySqlPool, Pool};
