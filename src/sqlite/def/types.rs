@@ -171,4 +171,7 @@ pub enum DefaultType {
     String(String),
     Null,
     Unspecified, //FIXME For other types
+    CurrentDate,
+    CurrentTime,
+    CurrentTimestamp,
 }

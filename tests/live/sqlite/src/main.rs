@@ -4,7 +4,7 @@ use sqlx::SqlitePool;
 use std::collections::HashMap;
 
 use sea_schema::sea_query::{
-    Alias, ColumnDef, ForeignKey, ForeignKeyAction, ForeignKeyCreateStatement, Index, Query,
+    Alias, ColumnDef, Expr, ForeignKey, ForeignKeyAction, ForeignKeyCreateStatement, Index, Query,
     SqliteQueryBuilder, Table, TableCreateStatement, TableRef,
 };
 use sea_schema::sqlite::{
@@ -286,7 +286,10 @@ async fn test_002() -> DiscoveryResult<()> {
                 r#""total" real,"#,
                 r#""bakery_id" integer NOT NULL,"#,
                 r#""customer_id" integer NOT NULL,"#,
-                r#""placed_at" text NOT NULL,"#,
+                r#""placed_at" text NOT NULL DEFAULT CURRENT_TIMESTAMP,"#,
+                r#""updated" text NOT NULL DEFAULT '2023-06-07 16:24:00',"#,
+                r#""net_weight" real NOT NULL DEFAULT 10.05,"#,
+                r#""priority" integer NOT NULL DEFAULT 5,"#,
                 r#"FOREIGN KEY ("customer_id") REFERENCES "customer" ("id") ON DELETE CASCADE ON UPDATE CASCADE,"#,
                 r#"FOREIGN KEY ("bakery_id") REFERENCES "bakery" ("id") ON DELETE CASCADE ON UPDATE CASCADE"#,
                 r#")"#,
@@ -392,8 +395,27 @@ fn create_order_table() -> TableCreateStatement {
         )
         .col(
             ColumnDef::new(Alias::new("placed_at"))
-                .timestamp()
-                .not_null(),
+                .date_time()
+                .not_null()
+                .default(Expr::current_timestamp()),
+        )
+        .col(
+            ColumnDef::new(Alias::new("updated"))
+                .date_time()
+                .not_null()
+                .default("2023-06-07 16:24:00"),
+        )
+        .col(
+            ColumnDef::new(Alias::new("net_weight"))
+                .double()
+                .not_null()
+                .default(10.05),
+        )
+        .col(
+            ColumnDef::new(Alias::new("priority"))
+                .integer()
+                .not_null()
+                .default(5),
         )
         .foreign_key(
             ForeignKey::create()
