@@ -264,9 +264,9 @@ pub fn parse_column_default(column_default: Option<String>) -> Option<ColumnDefa
     match column_default {
         Some(default) => {
             if !default.is_empty() {
-                let column_default = if let Some(int) = default.parse::<i32>().ok() {
+                let column_default = if let Ok(int) = default.parse::<i32>() {
                     ColumnDefault::Int(int)
-                } else if let Some(double) = default.parse::<f64>().ok() {
+                } else if let Ok(double) = default.parse::<f64>() {
                     ColumnDefault::Double(double)
                 } else if default == "CURRENT_DATE" {
                     ColumnDefault::CurrentDate
