@@ -274,8 +274,10 @@ pub fn parse_column_default(column_default: Option<String>) -> Option<ColumnDefa
                     Some(ColumnDefault::CurrentTime)
                 } else if default == "CURRENT_TIMESTAMP" || default == "current_timestamp()" {
                     Some(ColumnDefault::CurrentTimestamp)
-                } else if default.starts_with("'") && default.ends_with("'") {
-                    Some(ColumnDefault::String(default[1..(default.len()-1)].into()))
+                } else if default.starts_with('\'') && default.ends_with('\'') {
+                    Some(ColumnDefault::String(
+                        default[1..(default.len() - 1)].into(),
+                    ))
                 } else if default == "NULL" {
                     None
                 } else {
