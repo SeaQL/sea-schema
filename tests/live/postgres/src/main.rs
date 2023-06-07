@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use pretty_assertions::assert_eq;
 use sea_schema::postgres::{def::TableDef, discovery::SchemaDiscovery};
 use sea_schema::sea_query::TableRef;
@@ -7,6 +6,7 @@ use sea_schema::sea_query::{
     Index, PostgresQueryBuilder, Table, TableCreateStatement,
 };
 use sqlx::{PgPool, Pool, Postgres};
+use std::collections::HashMap;
 
 #[cfg_attr(test, async_std::test)]
 #[cfg_attr(not(test), async_std::main)]
