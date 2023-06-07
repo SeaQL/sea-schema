@@ -3,8 +3,8 @@ use std::collections::HashMap;
 use sea_schema::postgres::{def::TableDef, discovery::SchemaDiscovery};
 use sea_schema::sea_query::TableRef;
 use sea_schema::sea_query::{
-    extension::postgres::Type, Alias, ColumnDef, ColumnType, ForeignKey, ForeignKeyAction, Index,
-    PostgresQueryBuilder, Table, TableCreateStatement,
+    extension::postgres::Type, Alias, ColumnDef, ColumnType, Expr, ForeignKey, ForeignKeyAction,
+    Index, PostgresQueryBuilder, Table, TableCreateStatement,
 };
 use sqlx::{PgPool, Pool, Postgres};
 
@@ -217,7 +217,26 @@ fn create_order_table() -> TableCreateStatement {
         .col(
             ColumnDef::new(Alias::new("placed_at"))
                 .date_time()
-                .not_null(),
+                .not_null()
+                .default(Expr::current_timestamp()),
+        )
+        .col(
+            ColumnDef::new(Alias::new("updated"))
+                .date_time()
+                .not_null()
+                .default("2023-06-07 16:24:00"),
+        )
+        .col(
+            ColumnDef::new(Alias::new("net_weight"))
+                .double()
+                .not_null()
+                .default(10.05),
+        )
+        .col(
+            ColumnDef::new(Alias::new("priority"))
+                .integer()
+                .not_null()
+                .default(5),
         )
         .primary_key(
             Index::create()
