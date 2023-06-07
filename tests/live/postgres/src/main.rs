@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-
+use pretty_assertions::assert_eq;
 use sea_schema::postgres::{def::TableDef, discovery::SchemaDiscovery};
 use sea_schema::sea_query::TableRef;
 use sea_schema::sea_query::{
@@ -224,7 +224,7 @@ fn create_order_table() -> TableCreateStatement {
             ColumnDef::new(Alias::new("updated"))
                 .date_time()
                 .not_null()
-                .default("2023-06-07 16:24:00"),
+                .extra("DEFAULT '2023-06-07 16:24:00'::timestamp without time zone"),
         )
         .col(
             ColumnDef::new(Alias::new("net_weight"))
