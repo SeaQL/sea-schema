@@ -264,20 +264,23 @@ pub fn parse_column_default(column_default: Option<String>) -> Option<ColumnDefa
     match column_default {
         Some(default) => {
             if !default.is_empty() {
-                let column_default = if let Ok(int) = default.parse::<i32>() {
-                    ColumnDefault::Int(int)
+                if let Ok(int) = default.parse::<i32>() {
+                    Some(ColumnDefault::Int(int))
                 } else if let Ok(double) = default.parse::<f64>() {
-                    ColumnDefault::Double(double)
-                } else if default == "CURRENT_DATE" {
-                    ColumnDefault::CurrentDate
-                } else if default == "CURRENT_TIME" {
-                    ColumnDefault::CurrentTime
-                } else if default == "CURRENT_TIMESTAMP" {
-                    ColumnDefault::CurrentTimestamp
+                    Some(ColumnDefault::Double(double))
+                } else if default == "CURRENT_DATE" || default == "current_date()" {
+                    Some(ColumnDefault::CurrentDate)
+                } else if default == "CURRENT_TIME" || default == "current_time()" {
+                    Some(ColumnDefault::CurrentTime)
+                } else if default == "CURRENT_TIMESTAMP" || default == "current_timestamp()" {
+                    Some(ColumnDefault::CurrentTimestamp)
+                } else if default.starts_with("'") && default.ends_with("'") {
+                    Some(ColumnDefault::String(default[1..(default.len()-1)].into()))
+                } else if default == "NULL" {
+                    None
                 } else {
-                    ColumnDefault::String(default)
-                };
-                Some(column_default)
+                    Some(ColumnDefault::String(default))
+                }
             } else {
                 None
             }
