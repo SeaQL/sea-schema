@@ -264,7 +264,20 @@ pub fn parse_column_default(column_default: Option<String>) -> Option<ColumnDefa
     match column_default {
         Some(default) => {
             if !default.is_empty() {
-                Some(ColumnDefault { expr: default })
+                let column_default = if let Some(int) = default.parse::<i32>().ok() {
+                    ColumnDefault::Int(int)
+                } else if let Some(double) = default.parse::<f64>().ok() {
+                    ColumnDefault::Double(double)
+                } else if default == "CURRENT_DATE" {
+                    ColumnDefault::CurrentDate
+                } else if default == "CURRENT_TIME" {
+                    ColumnDefault::CurrentTime
+                } else if default == "CURRENT_TIMESTAMP" {
+                    ColumnDefault::CurrentTimestamp
+                } else {
+                    ColumnDefault::String(default)
+                };
+                Some(column_default)
             } else {
                 None
             }

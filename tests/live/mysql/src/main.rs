@@ -203,7 +203,26 @@ fn create_order_table() -> TableCreateStatement {
         .col(
             ColumnDef::new(Alias::new("placed_at"))
                 .date_time()
-                .not_null(),
+                .not_null()
+                .default(Expr::current_timestamp()),
+        )
+        .col(
+            ColumnDef::new(Alias::new("updated"))
+                .date_time()
+                .not_null()
+                .default("2023-06-07 16:24:00"),
+        )
+        .col(
+            ColumnDef::new(Alias::new("net_weight"))
+                .double()
+                .not_null()
+                .default(10.05),
+        )
+        .col(
+            ColumnDef::new(Alias::new("priority"))
+                .integer()
+                .not_null()
+                .default(5),
         )
         .index(
             Index::create()

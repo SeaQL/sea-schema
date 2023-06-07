@@ -1,6 +1,7 @@
-use crate::mysql::def::{CharSet, ColumnInfo, NumericAttr, StringAttr, Type};
+use crate::mysql::def::{CharSet, ColumnDefault, ColumnInfo, NumericAttr, StringAttr, Type};
 use sea_query::{
-    Alias, BlobSize, ColumnDef, DynIden, EscapeBuilder, Iden, IntoIden, MysqlQueryBuilder,
+    Alias, BlobSize, ColumnDef, DynIden, EscapeBuilder, Iden, IntoIden, Keyword, MysqlQueryBuilder,
+    SimpleExpr,
 };
 use std::fmt::Write;
 
@@ -15,10 +16,16 @@ impl ColumnInfo {
             col_def.auto_increment();
         }
         let mut extras = Vec::new();
-        if let Some(default) = self.default.as_ref() {
-            let mut string = "".to_owned();
-            write!(&mut string, "DEFAULT {}", default.expr).unwrap();
-            extras.push(string);
+        if let Some(default) = &self.default {
+            let default_expr: SimpleExpr = match default {
+                ColumnDefault::Int(int) => (*int).into(),
+                ColumnDefault::Double(double) => (*double).into(),
+                ColumnDefault::String(string) => string.into(),
+                ColumnDefault::CurrentDate => Keyword::CurrentDate.into(),
+                ColumnDefault::CurrentTime => Keyword::CurrentTime.into(),
+                ColumnDefault::CurrentTimestamp => Keyword::CurrentTimestamp.into(),
+            };
+            col_def.default(default_expr);
         }
         if self.extra.on_update_current_timestamp {
             extras.push("ON UPDATE CURRENT_TIMESTAMP".to_owned());
