@@ -63,7 +63,10 @@ async fn main() {
 
     let schema_discovery = SchemaDiscovery::new(connection, "public");
 
-    let schema = schema_discovery.discover().await;
+    let schema = schema_discovery
+        .discover()
+        .await
+        .expect("Error discovering schema");
 
     println!("{:#?}", schema);
 
@@ -89,7 +92,10 @@ async fn main() {
         assert_eq!(expected_sql, sql);
     }
 
-    let enum_defs = schema_discovery.discover_enums().await;
+    let enum_defs = schema_discovery
+        .discover_enums()
+        .await
+        .expect("Error discovering enums");
 
     dbg!(&enum_defs);
 
