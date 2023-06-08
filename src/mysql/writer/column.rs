@@ -21,6 +21,7 @@ impl ColumnInfo {
                 ColumnDefault::Int(int) => (*int).into(),
                 ColumnDefault::Double(double) => (*double).into(),
                 ColumnDefault::String(string) => string.into(),
+                ColumnDefault::Null => Option::<bool>::None.into(),
                 ColumnDefault::CurrentDate => Keyword::CurrentDate.into(),
                 ColumnDefault::CurrentTime => Keyword::CurrentTime.into(),
                 ColumnDefault::CurrentTimestamp => Keyword::CurrentTimestamp.into(),

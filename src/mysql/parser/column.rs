@@ -279,7 +279,7 @@ pub fn parse_column_default(column_default: Option<String>) -> Option<ColumnDefa
                         default[1..(default.len() - 1)].into(),
                     ))
                 } else if default == "NULL" {
-                    None
+                    ColumnDefault::Null
                 } else {
                     Some(ColumnDefault::String(default))
                 }
