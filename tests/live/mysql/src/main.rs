@@ -41,7 +41,10 @@ async fn main() {
 
     let schema_discovery = SchemaDiscovery::new(connection, "sea-schema");
 
-    let schema = schema_discovery.discover().await;
+    let schema = schema_discovery
+        .discover()
+        .await
+        .expect("Error discovering schema");
 
     println!("{:#?}", schema);
 
