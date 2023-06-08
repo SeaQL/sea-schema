@@ -15,7 +15,7 @@ pub fn parse_column_query_result(result: ColumnQueryResult) -> ColumnInfo {
         col_type: parse_column_type(&mut Parser::new(&result.column_type)),
         null: parse_column_null(&result.is_nullable),
         key: parse_column_key(&result.column_key),
-        default: parse_column_default(result.column_default),
+        default: parse_column_default(result.column_default, &result.extra),
         extra: parse_column_extra(&mut Parser::new(&result.extra)),
         expression: match result.generation_expression {
             Some(generation_expression) => parse_generation_expression(generation_expression),
@@ -260,29 +260,35 @@ pub fn parse_column_key(string: &str) -> ColumnKey {
     }
 }
 
-pub fn parse_column_default(column_default: Option<String>) -> Option<ColumnDefault> {
+pub fn parse_column_default(column_default: Option<String>, extra: &str) -> Option<ColumnDefault> {
     match column_default {
         Some(default) => {
             if !default.is_empty() {
-                if let Ok(int) = default.parse::<i32>() {
-                    Some(ColumnDefault::Int(int))
+                let is_expression = extra == "DEFAULT_GENERATED";
+                let default_value = if let Ok(int) = default.parse::<i32>() {
+                    ColumnDefault::Int(int)
                 } else if let Ok(double) = default.parse::<f64>() {
-                    Some(ColumnDefault::Double(double))
-                } else if default == "CURRENT_DATE" || default == "current_date()" {
-                    Some(ColumnDefault::CurrentDate)
-                } else if default == "CURRENT_TIME" || default == "current_time()" {
-                    Some(ColumnDefault::CurrentTime)
-                } else if default == "CURRENT_TIMESTAMP" || default == "current_timestamp()" {
-                    Some(ColumnDefault::CurrentTimestamp)
+                    ColumnDefault::Double(double)
+                } else if is_expression
+                    && (default == "CURRENT_DATE" || default == "current_date()")
+                {
+                    ColumnDefault::CurrentDate
+                } else if is_expression
+                    && (default == "CURRENT_TIME" || default == "current_time()")
+                {
+                    ColumnDefault::CurrentTime
+                } else if is_expression
+                    && (default == "CURRENT_TIMESTAMP" || default == "current_timestamp()")
+                {
+                    ColumnDefault::CurrentTimestamp
                 } else if default.starts_with('\'') && default.ends_with('\'') {
-                    Some(ColumnDefault::String(
-                        default[1..(default.len() - 1)].into(),
-                    ))
+                    ColumnDefault::String(default[1..(default.len() - 1)].into())
                 } else if default == "NULL" {
                     ColumnDefault::Null
                 } else {
-                    Some(ColumnDefault::String(default))
-                }
+                    ColumnDefault::String(default)
+                };
+                Some(default_value)
             } else {
                 None
             }
