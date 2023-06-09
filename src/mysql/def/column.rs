@@ -45,6 +45,7 @@ pub enum ColumnDefault {
     Int(i32),
     Double(f64),
     String(String),
+    CustomExpr(String),
     Null,
     CurrentTimestamp,
 }
