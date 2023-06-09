@@ -1,7 +1,7 @@
 use crate::mysql::def::{CharSet, ColumnDefault, ColumnInfo, NumericAttr, StringAttr, Type};
 use sea_query::{
     Alias, BlobSize, ColumnDef, DynIden, EscapeBuilder, Iden, IntoIden, Keyword, MysqlQueryBuilder,
-    SimpleExpr,
+    SimpleExpr, Expr,
 };
 use std::fmt::Write;
 
@@ -21,6 +21,7 @@ impl ColumnInfo {
                 ColumnDefault::Int(int) => (*int).into(),
                 ColumnDefault::Double(double) => (*double).into(),
                 ColumnDefault::String(string) => string.into(),
+                ColumnDefault::CustomExpr(string) => Expr::cust(string),
                 ColumnDefault::Null => Option::<bool>::None.into(),
                 ColumnDefault::CurrentTimestamp => Keyword::CurrentTimestamp.into(),
             };

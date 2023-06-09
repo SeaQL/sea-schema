@@ -300,13 +300,15 @@ pub fn parse_mysql_5_default(default: String, col_type: &Type) -> ColumnDefault 
 }
 
 pub fn parse_mysql_8_default(default: String, extra: &str) -> ColumnDefault {
-    let is_expression = extra == "DEFAULT_GENERATED";
+    let is_expression = extra.contains("DEFAULT_GENERATED");
     if is_expression && default == "CURRENT_TIMESTAMP" {
         ColumnDefault::CurrentTimestamp
     } else if let Ok(int) = default.parse::<i32>() {
         ColumnDefault::Int(int)
     } else if let Ok(double) = default.parse::<f64>() {
         ColumnDefault::Double(double)
+    } else if is_expression {
+        ColumnDefault::CustomExpr(default)
     } else {
         ColumnDefault::String(default)
     }
@@ -324,7 +326,7 @@ pub fn parse_mariadb_10_default(default: String) -> ColumnDefault {
     } else if default == "NULL" {
         ColumnDefault::Null
     } else {
-        ColumnDefault::String(default)
+        ColumnDefault::CustomExpr(default)
     }
 }
 
