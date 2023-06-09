@@ -46,8 +46,6 @@ pub enum ColumnDefault {
     Double(f64),
     String(String),
     Null,
-    CurrentDate,
-    CurrentTime,
     CurrentTimestamp,
 }
 

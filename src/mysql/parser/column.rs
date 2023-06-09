@@ -288,15 +288,8 @@ pub fn parse_column_default(
 }
 
 pub fn parse_mysql_5_default(default: String, col_type: &Type) -> ColumnDefault {
-    let is_date_time_col = matches!(
-        col_type,
-        Type::Date | Type::DateTime(_) | Type::Timestamp(_)
-    );
-    if is_date_time_col && default == "CURRENT_DATE" {
-        ColumnDefault::CurrentDate
-    } else if is_date_time_col && default == "CURRENT_TIME" {
-        ColumnDefault::CurrentTime
-    } else if is_date_time_col && default == "CURRENT_TIMESTAMP" {
+    let is_date_time_col = matches!(col_type, Type::Timestamp(_));
+    if is_date_time_col && default == "CURRENT_TIMESTAMP" {
         ColumnDefault::CurrentTimestamp
     } else if let Ok(int) = default.parse::<i32>() {
         ColumnDefault::Int(int)
@@ -309,11 +302,7 @@ pub fn parse_mysql_5_default(default: String, col_type: &Type) -> ColumnDefault 
 
 pub fn parse_mysql_8_default(default: String, extra: &str) -> ColumnDefault {
     let is_expression = extra == "DEFAULT_GENERATED";
-    if is_expression && default == "CURRENT_DATE" {
-        ColumnDefault::CurrentDate
-    } else if is_expression && default == "CURRENT_TIME" {
-        ColumnDefault::CurrentTime
-    } else if is_expression && default == "CURRENT_TIMESTAMP" {
+    if is_expression && default == "CURRENT_TIMESTAMP" {
         ColumnDefault::CurrentTimestamp
     } else if let Ok(int) = default.parse::<i32>() {
         ColumnDefault::Int(int)
@@ -331,10 +320,6 @@ pub fn parse_mariadb_10_default(default: String) -> ColumnDefault {
         ColumnDefault::Int(int)
     } else if let Ok(double) = default.parse::<f64>() {
         ColumnDefault::Double(double)
-    } else if default == "current_date()" {
-        ColumnDefault::CurrentDate
-    } else if default == "current_time()" {
-        ColumnDefault::CurrentTime
     } else if default == "current_timestamp()" {
         ColumnDefault::CurrentTimestamp
     } else if default == "NULL" {
