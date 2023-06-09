@@ -288,7 +288,8 @@ pub fn parse_column_default(
 }
 
 pub fn parse_mysql_5_default(default: String, col_type: &Type) -> ColumnDefault {
-    if matches!(col_type, Type::Timestamp(_)) && default == "CURRENT_TIMESTAMP" {
+    let is_date_time = matches!(col_type, Type::DateTime(_) | Type::Timestamp(_));
+    if is_date_time && default == "CURRENT_TIMESTAMP" {
         ColumnDefault::CurrentTimestamp
     } else if let Ok(int) = default.parse::<i32>() {
         ColumnDefault::Int(int)
