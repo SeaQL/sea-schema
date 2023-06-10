@@ -42,11 +42,11 @@ pub enum ColumnKey {
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub enum ColumnDefault {
-    Int(i32),
-    Double(f64),
+    Null,
+    Int(i64),
+    Real(f64),
     String(String),
     CustomExpr(String),
-    Null,
     CurrentTimestamp,
 }
 

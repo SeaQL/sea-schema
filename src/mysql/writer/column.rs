@@ -18,11 +18,11 @@ impl ColumnInfo {
         let mut extras = Vec::new();
         if let Some(default) = &self.default {
             let default_expr: SimpleExpr = match default {
+                ColumnDefault::Null => Option::<bool>::None.into(),
                 ColumnDefault::Int(int) => (*int).into(),
-                ColumnDefault::Double(double) => (*double).into(),
+                ColumnDefault::Real(double) => (*double).into(),
                 ColumnDefault::String(string) => string.into(),
                 ColumnDefault::CustomExpr(string) => Expr::cust(string),
-                ColumnDefault::Null => Option::<bool>::None.into(),
                 ColumnDefault::CurrentTimestamp => Keyword::CurrentTimestamp.into(),
             };
             col_def.default(default_expr);
