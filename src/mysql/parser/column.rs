@@ -273,7 +273,7 @@ pub fn parse_column_default(
             if !default.is_empty() {
                 let default_value = if system.is_mysql() && system.version >= 80000 {
                     parse_mysql_8_default(default, extra)
-                } else if system.is_maria_db() && system.version >= 100201 {
+                } else if system.is_maria_db() && system.version >= 100207 {
                     parse_mariadb_10_default(default)
                 } else {
                     parse_mysql_5_default(default, col_type)
