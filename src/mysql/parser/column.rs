@@ -291,10 +291,10 @@ pub fn parse_mysql_5_default(default: String, col_type: &Type) -> ColumnDefault 
     let is_date_time = matches!(col_type, Type::DateTime(_) | Type::Timestamp(_));
     if is_date_time && default == "CURRENT_TIMESTAMP" {
         ColumnDefault::CurrentTimestamp
-    } else if let Ok(int) = default.parse::<i64>() {
+    } else if let Ok(int) = default.parse() {
         ColumnDefault::Int(int)
-    } else if let Ok(double) = default.parse::<f64>() {
-        ColumnDefault::Real(double)
+    } else if let Ok(real) = default.parse() {
+        ColumnDefault::Real(real)
     } else {
         ColumnDefault::String(default)
     }
@@ -304,10 +304,12 @@ pub fn parse_mysql_8_default(default: String, extra: &str) -> ColumnDefault {
     let is_expression = extra.contains("DEFAULT_GENERATED");
     if is_expression && default == "CURRENT_TIMESTAMP" {
         ColumnDefault::CurrentTimestamp
-    } else if let Ok(int) = default.parse::<i64>() {
+    } else if is_expression && default == "NULL" {
+        ColumnDefault::Null
+    } else if let Ok(int) = default.parse() {
         ColumnDefault::Int(int)
-    } else if let Ok(double) = default.parse::<f64>() {
-        ColumnDefault::Real(double)
+    } else if let Ok(real) = default.parse() {
+        ColumnDefault::Real(real)
     } else if is_expression {
         ColumnDefault::CustomExpr(default)
     } else {
@@ -318,10 +320,10 @@ pub fn parse_mysql_8_default(default: String, extra: &str) -> ColumnDefault {
 pub fn parse_mariadb_10_default(default: String) -> ColumnDefault {
     if default.starts_with('\'') && default.ends_with('\'') {
         ColumnDefault::String(default[1..(default.len() - 1)].into())
-    } else if let Ok(int) = default.parse::<i64>() {
+    } else if let Ok(int) = default.parse() {
         ColumnDefault::Int(int)
-    } else if let Ok(double) = default.parse::<f64>() {
-        ColumnDefault::Real(double)
+    } else if let Ok(real) = default.parse() {
+        ColumnDefault::Real(real)
     } else if default == "current_timestamp()" {
         ColumnDefault::CurrentTimestamp
     } else if default == "NULL" {
