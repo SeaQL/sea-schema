@@ -93,7 +93,7 @@ impl SchemaDiscovery {
     pub async fn discover_table(&self, info: TableInfo) -> Result<TableDef, SqlxError> {
         let table = SeaRc::new(Alias::new(info.name.as_str()));
         let columns = self
-            .discover_columns(self.schema.clone(), table.clone())
+            .discover_columns(self.schema.clone(), table.clone(), &self.query.system)
             .await?;
         let indexes = self
             .discover_indexes(self.schema.clone(), table.clone())
@@ -114,6 +114,7 @@ impl SchemaDiscovery {
         &self,
         schema: SeaRc<dyn Iden>,
         table: SeaRc<dyn Iden>,
+        system: &SystemInfo,
     ) -> Result<Vec<ColumnInfo>, SqlxError> {
         let rows = self
             .executor
@@ -125,7 +126,7 @@ impl SchemaDiscovery {
             .map(|row| {
                 let result: ColumnQueryResult = row.into();
                 debug_print!("{:?}", result);
-                let column = result.parse();
+                let column = result.parse(system);
                 debug_print!("{:?}", column);
                 column
             })

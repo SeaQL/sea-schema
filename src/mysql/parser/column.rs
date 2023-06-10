@@ -4,18 +4,20 @@ use crate::{parser::Parser, Name};
 use sea_query::{EscapeBuilder, MysqlQueryBuilder};
 
 impl ColumnQueryResult {
-    pub fn parse(self) -> ColumnInfo {
-        parse_column_query_result(self)
+    pub fn parse(self, system: &SystemInfo) -> ColumnInfo {
+        parse_column_query_result(self, system)
     }
 }
 
-pub fn parse_column_query_result(result: ColumnQueryResult) -> ColumnInfo {
+pub fn parse_column_query_result(result: ColumnQueryResult, system: &SystemInfo) -> ColumnInfo {
+    let col_type = parse_column_type(&mut Parser::new(&result.column_type));
+    let default = parse_column_default(&col_type, result.column_default, &result.extra, system);
     ColumnInfo {
         name: result.column_name,
-        col_type: parse_column_type(&mut Parser::new(&result.column_type)),
+        col_type,
         null: parse_column_null(&result.is_nullable),
         key: parse_column_key(&result.column_key),
-        default: parse_column_default(result.column_default),
+        default,
         extra: parse_column_extra(&mut Parser::new(&result.extra)),
         expression: match result.generation_expression {
             Some(generation_expression) => parse_generation_expression(generation_expression),
@@ -260,16 +262,74 @@ pub fn parse_column_key(string: &str) -> ColumnKey {
     }
 }
 
-pub fn parse_column_default(column_default: Option<String>) -> Option<ColumnDefault> {
-    match column_default {
+pub fn parse_column_default(
+    col_type: &Type,
+    default: Option<String>,
+    extra: &str,
+    system: &SystemInfo,
+) -> Option<ColumnDefault> {
+    match default {
         Some(default) => {
             if !default.is_empty() {
-                Some(ColumnDefault { expr: default })
+                let default_value = if system.is_mysql() && system.version >= 80000 {
+                    parse_mysql_8_default(default, extra)
+                } else if system.is_maria_db() && system.version >= 100207 {
+                    parse_mariadb_10_default(default)
+                } else {
+                    parse_mysql_5_default(default, col_type)
+                };
+                Some(default_value)
             } else {
                 None
             }
         }
         None => None,
+    }
+}
+
+pub fn parse_mysql_5_default(default: String, col_type: &Type) -> ColumnDefault {
+    let is_date_time = matches!(col_type, Type::DateTime(_) | Type::Timestamp(_));
+    if is_date_time && default == "CURRENT_TIMESTAMP" {
+        ColumnDefault::CurrentTimestamp
+    } else if let Ok(int) = default.parse() {
+        ColumnDefault::Int(int)
+    } else if let Ok(real) = default.parse() {
+        ColumnDefault::Real(real)
+    } else {
+        ColumnDefault::String(default)
+    }
+}
+
+pub fn parse_mysql_8_default(default: String, extra: &str) -> ColumnDefault {
+    let is_expression = extra.contains("DEFAULT_GENERATED");
+    if is_expression && default == "CURRENT_TIMESTAMP" {
+        ColumnDefault::CurrentTimestamp
+    } else if is_expression && default == "NULL" {
+        ColumnDefault::Null
+    } else if let Ok(int) = default.parse() {
+        ColumnDefault::Int(int)
+    } else if let Ok(real) = default.parse() {
+        ColumnDefault::Real(real)
+    } else if is_expression {
+        ColumnDefault::CustomExpr(default)
+    } else {
+        ColumnDefault::String(default)
+    }
+}
+
+pub fn parse_mariadb_10_default(default: String) -> ColumnDefault {
+    if default.starts_with('\'') && default.ends_with('\'') {
+        ColumnDefault::String(default[1..(default.len() - 1)].into())
+    } else if let Ok(int) = default.parse() {
+        ColumnDefault::Int(int)
+    } else if let Ok(real) = default.parse() {
+        ColumnDefault::Real(real)
+    } else if default == "current_timestamp()" {
+        ColumnDefault::CurrentTimestamp
+    } else if default == "NULL" {
+        ColumnDefault::Null
+    } else {
+        ColumnDefault::CustomExpr(default)
     }
 }
 

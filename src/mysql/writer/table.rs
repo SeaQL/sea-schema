@@ -119,9 +119,7 @@ mod tests {
                         null: false,
                         key: ColumnKey::NotKey,
                         default: Some(
-                            ColumnDefault {
-                                expr: "CURRENT_TIMESTAMP".to_owned(),
-                            },
+                            ColumnDefault::CurrentTimestamp,
                         ),
                         extra: ColumnExtra {
                             auto_increment: false,
@@ -219,9 +217,7 @@ mod tests {
                         null: false,
                         key: ColumnKey::NotKey,
                         default: Some(
-                            ColumnDefault {
-                                expr: "CURRENT_TIMESTAMP".to_owned(),
-                            },
+                            ColumnDefault::CurrentTimestamp,
                         ),
                         extra: ColumnExtra {
                             auto_increment: false,
