@@ -15,10 +15,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 * Upgrade `sea-query` to `0.29` https://github.com/SeaQL/sea-schema/pull/104
 * Upgrade `sea-query-binder` to `0.4` https://github.com/SeaQL/sea-schema/pull/104
 * Replace the use of `SeaRc<T>` where `T` isn't `dyn Iden` with `RcOrArc<T>` https://github.com/SeaQL/sea-schema/pull/107
+* Customized parsing logic for MySQL and MariaDB column default https://github.com/SeaQL/sea-schema/pull/110
+    * Properly distinguish between Value and Expression, and the very special CURRENT_TIMESTAMP
 
 ### Breaking changes
 
 * API now returns `Result` instead of panic on errors https://github.com/SeaQL/sea-schema/pull/109
+* `ColumnDefault` changed from a struct into an enum https://github.com/SeaQL/sea-schema/pull/110
 
 ## 0.11.0 - 2023-01-05
 
