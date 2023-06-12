@@ -41,6 +41,8 @@ impl ColumnInfo {
                     DefaultType::Integer(is_int)
                 } else if let Ok(is_float) = value.parse::<f32>() {
                     DefaultType::Float(is_float)
+                } else if value == "CURRENT_TIMESTAMP" {
+                    DefaultType::CurrentTimestamp
                 } else {
                     DefaultType::String(value)
                 }

@@ -1,5 +1,5 @@
 use sea_query::{
-    Alias, ColumnDef, Expr, ForeignKey, Index, Query, Table, TableCreateStatement, Value,
+    Alias, ColumnDef, Expr, ForeignKey, Index, Keyword, Query, Table, TableCreateStatement, Value,
 };
 
 use super::{
@@ -191,6 +191,9 @@ impl TableDef {
                 }
                 DefaultType::Null => (),
                 DefaultType::Unspecified => (),
+                DefaultType::CurrentTimestamp => {
+                    new_column.default(Keyword::CurrentTimestamp);
+                }
             }
 
             new_table.col(&mut new_column);
