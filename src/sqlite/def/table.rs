@@ -191,12 +191,6 @@ impl TableDef {
                 }
                 DefaultType::Null => (),
                 DefaultType::Unspecified => (),
-                DefaultType::CurrentDate => {
-                    new_column.default(Keyword::CurrentDate);
-                }
-                DefaultType::CurrentTime => {
-                    new_column.default(Keyword::CurrentTime);
-                }
                 DefaultType::CurrentTimestamp => {
                     new_column.default(Keyword::CurrentTimestamp);
                 }
