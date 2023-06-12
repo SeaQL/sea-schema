@@ -11,3 +11,4 @@ serde_json = { version = "1" }
 sqlx = { version = "0.6" }
 env_logger = { version = "0" }
 log = { version = "0" }
+pretty_assertions = { version = "0.7" }
