@@ -17,11 +17,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 * Replace the use of `SeaRc<T>` where `T` isn't `dyn Iden` with `RcOrArc<T>` https://github.com/SeaQL/sea-schema/pull/107
 * Customized parsing logic for MySQL and MariaDB column default https://github.com/SeaQL/sea-schema/pull/110
     * Properly distinguish between Value and Expression, and the very special CURRENT_TIMESTAMP
+* Improve SQLite's column default parsing logic https://github.com/SeaQL/sea-schema/pull/112
 
 ### Breaking changes
 
 * API now returns `Result` instead of panic on errors https://github.com/SeaQL/sea-schema/pull/109
 * `ColumnDefault` changed from a struct into an enum https://github.com/SeaQL/sea-schema/pull/110
+* Added `CurrentTimestamp` variant to SQLite's `DefaultType` https://github.com/SeaQL/sea-schema/pull/112
 
 ## 0.11.0 - 2023-01-05
 
