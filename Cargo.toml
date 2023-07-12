@@ -39,7 +39,7 @@ sea-schema-derive = { version = "0.2.0", path = "sea-schema-derive", default-fea
 sea-query = { version = "0.29.0-rc.2", default-features = false, features = ["derive"] }
 sea-query-binder = { version = "0.4.0-rc.2", default-features = false, optional = true }
 serde = { version = "1", default-features = false, optional = true, features = ["derive"] }
-sqlx = { version = "0.6", default-features = false, optional = true }
+sqlx = { version = "0.7", default-features = false, optional = true }
 log = { version = "0.4", default-features = false, optional = true }
 
 [features]
@@ -78,7 +78,7 @@ sqlx-sqlite = [
     "sqlx/sqlite",
 ]
 runtime-actix-native-tls = [
-    "sqlx/runtime-actix-native-tls",
+    "sqlx/runtime-tokio-native-tls",
     "sea-query-binder/runtime-actix-native-tls",
 ]
 runtime-async-std-native-tls = [
@@ -90,7 +90,7 @@ runtime-tokio-native-tls = [
     "sea-query-binder/runtime-tokio-native-tls",
 ]
 runtime-actix-rustls = [
-    "sqlx/runtime-actix-rustls",
+    "sqlx/runtime-tokio-rustls",
     "sea-query-binder/runtime-actix-rustls",
 ]
 runtime-async-std-rustls = [

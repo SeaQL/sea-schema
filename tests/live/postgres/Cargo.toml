@@ -8,7 +8,7 @@ publish = false
 async-std = { version = "1.8", features = [ "attributes", "tokio1" ] }
 sea-schema = { path = "../../../", default-features = false, features = [ "sqlx-postgres", "runtime-async-std-native-tls", "discovery", "writer", "debug-print" ] }
 serde_json = { version = "1" }
-sqlx = { version = "0.6" }
+sqlx = { version = "0.7" }
 env_logger = { version = "0" }
 log = { version = "0" }
 pretty_assertions = { version = "0.7" }
