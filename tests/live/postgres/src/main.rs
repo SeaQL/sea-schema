@@ -6,7 +6,7 @@ use sea_schema::sea_query::{
     Index, PostgresQueryBuilder, Table, TableCreateStatement,
 };
 use sqlx::{PgPool, Pool, Postgres};
-use std::collections::HashMap;
+use std::{collections::HashMap, ops::DerefMut};
 
 #[cfg_attr(test, async_std::test)]
 #[cfg_attr(not(test), async_std::main)]
@@ -23,7 +23,7 @@ async fn main() {
     let mut executor = connection.acquire().await.unwrap();
 
     sqlx::query("CREATE EXTENSION IF NOT EXISTS citext")
-        .execute(&mut executor)
+        .execute(executor.deref_mut())
         .await
         .unwrap();
 
@@ -39,7 +39,7 @@ async fn main() {
         .to_string(PostgresQueryBuilder);
 
     sqlx::query(&create_enum_stmt)
-        .execute(&mut executor)
+        .execute(executor.deref_mut())
         .await
         .unwrap();
 
@@ -58,7 +58,10 @@ async fn main() {
         let sql = tbl_create_stmt.to_string(PostgresQueryBuilder);
         println!("{};", sql);
         println!();
-        sqlx::query(&sql).execute(&mut executor).await.unwrap();
+        sqlx::query(&sql)
+            .execute(executor.deref_mut())
+            .await
+            .unwrap();
     }
 
     let schema_discovery = SchemaDiscovery::new(connection, "public");
@@ -121,12 +124,12 @@ async fn setup(base_url: &str, db_name: &str) -> Pool<Postgres> {
 
     let _drop_db_result = sqlx::query(&format!("DROP DATABASE IF EXISTS \"{}\";", db_name))
         .bind(db_name)
-        .execute(&mut connection)
+        .execute(connection.deref_mut())
         .await
         .unwrap();
 
     let _create_db_result = sqlx::query(&format!("CREATE DATABASE \"{}\";", db_name))
-        .execute(&mut connection)
+        .execute(connection.deref_mut())
         .await
         .unwrap();
 

@@ -1,6 +1,7 @@
 use sea_query::{PostgresQueryBuilder, SelectStatement};
 use sea_query_binder::SqlxBinder;
 use sqlx::{postgres::PgRow, PgPool};
+use std::ops::DerefMut;
 
 use crate::{debug_print, sqlx_types::SqlxError};
 
@@ -24,7 +25,7 @@ impl Executor {
         debug_print!("{}, {:?}", sql, values);
 
         sqlx::query_with(&sql, values)
-            .fetch_all(&mut self.pool.acquire().await?)
+            .fetch_all(self.pool.acquire().await?.deref_mut())
             .await
     }
 }

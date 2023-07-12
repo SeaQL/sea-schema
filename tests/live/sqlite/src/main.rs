@@ -1,7 +1,7 @@
 use pretty_assertions::assert_eq;
 use sqlx::sqlite::SqlitePoolOptions;
 use sqlx::SqlitePool;
-use std::collections::HashMap;
+use std::{collections::HashMap, ops::DerefMut};
 
 use sea_schema::sea_query::{
     Alias, ColumnDef, Expr, ForeignKey, ForeignKeyAction, ForeignKeyCreateStatement, Index, Query,
@@ -33,17 +33,17 @@ async fn test_001() -> DiscoveryResult<()> {
 
     //DROP TABLES to ensure all tests pass
     sqlx::query("DROP TABLE IF EXISTS Programming_Langs")
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(sqlite_pool.acquire().await.unwrap().deref_mut())
         .await
         .unwrap();
 
     sqlx::query("DROP TABLE IF EXISTS suppliers")
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(sqlite_pool.acquire().await.unwrap().deref_mut())
         .await
         .unwrap();
 
     sqlx::query("DROP TABLE IF EXISTS supplier_groups")
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(sqlite_pool.acquire().await.unwrap().deref_mut())
         .await
         .unwrap();
 
@@ -94,17 +94,17 @@ async fn test_001() -> DiscoveryResult<()> {
 
     //DROP TABLES to ensure all tests pass
     sqlx::query("DROP TABLE IF EXISTS Programming_Langs")
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(sqlite_pool.acquire().await.unwrap().deref_mut())
         .await
         .unwrap();
 
     sqlx::query("DROP TABLE IF EXISTS suppliers")
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(sqlite_pool.acquire().await.unwrap().deref_mut())
         .await
         .unwrap();
 
     sqlx::query("DROP TABLE IF EXISTS supplier_groups")
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(sqlite_pool.acquire().await.unwrap().deref_mut())
         .await
         .unwrap();
 
@@ -164,37 +164,37 @@ async fn test_001() -> DiscoveryResult<()> {
         .to_owned();
 
     sqlx::query(&create_table.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(sqlite_pool.acquire().await.unwrap().deref_mut())
         .await
         .unwrap();
 
     sqlx::query(&insert_into_table.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(sqlite_pool.acquire().await.unwrap().deref_mut())
         .await
         .unwrap();
 
     sqlx::query(&table_create_supplier_groups.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(sqlite_pool.acquire().await.unwrap().deref_mut())
         .await
         .unwrap();
 
     sqlx::query(&table_create_suppliers.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(sqlite_pool.acquire().await.unwrap().deref_mut())
         .await
         .unwrap();
 
     sqlx::query(&insert_into_supplier_groups.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(sqlite_pool.acquire().await.unwrap().deref_mut())
         .await
         .unwrap();
 
     sqlx::query(&insert_into_suppliers.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(sqlite_pool.acquire().await.unwrap().deref_mut())
         .await
         .unwrap();
 
     sqlx::query(&create_index.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(sqlite_pool.acquire().await.unwrap().deref_mut())
         .await
         .unwrap();
 
@@ -259,7 +259,10 @@ async fn test_002() -> DiscoveryResult<()> {
         let sql = tbl_create_stmt.to_string(SqliteQueryBuilder);
         println!("{};", sql);
         println!();
-        sqlx::query(&sql).execute(&mut executor).await.unwrap();
+        sqlx::query(&sql)
+            .execute(executor.deref_mut())
+            .await
+            .unwrap();
     }
 
     let schema_discovery = SchemaDiscovery::new(connection);
