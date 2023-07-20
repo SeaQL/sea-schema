@@ -1,7 +1,6 @@
 use sea_query::{SelectStatement, SqliteQueryBuilder};
 use sea_query_binder::SqlxBinder;
 use sqlx::{sqlite::SqliteRow, SqlitePool};
-use std::ops::DerefMut;
 
 use crate::{debug_print, sqlx_types::SqlxError};
 
@@ -25,7 +24,7 @@ impl Executor {
         debug_print!("{}, {:?}", sql, values);
 
         sqlx::query_with(&sql, values)
-            .fetch_all(self.pool.acquire().await?.deref_mut())
+            .fetch_all(&mut *self.pool.acquire().await?)
             .await
     }
 
@@ -34,7 +33,7 @@ impl Executor {
         debug_print!("{}, {:?}", sql, values);
 
         sqlx::query_with(&sql, values)
-            .fetch_one(self.pool.acquire().await?.deref_mut())
+            .fetch_one(&mut *self.pool.acquire().await?)
             .await
     }
 
@@ -42,7 +41,7 @@ impl Executor {
         debug_print!("{}", sql);
 
         sqlx::query(&sql)
-            .fetch_all(self.pool.acquire().await?.deref_mut())
+            .fetch_all(&mut *self.pool.acquire().await?)
             .await
     }
 }
