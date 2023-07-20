@@ -55,7 +55,6 @@ impl ColumnInfo {
 #[cfg(not(feature = "sqlx-sqlite"))]
 impl ColumnInfo {
     pub fn to_column_def(_: &SqliteRow) -> Result<ColumnInfo, ParseIntError> {
-        i32::from_str_radix("", 10)?;
         unimplemented!()
     }
 }
