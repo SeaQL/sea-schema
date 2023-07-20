@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 + 2023-03-22: `0.12.0-rc.1`
 + 2023-05-18: `0.12.0-rc.2`
 
+### Features and upgrades
+
 * Skip parsing partitioned Postgres tables https://github.com/SeaQL/sea-schema/pull/105
 * Upgrade `heck` dependency in `sea-schema-derive` to 0.4 https://github.com/SeaQL/sea-schema/pull/103
 * Upgrade `sea-query` to `0.29` https://github.com/SeaQL/sea-schema/pull/104
