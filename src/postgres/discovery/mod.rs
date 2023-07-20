@@ -29,7 +29,7 @@ impl SchemaDiscovery {
         E: IntoExecutor,
     {
         Self {
-            query: SchemaQueryBuilder::default(),
+            query: SchemaQueryBuilder,
             executor: executor.into_executor(),
             schema: Alias::new(schema).into_iden(),
         }
