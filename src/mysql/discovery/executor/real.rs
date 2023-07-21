@@ -24,7 +24,7 @@ impl Executor {
         debug_print!("{}, {:?}", sql, values);
 
         sqlx::query_with(&sql, values)
-            .fetch_all(&mut self.pool.acquire().await?)
+            .fetch_all(&mut *self.pool.acquire().await?)
             .await
     }
 }

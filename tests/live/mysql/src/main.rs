@@ -36,7 +36,7 @@ async fn main() {
         let sql = tbl_create_stmt.to_string(MysqlQueryBuilder);
         println!("{};", sql);
         println!();
-        sqlx::query(&sql).execute(&mut executor).await.unwrap();
+        sqlx::query(&sql).execute(&mut *executor).await.unwrap();
     }
 
     let schema_discovery = SchemaDiscovery::new(connection, "sea-schema");
@@ -98,12 +98,12 @@ async fn setup(base_url: &str, db_name: &str) -> Pool<MySql> {
 
     let _drop_db_result = sqlx::query(&format!("DROP DATABASE IF EXISTS `{}`;", db_name))
         .bind(db_name)
-        .execute(&mut connection)
+        .execute(&mut *connection)
         .await
         .unwrap();
 
     let _create_db_result = sqlx::query(&format!("CREATE DATABASE `{}`;", db_name))
-        .execute(&mut connection)
+        .execute(&mut *connection)
         .await
         .unwrap();
 
