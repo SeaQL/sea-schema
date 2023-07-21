@@ -28,7 +28,7 @@ impl SchemaDiscovery {
             .to_owned();
 
         let mut tables = Vec::new();
-        for row in self.executor.fetch_all(get_tables).await {
+        for row in self.executor.fetch_all(get_tables).await? {
             let mut table: TableDef = (&row).into();
             table.pk_is_autoincrement(&self.executor).await?;
             table.get_foreign_keys(&self.executor).await?;
@@ -49,7 +49,7 @@ impl SchemaDiscovery {
             .to_owned();
 
         let mut tables = Vec::new();
-        let rows = self.executor.fetch_all(get_tables).await;
+        let rows = self.executor.fetch_all(get_tables).await?;
         for row in rows {
             let table: TableDef = (&row).into();
             tables.push(table);

@@ -1,7 +1,7 @@
 use sea_query::{Condition, Expr, Iden, JoinType, Query, SelectStatement};
 
 #[derive(Debug, Default)]
-pub struct SchemaQueryBuilder;
+pub struct SchemaQueryBuilder {}
 
 #[derive(Debug, Iden)]
 /// Ref: https://www.postgresql.org/docs/13/information-schema.html

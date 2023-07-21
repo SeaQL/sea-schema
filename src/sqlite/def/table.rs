@@ -1,5 +1,5 @@
 use sea_query::{
-    Alias, ColumnDef, Expr, ForeignKey, Index, Query, Table, TableCreateStatement, Value,
+    Alias, ColumnDef, Expr, ForeignKey, Index, Keyword, Query, Table, TableCreateStatement, Value,
 };
 
 use super::{
@@ -57,7 +57,7 @@ impl TableDef {
             .and_where(Expr::col(Alias::new("sql")).like("%AUTOINCREMENT%"))
             .to_owned();
 
-        if !executor.fetch_all(check_autoincrement).await.is_empty() {
+        if !executor.fetch_all(check_autoincrement).await?.is_empty() {
             self.auto_increment = true;
         }
 
@@ -77,7 +77,7 @@ impl TableDef {
         index_query.push_str(&self.name);
         index_query.push_str("')");
 
-        let partial_index_info_rows = executor.fetch_all_raw(index_query).await;
+        let partial_index_info_rows = executor.fetch_all_raw(index_query).await?;
         let mut partial_indexes: Vec<PartialIndexInfo> = Vec::default();
 
         partial_index_info_rows.iter().for_each(|info| {
@@ -114,7 +114,7 @@ impl TableDef {
         index_query.push_str(&self.name);
         index_query.push_str("')");
 
-        let index_info_rows = executor.fetch_all_raw(index_query).await;
+        let index_info_rows = executor.fetch_all_raw(index_query).await?;
 
         index_info_rows.iter().for_each(|info| {
             let index_info: ForeignKeysInfo = info.into();
@@ -132,7 +132,7 @@ impl TableDef {
         index_query.push_str(&self.name);
         index_query.push_str("')");
 
-        let index_info_rows = executor.fetch_all_raw(index_query).await;
+        let index_info_rows = executor.fetch_all_raw(index_query).await?;
 
         for info in index_info_rows {
             let column = ColumnInfo::to_column_def(&info)?;
@@ -154,7 +154,7 @@ impl TableDef {
             .and_where(Expr::col(Alias::new("name")).eq(index_name))
             .to_owned();
 
-        let index_info = executor.fetch_one(index_query).await;
+        let index_info = executor.fetch_one(index_query).await?;
 
         Ok((&index_info).into())
     }
@@ -191,6 +191,9 @@ impl TableDef {
                 }
                 DefaultType::Null => (),
                 DefaultType::Unspecified => (),
+                DefaultType::CurrentTimestamp => {
+                    new_column.default(Keyword::CurrentTimestamp);
+                }
             }
 
             new_table.col(&mut new_column);

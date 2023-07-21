@@ -5,16 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## 0.12.0 - Pending
+## 0.12.0 - 2023-07-20
 
 + 2023-03-22: `0.12.0-rc.1`
 + 2023-05-18: `0.12.0-rc.2`
+
+### Features and upgrades
 
 * Skip parsing partitioned Postgres tables https://github.com/SeaQL/sea-schema/pull/105
 * Upgrade `heck` dependency in `sea-schema-derive` to 0.4 https://github.com/SeaQL/sea-schema/pull/103
 * Upgrade `sea-query` to `0.29` https://github.com/SeaQL/sea-schema/pull/104
 * Upgrade `sea-query-binder` to `0.4` https://github.com/SeaQL/sea-schema/pull/104
 * Replace the use of `SeaRc<T>` where `T` isn't `dyn Iden` with `RcOrArc<T>` https://github.com/SeaQL/sea-schema/pull/107
+* Customized parsing logic for MySQL and MariaDB column default https://github.com/SeaQL/sea-schema/pull/110
+    * Properly distinguish between Value and Expression, and the very special CURRENT_TIMESTAMP
+* Improve SQLite's column default parsing logic https://github.com/SeaQL/sea-schema/pull/112
+
+### Breaking changes
+
+* API now returns `Result` instead of panic on errors https://github.com/SeaQL/sea-schema/pull/109
+* `ColumnDefault` changed from a struct into an enum https://github.com/SeaQL/sea-schema/pull/110
+* Added `CurrentTimestamp` variant to SQLite's `DefaultType` https://github.com/SeaQL/sea-schema/pull/112
 
 ## 0.11.0 - 2023-01-05
 
