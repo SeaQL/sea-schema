@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Bug fixes
 
+* Fix PostgreSQL enum arrays and case-sensitive types https://github.com/SeaQL/sea-schema/pull/108
+
 ## 0.13.0 - Skipped
 
 ## 0.12.0 - 2023-07-20
