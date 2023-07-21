@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 * Upgrade `sea-query` to `0.30` https://github.com/SeaQL/sea-schema/pull/114
 * Upgrade `sea-query-binder` to `0.5` https://github.com/SeaQL/sea-schema/pull/114
+* Upgrade `sqlx` to `0.7` https://github.com/SeaQL/sea-schema/pull/114
 
 ## 0.12.0 - 2023-07-20
 
@@ -23,7 +24,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 * Upgrade `heck` dependency in `sea-schema-derive` to 0.4 https://github.com/SeaQL/sea-schema/pull/103
 * Upgrade `sea-query` to `0.29` https://github.com/SeaQL/sea-schema/pull/104
 * Upgrade `sea-query-binder` to `0.4` https://github.com/SeaQL/sea-schema/pull/104
-* Upgrade `sqlx` to `0.7` https://github.com/SeaQL/sea-schema/pull/114
 * Replace the use of `SeaRc<T>` where `T` isn't `dyn Iden` with `RcOrArc<T>` https://github.com/SeaQL/sea-schema/pull/107
 * Customized parsing logic for MySQL and MariaDB column default https://github.com/SeaQL/sea-schema/pull/110
     * Properly distinguish between Value and Expression, and the very special CURRENT_TIMESTAMP
