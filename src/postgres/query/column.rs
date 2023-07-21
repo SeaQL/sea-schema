@@ -1,6 +1,6 @@
 use super::{InformationSchema, SchemaQueryBuilder};
 use crate::sqlx_types::postgres::PgRow;
-use sea_query::{Alias, BinOper, Expr, Iden, Query, SeaRc, SelectStatement};
+use sea_query::{BinOper, Expr, Iden, Query, SeaRc, SelectStatement};
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://www.postgresql.org/docs/13/infoschema-columns.html
@@ -94,8 +94,10 @@ impl SchemaQueryBuilder {
                 ColumnsField::UdtName,
             ])
             .expr(
-                Expr::expr(Expr::cust("udt_name::regtype").cast_as(Alias::new("text")))
-                    .binary(BinOper::As, Expr::col(Alias::new("udt_name_regtype"))),
+                // The double quotes are required to correctly handle user types containing
+                // upper case letters.
+                Expr::expr(Expr::cust("CONCAT('\"', udt_name, '\"')::regtype").cast_as(Text))
+                    .binary(BinOper::As, Expr::col(UdtNameRegtype)),
             )
             .from((InformationSchema::Schema, InformationSchema::Columns))
             .and_where(Expr::col(ColumnsField::TableSchema).eq(schema.to_string()))
@@ -135,3 +137,8 @@ impl From<&PgRow> for ColumnQueryResult {
         Self::default()
     }
 }
+
+#[derive(Iden)]
+struct Text;
+#[derive(Iden)]
+struct UdtNameRegtype;

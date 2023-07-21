@@ -213,13 +213,16 @@ pub fn parse_array_attributes(
             def.col_type = match udt_name_regtype {
                 None => panic!("parse_array_attributes(_) received an empty udt_name_regtype"),
                 Some(typename) => {
-                    let typename = typename.replacen("[]", "", 1);
-                    let is_enum = enums.contains_key(&typename);
-                    Some(RcOrArc::new(Type::from_str(
-                        &typename,
-                        Some(&typename),
-                        is_enum,
-                    )))
+                    let typename = &typename.replacen('"', "", 2).replacen("[]", "", 1);
+                    let arr_col_type = if let Some(variants) = enums.get(typename) {
+                        Type::Enum(EnumDef {
+                            typename: typename.to_string(),
+                            values: variants.clone(),
+                        })
+                    } else {
+                        Type::from_str(typename, Some(typename), false)
+                    };
+                    Some(RcOrArc::new(arr_col_type))
                 }
             };
         }
