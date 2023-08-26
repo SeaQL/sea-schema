@@ -36,4 +36,21 @@ impl SchemaProbe for Sqlite {
             .and_where(Expr::col(Alias::new("name")).eq(column.as_ref()))
             .take()
     }
+
+    fn has_index<T, C>(table: T, index: C) -> SelectStatement
+    where
+        T: AsRef<str>,
+        C: AsRef<str>,
+    {
+        Query::select()
+            .expr_as(Expr::cust("COUNT(*) > 0"), Alias::new("has_index"))
+            .from(Alias::new("sqlite_master"))
+            .cond_where(
+                Condition::all()
+                    .add(Expr::col(Alias::new("type")).eq("index"))
+                    .add(Expr::col(Alias::new("tbl_name")).eq(table.as_ref()))
+                    .add(Expr::col(Alias::new("name")).eq(index.as_ref())),
+            )
+            .take()
+    }
 }

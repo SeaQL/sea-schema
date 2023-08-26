@@ -36,4 +36,9 @@ pub trait SchemaProbe {
             )
             .take()
     }
+
+    fn has_index<T, C>(table: T, index: C) -> SelectStatement
+    where
+        T: AsRef<str>,
+        C: AsRef<str>;
 }
