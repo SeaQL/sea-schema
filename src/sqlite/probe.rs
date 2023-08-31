@@ -1,5 +1,6 @@
-use sea_query::{Alias, Condition, Expr, IntoTableRef, Query, SelectStatement, SimpleExpr};
+use sea_query::{Condition, Expr, Iden, IntoTableRef, Query, SelectStatement, SimpleExpr};
 
+use super::query::SqliteMaster;
 use super::Sqlite;
 use crate::probe::SchemaProbe;
 
@@ -9,17 +10,14 @@ impl SchemaProbe for Sqlite {
     }
 
     fn query_tables() -> SelectStatement {
-        let (expr, tbl_ref, condition) = (
-            Expr::col(Alias::new("name")),
-            Alias::new("sqlite_master").into_table_ref(),
-            Condition::all()
-                .add(Expr::col(Alias::new("type")).eq("table"))
-                .add(Expr::col(Alias::new("name")).ne("sqlite_sequence")),
-        );
         Query::select()
-            .expr_as(expr, Alias::new("table_name"))
-            .from(tbl_ref)
-            .cond_where(condition)
+            .expr_as(Expr::col(Schema::Name), Schema::TableName)
+            .from(SqliteMaster.into_table_ref())
+            .cond_where(
+                Condition::all()
+                    .add(Expr::col(Schema::Type).eq("table"))
+                    .add(Expr::col(Schema::Name).ne("sqlite_sequence")),
+            )
             .take()
     }
 
@@ -33,7 +31,7 @@ impl SchemaProbe for Sqlite {
                 "COUNT(*) > 0 AS \"has_column\" FROM pragma_table_info(?)",
                 [table.as_ref()],
             ))
-            .and_where(Expr::col(Alias::new("name")).eq(column.as_ref()))
+            .and_where(Expr::col(Schema::Name).eq(column.as_ref()))
             .take()
     }
 
@@ -53,4 +51,11 @@ impl SchemaProbe for Sqlite {
             )
             .take()
     }
+}
+
+#[derive(Debug, Iden)]
+enum Schema {
+    Name,
+    Type,
+    TableName,
 }

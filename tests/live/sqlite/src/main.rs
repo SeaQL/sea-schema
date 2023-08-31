@@ -80,8 +80,8 @@ async fn test_001() -> DiscoveryResult<()> {
 
     let insert_into_table = Query::insert()
         .into_table(Alias::new("Programming_Langs"))
-        .columns(vec![Alias::new("SLOC"), Alias::new("SemVer")])
-        .values(vec![4.into(), "0.1.0".into()])
+        .columns([Alias::new("SLOC"), Alias::new("SemVer")])
+        .values([4.into(), "0.1.0".into()])
         .unwrap()
         .to_owned();
 
@@ -151,15 +151,15 @@ async fn test_001() -> DiscoveryResult<()> {
 
     let insert_into_supplier_groups = Query::insert()
         .into_table(Alias::new("supplier_groups"))
-        .columns(vec![Alias::new("group_name")])
-        .values(vec!["Global".into()])
+        .columns([Alias::new("group_name")])
+        .values(["Global".into()])
         .unwrap()
         .to_owned();
 
     let insert_into_suppliers = Query::insert()
         .into_table(Alias::new("suppliers"))
-        .columns(vec![Alias::new("supplier_name"), Alias::new("group_id")])
-        .values(vec!["HP".into(), 1.into()])
+        .columns([Alias::new("supplier_name"), Alias::new("group_id")])
+        .values(["HP".into(), 1.into()])
         .unwrap()
         .to_owned();
 
@@ -216,7 +216,7 @@ async fn test_001() -> DiscoveryResult<()> {
             .iter()
             .map(|table| table.write().to_string(SqliteQueryBuilder))
             .collect::<Vec<_>>(),
-        vec![
+        [
             create_table.to_string(SqliteQueryBuilder),
             table_create_supplier_groups.to_string(SqliteQueryBuilder),
             table_create_suppliers.to_string(SqliteQueryBuilder),
@@ -233,7 +233,7 @@ async fn test_001() -> DiscoveryResult<()> {
             .iter()
             .map(|index| index.write().to_string(SqliteQueryBuilder))
             .collect::<Vec<_>>(),
-        vec![create_index.to_string(SqliteQueryBuilder)]
+        [create_index.to_string(SqliteQueryBuilder)]
     );
 
     Ok(())
@@ -280,7 +280,7 @@ async fn test_002() -> DiscoveryResult<()> {
             _ => unimplemented!(),
         };
         let expected_sql = if tbl_name.as_str() == "order" {
-            vec![
+            [
                 r#"CREATE TABLE "order" ("#,
                 r#""id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,"#,
                 r#""total" real,"#,
@@ -295,7 +295,7 @@ async fn test_002() -> DiscoveryResult<()> {
                 r#")"#,
             ].join(" ")
         } else if tbl_name.as_str() == "lineitem" {
-            vec![
+            [
                 r#"CREATE TABLE "lineitem" ("#,
                 r#""id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,"#,
                 r#""price" real,"#,
