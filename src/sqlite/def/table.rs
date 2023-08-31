@@ -5,6 +5,7 @@ use sea_query::{
 use super::{
     ColumnInfo, DefaultType, ForeignKeysInfo, IndexInfo, IndexedColumns, PartialIndexInfo,
 };
+use crate::sqlite::query::SqliteMaster;
 use crate::sqlite::{error::DiscoveryResult, executor::Executor};
 
 #[allow(unused_imports)]
@@ -51,7 +52,7 @@ impl TableDef {
     pub async fn pk_is_autoincrement(&mut self, executor: &Executor) -> DiscoveryResult<&mut Self> {
         let check_autoincrement = Query::select()
             .expr(Expr::val(1))
-            .from(Alias::new("sqlite_master"))
+            .from(SqliteMaster)
             .and_where(Expr::col(Alias::new("type")).eq("table"))
             .and_where(Expr::col(Alias::new("name")).eq(self.name.as_str()))
             .and_where(Expr::col(Alias::new("sql")).like("%AUTOINCREMENT%"))
@@ -150,7 +151,7 @@ impl TableDef {
     ) -> DiscoveryResult<IndexedColumns> {
         let index_query = Query::select()
             .expr(Expr::cust("*"))
-            .from(Alias::new("sqlite_master"))
+            .from(SqliteMaster)
             .and_where(Expr::col(Alias::new("name")).eq(index_name))
             .to_owned();
 

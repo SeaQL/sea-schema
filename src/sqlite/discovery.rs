@@ -3,6 +3,7 @@ use sea_query::{Alias, Expr, SelectStatement};
 use super::def::{IndexInfo, Schema, TableDef};
 pub use super::error::DiscoveryResult;
 use super::executor::{Executor, IntoExecutor};
+use super::query::SqliteMaster;
 use crate::sqlx_types::SqlitePool;
 
 /// Performs all the methods for schema discovery of a SQLite database
@@ -22,7 +23,7 @@ impl SchemaDiscovery {
     pub async fn discover(&self) -> DiscoveryResult<Schema> {
         let get_tables = SelectStatement::new()
             .column(Alias::new("name"))
-            .from(Alias::new("sqlite_master"))
+            .from(SqliteMaster)
             .and_where(Expr::col(Alias::new("type")).eq("table"))
             .and_where(Expr::col(Alias::new("name")).ne("sqlite_sequence"))
             .to_owned();
@@ -43,7 +44,7 @@ impl SchemaDiscovery {
     pub async fn discover_indexes(&self) -> DiscoveryResult<Vec<IndexInfo>> {
         let get_tables = SelectStatement::new()
             .column(Alias::new("name"))
-            .from(Alias::new("sqlite_master"))
+            .from(SqliteMaster)
             .and_where(Expr::col(Alias::new("type")).eq("table"))
             .and_where(Expr::col(Alias::new("name")).ne("sqlite_sequence"))
             .to_owned();

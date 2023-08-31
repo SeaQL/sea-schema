@@ -15,6 +15,10 @@ pub mod discovery;
 mod error;
 mod executor;
 
+#[cfg(feature = "query")]
+#[cfg_attr(docsrs, doc(cfg(feature = "query")))]
+pub mod query;
+
 #[cfg(feature = "probe")]
 #[cfg_attr(docsrs, doc(cfg(feature = "probe")))]
 pub mod probe;
