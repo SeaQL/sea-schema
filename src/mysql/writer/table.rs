@@ -134,7 +134,7 @@ mod tests {
                 indexes: vec![],
                 foreign_keys: vec![],
             }.write().to_string(MysqlQueryBuilder),
-            vec![
+            [
                 "CREATE TABLE `actor` (",
                     "`actor_id` smallint UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Actor ID',",
                     "`first_name` varchar(45) NOT NULL,",
@@ -342,7 +342,7 @@ mod tests {
             }
             .write()
             .to_string(MysqlQueryBuilder),
-            vec![
+            [
                 "CREATE TABLE `film_actor` (",
                 "KEY `idx_fk_film_id` (`film_id` (32))",
                 ")",
@@ -382,7 +382,7 @@ mod tests {
             }
             .write()
             .to_string(MysqlQueryBuilder),
-            vec![
+            [
                 "CREATE TABLE `film_actor` (",
                 "KEY `idx_fk_film_id` (`film_id` DESC)",
                 ")",
