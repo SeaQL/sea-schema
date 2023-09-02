@@ -1,7 +1,8 @@
-use sea_query::{Condition, Expr, Iden, Query, SelectStatement, SimpleExpr};
+use sea_query::{Condition, Expr, Query, SelectStatement, SimpleExpr};
 
 use super::query::{InformationSchema as Schema, TablesFields};
 use super::MySql;
+use crate::mysql::query::InformationSchema;
 use crate::probe::{DatabaseSchema, Has, SchemaProbe};
 
 impl SchemaProbe for MySql {
@@ -29,7 +30,7 @@ impl SchemaProbe for MySql {
     {
         Query::select()
             .expr_as(Expr::cust("COUNT(*) > 0"), Has::Index)
-            .from((DatabaseSchema::Info, MySqlSchema::Statistics))
+            .from((DatabaseSchema::Info, InformationSchema::Statistics))
             .cond_where(
                 Condition::all()
                     .add(Expr::col(DatabaseSchema::SchemaName).eq(Self::get_current_schema()))
@@ -38,9 +39,4 @@ impl SchemaProbe for MySql {
             )
             .take()
     }
-}
-
-#[derive(Debug, Iden)]
-enum MySqlSchema {
-    Statistics,
 }
