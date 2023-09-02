@@ -1,4 +1,4 @@
-use sea_query::{Condition, Expr, Query, SelectStatement, SimpleExpr};
+use sea_query::{Condition, Expr, Iden, Query, SelectStatement, SimpleExpr};
 
 use super::query::{InformationSchema as Schema, TablesFields};
 use super::MySql;
@@ -35,8 +35,13 @@ impl SchemaProbe for MySql {
                 Condition::all()
                     .add(Expr::col(DatabaseSchema::TableSchema).eq(Self::get_current_schema()))
                     .add(Expr::col(DatabaseSchema::TableName).eq(table.as_ref()))
-                    .add(Expr::col(DatabaseSchema::IndexName).eq(index.as_ref())),
+                    .add(Expr::col(InternalDatabaseSchema::IndexName).eq(index.as_ref())),
             )
             .take()
     }
+}
+
+#[derive(Debug, Iden)]
+pub enum InternalDatabaseSchema {
+    IndexName,
 }

@@ -61,8 +61,6 @@ pub enum DatabaseSchema {
     TableName,
     ColumnName,
     TableSchema,
-    SchemaName,
-    IndexName,
 }
 
 #[derive(Debug, Iden)]
