@@ -10,7 +10,7 @@ pub trait SchemaProbe {
         T: AsRef<str>,
     {
         let mut subquery = Self::query_tables();
-        subquery.cond_where(Expr::col(Schema::TableName).eq(table.as_ref()));
+        subquery.cond_where(Expr::col(DatabaseSchema::TableName).eq(table.as_ref()));
         Query::select()
             .expr_as(Expr::cust("COUNT(*) > 0"), Has::Table)
             .from_subquery(subquery, Subquery)
@@ -24,15 +24,15 @@ pub trait SchemaProbe {
     {
         Query::select()
             .expr_as(Expr::cust("COUNT(*) > 0"), Has::Column)
-            .from((Schema::Info, Schema::Columns))
+            .from((DatabaseSchema::Info, DatabaseSchema::Columns))
             .cond_where(
                 Condition::all()
                     .add(
                         Expr::expr(Self::get_current_schema())
-                            .equals((Schema::Columns, Schema::TableSchema)),
+                            .equals((DatabaseSchema::Columns, DatabaseSchema::TableSchema)),
                     )
-                    .add(Expr::col(Schema::TableName).eq(table.as_ref()))
-                    .add(Expr::col(Schema::ColumnName).eq(column.as_ref())),
+                    .add(Expr::col(DatabaseSchema::TableName).eq(table.as_ref()))
+                    .add(Expr::col(DatabaseSchema::ColumnName).eq(column.as_ref())),
             )
             .take()
     }
@@ -44,21 +44,25 @@ pub trait SchemaProbe {
 }
 
 #[derive(Debug, Iden)]
-enum Has {
+pub enum Has {
     #[iden = "has_table"]
     Table,
     #[iden = "has_column"]
     Column,
+    #[iden = "has_index"]
+    Index,
 }
 
 #[derive(Debug, Iden)]
-enum Schema {
+pub enum DatabaseSchema {
     #[iden = "information_schema"]
     Info,
     Columns,
     TableName,
     ColumnName,
     TableSchema,
+    SchemaName,
+    IndexName,
 }
 
 #[derive(Debug, Iden)]

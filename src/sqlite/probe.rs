@@ -2,7 +2,7 @@ use sea_query::{Condition, Expr, Iden, IntoTableRef, Query, SelectStatement, Sim
 
 use super::query::SqliteMaster;
 use super::Sqlite;
-use crate::probe::SchemaProbe;
+use crate::probe::{Has, SchemaProbe};
 
 impl SchemaProbe for Sqlite {
     fn get_current_schema() -> SimpleExpr {
@@ -41,13 +41,13 @@ impl SchemaProbe for Sqlite {
         C: AsRef<str>,
     {
         Query::select()
-            .expr_as(Expr::cust("COUNT(*) > 0"), Alias::new("has_index"))
-            .from(Alias::new("sqlite_master"))
+            .expr_as(Expr::cust("COUNT(*) > 0"), Has::Index)
+            .from(SqliteMaster.into_table_ref())
             .cond_where(
                 Condition::all()
-                    .add(Expr::col(Alias::new("type")).eq("index"))
-                    .add(Expr::col(Alias::new("tbl_name")).eq(table.as_ref()))
-                    .add(Expr::col(Alias::new("name")).eq(index.as_ref())),
+                    .add(Expr::col(Schema::Type).eq("index"))
+                    .add(Expr::col(Schema::TblName).eq(table.as_ref()))
+                    .add(Expr::col(Schema::Name).eq(index.as_ref())),
             )
             .take()
     }
@@ -58,4 +58,5 @@ enum Schema {
     Name,
     Type,
     TableName,
+    TblName,
 }

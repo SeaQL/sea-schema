@@ -1,8 +1,8 @@
-use sea_query::{Alias, Condition, Expr, Query, SelectStatement, SimpleExpr};
+use sea_query::{Condition, Expr, Iden, Query, SelectStatement, SimpleExpr};
 
 use super::query::{InformationSchema as Schema, TablesFields};
 use super::MySql;
-use crate::probe::SchemaProbe;
+use crate::probe::{DatabaseSchema, Has, SchemaProbe};
 
 impl SchemaProbe for MySql {
     fn get_current_schema() -> SimpleExpr {
@@ -28,14 +28,19 @@ impl SchemaProbe for MySql {
         C: AsRef<str>,
     {
         Query::select()
-            .expr_as(Expr::cust("COUNT(*) > 0"), Alias::new("has_index"))
-            .from((Alias::new("information_schema"), Alias::new("statistics")))
+            .expr_as(Expr::cust("COUNT(*) > 0"), Has::Index)
+            .from((DatabaseSchema::Info, MySqlSchema::Statistics))
             .cond_where(
                 Condition::all()
-                    .add(Expr::col(Alias::new("table_schema")).eq(Self::get_current_schema()))
-                    .add(Expr::col(Alias::new("table_name")).eq(table.as_ref()))
-                    .add(Expr::col(Alias::new("index_name")).eq(index.as_ref())),
+                    .add(Expr::col(DatabaseSchema::SchemaName).eq(Self::get_current_schema()))
+                    .add(Expr::col(DatabaseSchema::TableName).eq(table.as_ref()))
+                    .add(Expr::col(DatabaseSchema::IndexName).eq(index.as_ref())),
             )
             .take()
     }
+}
+
+#[derive(Debug, Iden)]
+enum MySqlSchema {
+    Statistics,
 }
