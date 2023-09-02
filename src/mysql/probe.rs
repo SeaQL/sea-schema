@@ -33,7 +33,7 @@ impl SchemaProbe for MySql {
             .from((DatabaseSchema::Info, InformationSchema::Statistics))
             .cond_where(
                 Condition::all()
-                    .add(Expr::col(DatabaseSchema::SchemaName).eq(Self::get_current_schema()))
+                    .add(Expr::col(DatabaseSchema::TableSchema).eq(Self::get_current_schema()))
                     .add(Expr::col(DatabaseSchema::TableName).eq(table.as_ref()))
                     .add(Expr::col(DatabaseSchema::IndexName).eq(index.as_ref())),
             )
