@@ -1,8 +1,8 @@
-use sea_query::{Alias, Condition, Expr, Query, SelectStatement, SimpleExpr};
+use sea_query::{Alias, Condition, Expr, Iden, Query, SelectStatement, SimpleExpr};
 
 use super::query::{InformationSchema as Schema, TablesFields};
 use super::Postgres;
-use crate::probe::{DatabaseSchema, Has, SchemaProbe};
+use crate::probe::{Has, SchemaProbe};
 
 impl SchemaProbe for Postgres {
     fn get_current_schema() -> SimpleExpr {
@@ -34,10 +34,20 @@ impl SchemaProbe for Postgres {
             .from(Alias::new("pg_indexes"))
             .cond_where(
                 Condition::all()
-                    .add(Expr::col(DatabaseSchema::SchemaName).eq(Self::get_current_schema()))
-                    .add(Expr::col(DatabaseSchema::TableName).eq(table.as_ref()))
-                    .add(Expr::col(DatabaseSchema::IndexName).eq(index.as_ref())),
+                    .add(Expr::col(DatabaseSchema::Schema).eq(Self::get_current_schema()))
+                    .add(Expr::col(DatabaseSchema::Table).eq(table.as_ref()))
+                    .add(Expr::col(DatabaseSchema::Index).eq(index.as_ref())),
             )
             .take()
     }
+}
+
+#[derive(Debug, Iden)]
+enum DatabaseSchema {
+    #[iden = "tablename"]
+    Table,
+    #[iden = "schemaname"]
+    Schema,
+    #[iden = "indexname"]
+    Index,
 }
