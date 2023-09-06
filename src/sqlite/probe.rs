@@ -1,8 +1,8 @@
-use sea_query::{Condition, Expr, Iden, IntoTableRef, Query, SelectStatement, SimpleExpr};
+use sea_query::{Condition, Expr, Query, SelectStatement, SimpleExpr};
 
-use super::query::SqliteMaster;
+use super::query::{SqliteMaster, SqliteSchema};
 use super::Sqlite;
-use crate::probe::{Has, SchemaProbe};
+use crate::probe::{Has, Schema, SchemaProbe};
 
 impl SchemaProbe for Sqlite {
     fn get_current_schema() -> SimpleExpr {
@@ -11,12 +11,12 @@ impl SchemaProbe for Sqlite {
 
     fn query_tables() -> SelectStatement {
         Query::select()
-            .expr_as(Expr::col(Schema::Name), Schema::TableName)
-            .from(SqliteMaster.into_table_ref())
+            .expr_as(Expr::col(SqliteSchema::Name), Schema::TableName)
+            .from(SqliteMaster)
             .cond_where(
                 Condition::all()
-                    .add(Expr::col(Schema::Type).eq("table"))
-                    .add(Expr::col(Schema::Name).ne("sqlite_sequence")),
+                    .add(Expr::col(SqliteSchema::Type).eq("table"))
+                    .add(Expr::col(SqliteSchema::Name).ne("sqlite_sequence")),
             )
             .take()
     }
@@ -31,7 +31,7 @@ impl SchemaProbe for Sqlite {
                 "COUNT(*) > 0 AS \"has_column\" FROM pragma_table_info(?)",
                 [table.as_ref()],
             ))
-            .and_where(Expr::col(Schema::Name).eq(column.as_ref()))
+            .and_where(Expr::col(SqliteSchema::Name).eq(column.as_ref()))
             .take()
     }
 
@@ -42,21 +42,13 @@ impl SchemaProbe for Sqlite {
     {
         Query::select()
             .expr_as(Expr::cust("COUNT(*) > 0"), Has::Index)
-            .from(SqliteMaster.into_table_ref())
+            .from(SqliteMaster)
             .cond_where(
                 Condition::all()
-                    .add(Expr::col(Schema::Type).eq("index"))
-                    .add(Expr::col(Schema::TblName).eq(table.as_ref()))
-                    .add(Expr::col(Schema::Name).eq(index.as_ref())),
+                    .add(Expr::col(SqliteSchema::Type).eq("index"))
+                    .add(Expr::col(SqliteSchema::TblName).eq(table.as_ref()))
+                    .add(Expr::col(SqliteSchema::Name).eq(index.as_ref())),
             )
             .take()
     }
-}
-
-#[derive(Debug, Iden)]
-enum Schema {
-    Name,
-    Type,
-    TableName,
-    TblName,
 }

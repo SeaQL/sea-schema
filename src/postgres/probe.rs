@@ -1,6 +1,6 @@
-use sea_query::{Alias, Condition, Expr, Iden, Query, SelectStatement, SimpleExpr};
+use sea_query::{Condition, Expr, Query, SelectStatement, SimpleExpr};
 
-use super::query::{InformationSchema as Schema, TablesFields};
+use super::query::{InformationSchema as Schema, PgIndexes, TablesFields};
 use super::Postgres;
 use crate::probe::{Has, SchemaProbe};
 
@@ -31,23 +31,13 @@ impl SchemaProbe for Postgres {
     {
         Query::select()
             .expr_as(Expr::cust("COUNT(*) > 0"), Has::Index)
-            .from(Alias::new("pg_indexes"))
+            .from(PgIndexes::Table)
             .cond_where(
                 Condition::all()
-                    .add(Expr::col(DatabaseSchema::Schema).eq(Self::get_current_schema()))
-                    .add(Expr::col(DatabaseSchema::Table).eq(table.as_ref()))
-                    .add(Expr::col(DatabaseSchema::Index).eq(index.as_ref())),
+                    .add(Expr::col(PgIndexes::SchemaName).eq(Self::get_current_schema()))
+                    .add(Expr::col(PgIndexes::TableName).eq(table.as_ref()))
+                    .add(Expr::col(PgIndexes::IndexName).eq(index.as_ref())),
             )
             .take()
     }
-}
-
-#[derive(Debug, Iden)]
-enum DatabaseSchema {
-    #[iden = "tablename"]
-    Table,
-    #[iden = "schemaname"]
-    Schema,
-    #[iden = "indexname"]
-    Index,
 }
