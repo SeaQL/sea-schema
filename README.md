@@ -29,10 +29,9 @@ Join our Discord server to chat with others in the SeaQL community!
 The crate is divided into different modules:
 
 + `def`: type definitions
-+ `query`: for querying information_schema
-+ `parser`: for parsing information_schema (parsing sqldump is WIP)
-+ `writer`: for exporting `Schema` into SeaQuery and SQL
-+ `discovery`: query, parse and construct a `Schema`
++ `query`, `parser`: for querying and parsing information_schema
++ `discovery`: connect to a live database and discover a `Schema`
++ `writer`: for exporting `Schema` into SeaQuery and SQL statements
 
 JSON de/serialize on type definitions can be enabled with `with-serde`.
 
@@ -72,9 +71,7 @@ TableDef {
                 NumericAttr {
                     maximum: None,
                     decimal: None,
-                    unsigned: Some(
-                        true,
-                    ),
+                    unsigned: Some(true),
                     zero_fill: None,
                 },
             ),
@@ -96,9 +93,7 @@ TableDef {
                 NumericAttr {
                     maximum: None,
                     decimal: None,
-                    unsigned: Some(
-                        true,
-                    ),
+                    unsigned: Some(true),
                     zero_fill: None,
                 },
             ),
@@ -116,18 +111,10 @@ TableDef {
         },
         ColumnInfo {
             name: "last_update",
-            col_type: Timestamp(
-                TimeAttr {
-                    fractional: None,
-                },
-            ),
+            col_type: Timestamp(TimeAttr { fractional: None }),
             null: false,
             key: NotKey,
-            default: Some(
-                ColumnDefault {
-                    expr: "CURRENT_TIMESTAMP",
-                },
-            ),
+            default: Some(ColumnDefault::CurrentTimestamp),
             extra: ColumnExtra {
                 auto_increment: false,
                 on_update_current_timestamp: true,
@@ -178,25 +165,17 @@ TableDef {
     foreign_keys: [
         ForeignKeyInfo {
             name: "fk_film_actor_actor",
-            columns: [
-                "actor_id",
-            ],
+            columns: [ "actor_id" ],
             referenced_table: "actor",
-            referenced_columns: [
-                "actor_id",
-            ],
+            referenced_columns: [ "actor_id" ],
             on_update: Cascade,
             on_delete: Restrict,
         },
         ForeignKeyInfo {
             name: "fk_film_actor_film",
-            columns: [
-                "film_id",
-            ],
+            columns: [ "film_id" ],
             referenced_table: "film",
-            referenced_columns: [
-                "film_id",
-            ],
+            referenced_columns: [ "film_id" ],
             on_update: Cascade,
             on_delete: Restrict,
         },

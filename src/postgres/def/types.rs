@@ -1,4 +1,4 @@
-use sea_query::SeaRc;
+use sea_query::RcOrArc;
 #[cfg(feature = "with-serde")]
 use serde::{Deserialize, Serialize};
 
@@ -261,7 +261,7 @@ pub struct EnumDef {
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct ArrayDef {
     /// Array type
-    pub col_type: Option<SeaRc<Type>>,
+    pub col_type: Option<RcOrArc<Type>>,
 }
 
 impl Type {

@@ -32,6 +32,7 @@ pub enum TablesFields {
 pub enum TableType {
     #[iden = "BASE TABLE"]
     BaseTable,
+    #[iden = "VIEW"]
     View,
     #[iden = "SYSTEM VIEW"]
     SystemView,

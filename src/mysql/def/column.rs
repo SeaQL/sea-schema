@@ -41,9 +41,13 @@ pub enum ColumnKey {
 
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
-pub struct ColumnDefault {
-    /// default value expression
-    pub expr: String,
+pub enum ColumnDefault {
+    Null,
+    Int(i64),
+    Real(f64),
+    String(String),
+    CustomExpr(String),
+    CurrentTimestamp,
 }
 
 #[derive(Clone, Debug, PartialEq)]

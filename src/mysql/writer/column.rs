@@ -1,6 +1,7 @@
-use crate::mysql::def::{CharSet, ColumnInfo, NumericAttr, StringAttr, Type};
+use crate::mysql::def::{CharSet, ColumnDefault, ColumnInfo, NumericAttr, StringAttr, Type};
 use sea_query::{
-    Alias, BlobSize, ColumnDef, DynIden, EscapeBuilder, Iden, IntoIden, MysqlQueryBuilder,
+    Alias, BlobSize, ColumnDef, DynIden, EscapeBuilder, Expr, Iden, IntoIden, Keyword,
+    MysqlQueryBuilder, SimpleExpr,
 };
 use std::fmt::Write;
 
@@ -15,10 +16,16 @@ impl ColumnInfo {
             col_def.auto_increment();
         }
         let mut extras = Vec::new();
-        if let Some(default) = self.default.as_ref() {
-            let mut string = "".to_owned();
-            write!(&mut string, "DEFAULT {}", default.expr).unwrap();
-            extras.push(string);
+        if let Some(default) = &self.default {
+            let default_expr: SimpleExpr = match default {
+                ColumnDefault::Null => Option::<bool>::None.into(),
+                ColumnDefault::Int(int) => (*int).into(),
+                ColumnDefault::Real(double) => (*double).into(),
+                ColumnDefault::String(string) => string.into(),
+                ColumnDefault::CustomExpr(string) => Expr::cust(string),
+                ColumnDefault::CurrentTimestamp => Keyword::CurrentTimestamp.into(),
+            };
+            col_def.default(default_expr);
         }
         if self.extra.on_update_current_timestamp {
             extras.push("ON UPDATE CURRENT_TIMESTAMP".to_owned());
@@ -251,10 +258,10 @@ impl ColumnInfo {
             Type::Decimal(_) | Type::Float(_) | Type::Double(_)
         ) && num_attr.unsigned.is_some()
         {
-            col_def.extra("UNSIGNED".into());
+            col_def.extra("UNSIGNED");
         }
         if num_attr.zero_fill.is_some() {
-            col_def.extra("ZEROFILL".into());
+            col_def.extra("ZEROFILL");
         }
         col_def
     }

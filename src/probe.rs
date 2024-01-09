@@ -1,4 +1,4 @@
-use sea_query::{Alias, Condition, Expr, Query, SelectStatement, SimpleExpr};
+use sea_query::{Condition, Expr, Iden, Query, SelectStatement, SimpleExpr};
 
 pub trait SchemaProbe {
     fn get_current_schema() -> SimpleExpr;
@@ -10,10 +10,10 @@ pub trait SchemaProbe {
         T: AsRef<str>,
     {
         let mut subquery = Self::query_tables();
-        subquery.cond_where(Expr::col(Alias::new("table_name")).eq(table.as_ref()));
+        subquery.cond_where(Expr::col(Schema::TableName).eq(table.as_ref()));
         Query::select()
-            .expr_as(Expr::cust("COUNT(*) > 0"), Alias::new("has_table"))
-            .from_subquery(subquery, Alias::new("subquery"))
+            .expr_as(Expr::cust("COUNT(*) > 0"), Has::Table)
+            .from_subquery(subquery, Subquery)
             .take()
     }
 
@@ -23,17 +23,45 @@ pub trait SchemaProbe {
         C: AsRef<str>,
     {
         Query::select()
-            .expr_as(Expr::cust("COUNT(*) > 0"), Alias::new("has_column"))
-            .from((Alias::new("information_schema"), Alias::new("columns")))
+            .expr_as(Expr::cust("COUNT(*) > 0"), Has::Column)
+            .from((Schema::Info, Schema::Columns))
             .cond_where(
                 Condition::all()
                     .add(
                         Expr::expr(Self::get_current_schema())
-                            .equals((Alias::new("columns"), Alias::new("table_schema"))),
+                            .equals((Schema::Columns, Schema::TableSchema)),
                     )
-                    .add(Expr::col(Alias::new("table_name")).eq(table.as_ref()))
-                    .add(Expr::col(Alias::new("column_name")).eq(column.as_ref())),
+                    .add(Expr::col(Schema::TableName).eq(table.as_ref()))
+                    .add(Expr::col(Schema::ColumnName).eq(column.as_ref())),
             )
             .take()
     }
+
+    fn has_index<T, C>(table: T, index: C) -> SelectStatement
+    where
+        T: AsRef<str>,
+        C: AsRef<str>;
 }
+
+#[derive(Debug, Iden)]
+pub enum Has {
+    #[iden = "has_table"]
+    Table,
+    #[iden = "has_column"]
+    Column,
+    #[iden = "has_index"]
+    Index,
+}
+
+#[derive(Debug, Iden)]
+pub(crate) enum Schema {
+    #[iden = "information_schema"]
+    Info,
+    Columns,
+    TableName,
+    ColumnName,
+    TableSchema,
+}
+
+#[derive(Debug, Iden)]
+struct Subquery;

@@ -4,7 +4,7 @@ use sqlx::SqlitePool;
 use std::collections::HashMap;
 
 use sea_schema::sea_query::{
-    Alias, ColumnDef, ForeignKey, ForeignKeyAction, ForeignKeyCreateStatement, Index, Query,
+    Alias, ColumnDef, Expr, ForeignKey, ForeignKeyAction, ForeignKeyCreateStatement, Index, Query,
     SqliteQueryBuilder, Table, TableCreateStatement, TableRef,
 };
 use sea_schema::sqlite::{
@@ -33,17 +33,17 @@ async fn test_001() -> DiscoveryResult<()> {
 
     //DROP TABLES to ensure all tests pass
     sqlx::query("DROP TABLE IF EXISTS Programming_Langs")
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(&mut *sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query("DROP TABLE IF EXISTS suppliers")
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(&mut *sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query("DROP TABLE IF EXISTS supplier_groups")
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(&mut *sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
@@ -86,8 +86,8 @@ async fn test_001() -> DiscoveryResult<()> {
 
     let insert_into_table = Query::insert()
         .into_table(Alias::new("Programming_Langs"))
-        .columns(vec![Alias::new("SLOC"), Alias::new("SemVer")])
-        .values(vec![4.into(), "0.1.0".into()])
+        .columns([Alias::new("SLOC"), Alias::new("SemVer")])
+        .values([4.into(), "0.1.0".into()])
         .unwrap()
         .to_owned();
 
@@ -107,17 +107,17 @@ async fn test_001() -> DiscoveryResult<()> {
 
     //DROP TABLES to ensure all tests pass
     sqlx::query("DROP TABLE IF EXISTS Programming_Langs")
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(&mut *sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query("DROP TABLE IF EXISTS suppliers")
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(&mut *sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query("DROP TABLE IF EXISTS supplier_groups")
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(&mut *sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
@@ -161,20 +161,20 @@ async fn test_001() -> DiscoveryResult<()> {
 
     let insert_into_supplier_groups = Query::insert()
         .into_table(Alias::new("supplier_groups"))
-        .columns(vec![Alias::new("group_name")])
-        .values(vec!["Global".into()])
+        .columns([Alias::new("group_name")])
+        .values(["Global".into()])
         .unwrap()
         .to_owned();
 
     let insert_into_suppliers = Query::insert()
         .into_table(Alias::new("suppliers"))
-        .columns(vec![Alias::new("supplier_name"), Alias::new("group_id")])
-        .values(vec!["HP".into(), 1.into()])
+        .columns([Alias::new("supplier_name"), Alias::new("group_id")])
+        .values(["HP".into(), 1.into()])
         .unwrap()
         .to_owned();
 
     sqlx::query(&create_table.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(&mut *sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
@@ -184,32 +184,32 @@ async fn test_001() -> DiscoveryResult<()> {
         .unwrap();
 
     sqlx::query(&insert_into_table.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(&mut *sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query(&table_create_supplier_groups.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(&mut *sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query(&table_create_suppliers.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(&mut *sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query(&insert_into_supplier_groups.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(&mut *sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query(&insert_into_suppliers.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(&mut *sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
     sqlx::query(&create_index.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(&mut *sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 
@@ -231,7 +231,7 @@ async fn test_001() -> DiscoveryResult<()> {
             .iter()
             .map(|table| table.write().to_string(SqliteQueryBuilder))
             .collect::<Vec<_>>(),
-        vec![
+        [
             create_table.to_string(SqliteQueryBuilder),
             create_table_primkey.to_string(SqliteQueryBuilder),
             table_create_supplier_groups.to_string(SqliteQueryBuilder),
@@ -249,7 +249,7 @@ async fn test_001() -> DiscoveryResult<()> {
             .iter()
             .map(|index| index.write().to_string(SqliteQueryBuilder))
             .collect::<Vec<_>>(),
-        vec![create_index.to_string(SqliteQueryBuilder),]
+        [create_index.to_string(SqliteQueryBuilder)]
     );
 
     Ok(())
@@ -275,7 +275,7 @@ async fn test_002() -> DiscoveryResult<()> {
         let sql = tbl_create_stmt.to_string(SqliteQueryBuilder);
         println!("{};", sql);
         println!();
-        sqlx::query(&sql).execute(&mut executor).await.unwrap();
+        sqlx::query(&sql).execute(&mut *executor).await.unwrap();
     }
 
     let schema_discovery = SchemaDiscovery::new(connection);
@@ -296,19 +296,22 @@ async fn test_002() -> DiscoveryResult<()> {
             _ => unimplemented!(),
         };
         let expected_sql = if tbl_name.as_str() == "order" {
-            vec![
+            [
                 r#"CREATE TABLE "order" ("#,
                 r#""id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,"#,
                 r#""total" real,"#,
                 r#""bakery_id" integer NOT NULL,"#,
                 r#""customer_id" integer NOT NULL,"#,
-                r#""placed_at" text NOT NULL,"#,
+                r#""placed_at" text NOT NULL DEFAULT CURRENT_TIMESTAMP,"#,
+                r#""updated" text NOT NULL DEFAULT '2023-06-07 16:24:00',"#,
+                r#""net_weight" real NOT NULL DEFAULT 10.05,"#,
+                r#""priority" integer NOT NULL DEFAULT 5,"#,
                 r#"FOREIGN KEY ("customer_id") REFERENCES "customer" ("id") ON DELETE CASCADE ON UPDATE CASCADE,"#,
                 r#"FOREIGN KEY ("bakery_id") REFERENCES "bakery" ("id") ON DELETE CASCADE ON UPDATE CASCADE"#,
                 r#")"#,
             ].join(" ")
         } else if tbl_name.as_str() == "lineitem" {
-            vec![
+            [
                 r#"CREATE TABLE "lineitem" ("#,
                 r#""id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,"#,
                 r#""price" real,"#,
@@ -408,8 +411,27 @@ fn create_order_table() -> TableCreateStatement {
         )
         .col(
             ColumnDef::new(Alias::new("placed_at"))
-                .timestamp()
-                .not_null(),
+                .date_time()
+                .not_null()
+                .default(Expr::current_timestamp()),
+        )
+        .col(
+            ColumnDef::new(Alias::new("updated"))
+                .date_time()
+                .not_null()
+                .default("2023-06-07 16:24:00"),
+        )
+        .col(
+            ColumnDef::new(Alias::new("net_weight"))
+                .double()
+                .not_null()
+                .default(10.05),
+        )
+        .col(
+            ColumnDef::new(Alias::new("priority"))
+                .integer()
+                .not_null()
+                .default(5),
         )
         .foreign_key(
             ForeignKey::create()

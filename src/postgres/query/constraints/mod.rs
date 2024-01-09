@@ -9,7 +9,7 @@ pub use referential_constraints::*;
 pub use table_constraints::*;
 
 use super::{InformationSchema, SchemaQueryBuilder};
-use crate::sqlx_types::postgres::PgRow;
+use crate::{postgres::query::select_base_table_and_view, sqlx_types::postgres::PgRow};
 use sea_query::{Alias, Condition, Expr, Iden, JoinType, Order, Query, SeaRc, SelectStatement};
 
 #[derive(Debug, Default)]
@@ -162,6 +162,10 @@ impl SchemaQueryBuilder {
                 Expr::col((Schema::TableConstraints, Tcf::TableSchema)).eq(schema.to_string()),
             )
             .and_where(Expr::col((Schema::TableConstraints, Tcf::TableName)).eq(table.to_string()))
+            .and_where(
+                Expr::col((rcsq.clone(), Kcuf::TableName))
+                    .not_in_subquery(select_base_table_and_view()),
+            )
             .order_by((Schema::TableConstraints, Tcf::ConstraintName), Order::Asc)
             .order_by((Schema::KeyColumnUsage, Kcuf::OrdinalPosition), Order::Asc)
             .order_by((rcsq.clone(), RefC::UniqueConstraintName), Order::Asc)

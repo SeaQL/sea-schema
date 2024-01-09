@@ -3,6 +3,7 @@ use sea_query::{Alias, Expr, SelectStatement};
 use super::def::{IndexInfo, Schema, TableDef};
 pub use super::error::DiscoveryResult;
 use super::executor::{Executor, IntoExecutor};
+use super::query::SqliteMaster;
 use crate::sqlx_types::SqlitePool;
 
 /// Performs all the methods for schema discovery of a SQLite database
@@ -22,13 +23,13 @@ impl SchemaDiscovery {
     pub async fn discover(&self) -> DiscoveryResult<Schema> {
         let get_tables = SelectStatement::new()
             .column(Alias::new("name"))
-            .from(Alias::new("sqlite_master"))
+            .from(SqliteMaster)
             .and_where(Expr::col(Alias::new("type")).eq("table"))
             .and_where(Expr::col(Alias::new("name")).ne("sqlite_sequence"))
             .to_owned();
 
         let mut tables = Vec::new();
-        for row in self.executor.fetch_all(get_tables).await {
+        for row in self.executor.fetch_all(get_tables).await? {
             let mut table: TableDef = (&row).into();
             table.pk_is_autoincrement(&self.executor).await?;
             table.get_foreign_keys(&self.executor).await?;
@@ -44,12 +45,12 @@ impl SchemaDiscovery {
     pub async fn discover_indexes(&self) -> DiscoveryResult<Vec<IndexInfo>> {
         let get_tables = SelectStatement::new()
             .column(Alias::new("name"))
-            .from(Alias::new("sqlite_master"))
+            .from(SqliteMaster)
             .and_where(Expr::col(Alias::new("type")).eq("table"))
             .and_where(Expr::col(Alias::new("name")).ne("sqlite_sequence"))
             .to_owned();
 
-        let mut discovered_indexes: Vec<IndexInfo> = Vec::default();
+        let mut discovered_indexes = Vec::new();
         let rows = self.executor.fetch_all(get_tables).await;
         for row in rows {
             let mut table: TableDef = (&row).into();

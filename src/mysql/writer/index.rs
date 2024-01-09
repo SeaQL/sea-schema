@@ -44,12 +44,12 @@ impl IndexInfo {
             }
             IndexType::RTree => {
                 index.index_type(sea_query::IndexType::Custom(SeaRc::new(Alias::new(
-                    &self.idx_type.to_string(),
+                    self.idx_type.to_string(),
                 ))));
             }
             IndexType::Spatial => {
                 index.index_type(sea_query::IndexType::Custom(SeaRc::new(Alias::new(
-                    &self.idx_type.to_string(),
+                    self.idx_type.to_string(),
                 ))));
             }
         }

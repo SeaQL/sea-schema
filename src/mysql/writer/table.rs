@@ -4,7 +4,7 @@ use sea_query::{Alias, Iden, Table, TableCreateStatement};
 impl TableDef {
     pub fn write(&self) -> TableCreateStatement {
         let mut table = Table::create();
-        table.table(Alias::new(self.info.name.as_ref()));
+        table.table(Alias::new(&self.info.name));
         for col in self.columns.iter() {
             table.col(&mut col.write());
         }
@@ -119,9 +119,7 @@ mod tests {
                         null: false,
                         key: ColumnKey::NotKey,
                         default: Some(
-                            ColumnDefault {
-                                expr: "CURRENT_TIMESTAMP".to_owned(),
-                            },
+                            ColumnDefault::CurrentTimestamp,
                         ),
                         extra: ColumnExtra {
                             auto_increment: false,
@@ -136,7 +134,7 @@ mod tests {
                 indexes: vec![],
                 foreign_keys: vec![],
             }.write().to_string(MysqlQueryBuilder),
-            vec![
+            [
                 "CREATE TABLE `actor` (",
                     "`actor_id` smallint UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Actor ID',",
                     "`first_name` varchar(45) NOT NULL,",
@@ -219,9 +217,7 @@ mod tests {
                         null: false,
                         key: ColumnKey::NotKey,
                         default: Some(
-                            ColumnDefault {
-                                expr: "CURRENT_TIMESTAMP".to_owned(),
-                            },
+                            ColumnDefault::CurrentTimestamp,
                         ),
                         extra: ColumnExtra {
                             auto_increment: false,
@@ -346,7 +342,7 @@ mod tests {
             }
             .write()
             .to_string(MysqlQueryBuilder),
-            vec![
+            [
                 "CREATE TABLE `film_actor` (",
                 "KEY `idx_fk_film_id` (`film_id` (32))",
                 ")",
@@ -386,7 +382,7 @@ mod tests {
             }
             .write()
             .to_string(MysqlQueryBuilder),
-            vec![
+            [
                 "CREATE TABLE `film_actor` (",
                 "KEY `idx_fk_film_id` (`film_id` DESC)",
                 ")",

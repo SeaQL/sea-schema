@@ -1,5 +1,5 @@
 use crate::postgres::def::{ColumnInfo, Type};
-use sea_query::{Alias, BlobSize, ColumnDef, ColumnType, DynIden, IntoIden, PgInterval, SeaRc};
+use sea_query::{Alias, BlobSize, ColumnDef, ColumnType, DynIden, IntoIden, PgInterval, RcOrArc};
 use std::{convert::TryFrom, fmt::Write};
 
 impl ColumnInfo {
@@ -140,7 +140,7 @@ impl ColumnInfo {
                         .collect();
                     ColumnType::Enum { name, variants }
                 }
-                Type::Array(array_def) => ColumnType::Array(SeaRc::new(write_type(
+                Type::Array(array_def) => ColumnType::Array(RcOrArc::new(write_type(
                     array_def.col_type.as_ref().expect("Array type not defined"),
                 ))),
             }

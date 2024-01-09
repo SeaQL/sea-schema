@@ -2,7 +2,7 @@ use pretty_assertions::assert_eq;
 use regex::Regex;
 use sea_schema::mysql::{def::TableDef, discovery::SchemaDiscovery};
 use sea_schema::sea_query::{
-    Alias, ColumnDef, ForeignKey, ForeignKeyAction, Index, MysqlQueryBuilder, Table,
+    Alias, ColumnDef, Expr, ForeignKey, ForeignKeyAction, Index, MysqlQueryBuilder, Table,
     TableCreateStatement, TableRef,
 };
 use sqlx::{MySql, MySqlPool, Pool};
@@ -36,12 +36,15 @@ async fn main() {
         let sql = tbl_create_stmt.to_string(MysqlQueryBuilder);
         println!("{};", sql);
         println!();
-        sqlx::query(&sql).execute(&mut executor).await.unwrap();
+        sqlx::query(&sql).execute(&mut *executor).await.unwrap();
     }
 
     let schema_discovery = SchemaDiscovery::new(connection, "sea-schema");
 
-    let schema = schema_discovery.discover().await;
+    let schema = schema_discovery
+        .discover()
+        .await
+        .expect("Error discovering schema");
 
     println!("{:#?}", schema);
 
@@ -95,12 +98,12 @@ async fn setup(base_url: &str, db_name: &str) -> Pool<MySql> {
 
     let _drop_db_result = sqlx::query(&format!("DROP DATABASE IF EXISTS `{}`;", db_name))
         .bind(db_name)
-        .execute(&mut connection)
+        .execute(&mut *connection)
         .await
         .unwrap();
 
     let _create_db_result = sqlx::query(&format!("CREATE DATABASE `{}`;", db_name))
-        .execute(&mut connection)
+        .execute(&mut *connection)
         .await
         .unwrap();
 
@@ -203,7 +206,26 @@ fn create_order_table() -> TableCreateStatement {
         .col(
             ColumnDef::new(Alias::new("placed_at"))
                 .date_time()
-                .not_null(),
+                .not_null()
+                .default(Expr::current_timestamp()),
+        )
+        .col(
+            ColumnDef::new(Alias::new("updated"))
+                .date_time()
+                .not_null()
+                .default("2023-06-07 16:24:00"),
+        )
+        .col(
+            ColumnDef::new(Alias::new("net_weight"))
+                .double()
+                .not_null()
+                .default(10.05),
+        )
+        .col(
+            ColumnDef::new(Alias::new("priority"))
+                .integer()
+                .not_null()
+                .default(5),
         )
         .index(
             Index::create()

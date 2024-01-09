@@ -41,6 +41,8 @@ impl ColumnInfo {
                     DefaultType::Integer(is_int)
                 } else if let Ok(is_float) = value.parse::<f32>() {
                     DefaultType::Float(is_float)
+                } else if value == "CURRENT_TIMESTAMP" {
+                    DefaultType::CurrentTimestamp
                 } else {
                     DefaultType::String(value)
                 }
@@ -53,7 +55,6 @@ impl ColumnInfo {
 #[cfg(not(feature = "sqlx-sqlite"))]
 impl ColumnInfo {
     pub fn to_column_def(_: &SqliteRow) -> Result<ColumnInfo, ParseIntError> {
-        i32::from_str_radix("", 10)?;
         unimplemented!()
     }
 }

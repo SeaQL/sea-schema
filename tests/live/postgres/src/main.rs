@@ -1,12 +1,12 @@
-use std::collections::HashMap;
-
+use pretty_assertions::assert_eq;
 use sea_schema::postgres::{def::TableDef, discovery::SchemaDiscovery};
 use sea_schema::sea_query::TableRef;
 use sea_schema::sea_query::{
-    extension::postgres::Type, Alias, ColumnDef, ColumnType, ForeignKey, ForeignKeyAction, Index,
-    PostgresQueryBuilder, Table, TableCreateStatement,
+    extension::postgres::Type, Alias, ColumnDef, ColumnType, Expr, ForeignKey, ForeignKeyAction,
+    Index, PostgresQueryBuilder, Table, TableCreateStatement,
 };
 use sqlx::{PgPool, Pool, Postgres};
+use std::collections::HashMap;
 
 #[cfg_attr(test, async_std::test)]
 #[cfg_attr(not(test), async_std::main)]
@@ -23,7 +23,7 @@ async fn main() {
     let mut executor = connection.acquire().await.unwrap();
 
     sqlx::query("CREATE EXTENSION IF NOT EXISTS citext")
-        .execute(&mut executor)
+        .execute(&mut *executor)
         .await
         .unwrap();
 
@@ -39,7 +39,7 @@ async fn main() {
         .to_string(PostgresQueryBuilder);
 
     sqlx::query(&create_enum_stmt)
-        .execute(&mut executor)
+        .execute(&mut *executor)
         .await
         .unwrap();
 
@@ -58,12 +58,15 @@ async fn main() {
         let sql = tbl_create_stmt.to_string(PostgresQueryBuilder);
         println!("{};", sql);
         println!();
-        sqlx::query(&sql).execute(&mut executor).await.unwrap();
+        sqlx::query(&sql).execute(&mut *executor).await.unwrap();
     }
 
     let schema_discovery = SchemaDiscovery::new(connection, "public");
 
-    let schema = schema_discovery.discover().await;
+    let schema = schema_discovery
+        .discover()
+        .await
+        .expect("Error discovering schema");
 
     println!("{:#?}", schema);
 
@@ -89,7 +92,10 @@ async fn main() {
         assert_eq!(expected_sql, sql);
     }
 
-    let enum_defs = schema_discovery.discover_enums().await;
+    let enum_defs = schema_discovery
+        .discover_enums()
+        .await
+        .expect("Error discovering enums");
 
     dbg!(&enum_defs);
 
@@ -115,12 +121,12 @@ async fn setup(base_url: &str, db_name: &str) -> Pool<Postgres> {
 
     let _drop_db_result = sqlx::query(&format!("DROP DATABASE IF EXISTS \"{}\";", db_name))
         .bind(db_name)
-        .execute(&mut connection)
+        .execute(&mut *connection)
         .await
         .unwrap();
 
     let _create_db_result = sqlx::query(&format!("CREATE DATABASE \"{}\";", db_name))
-        .execute(&mut connection)
+        .execute(&mut *connection)
         .await
         .unwrap();
 
@@ -217,7 +223,26 @@ fn create_order_table() -> TableCreateStatement {
         .col(
             ColumnDef::new(Alias::new("placed_at"))
                 .date_time()
-                .not_null(),
+                .not_null()
+                .default(Expr::current_timestamp()),
+        )
+        .col(
+            ColumnDef::new(Alias::new("updated"))
+                .date_time()
+                .not_null()
+                .extra("DEFAULT '2023-06-07 16:24:00'::timestamp without time zone"),
+        )
+        .col(
+            ColumnDef::new(Alias::new("net_weight"))
+                .double()
+                .not_null()
+                .default(10.05),
+        )
+        .col(
+            ColumnDef::new(Alias::new("priority"))
+                .integer()
+                .not_null()
+                .default(5),
         )
         .primary_key(
             Index::create()
