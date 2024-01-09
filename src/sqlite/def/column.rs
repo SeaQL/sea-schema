@@ -1,4 +1,4 @@
-use super::{DefaultType, Type};
+use super::{parse_type, DefaultType, Type};
 use sea_query::{
     foreign_key::ForeignKeyAction as SeaQueryForeignKeyAction, Alias, Index, IndexCreateStatement,
 };
@@ -28,7 +28,7 @@ impl ColumnInfo {
         Ok(ColumnInfo {
             cid: row.get(0),
             name: row.get(1),
-            r#type: Type::to_type(row.get(2))?,
+            r#type: parse_type(row.get(2))?,
             not_null: col_not_null != 0,
             default_value: if default_value == "NULL" {
                 DefaultType::Null

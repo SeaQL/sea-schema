@@ -224,7 +224,8 @@ impl TableDef {
         new_table.table(Alias::new(&self.name));
 
         self.columns.iter().for_each(|column_info| {
-            let mut new_column = ColumnDef::new(Alias::new(&column_info.name));
+            let mut new_column =
+                ColumnDef::new_with_type(Alias::new(&column_info.name), column_info.r#type.clone());
             if column_info.not_null {
                 new_column.not_null();
             }
@@ -234,8 +235,6 @@ impl TableDef {
             } else if column_info.primary_key {
                 primary_keys.push(column_info.name.clone());
             }
-
-            column_info.r#type.write_type(&mut new_column);
 
             match &column_info.default_value {
                 DefaultType::Integer(integer_value) => {
