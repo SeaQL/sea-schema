@@ -38,7 +38,9 @@ impl SchemaDiscovery {
             tables.push(table);
         }
 
-        Ok(Schema { tables })
+        let indexes = self.discover_indexes().await?;
+
+        Ok(Schema { tables, indexes })
     }
 
     /// Discover table indexes

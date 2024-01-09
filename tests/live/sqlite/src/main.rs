@@ -99,9 +99,11 @@ async fn test_001() -> DiscoveryResult<()> {
         .to_owned();
 
     // Create a table with a PRIMARY KEY constraint that results in an index.
-    let create_table_primkey = Table::create()
+    let create_table_inventors = Table::create()
         .table(Alias::new("Inventors"))
         .col(ColumnDef::new(Alias::new("Name")).text().not_null())
+        .col(ColumnDef::new(Alias::new("Invention")).string().not_null())
+        .index(Index::create().col(Alias::new("Invention")).unique())
         .index(Index::create().col(Alias::new("Name")).primary())
         .to_owned();
 
@@ -157,8 +159,6 @@ async fn test_001() -> DiscoveryResult<()> {
         .primary_key(Index::create().col(Alias::new("group_id")))
         .to_owned();
 
-    println!("{}", table_create_suppliers.to_string(SqliteQueryBuilder));
-
     let insert_into_supplier_groups = Query::insert()
         .into_table(Alias::new("supplier_groups"))
         .columns([Alias::new("group_name")])
@@ -178,7 +178,7 @@ async fn test_001() -> DiscoveryResult<()> {
         .await
         .unwrap();
 
-    sqlx::query(&create_table_primkey.to_string(SqliteQueryBuilder))
+    sqlx::query(&create_table_inventors.to_string(SqliteQueryBuilder))
         .fetch_all(&mut *sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
@@ -213,7 +213,7 @@ async fn test_001() -> DiscoveryResult<()> {
         .await
         .unwrap();
 
-    let discovered_schema = SchemaDiscovery::new(sqlite_pool.clone());
+    let schema = SchemaDiscovery::new(sqlite_pool.clone()).discover().await?;
 
     let convert_column_types = |str: String| {
         str.replace("INTEGER", "integer")
@@ -222,35 +222,37 @@ async fn test_001() -> DiscoveryResult<()> {
             .replace("VARCHAR(255)", "text")
             .replace("DATETIME", "text")
     };
+    let expected_sql = [
+        create_table.to_string(SqliteQueryBuilder),
+        create_table_inventors.to_string(SqliteQueryBuilder),
+        table_create_supplier_groups.to_string(SqliteQueryBuilder),
+        table_create_suppliers.to_string(SqliteQueryBuilder),
+    ]
+    .into_iter()
+    .map(convert_column_types)
+    .collect::<Vec<_>>();
+    assert_eq!(schema.tables.len(), expected_sql.len());
 
-    assert_eq!(
-        discovered_schema
-            .discover()
-            .await?
-            .tables
-            .iter()
-            .map(|table| table.write().to_string(SqliteQueryBuilder))
-            .collect::<Vec<_>>(),
-        [
-            create_table.to_string(SqliteQueryBuilder),
-            create_table_primkey.to_string(SqliteQueryBuilder),
-            table_create_supplier_groups.to_string(SqliteQueryBuilder),
-            table_create_suppliers.to_string(SqliteQueryBuilder),
-        ]
+    for (i, table) in schema.tables.into_iter().enumerate() {
+        let sql = convert_column_types(table.write().to_string(SqliteQueryBuilder));
+        if sql == expected_sql[i] {
+            println!("[OK] {sql}");
+        }
+        assert_eq!(sql, expected_sql[i]);
+    }
+
+    let expected_sql = [create_index.to_string(SqliteQueryBuilder)]
         .into_iter()
-        .map(convert_column_types)
-        .collect::<Vec<_>>()
-    );
+        .collect::<Vec<_>>();
+    assert_eq!(schema.indexes.len(), expected_sql.len());
 
-    assert_eq!(
-        discovered_schema
-            .discover_indexes()
-            .await?
-            .iter()
-            .map(|index| index.write().to_string(SqliteQueryBuilder))
-            .collect::<Vec<_>>(),
-        [create_index.to_string(SqliteQueryBuilder)]
-    );
+    for (i, index) in schema.indexes.into_iter().enumerate() {
+        let sql = index.write().to_string(SqliteQueryBuilder);
+        if sql == expected_sql[i] {
+            println!("[OK] {sql}");
+        }
+        assert_eq!(sql, expected_sql[i]);
+    }
 
     Ok(())
 }
@@ -273,8 +275,6 @@ async fn test_002() -> DiscoveryResult<()> {
 
     for tbl_create_stmt in tbl_create_stmts.iter() {
         let sql = tbl_create_stmt.to_string(SqliteQueryBuilder);
-        println!("{};", sql);
-        println!();
         sqlx::query(&sql).execute(&mut *executor).await.unwrap();
     }
 
@@ -282,7 +282,7 @@ async fn test_002() -> DiscoveryResult<()> {
 
     let schema = schema_discovery.discover().await?;
 
-    println!("{:#?}", schema);
+    // println!("{:#?}", schema);
 
     let map: HashMap<String, TableDef> = schema
         .tables
@@ -327,11 +327,9 @@ async fn test_002() -> DiscoveryResult<()> {
         };
         let table = map.get(&tbl_name).unwrap();
         let sql = table.write().to_string(SqliteQueryBuilder);
-        println!("Expected SQL:");
-        println!("{};", expected_sql);
-        println!("Generated SQL:");
-        println!("{};", sql);
-        println!();
+        if expected_sql == sql {
+            println!("[OK] {sql}");
+        }
         assert_eq!(expected_sql, sql);
     }
 
