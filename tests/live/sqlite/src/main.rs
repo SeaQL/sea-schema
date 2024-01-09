@@ -179,7 +179,7 @@ async fn test_001() -> DiscoveryResult<()> {
         .unwrap();
 
     sqlx::query(&create_table_primkey.to_string(SqliteQueryBuilder))
-        .fetch_all(&mut sqlite_pool.acquire().await.unwrap())
+        .fetch_all(&mut *sqlite_pool.acquire().await.unwrap())
         .await
         .unwrap();
 

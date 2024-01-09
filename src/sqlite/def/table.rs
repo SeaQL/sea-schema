@@ -120,7 +120,7 @@ impl TableDef {
         index_query.push_str(&self.name);
         index_query.push_str("')");
 
-        let partial_index_info_rows = executor.fetch_all_raw(index_query).await;
+        let partial_index_info_rows = executor.fetch_all_raw(index_query).await?;
         let mut partial_indexes: Vec<PartialIndexInfo> = Vec::default();
 
         partial_index_info_rows.iter().for_each(|info| {
@@ -204,7 +204,7 @@ impl TableDef {
         index_column_query.push_str(index_name);
         index_column_query.push_str("')");
 
-        let index_column_info_rows = executor.fetch_all_raw(index_column_query).await;
+        let index_column_info_rows = executor.fetch_all_raw(index_column_query).await?;
 
         Ok((&index_info, index_column_info_rows.as_slice()).into())
     }

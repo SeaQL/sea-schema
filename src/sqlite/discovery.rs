@@ -51,7 +51,7 @@ impl SchemaDiscovery {
             .to_owned();
 
         let mut discovered_indexes = Vec::new();
-        let rows = self.executor.fetch_all(get_tables).await;
+        let rows = self.executor.fetch_all(get_tables).await?;
         for row in rows {
             let mut table: TableDef = (&row).into();
             table.get_indexes(&self.executor).await?;
