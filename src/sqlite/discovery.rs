@@ -34,6 +34,7 @@ impl SchemaDiscovery {
             table.pk_is_autoincrement(&self.executor).await?;
             table.get_foreign_keys(&self.executor).await?;
             table.get_column_info(&self.executor).await?;
+            table.get_constraints(&self.executor).await?;
             tables.push(table);
         }
 
@@ -49,19 +50,12 @@ impl SchemaDiscovery {
             .and_where(Expr::col(Alias::new("name")).ne("sqlite_sequence"))
             .to_owned();
 
-        let mut tables = Vec::new();
-        let rows = self.executor.fetch_all(get_tables).await?;
+        let mut discovered_indexes = Vec::new();
+        let rows = self.executor.fetch_all(get_tables).await;
         for row in rows {
-            let table: TableDef = (&row).into();
-            tables.push(table);
-        }
-
-        let mut discovered_indexes: Vec<IndexInfo> = Vec::default();
-
-        for table in tables.iter_mut() {
-            table
-                .get_indexes(&self.executor, &mut discovered_indexes)
-                .await?
+            let mut table: TableDef = (&row).into();
+            table.get_indexes(&self.executor).await?;
+            discovered_indexes.append(&mut table.indexes);
         }
 
         Ok(discovered_indexes)

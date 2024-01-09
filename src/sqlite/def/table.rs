@@ -18,6 +18,10 @@ pub struct TableDef {
     pub name: String,
     /// A list of foreign keys in the table
     pub foreign_keys: Vec<ForeignKeysInfo>,
+    /// A list of the indexes in the table
+    pub indexes: Vec<IndexInfo>,
+    /// A list of UNIQUE and PRIMARY KEY constraints on the table
+    pub constraints: Vec<IndexInfo>,
     /// A list of all the columns and their types
     pub columns: Vec<ColumnInfo>,
     /// Whether the primary key should autoincrement
@@ -32,6 +36,8 @@ impl From<&SqliteRow> for TableDef {
         TableDef {
             name: row,
             foreign_keys: Vec::default(),
+            indexes: Vec::default(),
+            constraints: Vec::default(),
             columns: Vec::default(),
             auto_increment: bool::default(),
         }
@@ -65,14 +71,11 @@ impl TableDef {
         Ok(self)
     }
 
-    /// Get a list of all the indexes in the table.
+    /// Get a list of most of the UNIQUE and PRIMARY KEY constraints on the table.
+    /// These are implemented by indexes in most cases. These indexes have type "u" or "pk".
     /// Note that this does not get the column name mapped by the index.
     /// To get the column name mapped by the index, the `self.get_single_indexinfo` method is invoked
-    pub async fn get_indexes(
-        &mut self,
-        executor: &Executor,
-        indexes: &mut Vec<IndexInfo>,
-    ) -> DiscoveryResult<()> {
+    pub async fn get_constraints(&mut self, executor: &Executor) -> DiscoveryResult<()> {
         let mut index_query = String::default();
         index_query.push_str("PRAGMA index_list('");
         index_query.push_str(&self.name);
@@ -84,7 +87,7 @@ impl TableDef {
         partial_index_info_rows.iter().for_each(|info| {
             let partial_index_info: PartialIndexInfo = info.into();
 
-            if partial_index_info.origin.as_str() != "pk" {
+            if partial_index_info.origin.as_str() == "u" {
                 partial_indexes.push(partial_index_info);
             }
         });
@@ -94,7 +97,46 @@ impl TableDef {
                 .get_single_indexinfo(executor, &partial_index.name)
                 .await?;
 
-            indexes.push(IndexInfo {
+            self.constraints.push(IndexInfo {
+                r#type: partial_index_column.r#type,
+                index_name: partial_index_column.name,
+                table_name: partial_index_column.table,
+                unique: partial_index.unique,
+                origin: partial_index.origin,
+                partial: partial_index.partial,
+                columns: partial_index_column.indexed_columns,
+            });
+        }
+
+        Ok(())
+    }
+
+    /// Get a list of all the indexes in the table.
+    /// Note that this does not get the column name mapped by the index.
+    /// To get the column name mapped by the index, the `self.get_single_indexinfo` method is invoked
+    pub async fn get_indexes(&mut self, executor: &Executor) -> DiscoveryResult<()> {
+        let mut index_query = String::default();
+        index_query.push_str("PRAGMA index_list('");
+        index_query.push_str(&self.name);
+        index_query.push_str("')");
+
+        let partial_index_info_rows = executor.fetch_all_raw(index_query).await;
+        let mut partial_indexes: Vec<PartialIndexInfo> = Vec::default();
+
+        partial_index_info_rows.iter().for_each(|info| {
+            let partial_index_info: PartialIndexInfo = info.into();
+
+            if partial_index_info.origin.as_str() == "c" {
+                partial_indexes.push(partial_index_info);
+            }
+        });
+
+        for partial_index in partial_indexes {
+            let partial_index_column: IndexedColumns = self
+                .get_single_indexinfo(executor, &partial_index.name)
+                .await?;
+
+            self.indexes.push(IndexInfo {
                 r#type: partial_index_column.r#type,
                 index_name: partial_index_column.name,
                 table_name: partial_index_column.table,
@@ -143,7 +185,7 @@ impl TableDef {
         Ok(self)
     }
 
-    /// Checks the column that is mapped to an index
+    /// Gets the columns that are mapped to an index
     pub(crate) async fn get_single_indexinfo(
         &mut self,
         executor: &Executor,
@@ -157,7 +199,14 @@ impl TableDef {
 
         let index_info = executor.fetch_one(index_query).await?;
 
-        Ok((&index_info).into())
+        let mut index_column_query = String::default();
+        index_column_query.push_str("PRAGMA index_info('");
+        index_column_query.push_str(index_name);
+        index_column_query.push_str("')");
+
+        let index_column_info_rows = executor.fetch_all_raw(index_column_query).await;
+
+        Ok((&index_info, index_column_info_rows.as_slice()).into())
     }
 
     pub fn write(&self) -> TableCreateStatement {
@@ -209,6 +258,10 @@ impl TableDef {
                     .on_update(foreign_key.on_update.to_seaquery_foreign_key_action())
                     .to_owned(),
             );
+        });
+
+        self.constraints.iter().for_each(|index| {
+            new_table.index(&mut index.write());
         });
 
         if !primary_keys.is_empty() {
