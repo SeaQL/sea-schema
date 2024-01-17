@@ -159,10 +159,18 @@ impl TableDef {
 
         let index_info_rows = executor.fetch_all_raw(index_query).await?;
 
+        let mut last_fk_id = None;
         index_info_rows.iter().for_each(|info| {
-            let index_info: ForeignKeysInfo = info.into();
-
-            self.foreign_keys.push(index_info);
+            let mut index_info: ForeignKeysInfo = info.into();
+            let fk_id = index_info.id;
+            if last_fk_id == Some(fk_id) {
+                let last_fk = self.foreign_keys.last_mut().unwrap();
+                last_fk.from.push(index_info.from.pop().unwrap());
+                last_fk.to.push(index_info.to.pop().unwrap());
+            } else {
+                self.foreign_keys.push(index_info);
+            }
+            last_fk_id = Some(fk_id);
         });
 
         Ok(self)
@@ -250,14 +258,16 @@ impl TableDef {
         });
 
         self.foreign_keys.iter().for_each(|foreign_key| {
-            new_table.foreign_key(
-                &mut ForeignKey::create()
-                    .from(Alias::new(&self.name), Alias::new(&foreign_key.from))
-                    .to(Alias::new(&foreign_key.table), Alias::new(&foreign_key.to))
-                    .on_delete(foreign_key.on_delete.to_seaquery_foreign_key_action())
-                    .on_update(foreign_key.on_update.to_seaquery_foreign_key_action())
-                    .to_owned(),
-            );
+            let mut fk = ForeignKey::create();
+            for from in foreign_key.from.iter() {
+                fk.from(Alias::new(&self.name), Alias::new(from));
+            }
+            for to in foreign_key.to.iter() {
+                fk.to(Alias::new(&foreign_key.table), Alias::new(to));
+            }
+            fk.on_delete(foreign_key.on_delete.to_seaquery_foreign_key_action())
+                .on_update(foreign_key.on_update.to_seaquery_foreign_key_action());
+            new_table.foreign_key(&mut fk);
         });
 
         self.constraints.iter().for_each(|index| {
