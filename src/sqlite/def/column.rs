@@ -189,8 +189,8 @@ pub struct ForeignKeysInfo {
     pub(crate) id: i32,
     pub(crate) seq: i32,
     pub(crate) table: String,
-    pub(crate) from: String,
-    pub(crate) to: String,
+    pub(crate) from: Vec<String>,
+    pub(crate) to: Vec<String>,
     pub(crate) on_update: ForeignKeyAction,
     pub(crate) on_delete: ForeignKeyAction,
     pub(crate) r#match: MatchAction,
@@ -203,8 +203,8 @@ impl From<&SqliteRow> for ForeignKeysInfo {
             id: row.get(0),
             seq: row.get(1),
             table: row.get(2),
-            from: row.get(3),
-            to: row.get(4),
+            from: vec![row.get(3)],
+            to: vec![row.get(4)],
             on_update: {
                 let op: &str = row.get(5);
                 op.into()
