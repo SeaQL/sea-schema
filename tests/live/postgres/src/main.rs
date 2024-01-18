@@ -52,6 +52,8 @@ async fn main() {
         create_cakes_bakers_table(),
         create_lineitem_table(),
         create_collection_table(),
+        create_parent_table(),
+        create_child_table(),
     ];
 
     for tbl_create_stmt in tbl_create_stmts.iter() {
@@ -371,6 +373,54 @@ fn create_collection_table() -> TableCreateStatement {
             ColumnDef::new(Alias::new("case_insensitive_text"))
                 .custom(Alias::new("citext"))
                 .not_null(),
+        )
+        .to_owned()
+}
+
+fn create_parent_table() -> TableCreateStatement {
+    Table::create()
+        .table(Alias::new("parent"))
+        .col(ColumnDef::new(Alias::new("id1")).integer().not_null())
+        .col(ColumnDef::new(Alias::new("id2")).integer().not_null())
+        .primary_key(
+            Index::create()
+                .primary()
+                .name("parent_pkey")
+                .col(Alias::new("id1"))
+                .col(Alias::new("id2")),
+        )
+        .to_owned()
+}
+
+fn create_child_table() -> TableCreateStatement {
+    Table::create()
+        .table(Alias::new("child"))
+        .col(
+            ColumnDef::new(Alias::new("id"))
+                .integer()
+                .not_null()
+                .auto_increment(),
+        )
+        .col(
+            ColumnDef::new(Alias::new("parent_id1"))
+                .integer()
+                .not_null(),
+        )
+        .col(
+            ColumnDef::new(Alias::new("parent_id2"))
+                .integer()
+                .not_null(),
+        )
+        .foreign_key(
+            ForeignKey::create()
+                .name("FK_child_parent")
+                .from(
+                    Alias::new("child"),
+                    (Alias::new("parent_id1"), Alias::new("parent_id2")),
+                )
+                .to(Alias::new("parent"), (Alias::new("id1"), Alias::new("id2")))
+                .on_delete(ForeignKeyAction::Cascade)
+                .on_update(ForeignKeyAction::Cascade),
         )
         .to_owned()
 }

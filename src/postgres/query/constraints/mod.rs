@@ -147,16 +147,51 @@ impl SchemaQueryBuilder {
                         (Schema::ConstraintColumnUsage, Kcuf::TableName),
                         (Schema::ConstraintColumnUsage, Kcuf::ColumnName),
                     ])
+                    .columns(vec![
+                        // Extract the ordinal position of the referenced primary keys
+                        (Schema::KeyColumnUsage, Kcuf::OrdinalPosition),
+                    ])
                     .from((Schema::Schema, Schema::ReferentialConstraints))
                     .left_join(
                         (Schema::Schema, Schema::ConstraintColumnUsage),
                         Expr::col((Schema::ReferentialConstraints, RefC::ConstraintName))
                             .equals((Schema::ConstraintColumnUsage, Kcuf::ConstraintName)),
                     )
+                    .left_join(
+                        // Join the key_column_usage rows for the referenced primary keys
+                        (Schema::Schema, Schema::KeyColumnUsage),
+                        Condition::all()
+                            .add(
+                                Expr::col((Schema::ConstraintColumnUsage, Kcuf::ColumnName))
+                                    .equals((Schema::KeyColumnUsage, Kcuf::ColumnName)),
+                            )
+                            .add(
+                                Expr::col((
+                                    Schema::ReferentialConstraints,
+                                    RefC::UniqueConstraintName,
+                                ))
+                                .equals((Schema::KeyColumnUsage, Kcuf::ConstraintName)),
+                            )
+                            .add(
+                                Expr::col((
+                                    Schema::ReferentialConstraints,
+                                    RefC::UniqueConstraintSchema,
+                                ))
+                                .equals((Schema::KeyColumnUsage, Kcuf::ConstraintSchema)),
+                            ),
+                    )
                     .take(),
                 rcsq.clone(),
-                Expr::col((Schema::TableConstraints, Tcf::ConstraintName))
-                    .equals((rcsq.clone(), RefC::ConstraintName)),
+                Condition::all()
+                    .add(
+                        Expr::col((Schema::TableConstraints, Tcf::ConstraintName))
+                            .equals((rcsq.clone(), RefC::ConstraintName)),
+                    )
+                    .add(
+                        // Only join when the referenced primary key position matches position_in_unique_constraint for the foreign key column
+                        Expr::col((Schema::KeyColumnUsage, Kcuf::PositionInUniqueConstraint))
+                            .equals((rcsq.clone(), Kcuf::OrdinalPosition)),
+                    ),
             )
             .and_where(
                 Expr::col((Schema::TableConstraints, Tcf::TableSchema)).eq(schema.to_string()),
