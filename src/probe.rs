@@ -53,6 +53,7 @@ pub enum Has {
     Index,
 }
 
+#[allow(clippy::enum_variant_names)]
 #[derive(Debug, Iden)]
 pub(crate) enum Schema {
     #[iden = "information_schema"]

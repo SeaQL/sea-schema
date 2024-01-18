@@ -5,13 +5,6 @@ mod schema;
 mod table;
 mod types;
 
-pub use column::*;
-pub use constraints::*;
-pub use enumeration::*;
-pub use schema::*;
-pub use table::*;
-pub use types::*;
-
 use super::def::Schema;
 use sea_query::TableCreateStatement;
 
