@@ -28,7 +28,7 @@ pub fn parse_type(data_type: &str) -> Result<ColumnType, ParseIntError> {
         "bigint" => ColumnType::BigInteger,
         "float" => ColumnType::Float,
         "double" => ColumnType::Double,
-        "decimal" => ColumnType::Decimal(if parts.len() == 2 {
+        "decimal_text" => ColumnType::Decimal(if parts.len() == 2 {
             Some((parts[0], parts[1]))
         } else {
             None
