@@ -283,7 +283,7 @@ async fn test_002() -> DiscoveryResult<()> {
             [
                 r#"CREATE TABLE "order" ("#,
                 r#""id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,"#,
-                r#""total" decimal,"#,
+                r#""total" decimal_text,"#,
                 r#""bakery_id" integer NOT NULL,"#,
                 r#""customer_id" integer NOT NULL,"#,
                 r#""placed_at" datetime_text NOT NULL DEFAULT CURRENT_TIMESTAMP,"#,
@@ -298,7 +298,7 @@ async fn test_002() -> DiscoveryResult<()> {
             [
                 r#"CREATE TABLE "lineitem" ("#,
                 r#""id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,"#,
-                r#""price" decimal,"#,
+                r#""price" decimal_text,"#,
                 r#""quantity" integer,"#,
                 r#""order_id" integer NOT NULL,"#,
                 r#""cake_id" integer NOT NULL,"#,
