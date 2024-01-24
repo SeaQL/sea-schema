@@ -9,7 +9,7 @@ pub fn parse_type(data_type: &str) -> Result<ColumnType, ParseIntError> {
     if let Some((prefix, suffix)) = data_type.split_once('(') {
         if let Some(suffix) = suffix.strip_suffix(')') {
             type_name = prefix;
-            for part in suffix.split(",") {
+            for part in suffix.split(',') {
                 if let Ok(part) = part.trim().parse() {
                     parts.push(part);
                 } else {
