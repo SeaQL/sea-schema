@@ -1,5 +1,5 @@
 use crate::postgres::def::{ColumnInfo, Type};
-use sea_query::{Alias, BlobSize, ColumnDef, ColumnType, DynIden, IntoIden, PgInterval, RcOrArc};
+use sea_query::{Alias, ColumnDef, ColumnType, DynIden, IntoIden, PgInterval, RcOrArc, StringLen};
 use std::{convert::TryFrom, fmt::Write};
 
 impl ColumnInfo {
@@ -72,12 +72,13 @@ impl ColumnInfo {
                 Type::Serial => ColumnType::Integer,
                 Type::BigSerial => ColumnType::BigInteger,
                 Type::Money => ColumnType::Money(None),
-                Type::Varchar(string_attr) => {
-                    ColumnType::String(string_attr.length.map(Into::into))
-                }
+                Type::Varchar(string_attr) => match string_attr.length {
+                    Some(length) => ColumnType::String(StringLen::N(length.into())),
+                    None => ColumnType::String(StringLen::None),
+                },
                 Type::Char(string_attr) => ColumnType::Char(string_attr.length.map(Into::into)),
                 Type::Text => ColumnType::Text,
-                Type::Bytea => ColumnType::Binary(BlobSize::Blob(None)),
+                Type::Bytea => ColumnType::VarBinary(StringLen::None),
                 // The SQL standard requires that writing just timestamp be equivalent to timestamp without time zone,
                 // and PostgreSQL honors that behavior. (https://www.postgresql.org/docs/current/datatype-datetime.html)
                 Type::Timestamp(_) => ColumnType::DateTime,
