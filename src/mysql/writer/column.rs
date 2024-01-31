@@ -55,9 +55,8 @@ impl ColumnInfo {
                     .auto_increment()
                     .unique_key();
             }
-            Type::Bit(_) => {
-                // FIXME: Unresolved type mapping
-                col_def.custom(self.col_type.clone());
+            Type::Bit(num_attr) => {
+                col_def.bit(num_attr.maximum);
             }
             Type::TinyInt(num_attr) => {
                 match num_attr.unsigned {
@@ -122,8 +121,7 @@ impl ColumnInfo {
                 col_def.timestamp();
             }
             Type::Year => {
-                // FIXME: Unresolved type mapping
-                col_def.custom(self.col_type.clone());
+                col_def.year(None);
             }
             Type::Char(str_attr) => {
                 match str_attr.length {
