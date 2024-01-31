@@ -54,6 +54,7 @@ async fn main() {
         create_collection_table(),
         create_parent_table(),
         create_child_table(),
+        create_db_types_table(),
     ];
 
     for tbl_create_stmt in tbl_create_stmts.iter() {
@@ -421,6 +422,37 @@ fn create_child_table() -> TableCreateStatement {
                 .to(Alias::new("parent"), (Alias::new("id1"), Alias::new("id2")))
                 .on_delete(ForeignKeyAction::Cascade)
                 .on_update(ForeignKeyAction::Cascade),
+        )
+        .to_owned()
+}
+
+fn create_db_types_table() -> TableCreateStatement {
+    Table::create()
+        .table(Alias::new("db_types"))
+        .col(
+            ColumnDef::new(Alias::new("id"))
+                .integer()
+                .not_null()
+                .auto_increment(),
+        )
+        .col(ColumnDef::new(Alias::new("binary_1")).binary())
+        .col(ColumnDef::new(Alias::new("binary_2")).binary_len(1))
+        .col(ColumnDef::new(Alias::new("binary_3")).binary_len(16))
+        .col(ColumnDef::new(Alias::new("var_binary_1")).var_binary(1))
+        .col(ColumnDef::new(Alias::new("var_binary_2")).var_binary(16))
+        .col(ColumnDef::new(Alias::new("var_binary_3")).var_binary(32))
+        .col(ColumnDef::new(Alias::new("bit_1")).bit(Some(1)))
+        .col(ColumnDef::new(Alias::new("bit_2")).bit(Some(16)))
+        .col(ColumnDef::new(Alias::new("bit_3")).bit(Some(32)))
+        .col(ColumnDef::new(Alias::new("var_bit_1")).varbit(1))
+        .col(ColumnDef::new(Alias::new("var_bit_2")).varbit(16))
+        .col(ColumnDef::new(Alias::new("var_bit_3")).varbit(32))
+        .col(ColumnDef::new(Alias::new("bool")).boolean())
+        .primary_key(
+            Index::create()
+                .primary()
+                .name("db_types_pkey")
+                .col(Alias::new("id")),
         )
         .to_owned()
 }

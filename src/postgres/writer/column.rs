@@ -106,18 +106,8 @@ impl ColumnInfo {
                 Type::Inet => ColumnType::Custom(Alias::new("inet").into_iden()),
                 Type::MacAddr => ColumnType::Custom(Alias::new("macaddr").into_iden()),
                 Type::MacAddr8 => ColumnType::Custom(Alias::new("macaddr8").into_iden()),
-                Type::Bit(bit_attr) => {
-                    let mut str = String::new();
-                    write!(str, "bit").unwrap();
-                    if bit_attr.length.is_some() {
-                        write!(str, "(").unwrap();
-                        if let Some(length) = bit_attr.length {
-                            write!(str, "{}", length).unwrap();
-                        }
-                        write!(str, ")").unwrap();
-                    }
-                    ColumnType::Custom(Alias::new(&str).into_iden())
-                }
+                Type::Bit(bit_attr) => ColumnType::Bit(bit_attr.length.map(Into::into)),
+                Type::VarBit(bit_attr) => ColumnType::VarBit(bit_attr.length.unwrap_or(1).into()),
                 Type::TsVector => ColumnType::Custom(Alias::new("tsvector").into_iden()),
                 Type::TsQuery => ColumnType::Custom(Alias::new("tsquery").into_iden()),
                 Type::Uuid => ColumnType::Uuid,

@@ -176,6 +176,15 @@ pub fn parse_bit_attributes(
                 },
             };
         }
+        Type::VarBit(ref mut attr) => {
+            attr.length = match character_maximum_length {
+                None => None,
+                Some(num) => match u16::try_from(num) {
+                    Ok(num) => Some(num),
+                    Err(_) => None,
+                },
+            };
+        }
         _ => panic!("parse_bit_attributes(_) received a type that does not have BitAttr"),
     };
 
