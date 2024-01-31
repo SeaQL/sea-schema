@@ -4,8 +4,8 @@ use sqlx::SqlitePool;
 use std::collections::HashMap;
 
 use sea_schema::sea_query::{
-    Alias, BlobSize, ColumnDef, Expr, ForeignKey, ForeignKeyAction, ForeignKeyCreateStatement,
-    Index, Query, SqliteQueryBuilder, Table, TableCreateStatement, TableRef,
+    Alias, ColumnDef, Expr, ForeignKey, ForeignKeyAction, ForeignKeyCreateStatement, Index, Query,
+    SqliteQueryBuilder, Table, TableCreateStatement, TableRef,
 };
 use sea_schema::sqlite::{
     def::TableDef,
@@ -580,7 +580,7 @@ fn create_strange_table() -> TableCreateStatement {
         .col(ColumnDef::new(Alias::new("time_col")).time())
         .col(ColumnDef::new(Alias::new("datetime_col")).date_time())
         .col(ColumnDef::new(Alias::new("boolean_col")).boolean())
-        .col(ColumnDef::new(Alias::new("binary2")).binary(1024))
+        .col(ColumnDef::new(Alias::new("binary2")).binary_len(1024))
         .col(ColumnDef::new(Alias::new("binary3")).var_binary(1024))
         .to_owned()
 }
