@@ -47,7 +47,7 @@ pub fn parse_type(data_type: &str) -> Result<ColumnType, ParseIntError> {
             })
         }
         "boolean" => ColumnType::Boolean,
-        "money" => ColumnType::Money(if parts.len() == 2 {
+        "real_money" => ColumnType::Money(if parts.len() == 2 {
             Some((parts[0], parts[1]))
         } else {
             None
