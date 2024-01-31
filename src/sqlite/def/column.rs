@@ -1,6 +1,7 @@
-use super::{DefaultType, Type};
+use super::{parse_type, DefaultType};
 use sea_query::{
-    foreign_key::ForeignKeyAction as SeaQueryForeignKeyAction, Alias, Index, IndexCreateStatement,
+    foreign_key::ForeignKeyAction as SeaQueryForeignKeyAction, Alias, ColumnType, Index,
+    IndexCreateStatement,
 };
 use std::num::ParseIntError;
 
@@ -12,7 +13,7 @@ use crate::sqlx_types::{sqlite::SqliteRow, Row};
 pub struct ColumnInfo {
     pub cid: i32,
     pub name: String,
-    pub r#type: Type,
+    pub r#type: ColumnType,
     pub not_null: bool,
     pub default_value: DefaultType,
     pub primary_key: bool,
@@ -28,7 +29,7 @@ impl ColumnInfo {
         Ok(ColumnInfo {
             cid: row.get(0),
             name: row.get(1),
-            r#type: Type::to_type(row.get(2))?,
+            r#type: parse_type(row.get(2))?,
             not_null: col_not_null != 0,
             default_value: if default_value == "NULL" {
                 DefaultType::Null

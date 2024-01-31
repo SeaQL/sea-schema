@@ -1,5 +1,5 @@
 use crate::postgres::def::{ColumnInfo, Type};
-use sea_query::{Alias, BlobSize, ColumnDef, ColumnType, DynIden, IntoIden, PgInterval, RcOrArc};
+use sea_query::{Alias, ColumnDef, ColumnType, DynIden, IntoIden, PgInterval, RcOrArc, StringLen};
 use std::{convert::TryFrom, fmt::Write};
 
 impl ColumnInfo {
@@ -72,12 +72,13 @@ impl ColumnInfo {
                 Type::Serial => ColumnType::Integer,
                 Type::BigSerial => ColumnType::BigInteger,
                 Type::Money => ColumnType::Money(None),
-                Type::Varchar(string_attr) => {
-                    ColumnType::String(string_attr.length.map(Into::into))
-                }
+                Type::Varchar(string_attr) => match string_attr.length {
+                    Some(length) => ColumnType::String(StringLen::N(length.into())),
+                    None => ColumnType::String(StringLen::None),
+                },
                 Type::Char(string_attr) => ColumnType::Char(string_attr.length.map(Into::into)),
                 Type::Text => ColumnType::Text,
-                Type::Bytea => ColumnType::Binary(BlobSize::Blob(None)),
+                Type::Bytea => ColumnType::VarBinary(StringLen::None),
                 // The SQL standard requires that writing just timestamp be equivalent to timestamp without time zone,
                 // and PostgreSQL honors that behavior. (https://www.postgresql.org/docs/current/datatype-datetime.html)
                 Type::Timestamp(_) => ColumnType::DateTime,
@@ -105,18 +106,8 @@ impl ColumnInfo {
                 Type::Inet => ColumnType::Custom(Alias::new("inet").into_iden()),
                 Type::MacAddr => ColumnType::Custom(Alias::new("macaddr").into_iden()),
                 Type::MacAddr8 => ColumnType::Custom(Alias::new("macaddr8").into_iden()),
-                Type::Bit(bit_attr) => {
-                    let mut str = String::new();
-                    write!(str, "bit").unwrap();
-                    if bit_attr.length.is_some() {
-                        write!(str, "(").unwrap();
-                        if let Some(length) = bit_attr.length {
-                            write!(str, "{}", length).unwrap();
-                        }
-                        write!(str, ")").unwrap();
-                    }
-                    ColumnType::Custom(Alias::new(&str).into_iden())
-                }
+                Type::Bit(bit_attr) => ColumnType::Bit(bit_attr.length.map(Into::into)),
+                Type::VarBit(bit_attr) => ColumnType::VarBit(bit_attr.length.unwrap_or(1).into()),
                 Type::TsVector => ColumnType::Custom(Alias::new("tsvector").into_iden()),
                 Type::TsQuery => ColumnType::Custom(Alias::new("tsquery").into_iden()),
                 Type::Uuid => ColumnType::Uuid,

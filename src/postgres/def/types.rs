@@ -91,6 +91,9 @@ pub enum Type {
     /// Fixed length bit string
     Bit(BitAttr),
 
+    /// Variable length bit string
+    VarBit(BitAttr),
+
     // Text search types
     /// A sorted list of distinct lexemes which are words that have been normalized to merge different
     /// variants of the same word
@@ -171,7 +174,7 @@ impl Type {
             "time" | "time without time zone" => Type::Time(TimeAttr::default()),
             "time with time zone" => Type::TimeWithTimeZone(TimeAttr::default()),
             "interval" => Type::Interval(IntervalAttr::default()),
-            "boolean" => Type::Boolean,
+            "boolean" | "bool" => Type::Boolean,
             "point" => Type::Point,
             "line" => Type::Line,
             "lseg" => Type::Lseg,
@@ -184,6 +187,7 @@ impl Type {
             "macaddr" => Type::MacAddr,
             "macaddr8" => Type::MacAddr8,
             "bit" => Type::Bit(BitAttr::default()),
+            "bit varying" | "varbit" => Type::VarBit(BitAttr::default()),
             "tsvector" => Type::TsVector,
             "tsquery" => Type::TsQuery,
             "uuid" => Type::Uuid,
@@ -288,7 +292,7 @@ impl Type {
     }
 
     pub fn has_bit_attr(&self) -> bool {
-        matches!(self, Type::Bit(_))
+        matches!(self, Type::Bit(_) | Type::VarBit(_))
     }
 
     pub fn has_enum_attr(&self) -> bool {

@@ -1,7 +1,7 @@
 use crate::mysql::def::{CharSet, ColumnDefault, ColumnInfo, NumericAttr, StringAttr, Type};
 use sea_query::{
-    Alias, BlobSize, ColumnDef, DynIden, EscapeBuilder, Expr, Iden, IntoIden, Keyword,
-    MysqlQueryBuilder, SimpleExpr,
+    extension::mysql::MySqlType, Alias, ColumnDef, DynIden, EscapeBuilder, Expr, Iden, IntoIden,
+    Keyword, MysqlQueryBuilder, SimpleExpr,
 };
 use std::fmt::Write;
 
@@ -55,9 +55,8 @@ impl ColumnInfo {
                     .auto_increment()
                     .unique_key();
             }
-            Type::Bit(_) => {
-                // FIXME: Unresolved type mapping
-                col_def.custom(self.col_type.clone());
+            Type::Bit(num_attr) => {
+                col_def.bit(num_attr.maximum);
             }
             Type::TinyInt(num_attr) => {
                 match num_attr.unsigned {
@@ -122,8 +121,7 @@ impl ColumnInfo {
                 col_def.timestamp();
             }
             Type::Year => {
-                // FIXME: Unresolved type mapping
-                col_def.custom(self.col_type.clone());
+                col_def.year(None);
             }
             Type::Char(str_attr) => {
                 match str_attr.length {
@@ -156,14 +154,14 @@ impl ColumnInfo {
             Type::Binary(str_attr) => {
                 match str_attr.length {
                     Some(length) => col_def.binary_len(length),
-                    _ => col_def.binary(),
+                    None => col_def.custom(MySqlType::Blob),
                 };
                 col_def = self.write_str_attr(col_def, str_attr);
             }
             Type::Varbinary(str_attr) => {
                 match str_attr.length {
                     Some(length) => col_def.var_binary(length),
-                    None => col_def.binary(),
+                    None => col_def.custom(MySqlType::Blob),
                 };
             }
             Type::Text(str_attr) => {
@@ -185,17 +183,17 @@ impl ColumnInfo {
             Type::Blob(blob_attr) => {
                 match blob_attr.length {
                     Some(length) => col_def.binary_len(length),
-                    None => col_def.binary(),
+                    None => col_def.custom(MySqlType::Blob),
                 };
             }
             Type::TinyBlob => {
-                col_def.blob(BlobSize::Tiny);
+                col_def.custom(MySqlType::TinyBlob);
             }
             Type::MediumBlob => {
-                col_def.blob(BlobSize::Medium);
+                col_def.custom(MySqlType::MediumBlob);
             }
             Type::LongBlob => {
-                col_def.blob(BlobSize::Long);
+                col_def.custom(MySqlType::LongBlob);
             }
             Type::Enum(enum_attr) => {
                 let name = Alias::new(&self.name);

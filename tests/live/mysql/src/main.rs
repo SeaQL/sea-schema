@@ -32,6 +32,7 @@ async fn main() {
         create_lineitem_table(),
         create_parent_table(),
         create_child_table(),
+        create_db_types_table(),
     ];
 
     for tbl_create_stmt in tbl_create_stmts.iter() {
@@ -416,6 +417,26 @@ fn create_child_table() -> TableCreateStatement {
                 .on_delete(ForeignKeyAction::Cascade)
                 .on_update(ForeignKeyAction::Cascade),
         )
+        .engine("InnoDB")
+        .character_set("utf8mb4")
+        .collate("utf8mb4_general_ci")
+        .to_owned()
+}
+
+fn create_db_types_table() -> TableCreateStatement {
+    Table::create()
+        .table(Alias::new("db_types"))
+        .col(
+            ColumnDef::new(Alias::new("id"))
+                .integer()
+                .not_null()
+                .auto_increment(),
+        )
+        .col(ColumnDef::new(Alias::new("bit_1")).bit(Some(1)))
+        .col(ColumnDef::new(Alias::new("bit_2")).bit(Some(16)))
+        .col(ColumnDef::new(Alias::new("bit_3")).bit(Some(32)))
+        .col(ColumnDef::new(Alias::new("year")).year(None))
+        .primary_key(Index::create().col(Alias::new("id")))
         .engine("InnoDB")
         .character_set("utf8mb4")
         .collate("utf8mb4_general_ci")
