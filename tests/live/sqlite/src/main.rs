@@ -15,7 +15,10 @@ use sea_schema::sqlite::{
 #[cfg_attr(test, async_std::test)]
 #[cfg_attr(not(test), async_std::main)]
 async fn main() -> DiscoveryResult<()> {
-    env_logger::init();
+    // env_logger::builder()
+    //     .filter_level(log::LevelFilter::Debug)
+    //     .is_test(true)
+    //     .init();
 
     test_001().await?;
     test_002().await?;
