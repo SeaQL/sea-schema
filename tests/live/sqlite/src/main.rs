@@ -4,8 +4,8 @@ use sqlx::SqlitePool;
 use std::collections::HashMap;
 
 use sea_schema::sea_query::{
-    Alias, ColumnDef, Expr, ForeignKey, ForeignKeyAction, ForeignKeyCreateStatement, Index, Query,
-    SqliteQueryBuilder, Table, TableCreateStatement, TableRef,
+    Alias, BlobSize, ColumnDef, Expr, ForeignKey, ForeignKeyAction, ForeignKeyCreateStatement,
+    Index, Query, SqliteQueryBuilder, Table, TableCreateStatement, TableRef,
 };
 use sea_schema::sqlite::{
     def::TableDef,
@@ -15,10 +15,7 @@ use sea_schema::sqlite::{
 #[cfg_attr(test, async_std::test)]
 #[cfg_attr(not(test), async_std::main)]
 async fn main() -> DiscoveryResult<()> {
-    // env_logger::builder()
-    //     .filter_level(log::LevelFilter::Debug)
-    //     .is_test(true)
-    //     .init();
+    env_logger::init();
 
     test_001().await?;
     test_002().await?;
@@ -52,7 +49,7 @@ async fn test_001() -> DiscoveryResult<()> {
         .table(Alias::new("Programming_Langs"))
         .col(
             ColumnDef::new(Alias::new("Name"))
-                .custom(Alias::new("INTEGER"))
+                .integer()
                 .not_null()
                 .auto_increment()
                 .primary_key(),
@@ -65,7 +62,7 @@ async fn test_001() -> DiscoveryResult<()> {
         )
         .col(
             ColumnDef::new(Alias::new("SemVer"))
-                .custom(Alias::new("VARCHAR(255)"))
+                .string_len(255)
                 .not_null(),
         )
         .col(
@@ -126,17 +123,13 @@ async fn test_001() -> DiscoveryResult<()> {
     // Tests foreign key discovery
     let table_create_suppliers = Table::create()
         .table(Alias::new("suppliers"))
-        .col(ColumnDef::new(Alias::new("supplier_id")).custom(Alias::new("INTEGER")))
+        .col(ColumnDef::new(Alias::new("supplier_id")).integer())
         .col(
             ColumnDef::new(Alias::new("supplier_name"))
-                .custom(Alias::new("TEXT"))
+                .text()
                 .not_null(),
         )
-        .col(
-            ColumnDef::new(Alias::new("group_id"))
-                .custom(Alias::new("INTEGER"))
-                .not_null(),
-        )
+        .col(ColumnDef::new(Alias::new("group_id")).integer().not_null())
         .primary_key(Index::create().col(Alias::new("supplier_id")))
         .foreign_key(
             ForeignKeyCreateStatement::new()
@@ -150,12 +143,8 @@ async fn test_001() -> DiscoveryResult<()> {
 
     let table_create_supplier_groups = Table::create()
         .table(Alias::new("supplier_groups"))
-        .col(ColumnDef::new(Alias::new("group_id")).custom(Alias::new("INTEGER")))
-        .col(
-            ColumnDef::new(Alias::new("group_name"))
-                .custom(Alias::new("TEXT"))
-                .not_null(),
-        )
+        .col(ColumnDef::new(Alias::new("group_id")).integer())
+        .col(ColumnDef::new(Alias::new("group_name")).text().not_null())
         .primary_key(Index::create().col(Alias::new("group_id")))
         .to_owned();
 
@@ -215,13 +204,6 @@ async fn test_001() -> DiscoveryResult<()> {
 
     let schema = SchemaDiscovery::new(sqlite_pool.clone()).discover().await?;
 
-    let convert_column_types = |str: String| {
-        str.replace("INTEGER", "integer")
-            .replace("INT8", "integer")
-            .replace("TEXT", "text")
-            .replace("VARCHAR(255)", "text")
-            .replace("DATETIME", "text")
-    };
     let expected_sql = [
         create_table.to_string(SqliteQueryBuilder),
         create_table_inventors.to_string(SqliteQueryBuilder),
@@ -229,12 +211,11 @@ async fn test_001() -> DiscoveryResult<()> {
         table_create_suppliers.to_string(SqliteQueryBuilder),
     ]
     .into_iter()
-    .map(convert_column_types)
     .collect::<Vec<_>>();
     assert_eq!(schema.tables.len(), expected_sql.len());
 
     for (i, table) in schema.tables.into_iter().enumerate() {
-        let sql = convert_column_types(table.write().to_string(SqliteQueryBuilder));
+        let sql = table.write().to_string(SqliteQueryBuilder);
         if sql == expected_sql[i] {
             println!("[OK] {sql}");
         }
@@ -273,6 +254,7 @@ async fn test_002() -> DiscoveryResult<()> {
         create_lineitem_table(),
         create_parent_table(),
         create_child_table(),
+        create_strange_table(),
     ];
 
     for tbl_create_stmt in tbl_create_stmts.iter() {
@@ -304,9 +286,9 @@ async fn test_002() -> DiscoveryResult<()> {
                 r#""total" real,"#,
                 r#""bakery_id" integer NOT NULL,"#,
                 r#""customer_id" integer NOT NULL,"#,
-                r#""placed_at" text NOT NULL DEFAULT CURRENT_TIMESTAMP,"#,
-                r#""updated" text NOT NULL DEFAULT '2023-06-07 16:24:00',"#,
-                r#""net_weight" real NOT NULL DEFAULT 10.05,"#,
+                r#""placed_at" datetime_text NOT NULL DEFAULT CURRENT_TIMESTAMP,"#,
+                r#""updated" datetime_text NOT NULL DEFAULT '2023-06-07 16:24:00',"#,
+                r#""net_weight" double NOT NULL DEFAULT 10.05,"#,
                 r#""priority" integer NOT NULL DEFAULT 5,"#,
                 r#"FOREIGN KEY ("customer_id") REFERENCES "customer" ("id") ON DELETE CASCADE ON UPDATE CASCADE,"#,
                 r#"FOREIGN KEY ("bakery_id") REFERENCES "bakery" ("id") ON DELETE CASCADE ON UPDATE CASCADE"#,
@@ -564,5 +546,45 @@ fn create_child_table() -> TableCreateStatement {
                 .on_delete(ForeignKeyAction::Cascade)
                 .on_update(ForeignKeyAction::Cascade),
         )
+        .to_owned()
+}
+
+fn create_strange_table() -> TableCreateStatement {
+    Table::create()
+        .table(Alias::new("strange"))
+        .col(
+            ColumnDef::new(Alias::new("id"))
+                .integer()
+                .not_null()
+                .auto_increment()
+                .primary_key(),
+        )
+        .col(ColumnDef::new(Alias::new("int1")).integer())
+        .col(ColumnDef::new(Alias::new("int2")).tiny_integer())
+        .col(ColumnDef::new(Alias::new("int3")).small_integer())
+        .col(ColumnDef::new(Alias::new("int4")).big_integer())
+        .col(ColumnDef::new(Alias::new("string1")).string())
+        .col(ColumnDef::new(Alias::new("string2")).string_len(24))
+        .col(ColumnDef::new(Alias::new("char1")).char())
+        .col(ColumnDef::new(Alias::new("char2")).char_len(24))
+        .col(ColumnDef::new(Alias::new("text_col")).text())
+        .col(ColumnDef::new(Alias::new("json_col")).json())
+        .col(ColumnDef::new(Alias::new("uuid_col")).uuid())
+        .col(ColumnDef::new(Alias::new("decimal1")).decimal())
+        .col(ColumnDef::new(Alias::new("decimal2")).decimal_len(12, 4))
+        .col(ColumnDef::new(Alias::new("money1")).money())
+        .col(ColumnDef::new(Alias::new("money2")).money_len(12, 4))
+        .col(ColumnDef::new(Alias::new("float_col")).float())
+        .col(ColumnDef::new(Alias::new("double_col")).double())
+        .col(ColumnDef::new(Alias::new("date_col")).date())
+        .col(ColumnDef::new(Alias::new("time_col")).time())
+        .col(ColumnDef::new(Alias::new("datetime_col")).date_time())
+        .col(ColumnDef::new(Alias::new("boolean_col")).boolean())
+        .col(ColumnDef::new(Alias::new("binary1")).binary())
+        .col(ColumnDef::new(Alias::new("binary2")).binary_len(1024))
+        .col(ColumnDef::new(Alias::new("binary3")).var_binary(1024))
+        .col(ColumnDef::new(Alias::new("binary4")).blob(BlobSize::Tiny))
+        .col(ColumnDef::new(Alias::new("binary5")).blob(BlobSize::Medium))
+        .col(ColumnDef::new(Alias::new("binary6")).blob(BlobSize::Long))
         .to_owned()
 }
