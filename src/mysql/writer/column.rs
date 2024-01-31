@@ -155,7 +155,7 @@ impl ColumnInfo {
             }
             Type::Binary(str_attr) => {
                 match str_attr.length {
-                    Some(length) => col_def.binary(length),
+                    Some(length) => col_def.binary_len(length),
                     None => col_def.custom(MySqlType::Blob),
                 };
                 col_def = self.write_str_attr(col_def, str_attr);
@@ -184,7 +184,7 @@ impl ColumnInfo {
             }
             Type::Blob(blob_attr) => {
                 match blob_attr.length {
-                    Some(length) => col_def.binary(length),
+                    Some(length) => col_def.binary_len(length),
                     None => col_def.custom(MySqlType::Blob),
                 };
             }

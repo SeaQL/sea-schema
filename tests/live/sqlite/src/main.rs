@@ -4,8 +4,8 @@ use sqlx::SqlitePool;
 use std::collections::HashMap;
 
 use sea_schema::sea_query::{
-    Alias, ColumnDef, Expr, ForeignKey, ForeignKeyAction, ForeignKeyCreateStatement, Index, Query,
-    SqliteQueryBuilder, Table, TableCreateStatement, TableRef,
+    Alias, BlobSize, ColumnDef, Expr, ForeignKey, ForeignKeyAction, ForeignKeyCreateStatement,
+    Index, Query, SqliteQueryBuilder, Table, TableCreateStatement, TableRef,
 };
 use sea_schema::sqlite::{
     def::TableDef,
