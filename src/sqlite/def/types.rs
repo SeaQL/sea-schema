@@ -1,7 +1,5 @@
-use sea_query::{BlobSize, ColumnType};
+use sea_query::{ColumnType, StringLen};
 use std::num::ParseIntError;
-
-pub type Type = ColumnType;
 
 pub fn parse_type(data_type: &str) -> Result<ColumnType, ParseIntError> {
     let mut type_name = data_type;
@@ -20,7 +18,10 @@ pub fn parse_type(data_type: &str) -> Result<ColumnType, ParseIntError> {
     }
     Ok(match type_name.to_lowercase().as_str() {
         "char" => ColumnType::Char(parts.into_iter().next()),
-        "varchar" => ColumnType::String(parts.into_iter().next()),
+        "varchar" => ColumnType::String(match parts.into_iter().next() {
+            Some(length) => StringLen::N(length),
+            None => StringLen::None,
+        }),
         "text" => ColumnType::Text,
         "tinyint" => ColumnType::TinyInteger,
         "smallint" => ColumnType::SmallInteger,
@@ -38,11 +39,13 @@ pub fn parse_type(data_type: &str) -> Result<ColumnType, ParseIntError> {
         "timestamp_with_timezone_text" => ColumnType::TimestampWithTimeZone,
         "time_text" => ColumnType::Time,
         "date_text" => ColumnType::Date,
-        "tinyblob" => ColumnType::Binary(BlobSize::Tiny),
-        "mediumblob" => ColumnType::Binary(BlobSize::Medium),
-        "longblob" => ColumnType::Binary(BlobSize::Long),
-        "blob" => ColumnType::Binary(BlobSize::Blob(parts.into_iter().next())),
-        "varbinary_blob" if parts.len() == 1 => ColumnType::VarBinary(parts[0]),
+        "blob" if parts.len() == 1 => ColumnType::Binary(parts[0]),
+        "varbinary_blob" if parts.len() == 1 => {
+            ColumnType::VarBinary(match parts.into_iter().next() {
+                Some(length) => StringLen::N(length),
+                None => StringLen::None,
+            })
+        }
         "boolean" => ColumnType::Boolean,
         "money" => ColumnType::Money(if parts.len() == 2 {
             Some((parts[0], parts[1]))
