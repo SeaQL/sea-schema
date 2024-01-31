@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.15.0 - Pending
+
+### Versions
+
++ `sea-query`/`0.15.0-rc.1`: 2024-01-31
+
+### Features
+
+* Rework SQLite data type mapping https://github.com/SeaQL/sea-schema/pull/117
+* Update binary and bit data types mapping https://github.com/SeaQL/sea-schema/pull/122
+
 ## 0.14.2 - 2024-01-18
 
 ### Bug fixes
