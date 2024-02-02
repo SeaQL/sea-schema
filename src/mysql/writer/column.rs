@@ -121,7 +121,7 @@ impl ColumnInfo {
                 col_def.timestamp();
             }
             Type::Year => {
-                col_def.year(None);
+                col_def.year();
             }
             Type::Char(str_attr) => {
                 match str_attr.length {
