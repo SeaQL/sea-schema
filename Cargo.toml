@@ -14,7 +14,7 @@ members = [
 
 [package]
 name = "sea-schema"
-version = "0.15.0-rc.1"
+version = "0.15.0-rc.2"
 authors = [ "Chris Tsang <tyt2y7@gmail.com>" ]
 edition = "2021"
 description = "🌿 SQL schema definition and discovery"
