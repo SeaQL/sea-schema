@@ -435,7 +435,7 @@ fn create_db_types_table() -> TableCreateStatement {
         .col(ColumnDef::new(Alias::new("bit_1")).bit(Some(1)))
         .col(ColumnDef::new(Alias::new("bit_2")).bit(Some(16)))
         .col(ColumnDef::new(Alias::new("bit_3")).bit(Some(32)))
-        .col(ColumnDef::new(Alias::new("year")).year(None))
+        .col(ColumnDef::new(Alias::new("year")).year())
         .primary_key(Index::create().col(Alias::new("id")))
         .engine("InnoDB")
         .character_set("utf8mb4")
