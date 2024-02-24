@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 * Rework SQLite data type mapping https://github.com/SeaQL/sea-schema/pull/117
 * Update binary and bit data types mapping https://github.com/SeaQL/sea-schema/pull/122
 
+### Bug fixes
+
+* Fix constraint query when table is partitioned https://github.com/SeaQL/sea-schema/pull/125
+
 ## 0.14.2 - 2024-01-18
 
 ### Bug fixes
