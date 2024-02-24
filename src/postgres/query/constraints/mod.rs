@@ -44,7 +44,7 @@ pub struct TableConstraintsQueryResult {
 }
 
 impl SchemaQueryBuilder {
-    pub fn query_table_constriants(
+    pub fn query_table_constraints(
         &self,
         schema: SeaRc<dyn Iden>,
         table: SeaRc<dyn Iden>,
@@ -197,9 +197,13 @@ impl SchemaQueryBuilder {
                 Expr::col((Schema::TableConstraints, Tcf::TableSchema)).eq(schema.to_string()),
             )
             .and_where(Expr::col((Schema::TableConstraints, Tcf::TableName)).eq(table.to_string()))
-            .and_where(
-                Expr::col((rcsq.clone(), Kcuf::TableName))
-                    .not_in_subquery(select_base_table_and_view()),
+            .cond_where(
+                Condition::any()
+                    .add(Expr::col((rcsq.clone(), Kcuf::TableName)).is_null())
+                    .add(
+                        Expr::col((rcsq.clone(), Kcuf::TableName))
+                            .not_in_subquery(select_base_table_and_view()),
+                    ),
             )
             .order_by((Schema::TableConstraints, Tcf::ConstraintName), Order::Asc)
             .order_by((Schema::KeyColumnUsage, Kcuf::OrdinalPosition), Order::Asc)

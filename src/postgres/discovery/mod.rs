@@ -171,7 +171,7 @@ impl SchemaDiscovery {
             .executor
             .fetch_all(
                 self.query
-                    .query_table_constriants(schema.clone(), table.clone()),
+                    .query_table_constraints(schema.clone(), table.clone()),
             )
             .await?;
 
