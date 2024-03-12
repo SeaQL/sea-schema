@@ -22,7 +22,7 @@ impl SchemaProbe for MySql {
             .take()
     }
 
-    fn has_index<T, C>(table: T, index: C) -> SelectStatement
+    fn has_index<T, C>(&self, table: T, index: C) -> SelectStatement
     where
         T: AsRef<str>,
         C: AsRef<str>,

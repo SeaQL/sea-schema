@@ -3,3 +3,4 @@ firedbg/
 Cargo.lock
 *.sublime*
 .vscode
+.DS_Store
