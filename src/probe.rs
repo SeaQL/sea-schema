@@ -5,7 +5,7 @@ pub trait SchemaProbe {
 
     fn query_tables() -> SelectStatement;
 
-    fn has_table<T>(table: T) -> SelectStatement
+    fn has_table<T>(&self, table: T) -> SelectStatement
     where
         T: AsRef<str>,
     {
@@ -17,7 +17,7 @@ pub trait SchemaProbe {
             .take()
     }
 
-    fn has_column<T, C>(table: T, column: C) -> SelectStatement
+    fn has_column<T, C>(&self, table: T, column: C) -> SelectStatement
     where
         T: AsRef<str>,
         C: AsRef<str>,
@@ -37,7 +37,7 @@ pub trait SchemaProbe {
             .take()
     }
 
-    fn has_index<T, C>(table: T, index: C) -> SelectStatement
+    fn has_index<T, C>(&self, table: T, index: C) -> SelectStatement
     where
         T: AsRef<str>,
         C: AsRef<str>;

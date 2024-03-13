@@ -21,7 +21,7 @@ impl SchemaProbe for Sqlite {
             .take()
     }
 
-    fn has_column<T, C>(table: T, column: C) -> SelectStatement
+    fn has_column<T, C>(&self, table: T, column: C) -> SelectStatement
     where
         T: AsRef<str>,
         C: AsRef<str>,
@@ -35,7 +35,7 @@ impl SchemaProbe for Sqlite {
             .take()
     }
 
-    fn has_index<T, C>(table: T, index: C) -> SelectStatement
+    fn has_index<T, C>(&self, table: T, index: C) -> SelectStatement
     where
         T: AsRef<str>,
         C: AsRef<str>,
