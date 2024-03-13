@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Versions
 
-+ `sea-query`/`0.15.0-rc.1`: 2024-01-31
++ `sea-schema`/`0.15.0-rc.1`: 2024-01-31
 
 ### Features
 
@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Bug fixes
 
 * Fix constraint query when table is partitioned https://github.com/SeaQL/sea-schema/pull/125
+
+### Breaking changes
+
+* `SchemaProbe::has_column(..)` changed to `SchemaProbe::has_column(&self, ..)` https://github.com/SeaQL/sea-schema/pull/126
 
 ## 0.14.2 - 2024-01-18
 
