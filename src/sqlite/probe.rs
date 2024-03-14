@@ -9,7 +9,7 @@ impl SchemaProbe for Sqlite {
         unimplemented!()
     }
 
-    fn query_tables() -> SelectStatement {
+    fn query_tables(&self) -> SelectStatement {
         Query::select()
             .expr_as(Expr::col(SqliteSchema::Name), Schema::TableName)
             .from(SqliteMaster)

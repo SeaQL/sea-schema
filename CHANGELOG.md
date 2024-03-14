@@ -24,7 +24,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking changes
 
+* `SchemaProbe::query_tables(..)` changed to `SchemaProbe::query_tables(&self, ..)` https://github.com/SeaQL/sea-schema/pull/127
+* `SchemaProbe::has_table(..)` changed to `SchemaProbe::has_table(&self, ..)` https://github.com/SeaQL/sea-schema/pull/126
 * `SchemaProbe::has_column(..)` changed to `SchemaProbe::has_column(&self, ..)` https://github.com/SeaQL/sea-schema/pull/126
+* `SchemaProbe::has_index(..)` changed to `SchemaProbe::has_index(&self, ..)` https://github.com/SeaQL/sea-schema/pull/126
 
 ## 0.14.2 - 2024-01-18
 
