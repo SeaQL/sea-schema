@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Versions
 
-+ `sea-schema`/`0.15.0-rc.1`: 2024-01-31
++ `0.15.0-rc.1`: 2024-01-31
++ `0.15.0-rc.2`: 2024-02-02
++ `0.15.0-rc.3`: 2024-03-15
 
 ### Features
 
