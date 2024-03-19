@@ -3,13 +3,13 @@ use sea_query::{Condition, Expr, Iden, Query, SelectStatement, SimpleExpr};
 pub trait SchemaProbe {
     fn get_current_schema() -> SimpleExpr;
 
-    fn query_tables() -> SelectStatement;
+    fn query_tables(&self) -> SelectStatement;
 
     fn has_table<T>(&self, table: T) -> SelectStatement
     where
         T: AsRef<str>,
     {
-        let mut subquery = Self::query_tables();
+        let mut subquery = self.query_tables();
         subquery.cond_where(Expr::col(Schema::TableName).eq(table.as_ref()));
         Query::select()
             .expr_as(Expr::cust("COUNT(*) > 0"), Has::Table)

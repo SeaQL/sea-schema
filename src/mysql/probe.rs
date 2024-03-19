@@ -9,7 +9,7 @@ impl SchemaProbe for MySql {
         Expr::cust("DATABASE()")
     }
 
-    fn query_tables() -> SelectStatement {
+    fn query_tables(&self) -> SelectStatement {
         Query::select()
             .expr_as(Expr::col(TablesFields::TableName), TablesFields::TableName)
             .from((Schema::Schema, Schema::Tables))

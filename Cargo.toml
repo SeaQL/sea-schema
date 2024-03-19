@@ -78,27 +78,27 @@ sqlx-sqlite = [
     "sqlx/sqlite",
 ]
 runtime-actix-native-tls = [
-    "sqlx/runtime-tokio-native-tls",
-    "sea-query-binder/runtime-actix-native-tls",
+    "sqlx?/runtime-tokio-native-tls",
+    "sea-query-binder?/runtime-actix-native-tls",
 ]
 runtime-async-std-native-tls = [
-    "sqlx/runtime-async-std-native-tls",
-    "sea-query-binder/runtime-async-std-native-tls",
+    "sqlx?/runtime-async-std-native-tls",
+    "sea-query-binder?/runtime-async-std-native-tls",
 ]
 runtime-tokio-native-tls = [
-    "sqlx/runtime-tokio-native-tls",
-    "sea-query-binder/runtime-tokio-native-tls",
+    "sqlx?/runtime-tokio-native-tls",
+    "sea-query-binder?/runtime-tokio-native-tls",
 ]
 runtime-actix-rustls = [
-    "sqlx/runtime-tokio-rustls",
-    "sea-query-binder/runtime-actix-rustls",
+    "sqlx?/runtime-tokio-rustls",
+    "sea-query-binder?/runtime-actix-rustls",
 ]
 runtime-async-std-rustls = [
-    "sqlx/runtime-async-std-rustls",
-    "sea-query-binder/runtime-async-std-rustls",
+    "sqlx?/runtime-async-std-rustls",
+    "sea-query-binder?/runtime-async-std-rustls",
 ]
 runtime-tokio-rustls = [
-    "sqlx/runtime-tokio-rustls",
-    "sea-query-binder/runtime-tokio-rustls",
+    "sqlx?/runtime-tokio-rustls",
+    "sea-query-binder?/runtime-tokio-rustls",
 ]
 with-serde = ["serde"]
