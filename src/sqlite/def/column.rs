@@ -166,6 +166,7 @@ impl From<(&SqliteRow, &[SqliteRow])> for IndexedColumns {
 
 /// Confirms if a table's primary key is set to autoincrement as a result of using query
 /// `SELECT COUNT(*) from sqlite_sequence where name = 'table_name';
+#[allow(dead_code)]
 #[derive(Debug, Default, Clone)]
 pub(crate) struct PrimaryKeyAutoincrement(pub(crate) u8);
 
