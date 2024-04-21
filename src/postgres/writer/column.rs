@@ -122,11 +122,19 @@ impl ColumnInfo {
                 Type::DateRange => ColumnType::Custom(Alias::new("daterange").into_iden()),
                 Type::PgLsn => ColumnType::Custom(Alias::new("pg_lsn").into_iden()),
                 Type::Unknown(s) => {
-                    match s.as_str() {
-                        #[cfg(feature = "postgres-vector")]
-                        "vector" => ColumnType::Vector,
-                        _ => ColumnType::Custom(Alias::new(s).into_iden()),
+                    #[cfg(feature = "postgres-vector")]
+                    if s.starts_with("vector") {
+                        let s = &s[6..];
+                        return if s.starts_with("(") && s.ends_with(")") {
+                            let s = &s[1..s.len() - 1];
+                            let size = s.parse::<u32>().expect("Invalid vector size");
+                            ColumnType::Vector(Some(size))
+                        } else {
+                            ColumnType::Vector(None)
+                        }
                     }
+
+                    ColumnType::Custom(Alias::new(s).into_iden())
                 },
                 Type::Enum(enum_def) => {
                     let name = Alias::new(&enum_def.typename).into_iden();
