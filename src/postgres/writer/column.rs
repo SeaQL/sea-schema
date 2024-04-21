@@ -121,7 +121,13 @@ impl ColumnInfo {
                 Type::TsTzRange => ColumnType::Custom(Alias::new("tstzrange").into_iden()),
                 Type::DateRange => ColumnType::Custom(Alias::new("daterange").into_iden()),
                 Type::PgLsn => ColumnType::Custom(Alias::new("pg_lsn").into_iden()),
-                Type::Unknown(s) => ColumnType::Custom(Alias::new(s).into_iden()),
+                Type::Unknown(s) => {
+                    match s.as_str() {
+                        #[cfg(feature = "postgres-vector")]
+                        "vector" => ColumnType::Vector,
+                        _ => ColumnType::Custom(Alias::new(s).into_iden()),
+                    }
+                },
                 Type::Enum(enum_def) => {
                     let name = Alias::new(&enum_def.typename).into_iden();
                     let variants: Vec<DynIden> = enum_def
