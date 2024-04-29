@@ -188,9 +188,19 @@ impl SchemaQueryBuilder {
                             .equals((rcsq.clone(), RefC::ConstraintName)),
                     )
                     .add(
-                        // Only join when the referenced primary key position matches position_in_unique_constraint for the foreign key column
-                        Expr::col((Schema::KeyColumnUsage, Kcuf::PositionInUniqueConstraint))
-                            .equals((rcsq.clone(), Kcuf::OrdinalPosition)),
+                        Condition::any()
+                            .add(
+                                // Only join when the referenced primary key position matches position_in_unique_constraint for the foreign key column
+                                Expr::col((
+                                    Schema::KeyColumnUsage,
+                                    Kcuf::PositionInUniqueConstraint,
+                                ))
+                                .equals((rcsq.clone(), Kcuf::OrdinalPosition)),
+                            )
+                            .add(
+                                // Allow foreign key column without unique constraint
+                                Expr::col((rcsq.clone(), Kcuf::OrdinalPosition)).is_null(),
+                            ),
                     ),
             )
             .and_where(
