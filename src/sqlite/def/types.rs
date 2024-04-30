@@ -40,7 +40,7 @@ pub fn parse_type(data_type: &str) -> Result<ColumnType, ParseIntError> {
         "time_text" => ColumnType::Time,
         "date_text" => ColumnType::Date,
         "blob" if parts.len() == 1 => ColumnType::Binary(parts[0]),
-        "blob" if parts.len() == 0 => ColumnType::Binary(255),
+        "blob" if parts.is_empty() => ColumnType::Binary(255),
         "varbinary_blob" if parts.len() == 1 => {
             ColumnType::VarBinary(match parts.into_iter().next() {
                 Some(length) => StringLen::N(length),
