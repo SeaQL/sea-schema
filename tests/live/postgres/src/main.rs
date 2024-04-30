@@ -55,8 +55,8 @@ async fn main() {
         create_parent_table(),
         create_child_table(),
         create_db_types_table(),
-        create_table1(),
-        create_table2(),
+        create_fkey_parent_table(),
+        create_fkey_child_table(),
     ];
 
     for tbl_create_stmt in tbl_create_stmts.iter() {
@@ -64,10 +64,10 @@ async fn main() {
         println!("{};", sql);
         println!();
         sqlx::query(&sql).execute(&mut *executor).await.unwrap();
-        if sql.starts_with(r#"CREATE TABLE "table1""#) {
+        if sql.starts_with(r#"CREATE TABLE "fkey_parent_table""#) {
             let sql = Index::create()
-                .table(Alias::new("table1"))
-                .name("IDX_table1_unique_u")
+                .table(Alias::new("fkey_parent_table"))
+                .name("IDX_fkey_parent_table_unique_u")
                 .col(Alias::new("u"))
                 .unique()
                 .to_string(PostgresQueryBuilder);
@@ -468,9 +468,9 @@ fn create_db_types_table() -> TableCreateStatement {
         .to_owned()
 }
 
-fn create_table1() -> TableCreateStatement {
+fn create_fkey_parent_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("table1"))
+        .table(Alias::new("fkey_parent_table"))
         .col(
             ColumnDef::new(Alias::new("id"))
                 .integer()
@@ -481,9 +481,9 @@ fn create_table1() -> TableCreateStatement {
         .to_owned()
 }
 
-fn create_table2() -> TableCreateStatement {
+fn create_fkey_child_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("table2"))
+        .table(Alias::new("fkey_child_table"))
         .col(
             ColumnDef::new(Alias::new("fk_u"))
                 .integer()
@@ -492,9 +492,9 @@ fn create_table2() -> TableCreateStatement {
         )
         .foreign_key(
             ForeignKey::create()
-                .name("FK_tabl2_table1")
-                .from(Alias::new("table2"), Alias::new("fk_u"))
-                .to(Alias::new("table1"), Alias::new("u"))
+                .name("FK_tabl2_fkey_parent_table")
+                .from(Alias::new("fkey_child_table"), Alias::new("fk_u"))
+                .to(Alias::new("fkey_parent_table"), Alias::new("u"))
                 .on_delete(ForeignKeyAction::Cascade)
                 .on_update(ForeignKeyAction::Cascade),
         )
