@@ -154,14 +154,14 @@ impl ColumnInfo {
             Type::Binary(str_attr) => {
                 match str_attr.length {
                     Some(length) => col_def.binary_len(length),
-                    None => col_def.binary_len(255),
+                    None => col_def.blob(),
                 };
                 col_def = self.write_str_attr(col_def, str_attr);
             }
             Type::Varbinary(str_attr) => {
                 match str_attr.length {
                     Some(length) => col_def.var_binary(length),
-                    None => col_def.custom(MySqlType::Blob),
+                    None => col_def.blob(),
                 };
             }
             Type::Text(str_attr) => {
