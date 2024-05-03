@@ -147,7 +147,7 @@ pub fn parse_interval_attributes(
 ) -> ColumnType {
     match ctype {
         Type::Interval(ref mut attr) => {
-            attr.field = interval_type.clone();
+            attr.field.clone_from(interval_type);
             attr.precision = match interval_precision {
                 None => None,
                 Some(num) => match u16::try_from(num) {
@@ -203,7 +203,7 @@ pub fn parse_enum_attributes(
                 Some(typename) => typename.to_string(),
             };
             if let Some(variants) = enums.get(&def.typename) {
-                def.values = variants.clone()
+                def.values.clone_from(variants);
             }
         }
         _ => panic!("parse_enum_attributes(_) received a type that does not have EnumDef"),
