@@ -17,7 +17,7 @@ pub fn parse_version_string(string: &str) -> SystemInfo {
         if i == 0 {
             system.version = parse_version_number(part);
         } else if i == 1 {
-            system.system = part.to_owned();
+            system.system = part.to_string();
         } else {
             system.suffix.push(part.to_owned());
         }
