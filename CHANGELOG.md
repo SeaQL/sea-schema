@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Bug fixes
 
 * Fix constraint query when table is partitioned https://github.com/SeaQL/sea-schema/pull/125
+* Fix Postgres foreign key column without unique constraint https://github.com/SeaQL/sea-schema/pull/131
 
 ### Breaking changes
 
