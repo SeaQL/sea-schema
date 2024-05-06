@@ -55,6 +55,8 @@ async fn main() {
         create_parent_table(),
         create_child_table(),
         create_db_types_table(),
+        create_fkey_parent_table(),
+        create_fkey_child_table(),
     ];
 
     for tbl_create_stmt in tbl_create_stmts.iter() {
@@ -62,6 +64,15 @@ async fn main() {
         println!("{};", sql);
         println!();
         sqlx::query(&sql).execute(&mut *executor).await.unwrap();
+        if sql.starts_with(r#"CREATE TABLE "fkey_parent_table""#) {
+            let sql = Index::create()
+                .table(Alias::new("fkey_parent_table"))
+                .name("IDX_fkey_parent_table_unique_u")
+                .col(Alias::new("u"))
+                .unique()
+                .to_string(PostgresQueryBuilder);
+            sqlx::query(&sql).execute(&mut *executor).await.unwrap();
+        }
     }
 
     let schema_discovery = SchemaDiscovery::new(connection, "public");
@@ -453,6 +464,39 @@ fn create_db_types_table() -> TableCreateStatement {
                 .primary()
                 .name("db_types_pkey")
                 .col(Alias::new("id")),
+        )
+        .to_owned()
+}
+
+fn create_fkey_parent_table() -> TableCreateStatement {
+    Table::create()
+        .table(Alias::new("fkey_parent_table"))
+        .col(
+            ColumnDef::new(Alias::new("id"))
+                .integer()
+                .not_null()
+                .auto_increment(),
+        )
+        .col(ColumnDef::new(Alias::new("u")).integer().not_null())
+        .to_owned()
+}
+
+fn create_fkey_child_table() -> TableCreateStatement {
+    Table::create()
+        .table(Alias::new("fkey_child_table"))
+        .col(
+            ColumnDef::new(Alias::new("fk_u"))
+                .integer()
+                .not_null()
+                .auto_increment(),
+        )
+        .foreign_key(
+            ForeignKey::create()
+                .name("FK_tabl2_fkey_parent_table")
+                .from(Alias::new("fkey_child_table"), Alias::new("fk_u"))
+                .to(Alias::new("fkey_parent_table"), Alias::new("u"))
+                .on_delete(ForeignKeyAction::Cascade)
+                .on_update(ForeignKeyAction::Cascade),
         )
         .to_owned()
 }
