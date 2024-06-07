@@ -305,6 +305,8 @@ async fn test_002() -> DiscoveryResult<()> {
                 r#""quantity" integer,"#,
                 r#""order_id" integer NOT NULL,"#,
                 r#""cake_id" integer NOT NULL,"#,
+                r#"UNIQUE ("cake_id", "order_id"),"#,
+                r#"UNIQUE ("cake_id"),"#,
                 r#"FOREIGN KEY ("order_id") REFERENCES "order" ("id") ON DELETE CASCADE ON UPDATE CASCADE,"#,
                 r#"FOREIGN KEY ("cake_id") REFERENCES "cake" ("id") ON DELETE CASCADE ON UPDATE CASCADE"#,
                 r#")"#,
@@ -449,6 +451,19 @@ fn create_lineitem_table() -> TableCreateStatement {
         .col(ColumnDef::new(Alias::new("quantity")).integer())
         .col(ColumnDef::new(Alias::new("order_id")).integer().not_null())
         .col(ColumnDef::new(Alias::new("cake_id")).integer().not_null())
+        .index(
+            Index::create()
+                .unique()
+                .name("UNI_lineitem_cake_id")
+                .col(Alias::new("cake_id")),
+        )
+        .index(
+            Index::create()
+                .unique()
+                .name("UNI_lineitem_cake_id_order_id")
+                .col(Alias::new("cake_id"))
+                .col(Alias::new("order_id")),
+        )
         .foreign_key(
             ForeignKey::create()
                 .from(Alias::new("lineitem"), Alias::new("cake_id"))
