@@ -1,8 +1,10 @@
 mod column;
+mod pg_indexes;
 mod table;
 mod table_constraints;
 
 pub use column::*;
+pub use pg_indexes::*;
 pub use table::*;
 pub use table_constraints::*;
 

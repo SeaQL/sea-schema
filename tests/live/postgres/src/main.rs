@@ -64,15 +64,6 @@ async fn main() {
         println!("{};", sql);
         println!();
         sqlx::query(&sql).execute(&mut *executor).await.unwrap();
-        if sql.starts_with(r#"CREATE TABLE "fkey_parent_table""#) {
-            let sql = Index::create()
-                .table(Alias::new("fkey_parent_table"))
-                .name("IDX_fkey_parent_table_unique_u")
-                .col(Alias::new("u"))
-                .unique()
-                .to_string(PostgresQueryBuilder);
-            sqlx::query(&sql).execute(&mut *executor).await.unwrap();
-        }
     }
 
     let schema_discovery = SchemaDiscovery::new(connection, "public");
@@ -302,6 +293,19 @@ fn create_lineitem_table() -> TableCreateStatement {
                 .name("lineitem_pkey")
                 .col(Alias::new("id")),
         )
+        .index(
+            Index::create()
+                .unique()
+                .name("UNI_lineitem_cake_id")
+                .col(Alias::new("cake_id")),
+        )
+        .index(
+            Index::create()
+                .unique()
+                .name("UNI_lineitem_cake_id_order_id")
+                .col(Alias::new("cake_id"))
+                .col(Alias::new("order_id")),
+        )
         .foreign_key(
             ForeignKey::create()
                 .name("FK_lineitem_cake")
@@ -478,6 +482,12 @@ fn create_fkey_parent_table() -> TableCreateStatement {
                 .auto_increment(),
         )
         .col(ColumnDef::new(Alias::new("u")).integer().not_null())
+        .index(
+            Index::create()
+                .unique()
+                .name("IDX_fkey_parent_table_unique_u")
+                .col(Alias::new("u")),
+        )
         .to_owned()
 }
 
