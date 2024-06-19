@@ -33,6 +33,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 * `SchemaProbe::has_column(..)` changed to `SchemaProbe::has_column(&self, ..)` https://github.com/SeaQL/sea-schema/pull/126
 * `SchemaProbe::has_index(..)` changed to `SchemaProbe::has_index(&self, ..)` https://github.com/SeaQL/sea-schema/pull/126
 
+### Enhancements
+
+* Added non-TLS runtime https://github.com/SeaQL/sea-schema/pull/134
+
 ## 0.14.2 - 2024-01-18
 
 ### Bug fixes
