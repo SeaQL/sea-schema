@@ -287,6 +287,19 @@ fn create_lineitem_table() -> TableCreateStatement {
                 .col(Alias::new("order_id")),
         )
         .primary_key(Index::create().col(Alias::new("id")))
+        .index(
+            Index::create()
+                .unique()
+                .name("UNI_lineitem_cake_id")
+                .col(Alias::new("cake_id")),
+        )
+        .index(
+            Index::create()
+                .unique()
+                .name("UNI_lineitem_order_id_cake_id")
+                .col(Alias::new("order_id"))
+                .col(Alias::new("cake_id")),
+        )
         .foreign_key(
             ForeignKey::create()
                 .name("FK_lineitem_cake")

@@ -2,10 +2,12 @@
 
 use crate::debug_print;
 use crate::postgres::def::*;
-use crate::postgres::parser::parse_table_constraint_query_results;
+use crate::postgres::parser::{
+    parse_table_constraint_query_results, parse_unique_index_query_results,
+};
 use crate::postgres::query::{
     ColumnQueryResult, EnumQueryResult, SchemaQueryBuilder, TableConstraintsQueryResult,
-    TableQueryResult,
+    TableQueryResult, UniqueIndexQueryResult,
 };
 use crate::sqlx_types::SqlxError;
 use futures::future;
@@ -101,31 +103,27 @@ impl SchemaDiscovery {
         let (
             check_constraints,
             not_null_constraints,
-            unique_constraints,
             primary_key_constraints,
             reference_constraints,
             exclusion_constraints,
         ) = constraints.into_iter().fold(
-            (
-                Vec::new(),
-                Vec::new(),
-                Vec::new(),
-                Vec::new(),
-                Vec::new(),
-                Vec::new(),
-            ),
+            (Vec::new(), Vec::new(), Vec::new(), Vec::new(), Vec::new()),
             |mut acc, constraint| {
                 match constraint {
                     Constraint::Check(check) => acc.0.push(check),
                     Constraint::NotNull(not_null) => acc.1.push(not_null),
-                    Constraint::Unique(unique) => acc.2.push(unique),
-                    Constraint::PrimaryKey(primary_key) => acc.3.push(primary_key),
-                    Constraint::References(references) => acc.4.push(references),
-                    Constraint::Exclusion(exclusion) => acc.5.push(exclusion),
+                    Constraint::Unique(_) => (),
+                    Constraint::PrimaryKey(primary_key) => acc.2.push(primary_key),
+                    Constraint::References(references) => acc.3.push(references),
+                    Constraint::Exclusion(exclusion) => acc.4.push(exclusion),
                 }
                 acc
             },
         );
+
+        let unique_constraints = self
+            .discover_unique_indexes(self.schema.clone(), table.clone())
+            .await?;
 
         Ok(TableDef {
             info,
@@ -182,6 +180,33 @@ impl SchemaDiscovery {
         });
 
         Ok(parse_table_constraint_query_results(Box::new(results))
+            .map(|index| {
+                debug_print!("{:?}", index);
+                index
+            })
+            .collect())
+    }
+
+    pub async fn discover_unique_indexes(
+        &self,
+        schema: SeaRc<dyn Iden>,
+        table: SeaRc<dyn Iden>,
+    ) -> Result<Vec<Unique>, SqlxError> {
+        let rows = self
+            .executor
+            .fetch_all(
+                self.query
+                    .query_table_unique_indexes(schema.clone(), table.clone()),
+            )
+            .await?;
+
+        let results = rows.into_iter().map(|row| {
+            let result: UniqueIndexQueryResult = (&row).into();
+            debug_print!("{:?}", result);
+            result
+        });
+
+        Ok(parse_unique_index_query_results(Box::new(results))
             .map(|index| {
                 debug_print!("{:?}", index);
                 index
