@@ -114,7 +114,3 @@ runtime-tokio-rustls = [
     "sea-query-binder?/runtime-tokio-rustls",
 ]
 with-serde = ["serde"]
-
-[patch.crates-io]
-sea-query = { git = "https://github.com/seaql/sea-query", branch = "non-tls-runtime" }
-sea-query-binder = { git = "https://github.com/seaql/sea-query", branch = "non-tls-runtime" }
