@@ -77,6 +77,18 @@ sqlx-sqlite = [
     "sea-query-binder/sqlx-sqlite",
     "sqlx/sqlite",
 ]
+runtime-actix = [
+    "sqlx?/runtime-tokio",
+    "sea-query-binder?/runtime-actix",
+]
+runtime-async-std = [
+    "sqlx?/runtime-async-std",
+    "sea-query-binder?/runtime-async-std",
+]
+runtime-tokio = [
+    "sqlx?/runtime-tokio",
+    "sea-query-binder?/runtime-tokio",
+]
 runtime-actix-native-tls = [
     "sqlx?/runtime-tokio-native-tls",
     "sea-query-binder?/runtime-actix-native-tls",
@@ -102,3 +114,7 @@ runtime-tokio-rustls = [
     "sea-query-binder?/runtime-tokio-rustls",
 ]
 with-serde = ["serde"]
+
+[patch.crates-io]
+sea-query = { git = "https://github.com/seaql/sea-query", branch = "non-tls-runtime" }
+sea-query-binder = { git = "https://github.com/seaql/sea-query", branch = "non-tls-runtime" }
