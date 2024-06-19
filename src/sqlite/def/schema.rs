@@ -7,7 +7,7 @@ pub struct Schema {
 }
 
 impl Schema {
-    pub fn collect_unique_indexes(mut self) -> Self {
+    pub fn merge_indexes_into_table(mut self) -> Self {
         for table in self.tables.iter_mut() {
             for index in self.indexes.iter() {
                 if index.unique && index.table_name == table.name {
