@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 + `0.15.0-rc.4`: 2024-03-24
 + `0.15.0-rc.5`: 2024-05-02
 + `0.15.0-rc.6`: 2024-05-03
++ `0.15.0-rc.7`: 2024-05-19
 
 ### Features
 
