@@ -3,33 +3,33 @@ use proc_macro::{self, TokenStream};
 use proc_macro2::Span;
 use quote::{quote, quote_spanned};
 use syn::{
-    parse_macro_input, Attribute, DataEnum, DataStruct, DeriveInput, Fields, Ident, Lit, Meta,
-    Variant,
+    parse_macro_input, Attribute, DataEnum, DataStruct, DeriveInput, Expr, ExprLit, Fields, Ident,
+    Lit, Meta, Variant,
 };
 
-fn get_iden_attr(attrs: &[Attribute]) -> Option<syn::Lit> {
+fn get_iden_attr<'a>(attrs: &'a [Attribute]) -> Option<&'a syn::Expr> {
     for attr in attrs {
-        let name_value = match attr.parse_meta() {
-            Ok(Meta::NameValue(nv)) => nv,
+        let name_value = match &attr.meta {
+            Meta::NameValue(nv) => nv,
             _ => continue,
         };
         if name_value.path.is_ident("iden") || // interoperate with sea_query_derive Iden
             name_value.path.is_ident("name")
         {
-            return Some(name_value.lit);
+            return Some(&name_value.value);
         }
     }
     None
 }
 
-fn get_catch_attr(attrs: &[Attribute]) -> Option<syn::Lit> {
+fn get_catch_attr<'a>(attrs: &'a [Attribute]) -> Option<&'a syn::Expr> {
     for attr in attrs {
-        let name_value = match attr.parse_meta() {
-            Ok(Meta::NameValue(nv)) => nv,
+        let name_value = match &attr.meta {
+            Meta::NameValue(nv) => nv,
             _ => continue,
         };
         if name_value.path.is_ident("catch") {
-            return Some(name_value.lit);
+            return Some(&name_value.value);
         }
     }
     None
@@ -42,7 +42,7 @@ pub fn derive_iden(input: TokenStream) -> TokenStream {
     } = parse_macro_input!(input);
 
     let table_name = match get_iden_attr(&attrs) {
-        Some(lit) => quote! { #lit },
+        Some(iden) => quote! { #iden },
         None => {
             let normalized = ident.to_string().to_snake_case();
             quote! { #normalized }
@@ -52,7 +52,10 @@ pub fn derive_iden(input: TokenStream) -> TokenStream {
     let catch = match get_catch_attr(&attrs) {
         Some(lit) => {
             let name: String = match lit {
-                Lit::Str(name) => name.value(),
+                Expr::Lit(ExprLit {
+                    lit: Lit::Str(name),
+                    ..
+                }) => name.value(),
                 _ => panic!("expected string for `catch`"),
             };
             let method = Ident::new(name.as_str(), Span::call_site());
@@ -104,9 +107,9 @@ pub fn derive_iden(input: TokenStream) -> TokenStream {
         });
 
     let name = variants.iter().map(|v| {
-        if let Some(lit) = get_iden_attr(&v.attrs) {
+        if let Some(iden) = get_iden_attr(&v.attrs) {
             // If the user supplied a name, just use it
-            quote! { #lit }
+            quote! { #iden }
         } else if v.ident == "Table" {
             table_name.clone()
         } else {
