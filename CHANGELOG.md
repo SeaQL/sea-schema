@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 + `0.15.0-rc.4`: 2024-03-24
 + `0.15.0-rc.5`: 2024-05-02
 + `0.15.0-rc.6`: 2024-05-03
-+ `0.15.0-rc.7`: 2024-05-19
++ `0.15.0-rc.7`: 2024-06-19
 
 ### Features
 
@@ -38,6 +38,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Enhancements
 
 * Added non-TLS runtime https://github.com/SeaQL/sea-schema/pull/134
+
+### Upgrades
+
+* Upgrade `syn` to `2` https://github.com/SeaQL/sea-schema/pull/129
 
 ## 0.14.2 - 2024-01-18
 
