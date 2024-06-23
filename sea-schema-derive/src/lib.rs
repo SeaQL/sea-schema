@@ -7,7 +7,7 @@ use syn::{
     Lit, Meta, Variant,
 };
 
-fn get_iden_attr<'a>(attrs: &'a [Attribute]) -> Option<&'a syn::Expr> {
+fn get_iden_attr(attrs: &[Attribute]) -> Option<&syn::Expr> {
     for attr in attrs {
         let name_value = match &attr.meta {
             Meta::NameValue(nv) => nv,
@@ -22,7 +22,7 @@ fn get_iden_attr<'a>(attrs: &'a [Attribute]) -> Option<&'a syn::Expr> {
     None
 }
 
-fn get_catch_attr<'a>(attrs: &'a [Attribute]) -> Option<&'a syn::Expr> {
+fn get_catch_attr(attrs: &[Attribute]) -> Option<&syn::Expr> {
     for attr in attrs {
         let name_value = match &attr.meta {
             Meta::NameValue(nv) => nv,
