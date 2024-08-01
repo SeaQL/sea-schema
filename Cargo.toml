@@ -39,7 +39,7 @@ sea-schema-derive = { version = "0.2.0", path = "sea-schema-derive", default-fea
 sea-query = { version = "0.31.0-rc.8", default-features = false, features = ["derive"] }
 sea-query-binder = { version = "0.6.0-rc.4", default-features = false, optional = true }
 serde = { version = "1", default-features = false, optional = true, features = ["derive"] }
-sqlx = { version = "0.7", default-features = false, optional = true }
+sqlx = { version = "0.8", default-features = false, optional = true }
 log = { version = "0.4", default-features = false, optional = true }
 
 [features]
