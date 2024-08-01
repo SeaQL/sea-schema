@@ -6,7 +6,7 @@ impl TableDef {
         let mut table = Table::create();
         table.table(Alias::new(&self.info.name));
         for col in self.columns.iter() {
-            table.col(&mut col.write());
+            table.col(col.write());
         }
         for primary_key in self.primary_key_constraints.iter() {
             table.primary_key(&mut primary_key.write());
