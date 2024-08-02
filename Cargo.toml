@@ -35,7 +35,7 @@ path = "src/lib.rs"
 
 [dependencies]
 futures = { version = "0.3", default-features = false, optional = true, features = ["alloc"] }
-sea-schema-derive = { version = "0.2.0", path = "sea-schema-derive", default-features = false }
+sea-schema-derive = { version = "0.3.0", path = "sea-schema-derive", default-features = false }
 sea-query = { version = "0.31.0", default-features = false, features = ["derive"] }
 sea-query-binder = { version = "0.6.0", default-features = false, optional = true }
 serde = { version = "1", default-features = false, optional = true, features = ["derive"] }
