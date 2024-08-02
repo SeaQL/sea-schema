@@ -5,17 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## 0.15.0 - Pending
+## 0.15.0 - 2024-08-02
 
 ### Versions
 
-+ `0.15.0-rc.1`: 2024-01-31
-+ `0.15.0-rc.2`: 2024-02-02
-+ `0.15.0-rc.3`: 2024-03-15
-+ `0.15.0-rc.4`: 2024-03-24
-+ `0.15.0-rc.5`: 2024-05-02
-+ `0.15.0-rc.6`: 2024-05-03
-+ `0.15.0-rc.7`: 2024-06-19
++ `sea-schema`/`0.15.0-rc.1`: 2024-01-31
++ `sea-schema`/`0.15.0-rc.2`: 2024-02-02
++ `sea-schema`/`0.15.0-rc.3`: 2024-03-15
++ `sea-schema`/`0.15.0-rc.4`: 2024-03-24
++ `sea-schema`/`0.15.0-rc.5`: 2024-05-02
++ `sea-schema`/`0.15.0-rc.6`: 2024-05-03
++ `sea-schema`/`0.15.0-rc.7`: 2024-06-19
++ `sea-schema-derive`/`0.3.0`: 2024-08-02
 
 ### Features
 
