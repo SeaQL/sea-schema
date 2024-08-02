@@ -89,10 +89,10 @@ impl From<&MySqlRow> for ForeignKeyQueryResult {
         Self {
             constraint_name: row.get(0),
             column_name: row.get(1),
-            referenced_table_name: row.get(2),
-            referenced_column_name: row.get(3),
-            update_rule: row.get(4),
-            delete_rule: row.get(5),
+            referenced_table_name: String::from_utf8(row.get::<Vec<u8>, _>(2)).unwrap(),
+            referenced_column_name: String::from_utf8(row.get::<Vec<u8>, _>(3)).unwrap(),
+            update_rule: String::from_utf8(row.get::<Vec<u8>, _>(4)).unwrap(),
+            delete_rule: String::from_utf8(row.get::<Vec<u8>, _>(5)).unwrap(),
         }
     }
 }

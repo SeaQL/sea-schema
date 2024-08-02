@@ -91,7 +91,7 @@ impl From<&MySqlRow> for TableQueryResult {
     fn from(row: &MySqlRow) -> Self {
         use crate::sqlx_types::Row;
         Self {
-            table_name: row.get(0),
+            table_name: String::from_utf8(row.get::<Vec<u8>, _>(0)).unwrap(),
             engine: row.get(1),
             auto_increment: row.get(2),
             table_collation: row.get(3),

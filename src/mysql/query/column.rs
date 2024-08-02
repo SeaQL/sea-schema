@@ -80,13 +80,17 @@ impl From<&MySqlRow> for ColumnQueryResult {
         use crate::sqlx_types::Row;
         Self {
             column_name: row.get(0),
-            column_type: row.get(1),
+            column_type: String::from_utf8(row.get::<Vec<u8>, _>(1)).unwrap(),
             is_nullable: row.get(2),
-            column_key: row.get(3),
-            column_default: row.get(4),
+            column_key: String::from_utf8(row.get::<Vec<u8>, _>(3)).unwrap(),
+            column_default: row
+                .get::<Option<Vec<u8>>, _>(4)
+                .map(|v| String::from_utf8(v).unwrap()),
             extra: row.get(5),
-            generation_expression: row.get(6),
-            column_comment: row.get(7),
+            generation_expression: row
+                .get::<Option<Vec<u8>>, _>(6)
+                .map(|v| String::from_utf8(v).unwrap()),
+            column_comment: String::from_utf8(row.get::<Vec<u8>, _>(7)).unwrap(),
         }
     }
 }

@@ -84,8 +84,8 @@ impl From<&MySqlRow> for IndexQueryResult {
             collation: row.get(3),
             sub_part: row.get(4),
             nullable: row.get(5),
-            index_type: row.get(6),
-            index_comment: row.get(7),
+            index_type: String::from_utf8(row.get::<Vec<u8>, _>(6)).unwrap(),
+            index_comment: String::from_utf8(row.get::<Vec<u8>, _>(7)).unwrap(),
             expression: row.get(8),
         }
     }
