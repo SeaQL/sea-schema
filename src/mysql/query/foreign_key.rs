@@ -85,14 +85,14 @@ impl SchemaQueryBuilder {
 #[cfg(feature = "sqlx-mysql")]
 impl From<&MySqlRow> for ForeignKeyQueryResult {
     fn from(row: &MySqlRow) -> Self {
-        use crate::sqlx_types::Row;
+        use crate::mysql::discovery::GetMySqlValue;
         Self {
-            constraint_name: row.get(0),
-            column_name: row.get(1),
-            referenced_table_name: String::from_utf8(row.get::<Vec<u8>, _>(2)).unwrap(),
-            referenced_column_name: String::from_utf8(row.get::<Vec<u8>, _>(3)).unwrap(),
-            update_rule: String::from_utf8(row.get::<Vec<u8>, _>(4)).unwrap(),
-            delete_rule: String::from_utf8(row.get::<Vec<u8>, _>(5)).unwrap(),
+            constraint_name: row.get_string(0),
+            column_name: row.get_string(1),
+            referenced_table_name: row.get_string(2),
+            referenced_column_name: row.get_string(3),
+            update_rule: row.get_string(4),
+            delete_rule: row.get_string(5),
         }
     }
 }
