@@ -76,17 +76,18 @@ impl SchemaQueryBuilder {
 #[cfg(feature = "sqlx-mysql")]
 impl From<&MySqlRow> for IndexQueryResult {
     fn from(row: &MySqlRow) -> Self {
+        use crate::mysql::discovery::GetMySqlValue;
         use crate::sqlx_types::Row;
         Self {
             non_unique: row.get(0),
-            index_name: row.get(1),
-            column_name: row.get(2),
-            collation: row.get(3),
+            index_name: row.get_string(1),
+            column_name: row.get_string_opt(2),
+            collation: row.get_string_opt(3),
             sub_part: row.get(4),
-            nullable: row.get(5),
-            index_type: row.get(6),
-            index_comment: row.get(7),
-            expression: row.get(8),
+            nullable: row.get_string(5),
+            index_type: row.get_string(6),
+            index_comment: row.get_string(7),
+            expression: row.get_string_opt(8),
         }
     }
 }

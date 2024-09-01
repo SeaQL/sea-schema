@@ -77,16 +77,16 @@ impl SchemaQueryBuilder {
 #[cfg(feature = "sqlx-mysql")]
 impl From<&MySqlRow> for ColumnQueryResult {
     fn from(row: &MySqlRow) -> Self {
-        use crate::sqlx_types::Row;
+        use crate::mysql::discovery::GetMySqlValue;
         Self {
-            column_name: row.get(0),
-            column_type: row.get(1),
-            is_nullable: row.get(2),
-            column_key: row.get(3),
-            column_default: row.get(4),
-            extra: row.get(5),
-            generation_expression: row.get(6),
-            column_comment: row.get(7),
+            column_name: row.get_string(0),
+            column_type: row.get_string(1),
+            is_nullable: row.get_string(2),
+            column_key: row.get_string(3),
+            column_default: row.get_string_opt(4),
+            extra: row.get_string(5),
+            generation_expression: row.get_string_opt(6),
+            column_comment: row.get_string(7),
         }
     }
 }

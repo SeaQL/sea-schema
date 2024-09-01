@@ -14,7 +14,7 @@ members = [
 
 [package]
 name = "sea-schema"
-version = "0.15.0"
+version = "0.16.0-rc.1"
 authors = [ "Chris Tsang <tyt2y7@gmail.com>" ]
 edition = "2021"
 description = "🌿 SQL schema definition and discovery"
@@ -36,10 +36,10 @@ path = "src/lib.rs"
 [dependencies]
 futures = { version = "0.3", default-features = false, optional = true, features = ["alloc"] }
 sea-schema-derive = { version = "0.3.0", path = "sea-schema-derive", default-features = false }
-sea-query = { git = "https://github.com/28Smiles/sea-query", default-features = false, features = ["derive"] }
-sea-query-binder = { git = "https://github.com/28Smiles/sea-query", default-features = false, optional = true }
+sea-query = { version = "0.32.0-rc.1", default-features = false, features = ["derive"] }
+sea-query-binder = { version = "0.7.0-rc.1", default-features = false, optional = true }
 serde = { version = "1", default-features = false, optional = true, features = ["derive"] }
-sqlx = { version = "0.7", default-features = false, optional = true }
+sqlx = { version = "0.8", default-features = false, optional = true }
 log = { version = "0.4", default-features = false, optional = true }
 
 [features]

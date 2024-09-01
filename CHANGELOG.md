@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.16.0 - Pending
+
+### Versions
+
++ `sea-schema`/`0.16.0-rc.1`: 2024-08-09
+
+### Upgrades
+
+* Upgrade `sea-query` to `0.32.0-rc` https://github.com/SeaQL/sea-schema/pull/136
+* Upgrade `sea-query-binder` to `0.7.0-rc` https://github.com/SeaQL/sea-schema/pull/136
+* Upgrade `sqlx` to `0.8` https://github.com/SeaQL/sea-schema/pull/136
+
 ## 0.15.0 - 2024-08-02
 
 ### Versions
