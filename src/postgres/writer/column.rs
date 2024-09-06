@@ -132,10 +132,10 @@ impl ColumnInfo {
                         } else {
                             ColumnType::Vector(None)
                         }
-                    }
+                    };
 
                     ColumnType::Custom(Alias::new(s).into_iden())
-                },
+                }
                 Type::Enum(enum_def) => {
                     let name = Alias::new(&enum_def.typename).into_iden();
                     let variants: Vec<DynIden> = enum_def
