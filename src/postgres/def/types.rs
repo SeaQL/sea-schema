@@ -116,6 +116,10 @@ pub enum Type {
     /// Variable-length multidimensional array
     Array(ArrayDef),
 
+    #[cfg(feature = "postgres-vector")]
+    /// The postgres vector type introduced by the vector extension.
+    Vector(VectorDef),
+
     // TODO:
     // /// The structure of a row or record; a list of field names and types
     // Composite,
@@ -268,6 +272,14 @@ pub struct ArrayDef {
     pub col_type: Option<RcOrArc<Type>>,
 }
 
+#[cfg(feature = "postgres-vector")]
+/// Defines an enum for the PostgreSQL module
+#[derive(Clone, Debug, PartialEq, Default)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
+pub struct VectorDef {
+    pub length: Option<u32>,
+}
+
 impl Type {
     pub fn has_numeric_attr(&self) -> bool {
         matches!(self, Type::Numeric(_) | Type::Decimal(_))
@@ -301,5 +313,10 @@ impl Type {
 
     pub fn has_array_attr(&self) -> bool {
         matches!(self, Type::Array(_))
+    }
+
+    #[cfg(feature = "postgres-vector")]
+    pub fn has_vector_attr(&self) -> bool {
+        matches!(self, Type::Vector(_))
     }
 }
