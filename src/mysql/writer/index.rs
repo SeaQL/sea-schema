@@ -52,6 +52,11 @@ impl IndexInfo {
                     self.idx_type.to_string(),
                 ))));
             }
+            IndexType::Vector => {
+                index.index_type(sea_query::IndexType::Custom(SeaRc::new(Alias::new(
+                    self.idx_type.to_string(),
+                ))));
+            }
         }
         index
     }

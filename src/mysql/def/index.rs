@@ -54,4 +54,6 @@ pub enum IndexType {
     RTree,
     #[iden = "SPATIAL"]
     Spatial,
+    #[iden = "VECTOR"]
+    Vector,
 }
