@@ -20,6 +20,8 @@ pub enum PgEnum {
     EnumLabel,
     #[iden = "enumtypid"]
     EnumTypeId,
+    #[iden = "enumsortorder"]
+    EnumSortOrder,
 }
 
 #[derive(Debug, Default)]
@@ -39,6 +41,7 @@ impl SchemaQueryBuilder {
                 Expr::col((PgEnum::Table, PgEnum::EnumTypeId)).equals((PgType::Table, PgType::Oid)),
             )
             .order_by((PgType::Table, PgType::TypeName), Order::Asc)
+            .order_by((PgEnum::Table, PgEnum::EnumSortOrder), Order::Asc)
             .order_by((PgEnum::Table, PgEnum::EnumLabel), Order::Asc)
             .take()
     }
