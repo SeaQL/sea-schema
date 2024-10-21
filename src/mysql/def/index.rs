@@ -54,6 +54,7 @@ pub enum IndexType {
     RTree,
     #[iden = "SPATIAL"]
     Spatial,
+    #[cfg(feature = "planetscale")]
     #[iden = "VECTOR"]
     Vector,
 }
