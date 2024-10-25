@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.16.1 - pending
+
+### Features
+
+* Added `IndexType::Vector` to MySQL (behind feature `planetscale`) https://github.com/SeaQL/sea-schema/pull/139
+
 ## 0.16.0 - 2024-10-17
 
 ### Versions
