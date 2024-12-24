@@ -57,6 +57,10 @@ pub fn parse_column_type(result: &ColumnQueryResult, enums: &EnumVariantMap) -> 
     if ctype.has_array_attr() {
         ctype = parse_array_attributes(result.udt_name_regtype.as_deref(), ctype, enums);
     }
+    #[cfg(feature = "postgres-vector")]
+    if ctype.has_vector_attr() {
+        ctype = parse_vector_attributes(result.character_maximum_length, ctype);
+    }
 
     ctype
 }
@@ -236,6 +240,27 @@ pub fn parse_array_attributes(
             };
         }
         _ => panic!("parse_array_attributes(_) received a type that does not have EnumDef"),
+    };
+
+    ctype
+}
+
+#[cfg(feature = "postgres-vector")]
+pub fn parse_vector_attributes(
+    character_maximum_length: Option<i32>,
+    mut ctype: ColumnType,
+) -> ColumnType {
+    match ctype {
+        Type::Vector(ref mut attr) => {
+            attr.length = match character_maximum_length {
+                None => None,
+                Some(num) => match u32::try_from(num) {
+                    Ok(num) => Some(num),
+                    Err(_) => None,
+                },
+            };
+        }
+        _ => panic!("parse_vector_attributes(_) received a type that does not have StringAttr"),
     };
 
     ctype
