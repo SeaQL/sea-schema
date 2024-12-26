@@ -5,11 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## 0.16.1 - pending
+## 0.16.1 - 2024-12-26
 
 ### Features
 
 * Added `IndexType::Vector` to MySQL (behind feature `planetscale`) https://github.com/SeaQL/sea-schema/pull/139
+* Implement postgres vector extension https://github.com/SeaQL/sea-schema/pull/137
+
+### Bug fixes
+
+* Fix enum values ordering https://github.com/SeaQL/sea-schema/pull/138
 
 ## 0.16.0 - 2024-10-17
 
