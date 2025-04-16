@@ -25,7 +25,7 @@ jobs:
 
   rustfmt:
     name: Rustfmt
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
@@ -36,7 +36,7 @@ jobs:
 
   clippy:
     name: Clippy
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@master
@@ -47,7 +47,7 @@ jobs:
 
   test:
     name: Unit Test
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -56,7 +56,7 @@ jobs:
 
   compile-mysql:
     name: Compile MySQL
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         project: [live/mysql, discovery/mysql, writer/mysql]
@@ -76,7 +76,7 @@ jobs:
 
   compile-postgres:
     name: Compile Postgres
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         project: [live/postgres, discovery/postgres, writer/postgres]
@@ -96,7 +96,7 @@ jobs:
 
   compile-sqlite:
     name: Compile SQLite
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         project: [live/sqlite, discovery/sqlite, writer/sqlite]
@@ -116,7 +116,7 @@ jobs:
 
   mysql:
     name: MySQL
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: compile-mysql
     env:
       DATABASE_URL_SAKILA: "mysql://sea:sea@localhost/sakila"
@@ -165,7 +165,7 @@ jobs:
 
   mariadb:
     name: MariaDB
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: compile-mysql
     env:
       DATABASE_URL_SAKILA: "mysql://sea:sea@localhost/sakila"
@@ -215,7 +215,7 @@ jobs:
   postgres:
     name: Postgres
     needs: compile-postgres
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     env:
       DATABASE_URL_SAKILA: "postgres://sea:sea@localhost/sakila"
       DATABASE_URL_LIVE: "postgres://sea:sea@localhost"
@@ -260,7 +260,7 @@ jobs:
   sqlite:
     name: SQLite
     needs: compile-sqlite
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     env:
       DATABASE_URL_SAKILA: "sqlite://tests/sakila/sqlite/sakila.db"
       DATABASE_URL_LIVE: "sqlite::memory:"
