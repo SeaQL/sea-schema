@@ -73,24 +73,15 @@ pub fn parse_numeric_attributes(
 ) -> ColumnType {
     let numeric_precision: Option<u16> = match num_precision {
         None => None,
-        Some(num) => match u16::try_from(num) {
-            Ok(num) => Some(num),
-            Err(_) => None,
-        },
+        Some(num) => u16::try_from(num).ok(),
     };
     let _numeric_precision_radix: Option<u16> = match num_precision_radix {
         None => None,
-        Some(num) => match u16::try_from(num) {
-            Ok(num) => Some(num),
-            Err(_) => None,
-        },
+        Some(num) => u16::try_from(num).ok(),
     };
     let numeric_scale: Option<u16> = match num_scale {
         None => None,
-        Some(num) => match u16::try_from(num) {
-            Ok(num) => Some(num),
-            Err(_) => None,
-        },
+        Some(num) => u16::try_from(num).ok(),
     };
 
     match ctype {
@@ -112,10 +103,7 @@ pub fn parse_string_attributes(
         Type::Varchar(ref mut attr) | Type::Char(ref mut attr) => {
             attr.length = match character_maximum_length {
                 None => None,
-                Some(num) => match u16::try_from(num) {
-                    Ok(num) => Some(num),
-                    Err(_) => None,
-                },
+                Some(num) => u16::try_from(num).ok(),
             };
         }
         _ => panic!("parse_string_attributes(_) received a type that does not have StringAttr"),
@@ -132,10 +120,7 @@ pub fn parse_time_attributes(datetime_precision: Option<i32>, mut ctype: ColumnT
         | Type::TimeWithTimeZone(ref mut attr) => {
             attr.precision = match datetime_precision {
                 None => None,
-                Some(num) => match u16::try_from(num) {
-                    Ok(num) => Some(num),
-                    Err(_) => None,
-                },
+                Some(num) => u16::try_from(num).ok(),
             };
         }
         _ => panic!("parse_time_attributes(_) received a type that does not have TimeAttr"),
@@ -154,10 +139,7 @@ pub fn parse_interval_attributes(
             attr.field.clone_from(interval_type);
             attr.precision = match interval_precision {
                 None => None,
-                Some(num) => match u16::try_from(num) {
-                    Ok(num) => Some(num),
-                    Err(_) => None,
-                },
+                Some(num) => u16::try_from(num).ok(),
             };
         }
         _ => panic!("parse_interval_attributes(_) received a type that does not have IntervalAttr"),
@@ -174,19 +156,13 @@ pub fn parse_bit_attributes(
         Type::Bit(ref mut attr) => {
             attr.length = match character_maximum_length {
                 None => None,
-                Some(num) => match u16::try_from(num) {
-                    Ok(num) => Some(num),
-                    Err(_) => None,
-                },
+                Some(num) => u16::try_from(num).ok(),
             };
         }
         Type::VarBit(ref mut attr) => {
             attr.length = match character_maximum_length {
                 None => None,
-                Some(num) => match u16::try_from(num) {
-                    Ok(num) => Some(num),
-                    Err(_) => None,
-                },
+                Some(num) => u16::try_from(num).ok(),
             };
         }
         _ => panic!("parse_bit_attributes(_) received a type that does not have BitAttr"),
