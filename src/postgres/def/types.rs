@@ -2,6 +2,11 @@ use sea_query::RcOrArc;
 #[cfg(feature = "with-serde")]
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "postgres-vector")]
+mod pgvector;
+#[cfg(feature = "postgres-vector")]
+use pgvector::VectorDef;
+
 #[derive(Clone, Debug, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 /// All built-in types of PostgreSQL, excluding synonyms
@@ -156,6 +161,14 @@ impl Type {
     // TODO: Support more types
     #[allow(clippy::should_implement_trait)]
     pub fn from_str(column_type: &str, udt_name: Option<&str>, is_enum: bool) -> Type {
+        // TODO: Refactor this into if let chain after edtion is updated to 2024
+        #[cfg(feature = "postgres-vector")]
+        if !is_enum {
+            if let Some(def) = udt_name.and_then(VectorDef::parse_str) {
+                return Type::Vector(def);
+            };
+        }
+
         match column_type.to_lowercase().as_str() {
             "smallint" | "int2" => Type::SmallInt,
             "integer" | "int" | "int4" => Type::Integer,
@@ -270,14 +283,6 @@ pub struct EnumDef {
 pub struct ArrayDef {
     /// Array type
     pub col_type: Option<RcOrArc<Type>>,
-}
-
-#[cfg(feature = "postgres-vector")]
-/// Defines an enum for the PostgreSQL module
-#[derive(Clone, Debug, PartialEq, Default)]
-#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
-pub struct VectorDef {
-    pub length: Option<u32>,
 }
 
 impl Type {
