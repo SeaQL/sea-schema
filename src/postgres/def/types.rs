@@ -207,10 +207,13 @@ impl Type {
             "daterange" => Type::DateRange,
             // "" => Type::Domain,
             "pg_lsn" => Type::PgLsn,
-            "user-defined" if is_enum => Type::Enum(EnumDef::default()),
-            "user-defined" if !is_enum && udt_name.is_some() => {
-                Type::Unknown(udt_name.unwrap().to_owned())
-            }
+            "user-defined" => match (is_enum, udt_name) {
+                (true, _) => Type::Enum(EnumDef::default()),
+                #[cfg(feature = "postgres-vector")]
+                (false, Some("vector")) => Type::Vector(VectorDef::default()),
+                (false, Some(other_name)) => Type::Unknown(other_name.to_owned()),
+                _ => Type::Unknown("user-defined".to_owned()),
+            },
             "array" => Type::Array(ArrayDef::default()),
             _ => Type::Unknown(column_type.to_owned()),
         }
@@ -318,5 +321,35 @@ impl Type {
     #[cfg(feature = "postgres-vector")]
     pub fn has_vector_attr(&self) -> bool {
         matches!(self, Type::Vector(_))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_user_defined_enum_and_vector() {
+        assert_eq!(
+            Type::from_str("user-defined", None, true),
+            Type::Enum(EnumDef::default())
+        );
+
+        #[cfg(feature = "postgres-vector")]
+        assert_eq!(
+            Type::from_str("user-defined", Some("vector"), false),
+            Type::Vector(VectorDef::default())
+        );
+
+        #[cfg(not(feature = "postgres-vector"))]
+        assert_eq!(
+            Type::from_str("user-defined", Some("vector"), false),
+            Type::Unknown("vector".into())
+        );
+
+        assert_eq!(
+            Type::from_str("user-defined", Some("foo_bar"), false),
+            Type::Unknown("foo_bar".into())
+        );
     }
 }
