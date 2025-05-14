@@ -1,6 +1,6 @@
 use crate::mysql::def::*;
 use crate::mysql::query::ColumnQueryResult;
-use crate::{parser::Parser, Name};
+use crate::{Name, parser::Parser};
 use sea_query::{EscapeBuilder, MysqlQueryBuilder};
 
 impl ColumnQueryResult {

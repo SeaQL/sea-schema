@@ -1,6 +1,6 @@
+use crate::Name;
 use crate::mysql::def::*;
 use crate::mysql::query::IndexQueryResult;
-use crate::Name;
 
 pub struct IndexQueryResultParser {
     curr: Option<IndexInfo>,

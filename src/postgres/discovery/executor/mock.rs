@@ -1,4 +1,4 @@
-use crate::sqlx_types::{postgres::PgRow, PgPool};
+use crate::sqlx_types::{PgPool, postgres::PgRow};
 use sea_query::{PostgresQueryBuilder, SelectStatement};
 
 use crate::{debug_print, sqlx_types::SqlxError};

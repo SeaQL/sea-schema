@@ -1,7 +1,7 @@
 use sea_query::{Condition, Expr, Query, SelectStatement, SimpleExpr};
 
-use super::query::{SqliteMaster, SqliteSchema};
 use super::Sqlite;
+use super::query::{SqliteMaster, SqliteSchema};
 use crate::probe::{Has, Schema, SchemaProbe};
 
 impl SchemaProbe for Sqlite {

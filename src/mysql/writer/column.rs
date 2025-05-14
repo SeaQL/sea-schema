@@ -1,7 +1,7 @@
 use crate::mysql::def::{CharSet, ColumnDefault, ColumnInfo, NumericAttr, StringAttr, Type};
 use sea_query::{
-    extension::mysql::MySqlType, Alias, ColumnDef, DynIden, EscapeBuilder, Expr, Iden, IntoIden,
-    Keyword, MysqlQueryBuilder, SimpleExpr,
+    Alias, ColumnDef, DynIden, EscapeBuilder, Expr, Iden, IntoIden, Keyword, MysqlQueryBuilder,
+    SimpleExpr, extension::mysql::MySqlType,
 };
 use std::fmt::Write;
 
