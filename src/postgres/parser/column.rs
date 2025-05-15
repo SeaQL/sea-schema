@@ -24,7 +24,7 @@ pub fn parse_column_type(result: &ColumnQueryResult, enums: &EnumVariantMap) -> 
     let is_enum = result
         .udt_name
         .as_ref()
-        .map_or(false, |udt_name| enums.contains_key(udt_name));
+        .is_some_and(|udt_name| enums.contains_key(udt_name));
     let mut ctype = Type::from_str(
         result.column_type.as_str(),
         result.udt_name.as_deref(),
