@@ -1,6 +1,6 @@
 use sea_query::{MysqlQueryBuilder, SelectStatement};
 use sea_query_binder::SqlxBinder;
-use sqlx::{mysql::MySqlRow, MySqlPool, Row};
+use sqlx::{MySqlPool, Row, mysql::MySqlRow};
 
 use crate::{debug_print, sqlx_types::SqlxError};
 

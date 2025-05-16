@@ -1,4 +1,4 @@
-use crate::sqlx_types::{mysql::MySqlRow, MySqlPool};
+use crate::sqlx_types::{MySqlPool, mysql::MySqlRow};
 use sea_query::{MysqlQueryBuilder, SelectStatement};
 
 use crate::{debug_print, sqlx_types::SqlxError};

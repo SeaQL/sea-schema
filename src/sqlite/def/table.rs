@@ -9,7 +9,7 @@ use crate::sqlite::query::SqliteMaster;
 use crate::sqlite::{error::DiscoveryResult, executor::Executor};
 
 #[allow(unused_imports)]
-use crate::sqlx_types::{sqlite::SqliteRow, Row};
+use crate::sqlx_types::{Row, sqlite::SqliteRow};
 
 /// Defines a table for SQLite
 #[derive(Debug, Default, Clone)]

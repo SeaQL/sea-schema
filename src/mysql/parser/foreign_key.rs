@@ -1,6 +1,6 @@
+use crate::Name;
 use crate::mysql::def::*;
 use crate::mysql::query::ForeignKeyQueryResult;
-use crate::Name;
 
 pub struct ForeignKeyQueryResultParser {
     curr: Option<ForeignKeyInfo>,

@@ -33,11 +33,7 @@ pub struct NotNull;
 
 impl NotNull {
     pub fn from_bool(boolean: bool) -> Option<NotNull> {
-        if boolean {
-            Some(NotNull)
-        } else {
-            None
-        }
+        if boolean { Some(NotNull) } else { None }
     }
 }
 

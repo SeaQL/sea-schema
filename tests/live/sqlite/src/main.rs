@@ -1,6 +1,6 @@
 use pretty_assertions::assert_eq;
-use sqlx::sqlite::SqlitePoolOptions;
 use sqlx::SqlitePool;
+use sqlx::sqlite::SqlitePoolOptions;
 use std::collections::HashMap;
 
 use sea_schema::sea_query::{

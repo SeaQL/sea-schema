@@ -2,13 +2,14 @@
 name = "sea-schema-derive"
 version = "0.3.0"
 authors = [ "Chris Tsang <tyt2y7@gmail.com>" ]
-edition = "2018"
+edition = "2024"
 description = "Derive macro for sea-schema's Name trait"
 license = "MIT OR Apache-2.0"
 documentation = "https://docs.rs/sea-schema"
 repository = "https://github.com/SeaQL/sea-schema"
 categories = [ "database" ]
 keywords = [ "database", "sql", "mysql", "postgres", "sqlite" ]
+rust-version = "1.85.0"
 
 [lib]
 proc-macro = true

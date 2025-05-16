@@ -1,6 +1,6 @@
+use crate::Name;
 use crate::mysql::def::*;
 use crate::mysql::query::TableQueryResult;
-use crate::Name;
 
 impl TableQueryResult {
     pub fn parse(self) -> TableInfo {

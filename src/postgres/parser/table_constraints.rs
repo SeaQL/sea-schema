@@ -1,5 +1,5 @@
-use crate::postgres::{def::*, query::TableConstraintsQueryResult};
 use crate::Name;
+use crate::postgres::{def::*, query::TableConstraintsQueryResult};
 
 pub struct TableConstraintsQueryResultParser {
     curr: Option<TableConstraintsQueryResult>,

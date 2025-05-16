@@ -1,4 +1,4 @@
-use crate::sqlx_types::{sqlite::SqliteRow, SqlitePool};
+use crate::sqlx_types::{SqlitePool, sqlite::SqliteRow};
 use sea_query::{SelectStatement, SqliteQueryBuilder};
 
 use crate::{debug_print, sqlx_types::SqlxError};

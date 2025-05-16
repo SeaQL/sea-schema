@@ -3,8 +3,8 @@ use proc_macro::{self, TokenStream};
 use proc_macro2::Span;
 use quote::{quote, quote_spanned};
 use syn::{
-    parse_macro_input, Attribute, DataEnum, DataStruct, DeriveInput, Expr, ExprLit, Fields, Ident,
-    Lit, Meta, Variant,
+    Attribute, DataEnum, DataStruct, DeriveInput, Expr, ExprLit, Fields, Ident, Lit, Meta, Variant,
+    parse_macro_input,
 };
 
 fn get_iden_attr(attrs: &[Attribute]) -> Option<&syn::Expr> {
@@ -86,7 +86,7 @@ pub fn derive_iden(input: TokenStream) -> TokenStream {
                         }
                     }
                 }
-                .into()
+                .into();
             }
             _ => return quote_spanned! {
                 ident.span() => compile_error!("you can only derive Name on enums or unit structs");

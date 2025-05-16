@@ -1,12 +1,12 @@
 use super::DefaultType;
 use sea_query::{
-    foreign_key::ForeignKeyAction as SeaQueryForeignKeyAction, Alias, ColumnType, Index,
-    IndexCreateStatement,
+    Alias, ColumnType, Index, IndexCreateStatement,
+    foreign_key::ForeignKeyAction as SeaQueryForeignKeyAction,
 };
 use std::num::ParseIntError;
 
 #[allow(unused_imports)]
-use crate::sqlx_types::{sqlite::SqliteRow, Row};
+use crate::sqlx_types::{Row, sqlite::SqliteRow};
 
 /// An SQLite column definition
 #[derive(Debug, PartialEq, Clone)]

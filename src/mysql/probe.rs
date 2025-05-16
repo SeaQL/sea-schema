@@ -1,7 +1,7 @@
 use sea_query::{Condition, Expr, Query, SelectStatement, SimpleExpr};
 
-use super::query::{InformationSchema as Schema, StatisticsFields, TablesFields};
 use super::MySql;
+use super::query::{InformationSchema as Schema, StatisticsFields, TablesFields};
 use crate::probe::{Has, SchemaProbe};
 
 impl SchemaProbe for MySql {

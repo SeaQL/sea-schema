@@ -1,7 +1,7 @@
 use sea_query::{Condition, Expr, Query, SelectStatement, SimpleExpr};
 
-use super::query::{InformationSchema as Schema, PgIndexes, TablesFields};
 use super::Postgres;
+use super::query::{InformationSchema as Schema, PgIndexes, TablesFields};
 use crate::probe::{Has, SchemaProbe};
 
 impl SchemaProbe for Postgres {
