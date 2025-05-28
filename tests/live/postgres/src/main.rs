@@ -2,8 +2,8 @@ use pretty_assertions::assert_eq;
 use sea_schema::postgres::{def::TableDef, discovery::SchemaDiscovery};
 use sea_schema::sea_query::TableRef;
 use sea_schema::sea_query::{
-    extension::postgres::Type, Alias, ColumnDef, ColumnType, Expr, ForeignKey, ForeignKeyAction,
-    Index, PostgresQueryBuilder, Table, TableCreateStatement,
+    Alias, ColumnDef, ColumnType, Expr, ForeignKey, ForeignKeyAction, Index, PostgresQueryBuilder,
+    Table, TableCreateStatement, extension::postgres::Type,
 };
 use sqlx::{PgPool, Pool, Postgres};
 use std::collections::HashMap;

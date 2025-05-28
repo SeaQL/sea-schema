@@ -1,4 +1,4 @@
-use super::{select_base_table_and_view, InformationSchema, SchemaQueryBuilder};
+use super::{InformationSchema, SchemaQueryBuilder, select_base_table_and_view};
 use crate::sqlx_types::postgres::PgRow;
 use sea_query::{Expr, Iden, Query, SeaRc, SelectStatement};
 

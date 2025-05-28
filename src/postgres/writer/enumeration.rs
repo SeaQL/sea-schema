@@ -1,7 +1,7 @@
 use crate::postgres::def::EnumDef;
 use sea_query::{
-    extension::postgres::{Type, TypeCreateStatement},
     Alias,
+    extension::postgres::{Type, TypeCreateStatement},
 };
 
 impl EnumDef {
