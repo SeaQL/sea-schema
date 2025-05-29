@@ -75,9 +75,12 @@ impl ColumnInfo {
                 };
                 col_def = self.write_num_attr(col_def, num_attr);
             }
-            Type::MediumInt(_) => {
-                // FIXME: Unresolved type mapping
-                col_def.custom(self.col_type.clone());
+            Type::MediumInt(num_attr) => {
+                match num_attr.unsigned {
+                    Some(_) => col_def.unsigned(),
+                    None => col_def.integer(),
+                };
+                col_def = self.write_num_attr(col_def, num_attr);
             }
             Type::Int(num_attr) => {
                 match num_attr.unsigned {
@@ -169,8 +172,9 @@ impl ColumnInfo {
                 col_def = self.write_str_attr(col_def, str_attr);
             }
             Type::TinyText(_) => {
-                // FIXME: Unresolved type mapping
-                col_def.custom(self.col_type.clone());
+                // map to varchar(255)
+                col_def.string_len(255);
+                col_def.extra(format!("CHARACTER SET {}", CharSet::Utf8.to_string()));
             }
             Type::MediumText(_) => {
                 // FIXME: Unresolved type mapping
