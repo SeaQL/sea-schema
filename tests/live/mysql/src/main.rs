@@ -37,7 +37,7 @@ async fn main() {
 
     for tbl_create_stmt in tbl_create_stmts.iter() {
         let sql = tbl_create_stmt.to_string(MysqlQueryBuilder);
-        println!("{};", sql);
+        println!("{sql};");
         println!();
         sqlx::query(&sql).execute(&mut *executor).await.unwrap();
     }
@@ -49,7 +49,7 @@ async fn main() {
         .await
         .expect("Error discovering schema");
 
-    println!("{:#?}", schema);
+    println!("{schema:#?}");
 
     let map: HashMap<String, TableDef> = schema
         .tables
@@ -67,9 +67,9 @@ async fn main() {
         let sql = table.write().to_string(MysqlQueryBuilder);
         let sql = strip_generated_sql(sql);
         println!("Expected SQL:");
-        println!("{};", expected_sql);
+        println!("{expected_sql};");
         println!("Generated SQL:");
-        println!("{};", sql);
+        println!("{sql};");
         println!();
         assert_eq!(expected_sql, sql);
     }
@@ -91,7 +91,7 @@ fn strip_generated_sql(mut sql: String) -> String {
 }
 
 async fn setup(base_url: &str, db_name: &str) -> Pool<MySql> {
-    let url = format!("{}/mysql", base_url);
+    let url = format!("{base_url}/mysql");
     let mut connection = MySqlPool::connect(&url)
         .await
         .unwrap()
@@ -99,18 +99,18 @@ async fn setup(base_url: &str, db_name: &str) -> Pool<MySql> {
         .await
         .unwrap();
 
-    let _drop_db_result = sqlx::query(&format!("DROP DATABASE IF EXISTS `{}`;", db_name))
+    let _drop_db_result = sqlx::query(&format!("DROP DATABASE IF EXISTS `{db_name}`;"))
         .bind(db_name)
         .execute(&mut *connection)
         .await
         .unwrap();
 
-    let _create_db_result = sqlx::query(&format!("CREATE DATABASE `{}`;", db_name))
+    let _create_db_result = sqlx::query(&format!("CREATE DATABASE `{db_name}`;"))
         .execute(&mut *connection)
         .await
         .unwrap();
 
-    let url = format!("{}/{}", base_url, db_name);
+    let url = format!("{base_url}/{db_name}");
     MySqlPool::connect(&url).await.unwrap()
 }
 

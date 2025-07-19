@@ -14,7 +14,7 @@ async fn main() -> DiscoveryResult<()> {
 
     // println!("{}", serde_json::to_string_pretty(&schema).unwrap());
 
-    println!("{:#?}", schema);
+    println!("{schema:#?}");
 
     Ok(())
 }

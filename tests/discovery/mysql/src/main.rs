@@ -19,5 +19,5 @@ async fn main() {
 
     // println!("{}", serde_json::to_string_pretty(&schema).unwrap());
 
-    println!("{:#?}", schema);
+    println!("{schema:#?}");
 }
