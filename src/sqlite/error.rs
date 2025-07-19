@@ -44,7 +44,7 @@ impl std::fmt::Display for SqliteDiscoveryError {
         match self {
             SqliteDiscoveryError::ParseIntError => write!(f, "Parse Integer Error"),
             SqliteDiscoveryError::ParseFloatError => write!(f, "Parse Float Error Error"),
-            SqliteDiscoveryError::SqlxError(e) => write!(f, "SQLx Error: {:?}", e),
+            SqliteDiscoveryError::SqlxError(e) => write!(f, "SQLx Error: {e:?}"),
             SqliteDiscoveryError::NoIndexesFound => write!(f, "No Indexes Found Error"),
         }
     }
