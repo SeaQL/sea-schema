@@ -1,6 +1,8 @@
 use super::SchemaQueryBuilder;
 use crate::sqlx_types::postgres::PgRow;
-use sea_query::{Alias, Condition, Expr, Iden, JoinType, Order, Query, SeaRc, SelectStatement};
+use sea_query::{
+    Alias, Condition, DynIden, Expr, ExprTrait, Iden, JoinType, Order, Query, SelectStatement,
+};
 
 #[derive(Debug, Iden)]
 pub enum PgIndexes {
@@ -63,11 +65,7 @@ pub struct UniqueIndexQueryResult {
 }
 
 impl SchemaQueryBuilder {
-    pub fn query_table_unique_indexes(
-        &self,
-        schema: SeaRc<dyn Iden>,
-        table: SeaRc<dyn Iden>,
-    ) -> SelectStatement {
+    pub fn query_table_unique_indexes(&self, schema: DynIden, table: DynIden) -> SelectStatement {
         let idx = Alias::new("idx");
         let insp = Alias::new("insp");
         let tbl = Alias::new("tbl");

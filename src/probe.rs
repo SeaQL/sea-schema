@@ -1,4 +1,4 @@
-use sea_query::{Condition, Expr, Iden, Query, SelectStatement, SimpleExpr};
+use sea_query::{Condition, Expr, ExprTrait, Iden, Query, SelectStatement, SimpleExpr};
 
 pub trait SchemaProbe {
     fn get_current_schema() -> SimpleExpr;

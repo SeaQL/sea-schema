@@ -9,7 +9,7 @@ use crate::mysql::query::{
 };
 use crate::sqlx_types::SqlxError;
 use futures::future;
-use sea_query::{Alias, Iden, IntoIden, SeaRc};
+use sea_query::{Alias, DynIden, IntoIden, SeaRc};
 
 mod executor;
 pub use executor::*;
@@ -17,7 +17,7 @@ pub use executor::*;
 pub struct SchemaDiscovery {
     pub query: SchemaQueryBuilder,
     pub executor: Executor,
-    pub schema: SeaRc<dyn Iden>,
+    pub schema: DynIden,
 }
 
 impl SchemaDiscovery {
@@ -112,8 +112,8 @@ impl SchemaDiscovery {
 
     pub async fn discover_columns(
         &self,
-        schema: SeaRc<dyn Iden>,
-        table: SeaRc<dyn Iden>,
+        schema: DynIden,
+        table: DynIden,
         system: &SystemInfo,
     ) -> Result<Vec<ColumnInfo>, SqlxError> {
         let rows = self
@@ -137,8 +137,8 @@ impl SchemaDiscovery {
 
     pub async fn discover_indexes(
         &self,
-        schema: SeaRc<dyn Iden>,
-        table: SeaRc<dyn Iden>,
+        schema: DynIden,
+        table: DynIden,
     ) -> Result<Vec<IndexInfo>, SqlxError> {
         let rows = self
             .executor
@@ -161,8 +161,8 @@ impl SchemaDiscovery {
 
     pub async fn discover_foreign_keys(
         &self,
-        schema: SeaRc<dyn Iden>,
-        table: SeaRc<dyn Iden>,
+        schema: DynIden,
+        table: DynIden,
     ) -> Result<Vec<ForeignKeyInfo>, SqlxError> {
         let rows = self
             .executor

@@ -1,6 +1,6 @@
 use super::{InformationSchema, SchemaQueryBuilder, select_base_table_and_view};
 use crate::sqlx_types::postgres::PgRow;
-use sea_query::{Expr, Iden, Query, SeaRc, SelectStatement};
+use sea_query::{DynIden, Expr, ExprTrait, Iden, Query, SelectStatement};
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://www.postgresql.org/docs/13/infoschema-tables.html
@@ -36,7 +36,7 @@ pub struct TableQueryResult {
 }
 
 impl SchemaQueryBuilder {
-    pub fn query_tables(&self, schema: SeaRc<dyn Iden>) -> SelectStatement {
+    pub fn query_tables(&self, schema: DynIden) -> SelectStatement {
         Query::select()
             .columns(vec![
                 TablesFields::TableName,

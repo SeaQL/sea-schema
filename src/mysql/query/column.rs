@@ -1,6 +1,6 @@
 use super::{InformationSchema, SchemaQueryBuilder};
 use crate::sqlx_types::mysql::MySqlRow;
-use sea_query::{Expr, Iden, Order, Query, SeaRc, SelectStatement, Value};
+use sea_query::{DynIden, Expr, ExprTrait, Order, Query, SelectStatement, Value};
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-columns-table.html
@@ -42,11 +42,7 @@ pub struct ColumnQueryResult {
 }
 
 impl SchemaQueryBuilder {
-    pub fn query_columns(
-        &self,
-        schema: SeaRc<dyn Iden>,
-        table: SeaRc<dyn Iden>,
-    ) -> SelectStatement {
+    pub fn query_columns(&self, schema: DynIden, table: DynIden) -> SelectStatement {
         Query::select()
             .columns([
                 ColumnFields::ColumnName,

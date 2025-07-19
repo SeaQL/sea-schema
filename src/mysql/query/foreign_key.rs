@@ -1,6 +1,6 @@
 use super::{InformationSchema, SchemaQueryBuilder};
 use crate::sqlx_types::mysql::MySqlRow;
-use sea_query::{Expr, Iden, Order, Query, SeaRc, SelectStatement};
+use sea_query::{DynIden, Expr, ExprTrait, Order, Query, SelectStatement};
 
 #[derive(Debug, sea_query::Iden)]
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-key-column-usage-table.html
@@ -41,11 +41,7 @@ pub struct ForeignKeyQueryResult {
 }
 
 impl SchemaQueryBuilder {
-    pub fn query_foreign_key(
-        &self,
-        schema: SeaRc<dyn Iden>,
-        table: SeaRc<dyn Iden>,
-    ) -> SelectStatement {
+    pub fn query_foreign_key(&self, schema: DynIden, table: DynIden) -> SelectStatement {
         type Schema = InformationSchema;
         type Key = KeyColumnUsageFields;
         type Ref = ReferentialConstraintsFields;

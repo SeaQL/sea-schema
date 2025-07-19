@@ -1,4 +1,4 @@
-use sea_query::{Condition, Expr, Query, SelectStatement, SimpleExpr};
+use sea_query::{Condition, Expr, ExprTrait, Query, SelectStatement, SimpleExpr};
 
 use super::Postgres;
 use super::query::{InformationSchema as Schema, PgIndexes, TablesFields};

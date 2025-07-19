@@ -10,7 +10,9 @@ pub use table_constraints::*;
 
 use super::{InformationSchema, SchemaQueryBuilder};
 use crate::{postgres::query::select_base_table_and_view, sqlx_types::postgres::PgRow};
-use sea_query::{Alias, Condition, Expr, Iden, JoinType, Order, Query, SeaRc, SelectStatement};
+use sea_query::{
+    Alias, Condition, DynIden, Expr, ExprTrait, JoinType, Order, Query, SelectStatement,
+};
 
 #[derive(Debug, Default)]
 pub struct TableConstraintsQueryResult {
@@ -44,11 +46,7 @@ pub struct TableConstraintsQueryResult {
 }
 
 impl SchemaQueryBuilder {
-    pub fn query_table_constraints(
-        &self,
-        schema: SeaRc<dyn Iden>,
-        table: SeaRc<dyn Iden>,
-    ) -> SelectStatement {
+    pub fn query_table_constraints(&self, schema: DynIden, table: DynIden) -> SelectStatement {
         type Schema = InformationSchema;
         type Tcf = TableConstraintsField;
         type Cf = CheckConstraintsFields;

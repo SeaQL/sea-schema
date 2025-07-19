@@ -1,4 +1,4 @@
-use sea_query::{Condition, Expr, Iden, JoinType, Query, SelectStatement};
+use sea_query::{Condition, Expr, ExprTrait, Iden, JoinType, Query, SelectStatement};
 
 #[derive(Debug, Default)]
 pub struct SchemaQueryBuilder {}

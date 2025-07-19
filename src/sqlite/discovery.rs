@@ -1,4 +1,4 @@
-use sea_query::{Alias, Expr, SelectStatement};
+use sea_query::{Alias, Expr, ExprTrait, SelectStatement};
 
 use super::def::{IndexInfo, Schema, TableDef};
 pub use super::error::DiscoveryResult;

@@ -1,5 +1,6 @@
 use sea_query::{
-    Alias, ColumnDef, Expr, ForeignKey, Index, Keyword, Query, Table, TableCreateStatement, Value,
+    Alias, ColumnDef, Expr, ExprTrait, ForeignKey, Index, Keyword, Query, Table,
+    TableCreateStatement, Value,
 };
 
 use super::{

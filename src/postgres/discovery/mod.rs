@@ -11,7 +11,7 @@ use crate::postgres::query::{
 };
 use crate::sqlx_types::SqlxError;
 use futures::future;
-use sea_query::{Alias, Iden, IntoIden, SeaRc};
+use sea_query::{Alias, DynIden, IntoIden, SeaRc};
 use std::collections::HashMap;
 
 mod executor;
@@ -22,7 +22,7 @@ pub(crate) type EnumVariantMap = HashMap<String, Vec<String>>;
 pub struct SchemaDiscovery {
     pub query: SchemaQueryBuilder,
     pub executor: Executor,
-    pub schema: SeaRc<dyn Iden>,
+    pub schema: DynIden,
 }
 
 impl SchemaDiscovery {
@@ -139,8 +139,8 @@ impl SchemaDiscovery {
 
     pub async fn discover_columns(
         &self,
-        schema: SeaRc<dyn Iden>,
-        table: SeaRc<dyn Iden>,
+        schema: DynIden,
+        table: DynIden,
         enums: &EnumVariantMap,
     ) -> Result<Vec<ColumnInfo>, SqlxError> {
         let rows = self
@@ -162,8 +162,8 @@ impl SchemaDiscovery {
 
     pub async fn discover_constraints(
         &self,
-        schema: SeaRc<dyn Iden>,
-        table: SeaRc<dyn Iden>,
+        schema: DynIden,
+        table: DynIden,
     ) -> Result<Vec<Constraint>, SqlxError> {
         let rows = self
             .executor
@@ -189,8 +189,8 @@ impl SchemaDiscovery {
 
     pub async fn discover_unique_indexes(
         &self,
-        schema: SeaRc<dyn Iden>,
-        table: SeaRc<dyn Iden>,
+        schema: DynIden,
+        table: DynIden,
     ) -> Result<Vec<Unique>, SqlxError> {
         let rows = self
             .executor
