@@ -180,9 +180,8 @@ impl SchemaDiscovery {
         });
 
         Ok(parse_table_constraint_query_results(Box::new(results))
-            .map(|index| {
-                debug_print!("{:?}", index);
-                index
+            .inspect(|_index| {
+                debug_print!("{:?}", _index);
             })
             .collect())
     }
@@ -207,9 +206,8 @@ impl SchemaDiscovery {
         });
 
         Ok(parse_unique_index_query_results(Box::new(results))
-            .map(|index| {
-                debug_print!("{:?}", index);
-                index
+            .inspect(|_index| {
+                debug_print!("{:?}", _index);
             })
             .collect())
     }

@@ -164,7 +164,7 @@ impl Iden for Type {
             Self::MultiPolygon(_) => "MULTIPOLYGON",
             Self::GeometryCollection(_) => "GEOMETRYCOLLECTION",
             Self::Json => "JSON",
-            Self::Unknown(string) => &string,
+            Self::Unknown(string) => string,
         }
     }
 }

@@ -152,9 +152,8 @@ impl SchemaDiscovery {
         });
 
         Ok(parse_index_query_results(Box::new(results))
-            .map(|index| {
-                debug_print!("{:?}", index);
-                index
+            .inspect(|_index| {
+                debug_print!("{:?}", _index);
             })
             .collect())
     }
@@ -176,9 +175,8 @@ impl SchemaDiscovery {
         });
 
         Ok(parse_foreign_key_query_results(Box::new(results))
-            .map(|index| {
-                debug_print!("{:?}", index);
-                index
+            .inspect(|_index| {
+                debug_print!("{:?}", _index);
             })
             .collect())
     }
