@@ -43,6 +43,7 @@ impl NotNull {
 pub struct Unique {
     pub name: String,
     pub columns: Vec<String>,
+    pub is_partial: bool,
 }
 
 #[derive(Clone, Debug, PartialEq)]
