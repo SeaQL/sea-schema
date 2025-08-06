@@ -245,7 +245,7 @@ impl TableDef {
                     new_column.default(Value::Float(Some(*float_value)));
                 }
                 DefaultType::String(string_value) => {
-                    new_column.default(Value::String(Some(Box::new(string_value.to_string()))));
+                    new_column.default(Value::String(Some(string_value.to_string())));
                 }
                 DefaultType::Null => (),
                 DefaultType::Unspecified => (),
