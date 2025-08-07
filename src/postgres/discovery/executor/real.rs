@@ -1,5 +1,5 @@
 use sea_query::{PostgresQueryBuilder, SelectStatement};
-use sea_query_binder::SqlxBinder;
+use sea_query_sqlx::SqlxBinder;
 use sqlx::{PgPool, postgres::PgRow};
 
 use crate::{debug_print, sqlx_types::SqlxError};

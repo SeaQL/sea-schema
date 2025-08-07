@@ -1,5 +1,5 @@
 use sea_query::{SelectStatement, SqliteQueryBuilder};
-use sea_query_binder::SqlxBinder;
+use sea_query_sqlx::SqlxBinder;
 use sqlx::{SqlitePool, sqlite::SqliteRow};
 
 use crate::{debug_print, sqlx_types::SqlxError};
