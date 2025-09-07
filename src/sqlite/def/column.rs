@@ -185,17 +185,17 @@ impl From<&SqliteRow> for PrimaryKeyAutoincrement {
 }
 
 /// Indexes the foreign keys
-#[allow(dead_code)]
 #[derive(Debug, Default, Clone)]
+#[non_exhaustive]
 pub struct ForeignKeysInfo {
-    pub(crate) id: i32,
-    pub(crate) seq: i32,
-    pub(crate) table: String,
-    pub(crate) from: Vec<String>,
-    pub(crate) to: Vec<String>,
-    pub(crate) on_update: ForeignKeyAction,
-    pub(crate) on_delete: ForeignKeyAction,
-    pub(crate) r#match: MatchAction,
+    pub id: i32,
+    pub seq: i32,
+    pub table: String,
+    pub from: Vec<String>,
+    pub to: Vec<String>,
+    pub on_update: ForeignKeyAction,
+    pub on_delete: ForeignKeyAction,
+    pub r#match: MatchAction,
 }
 
 #[cfg(feature = "sqlx-sqlite")]
