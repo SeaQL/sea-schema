@@ -26,6 +26,8 @@ pub enum PgIndex {
     IndIsUnique,
     #[iden = "indisprimary"]
     IndIsPrimary,
+    #[iden = "indpred"]
+    IndPred,
 }
 
 #[derive(Debug, Iden)]
@@ -62,6 +64,7 @@ pub struct UniqueIndexQueryResult {
     pub table_schema: String,
     pub table_name: String,
     pub column_name: String,
+    pub is_partial: bool,
 }
 
 impl SchemaQueryBuilder {
@@ -71,12 +74,14 @@ impl SchemaQueryBuilder {
         let tbl = Alias::new("tbl");
         let tnsp = Alias::new("tnsp");
         let col = Alias::new("col");
+        let partially = "partially";
 
         Query::select()
             .column((idx.clone(), PgClass::RelName))
             .column((insp.clone(), PgNamespace::NspName))
             .column((tbl.clone(), PgClass::RelName))
             .column((col.clone(), PgAttribute::AttName))
+            .expr_as(Expr::col(PgIndex::IndPred).is_not_null(), partially)
             .from(PgIndex::Table)
             .join_as(
                 JoinType::Join,
@@ -133,6 +138,7 @@ impl From<&PgRow> for UniqueIndexQueryResult {
             table_schema: row.get(1),
             table_name: row.get(2),
             column_name: row.get(3),
+            is_partial: row.get(4),
         }
     }
 }

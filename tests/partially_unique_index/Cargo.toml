@@ -1,0 +1,24 @@
+[package]
+name = "test-partially-unique-index"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[[bin]]
+name = "main"
+path = "src/main.rs"
+
+[dependencies]
+sea-schema = { path = "../..", features = [
+	"postgres",
+	"sqlx-postgres",
+	"discovery",
+], default-features = false }
+async-std = { version = "1.8", features = [
+	"attributes",
+	"tokio1",
+] }
+postgresql_embedded = { version = "0.19", features = [
+	"blocking",
+] }
+sqlx = "0.8"
