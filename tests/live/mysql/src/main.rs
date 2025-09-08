@@ -3,7 +3,7 @@ use regex::Regex;
 use sea_schema::mysql::{def::TableDef, discovery::SchemaDiscovery};
 use sea_schema::sea_query::{
     Alias, ColumnDef, Expr, ForeignKey, ForeignKeyAction, Index, MysqlQueryBuilder, Table,
-    TableCreateStatement, TableRef,
+    TableCreateStatement, TableName, TableRef,
 };
 use sqlx::{MySql, MySqlPool, Pool};
 use std::collections::HashMap;
@@ -60,7 +60,7 @@ async fn main() {
     for tbl_create_stmt in tbl_create_stmts.into_iter() {
         let expected_sql = tbl_create_stmt.to_string(MysqlQueryBuilder);
         let tbl_name = match tbl_create_stmt.get_table_name() {
-            Some(TableRef::Table(tbl)) => tbl.to_string(),
+            Some(TableRef::Table(TableName(_, tbl), _)) => tbl.to_string(),
             _ => unimplemented!(),
         };
         let table = map.get(&tbl_name).unwrap();

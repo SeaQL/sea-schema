@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 use sea_schema::sea_query::{
     Alias, ColumnDef, Expr, ForeignKey, ForeignKeyAction, ForeignKeyCreateStatement, Index, Query,
-    SqliteQueryBuilder, Table, TableCreateStatement, TableRef,
+    SqliteQueryBuilder, Table, TableCreateStatement, TableName, TableRef,
 };
 use sea_schema::sqlite::{
     def::TableDef,
@@ -279,7 +279,7 @@ async fn test_002() -> DiscoveryResult<()> {
 
     for tbl_create_stmt in tbl_create_stmts.into_iter() {
         let tbl_name = match tbl_create_stmt.get_table_name() {
-            Some(TableRef::Table(tbl)) => tbl.to_string(),
+            Some(TableRef::Table(TableName(_, tbl), _)) => tbl.to_string(),
             _ => unimplemented!(),
         };
         let expected_sql = if tbl_name.as_str() == "order" {
