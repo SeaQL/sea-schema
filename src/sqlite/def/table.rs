@@ -13,7 +13,7 @@ use crate::sqlite::{error::DiscoveryResult, executor::Executor};
 use crate::sqlx_types::{Row, sqlite::SqliteRow};
 
 /// Defines a table for SQLite
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct TableDef {
     /// The table name
     pub name: String,
