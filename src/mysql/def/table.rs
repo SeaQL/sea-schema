@@ -10,7 +10,7 @@ pub struct TableInfo {
     pub name: String,
     pub engine: StorageEngine,
     pub auto_increment: Option<u64>,
-    pub char_set: CharSet,
-    pub collation: Collation,
+    pub char_set: Option<CharSet>,
+    pub collation: Option<Collation>,
     pub comment: String,
 }

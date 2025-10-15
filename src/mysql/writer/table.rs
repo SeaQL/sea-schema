@@ -8,9 +8,13 @@ impl TableDef {
         for col in self.columns.iter() {
             table.col(col.write());
         }
-        table.engine(self.info.engine.to_string().as_str());
-        table.character_set(self.info.char_set.to_string().as_str());
-        table.collate(self.info.collation.to_string().as_str());
+        table.engine(&self.info.engine.to_string());
+        if let Some(char_set) = &self.info.char_set {
+            table.character_set(&char_set.to_string());
+        }
+        if let Some(collation) = &self.info.collation {
+            table.collate(&collation.to_string());
+        }
         for idx in self.indexes.iter() {
             table.index(&mut idx.write());
         }
@@ -34,8 +38,8 @@ mod tests {
                     name: "actor".to_owned(),
                     engine: StorageEngine::InnoDb,
                     auto_increment: None,
-                    char_set: CharSet::Utf8Mb4,
-                    collation: Collation::Utf8Mb40900AiCi,
+                    char_set: Some(CharSet::Utf8Mb4),
+                    collation: Some(Collation::Utf8Mb40900AiCi),
                     comment: "".to_owned(),
                 },
                 columns: vec![
@@ -154,8 +158,8 @@ mod tests {
                     name: "film_actor".to_owned(),
                     engine: StorageEngine::InnoDb,
                     auto_increment: None,
-                    char_set: CharSet::Utf8Mb4,
-                    collation: Collation::Utf8Mb40900AiCi,
+                    char_set: Some(CharSet::Utf8Mb4),
+                    collation: Some(Collation::Utf8Mb40900AiCi),
                     comment: "".to_owned(),
                 },
                 columns: vec![
@@ -320,8 +324,8 @@ mod tests {
                     name: "film_actor".to_owned(),
                     engine: StorageEngine::InnoDb,
                     auto_increment: None,
-                    char_set: CharSet::Utf8Mb4,
-                    collation: Collation::Utf8Mb40900AiCi,
+                    char_set: Some(CharSet::Utf8Mb4),
+                    collation: Some(Collation::Utf8Mb40900AiCi),
                     comment: "".to_owned(),
                 },
                 columns: vec![],
@@ -360,8 +364,8 @@ mod tests {
                     name: "film_actor".to_owned(),
                     engine: StorageEngine::InnoDb,
                     auto_increment: None,
-                    char_set: CharSet::Utf8Mb4,
-                    collation: Collation::Utf8Mb40900AiCi,
+                    char_set: Some(CharSet::Utf8Mb4),
+                    collation: Some(Collation::Utf8Mb40900AiCi),
                     comment: "".to_owned(),
                 },
                 columns: vec![],

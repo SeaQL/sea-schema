@@ -45,8 +45,8 @@ pub struct TableQueryResult {
     pub table_name: String,
     pub engine: String,
     pub auto_increment: Option<u64>,
-    pub table_char_set: String,
-    pub table_collation: String,
+    pub table_char_set: Option<String>,
+    pub table_collation: Option<String>,
     pub table_comment: String,
     pub create_options: String,
 }
@@ -95,10 +95,10 @@ impl From<&MySqlRow> for TableQueryResult {
             table_name: row.get_string(0),
             engine: row.get_string(1),
             auto_increment: row.get(2),
-            table_collation: row.get_string(3),
+            table_collation: row.get_string_opt(3),
             table_comment: row.get_string(4),
             create_options: row.get_string(5),
-            table_char_set: row.get_string(6),
+            table_char_set: row.get_string_opt(6),
         }
     }
 }
