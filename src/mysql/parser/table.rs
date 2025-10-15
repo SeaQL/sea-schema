@@ -13,16 +13,11 @@ pub fn parse_table_query_result(result: TableQueryResult) -> TableInfo {
         name: result.table_name,
         engine: StorageEngine::from_str(result.engine.as_str()).unwrap(),
         auto_increment: result.auto_increment,
-        char_set: result
-            .table_char_set
-            .as_deref()
-            .map(CharSet::from_str)
-            .unwrap(),
+        char_set: result.table_char_set.as_deref().and_then(CharSet::from_str),
         collation: result
             .table_collation
             .as_deref()
-            .map(Collation::from_str)
-            .unwrap(),
+            .and_then(Collation::from_str),
         comment: result.table_comment,
     }
 }
