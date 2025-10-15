@@ -8,12 +8,12 @@ impl TableDef {
         for col in self.columns.iter() {
             table.col(col.write());
         }
-        table.engine(&self.info.engine.to_string());
+        table.engine(self.info.engine.to_string());
         if let Some(char_set) = &self.info.char_set {
-            table.character_set(&char_set.to_string());
+            table.character_set(char_set.to_string());
         }
         if let Some(collation) = &self.info.collation {
-            table.collate(&collation.to_string());
+            table.collate(collation.to_string());
         }
         for idx in self.indexes.iter() {
             table.index(&mut idx.write());
