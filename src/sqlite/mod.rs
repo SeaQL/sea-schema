@@ -13,6 +13,7 @@ pub mod def;
 pub mod discovery;
 
 mod error;
+pub use error::*;
 mod executor;
 
 #[cfg(feature = "query")]
