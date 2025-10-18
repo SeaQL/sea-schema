@@ -61,7 +61,7 @@ pub fn parse_type(data_type: &str) -> Result<ColumnType, ParseIntError> {
         "json_text" => ColumnType::Json,
         "jsonb_text" => ColumnType::JsonBinary,
         "uuid_text" => ColumnType::Uuid,
-        _ => ColumnType::custom(data_type),
+        _ => ColumnType::custom(data_type.to_owned()),
     })
 }
 
