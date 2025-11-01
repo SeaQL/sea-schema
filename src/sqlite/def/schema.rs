@@ -10,7 +10,7 @@ impl Schema {
     pub fn merge_indexes_into_table(mut self) -> Self {
         for table in self.tables.iter_mut() {
             for index in self.indexes.iter() {
-                if index.unique && index.table_name == table.name {
+                if index.table_name == table.name {
                     table.constraints.push(index.clone());
                 }
             }
