@@ -231,19 +231,14 @@ impl From<&SqliteRow> for ForeignKeysInfo {
 }
 
 /// Indexes the actions performed on the foreign keys of a table
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, Default, PartialEq, Eq, Clone)]
 pub enum ForeignKeyAction {
+    #[default]
     NoAction,
     Restrict,
     SetNull,
     SetDefault,
     Cascade,
-}
-
-impl Default for ForeignKeyAction {
-    fn default() -> Self {
-        Self::NoAction
-    }
 }
 
 impl From<&str> for ForeignKeyAction {
@@ -272,18 +267,13 @@ impl ForeignKeyAction {
 }
 
 /// Maps to the SQLite `MATCH` actions
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, Default, PartialEq, Eq, Clone)]
 pub enum MatchAction {
     Simple,
     Partial,
     Full,
+    #[default]
     None,
-}
-
-impl Default for MatchAction {
-    fn default() -> Self {
-        Self::None
-    }
 }
 
 impl From<&str> for MatchAction {
