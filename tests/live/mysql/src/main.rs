@@ -76,7 +76,7 @@ async fn main() {
 }
 
 fn strip_generated_sql(mut sql: String) -> String {
-    for (pattern, replacement) in vec![
+    for (pattern, replacement) in [
         (Regex::new(r"(?i) DEFAULT NULL").unwrap(), ""),
         (Regex::new(r"(?i)TINYINT\(\d+\)").unwrap(), "tinyint"),
         (Regex::new(r"(?i)SMALLINT\(\d+\)").unwrap(), "smallint"),
