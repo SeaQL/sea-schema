@@ -21,5 +21,8 @@ pub(crate) mod util;
 pub mod name;
 pub use name::*;
 
+mod connection;
+pub use connection::*;
+
 #[cfg(feature = "probe")]
 pub mod probe;

@@ -1,12 +1,10 @@
 use super::DefaultType;
+use crate::sqlx_types::SqlxRow;
 use sea_query::{
     Alias, ColumnType, Index, IndexCreateStatement,
     foreign_key::ForeignKeyAction as SeaQueryForeignKeyAction,
 };
 use std::num::ParseIntError;
-
-#[allow(unused_imports)]
-use crate::sqlx_types::{Row, sqlite::SqliteRow};
 
 /// An SQLite column definition
 #[derive(Debug, PartialEq, Clone)]
@@ -22,7 +20,9 @@ pub struct ColumnInfo {
 #[cfg(feature = "sqlx-sqlite")]
 impl ColumnInfo {
     /// Map an [SqliteRow] into a column definition type [ColumnInfo]
-    pub fn to_column_def(row: &SqliteRow) -> Result<ColumnInfo, ParseIntError> {
+    pub fn to_column_def(row: SqlxRow) -> Result<ColumnInfo, ParseIntError> {
+        use crate::sqlx_types::Row;
+        let row = row.sqlite();
         let col_not_null: i8 = row.get(3);
         let is_pk: i8 = row.get(5);
         let default_value: &str = row.get(4);
@@ -55,7 +55,7 @@ impl ColumnInfo {
 
 #[cfg(not(feature = "sqlx-sqlite"))]
 impl ColumnInfo {
-    pub fn to_column_def(_: &SqliteRow) -> Result<ColumnInfo, ParseIntError> {
+    pub fn to_column_def(_: SqlxRow) -> Result<ColumnInfo, ParseIntError> {
         unimplemented!()
     }
 }
@@ -110,8 +110,10 @@ pub(crate) struct PartialIndexInfo {
 }
 
 #[cfg(feature = "sqlx-sqlite")]
-impl From<&SqliteRow> for PartialIndexInfo {
-    fn from(row: &SqliteRow) -> Self {
+impl From<SqlxRow> for PartialIndexInfo {
+    fn from(row: SqlxRow) -> Self {
+        use crate::sqlx_types::Row;
+        let row = row.sqlite();
         let is_unique: i8 = row.get(2);
         Self {
             seq: row.get(0),
@@ -124,8 +126,8 @@ impl From<&SqliteRow> for PartialIndexInfo {
 }
 
 #[cfg(not(feature = "sqlx-sqlite"))]
-impl From<&SqliteRow> for PartialIndexInfo {
-    fn from(_: &SqliteRow) -> Self {
+impl From<SqlxRow> for PartialIndexInfo {
+    fn from(_: SqlxRow) -> Self {
         Self::default()
     }
 }
@@ -143,9 +145,15 @@ pub(crate) struct IndexedColumns {
 }
 
 #[cfg(feature = "sqlx-sqlite")]
-impl From<(&SqliteRow, &[SqliteRow])> for IndexedColumns {
-    fn from((row, rows): (&SqliteRow, &[SqliteRow])) -> Self {
-        let columns_to_index = rows.iter().map(|row| row.get(2)).collect::<Vec<String>>();
+impl From<(SqlxRow, Vec<SqlxRow>)> for IndexedColumns {
+    fn from((row, rows): (SqlxRow, Vec<SqlxRow>)) -> Self {
+        use crate::sqlx_types::Row;
+
+        let row = row.sqlite();
+        let columns_to_index = rows
+            .into_iter()
+            .map(|r| r.sqlite().get(2))
+            .collect::<Vec<String>>();
 
         Self {
             r#type: row.get(0),
@@ -158,8 +166,8 @@ impl From<(&SqliteRow, &[SqliteRow])> for IndexedColumns {
 }
 
 #[cfg(not(feature = "sqlx-sqlite"))]
-impl From<(&SqliteRow, &[SqliteRow])> for IndexedColumns {
-    fn from(_: (&SqliteRow, &[SqliteRow])) -> Self {
+impl From<(SqlxRow, Vec<SqlxRow>)> for IndexedColumns {
+    fn from(_: (SqlxRow, Vec<SqlxRow>)) -> Self {
         Self::default()
     }
 }
@@ -171,15 +179,16 @@ impl From<(&SqliteRow, &[SqliteRow])> for IndexedColumns {
 pub(crate) struct PrimaryKeyAutoincrement(pub(crate) u8);
 
 #[cfg(feature = "sqlx-sqlite")]
-impl From<&SqliteRow> for PrimaryKeyAutoincrement {
-    fn from(row: &SqliteRow) -> Self {
-        Self(row.get(0))
+impl From<SqlxRow> for PrimaryKeyAutoincrement {
+    fn from(row: SqlxRow) -> Self {
+        use crate::sqlx_types::Row;
+        Self(row.sqlite().get(0))
     }
 }
 
 #[cfg(not(feature = "sqlx-sqlite"))]
-impl From<&SqliteRow> for PrimaryKeyAutoincrement {
-    fn from(_: &SqliteRow) -> Self {
+impl From<SqlxRow> for PrimaryKeyAutoincrement {
+    fn from(_: SqlxRow) -> Self {
         Self::default()
     }
 }
@@ -199,8 +208,10 @@ pub struct ForeignKeysInfo {
 }
 
 #[cfg(feature = "sqlx-sqlite")]
-impl From<&SqliteRow> for ForeignKeysInfo {
-    fn from(row: &SqliteRow) -> Self {
+impl From<SqlxRow> for ForeignKeysInfo {
+    fn from(row: SqlxRow) -> Self {
+        use crate::sqlx_types::Row;
+        let row = row.sqlite();
         Self {
             id: row.get(0),
             seq: row.get(1),
@@ -224,8 +235,8 @@ impl From<&SqliteRow> for ForeignKeysInfo {
 }
 
 #[cfg(not(feature = "sqlx-sqlite"))]
-impl From<&SqliteRow> for ForeignKeysInfo {
-    fn from(_: &SqliteRow) -> Self {
+impl From<SqlxRow> for ForeignKeysInfo {
+    fn from(_: SqlxRow) -> Self {
         Self::default()
     }
 }

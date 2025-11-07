@@ -7,41 +7,45 @@ use crate::mysql::query::{
     ColumnQueryResult, ForeignKeyQueryResult, IndexQueryResult, SchemaQueryBuilder,
     TableQueryResult, VersionQueryResult,
 };
-use crate::sqlx_types::SqlxError;
-use futures::future;
+use crate::{
+    Connection,
+    sqlx_types::{MySqlPool, SqlxError},
+};
 use sea_query::{Alias, DynIden, IntoIden, SeaRc};
 
 mod executor;
 pub use executor::*;
 
-pub struct SchemaDiscovery {
+pub struct SchemaDiscovery<C: Connection> {
     pub query: SchemaQueryBuilder,
-    pub executor: Executor,
     pub schema: DynIden,
+    conn: C,
 }
 
-impl SchemaDiscovery {
-    pub fn new<E>(executor: E, schema: &str) -> Self
-    where
-        E: IntoExecutor,
-    {
-        Self {
+impl SchemaDiscovery<Executor> {
+    /// Discover schema from a SQLx pool
+    pub fn new(pool: MySqlPool, schema: &str) -> Self {
+        Self::conn(pool.into_executor(), schema)
+    }
+}
+
+impl<C: Connection> SchemaDiscovery<C> {
+    /// Discover schema from a generic SQLx connection
+    pub fn conn(conn: C, schema: &str) -> Self {
+        SchemaDiscovery {
             query: SchemaQueryBuilder::default(),
-            executor: executor.into_executor(),
             schema: Alias::new(schema).into_iden(),
+            conn,
         }
     }
 
     pub async fn discover(mut self) -> Result<Schema, SqlxError> {
         self.query = SchemaQueryBuilder::new(self.discover_system().await?);
-        let tables = self.discover_tables().await?;
-        let tables = future::try_join_all(
-            tables
-                .into_iter()
-                .map(|t| (&self, t))
-                .map(Self::discover_table_static),
-        )
-        .await?;
+        let mut tables = Vec::new();
+
+        for table in self.discover_tables().await? {
+            tables.push(self.discover_table(table).await?);
+        }
 
         Ok(Schema {
             schema: self.schema.to_string(),
@@ -51,10 +55,10 @@ impl SchemaDiscovery {
     }
 
     pub async fn discover_system(&mut self) -> Result<SystemInfo, SqlxError> {
-        let rows = self.executor.fetch_all(self.query.query_version()).await?;
+        let rows = self.conn.query_all(self.query.query_version()).await?;
 
         #[allow(clippy::never_loop)]
-        for row in rows.iter() {
+        for row in rows {
             let result: VersionQueryResult = row.into();
             debug_print!("{:?}", result);
             let version = result.parse();
@@ -66,12 +70,12 @@ impl SchemaDiscovery {
 
     pub async fn discover_tables(&mut self) -> Result<Vec<TableInfo>, SqlxError> {
         let rows = self
-            .executor
-            .fetch_all(self.query.query_tables(self.schema.clone()))
+            .conn
+            .query_all(self.query.query_tables(self.schema.clone()))
             .await?;
 
         let tables: Vec<TableInfo> = rows
-            .iter()
+            .into_iter()
             .map(|row| {
                 let result: TableQueryResult = row.into();
                 debug_print!("{:?}", result);
@@ -82,12 +86,6 @@ impl SchemaDiscovery {
             .collect();
 
         Ok(tables)
-    }
-
-    async fn discover_table_static(params: (&Self, TableInfo)) -> Result<TableDef, SqlxError> {
-        let this = params.0;
-        let info = params.1;
-        Self::discover_table(this, info).await
     }
 
     pub async fn discover_table(&self, info: TableInfo) -> Result<TableDef, SqlxError> {
@@ -117,12 +115,12 @@ impl SchemaDiscovery {
         system: &SystemInfo,
     ) -> Result<Vec<ColumnInfo>, SqlxError> {
         let rows = self
-            .executor
-            .fetch_all(self.query.query_columns(schema.clone(), table.clone()))
+            .conn
+            .query_all(self.query.query_columns(schema.clone(), table.clone()))
             .await?;
 
         let columns = rows
-            .iter()
+            .into_iter()
             .map(|row| {
                 let result: ColumnQueryResult = row.into();
                 debug_print!("{:?}", result);
@@ -141,12 +139,12 @@ impl SchemaDiscovery {
         table: DynIden,
     ) -> Result<Vec<IndexInfo>, SqlxError> {
         let rows = self
-            .executor
-            .fetch_all(self.query.query_indexes(schema.clone(), table.clone()))
+            .conn
+            .query_all(self.query.query_indexes(schema.clone(), table.clone()))
             .await?;
 
         let results = rows.into_iter().map(|row| {
-            let result: IndexQueryResult = (&row).into();
+            let result: IndexQueryResult = row.into();
             debug_print!("{:?}", result);
             result
         });
@@ -164,12 +162,12 @@ impl SchemaDiscovery {
         table: DynIden,
     ) -> Result<Vec<ForeignKeyInfo>, SqlxError> {
         let rows = self
-            .executor
-            .fetch_all(self.query.query_foreign_key(schema.clone(), table.clone()))
+            .conn
+            .query_all(self.query.query_foreign_key(schema.clone(), table.clone()))
             .await?;
 
         let results = rows.into_iter().map(|row| {
-            let result: ForeignKeyQueryResult = (&row).into();
+            let result: ForeignKeyQueryResult = row.into();
             debug_print!("{:?}", result);
             result
         });

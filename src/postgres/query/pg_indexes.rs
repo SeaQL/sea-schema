@@ -1,5 +1,5 @@
 use super::SchemaQueryBuilder;
-use crate::sqlx_types::postgres::PgRow;
+use crate::sqlx_types::SqlxRow;
 use sea_query::{
     Alias, Condition, DynIden, Expr, ExprTrait, Iden, JoinType, Order, Query, SelectStatement,
 };
@@ -125,9 +125,10 @@ impl SchemaQueryBuilder {
 }
 
 #[cfg(feature = "sqlx-postgres")]
-impl From<&PgRow> for UniqueIndexQueryResult {
-    fn from(row: &PgRow) -> Self {
+impl From<SqlxRow> for UniqueIndexQueryResult {
+    fn from(row: SqlxRow) -> Self {
         use crate::sqlx_types::Row;
+        let row = row.postgres();
         Self {
             index_name: row.get(0),
             table_schema: row.get(1),
@@ -138,8 +139,8 @@ impl From<&PgRow> for UniqueIndexQueryResult {
 }
 
 #[cfg(not(feature = "sqlx-postgres"))]
-impl From<&PgRow> for UniqueIndexQueryResult {
-    fn from(_: &PgRow) -> Self {
+impl From<SqlxRow> for UniqueIndexQueryResult {
+    fn from(_: SqlxRow) -> Self {
         Self::default()
     }
 }

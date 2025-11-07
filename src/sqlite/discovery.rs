@@ -4,19 +4,24 @@ use super::def::{IndexInfo, Schema, TableDef};
 pub use super::error::DiscoveryResult;
 use super::executor::{Executor, IntoExecutor};
 use super::query::SqliteMaster;
-use crate::sqlx_types::SqlitePool;
+use crate::{Connection, sqlx_types::SqlitePool};
 
 /// Performs all the methods for schema discovery of a SQLite database
-pub struct SchemaDiscovery {
-    pub executor: Executor,
+pub struct SchemaDiscovery<C: Connection> {
+    conn: C,
 }
 
-impl SchemaDiscovery {
-    /// Instantiate a new database connection to the database specified
-    pub fn new(sqlite_pool: SqlitePool) -> Self {
-        SchemaDiscovery {
-            executor: sqlite_pool.into_executor(),
-        }
+impl SchemaDiscovery<Executor> {
+    /// Discover schema from a SQLx pool
+    pub fn new(pool: SqlitePool) -> Self {
+        Self::conn(pool.into_executor())
+    }
+}
+
+impl<C: Connection> SchemaDiscovery<C> {
+    /// Discover schema from a generic SQLx connection
+    pub fn conn(conn: C) -> Self {
+        Self { conn }
     }
 
     /// Discover all the tables in a SQLite database
@@ -29,12 +34,12 @@ impl SchemaDiscovery {
             .to_owned();
 
         let mut tables = Vec::new();
-        for row in self.executor.fetch_all(get_tables).await? {
-            let mut table: TableDef = (&row).into();
-            table.pk_is_autoincrement(&self.executor).await?;
-            table.get_foreign_keys(&self.executor).await?;
-            table.get_column_info(&self.executor).await?;
-            table.get_constraints(&self.executor).await?;
+        for row in self.conn.query_all(get_tables).await? {
+            let mut table: TableDef = row.into();
+            table.pk_is_autoincrement(&self.conn).await?;
+            table.get_foreign_keys(&self.conn).await?;
+            table.get_column_info(&self.conn).await?;
+            table.get_constraints(&self.conn).await?;
             tables.push(table);
         }
 
@@ -53,10 +58,10 @@ impl SchemaDiscovery {
             .to_owned();
 
         let mut discovered_indexes = Vec::new();
-        let rows = self.executor.fetch_all(get_tables).await?;
+        let rows = self.conn.query_all(get_tables).await?;
         for row in rows {
-            let mut table: TableDef = (&row).into();
-            table.get_indexes(&self.executor).await?;
+            let mut table: TableDef = row.into();
+            table.get_indexes(&self.conn).await?;
             discovered_indexes.append(&mut table.indexes);
         }
 

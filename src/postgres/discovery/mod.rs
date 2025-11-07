@@ -9,8 +9,10 @@ use crate::postgres::query::{
     ColumnQueryResult, EnumQueryResult, SchemaQueryBuilder, TableConstraintsQueryResult,
     TableQueryResult, UniqueIndexQueryResult,
 };
-use crate::sqlx_types::SqlxError;
-use futures::future;
+use crate::{
+    Connection,
+    sqlx_types::{PgPool, SqlxError},
+};
 use sea_query::{Alias, DynIden, IntoIden, SeaRc};
 use std::collections::HashMap;
 
@@ -19,21 +21,26 @@ pub use executor::*;
 
 pub(crate) type EnumVariantMap = HashMap<String, Vec<String>>;
 
-pub struct SchemaDiscovery {
+pub struct SchemaDiscovery<C: Connection> {
     pub query: SchemaQueryBuilder,
-    pub executor: Executor,
     pub schema: DynIden,
+    conn: C,
 }
 
-impl SchemaDiscovery {
-    pub fn new<E>(executor: E, schema: &str) -> Self
-    where
-        E: IntoExecutor,
-    {
-        Self {
+impl SchemaDiscovery<Executor> {
+    /// Discover schema from a SQLx pool
+    pub fn new(pool: PgPool, schema: &str) -> Self {
+        Self::conn(pool.into_executor(), schema)
+    }
+}
+
+impl<C: Connection> SchemaDiscovery<C> {
+    /// Discover schema from a generic SQLx connection
+    pub fn conn(conn: C, schema: &str) -> Self {
+        SchemaDiscovery {
             query: SchemaQueryBuilder::default(),
-            executor: executor.into_executor(),
             schema: Alias::new(schema).into_iden(),
+            conn,
         }
     }
 
@@ -44,14 +51,11 @@ impl SchemaDiscovery {
             .into_iter()
             .map(|enum_def| (enum_def.typename, enum_def.values))
             .collect();
-        let tables = future::try_join_all(
-            self.discover_tables()
-                .await?
-                .into_iter()
-                .map(|t| (self, t, &enums))
-                .map(Self::discover_table_static),
-        )
-        .await?;
+
+        let mut tables = Vec::new();
+        for table in self.discover_tables().await? {
+            tables.push(self.discover_table(table, &enums).await?);
+        }
 
         Ok(Schema {
             schema: self.schema.to_string(),
@@ -61,12 +65,12 @@ impl SchemaDiscovery {
 
     pub async fn discover_tables(&self) -> Result<Vec<TableInfo>, SqlxError> {
         let rows = self
-            .executor
-            .fetch_all(self.query.query_tables(self.schema.clone()))
+            .conn
+            .query_all(self.query.query_tables(self.schema.clone()))
             .await?;
 
         let tables: Vec<TableInfo> = rows
-            .iter()
+            .into_iter()
             .map(|row| {
                 let result: TableQueryResult = row.into();
                 debug_print!("{:?}", result);
@@ -77,15 +81,6 @@ impl SchemaDiscovery {
             .collect();
 
         Ok(tables)
-    }
-
-    async fn discover_table_static(
-        params: (&Self, TableInfo, &EnumVariantMap),
-    ) -> Result<TableDef, SqlxError> {
-        let this = params.0;
-        let info = params.1;
-        let enums = params.2;
-        Self::discover_table(this, info, enums).await
     }
 
     pub async fn discover_table(
@@ -144,14 +139,14 @@ impl SchemaDiscovery {
         enums: &EnumVariantMap,
     ) -> Result<Vec<ColumnInfo>, SqlxError> {
         let rows = self
-            .executor
-            .fetch_all(self.query.query_columns(schema.clone(), table.clone()))
+            .conn
+            .query_all(self.query.query_columns(schema.clone(), table.clone()))
             .await?;
 
         Ok(rows
             .into_iter()
             .map(|row| {
-                let result: ColumnQueryResult = (&row).into();
+                let result: ColumnQueryResult = row.into();
                 debug_print!("{:?}", result);
                 let column = result.parse(enums);
                 debug_print!("{:?}", column);
@@ -166,15 +161,15 @@ impl SchemaDiscovery {
         table: DynIden,
     ) -> Result<Vec<Constraint>, SqlxError> {
         let rows = self
-            .executor
-            .fetch_all(
+            .conn
+            .query_all(
                 self.query
                     .query_table_constraints(schema.clone(), table.clone()),
             )
             .await?;
 
         let results = rows.into_iter().map(|row| {
-            let result: TableConstraintsQueryResult = (&row).into();
+            let result: TableConstraintsQueryResult = row.into();
             debug_print!("{:?}", result);
             result
         });
@@ -192,15 +187,15 @@ impl SchemaDiscovery {
         table: DynIden,
     ) -> Result<Vec<Unique>, SqlxError> {
         let rows = self
-            .executor
-            .fetch_all(
+            .conn
+            .query_all(
                 self.query
                     .query_table_unique_indexes(schema.clone(), table.clone()),
             )
             .await?;
 
         let results = rows.into_iter().map(|row| {
-            let result: UniqueIndexQueryResult = (&row).into();
+            let result: UniqueIndexQueryResult = row.into();
             debug_print!("{:?}", result);
             result
         });
@@ -213,10 +208,10 @@ impl SchemaDiscovery {
     }
 
     pub async fn discover_enums(&self) -> Result<Vec<EnumDef>, SqlxError> {
-        let rows = self.executor.fetch_all(self.query.query_enums()).await?;
+        let rows = self.conn.query_all(self.query.query_enums()).await?;
 
         let enum_rows = rows.into_iter().map(|row| {
-            let result: EnumQueryResult = (&row).into();
+            let result: EnumQueryResult = row.into();
             debug_print!("{:?}", result);
             result
         });

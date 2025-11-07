@@ -1,5 +1,5 @@
 use super::SchemaQueryBuilder;
-use crate::sqlx_types::postgres::PgRow;
+use crate::sqlx_types::SqlxRow;
 use sea_query::{Expr, ExprTrait, Order, Query, SelectStatement};
 
 #[derive(Debug, sea_query::Iden)]
@@ -48,9 +48,10 @@ impl SchemaQueryBuilder {
 }
 
 #[cfg(feature = "sqlx-postgres")]
-impl From<&PgRow> for EnumQueryResult {
-    fn from(row: &PgRow) -> Self {
+impl From<SqlxRow> for EnumQueryResult {
+    fn from(row: SqlxRow) -> Self {
         use crate::sqlx_types::Row;
+        let row = row.postgres();
         Self {
             typename: row.get(0),
             enumlabel: row.get(1),
@@ -59,8 +60,8 @@ impl From<&PgRow> for EnumQueryResult {
 }
 
 #[cfg(not(feature = "sqlx-postgres"))]
-impl From<&PgRow> for EnumQueryResult {
-    fn from(_: &PgRow) -> Self {
+impl From<SqlxRow> for EnumQueryResult {
+    fn from(_: SqlxRow) -> Self {
         Self::default()
     }
 }

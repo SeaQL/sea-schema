@@ -1,5 +1,5 @@
 use super::{CharacterSetFields, InformationSchema, SchemaQueryBuilder};
-use crate::sqlx_types::mysql::MySqlRow;
+use crate::sqlx_types::SqlxRow;
 use sea_query::{DynIden, Expr, ExprTrait, Iden, Order, Query, SelectStatement};
 
 #[derive(Debug, sea_query::Iden)]
@@ -87,10 +87,11 @@ impl SchemaQueryBuilder {
 }
 
 #[cfg(feature = "sqlx-mysql")]
-impl From<&MySqlRow> for TableQueryResult {
-    fn from(row: &MySqlRow) -> Self {
+impl From<SqlxRow> for TableQueryResult {
+    fn from(row: SqlxRow) -> Self {
         use crate::mysql::discovery::GetMySqlValue;
         use crate::sqlx_types::Row;
+        let row = row.mysql();
         Self {
             table_name: row.get_string(0),
             engine: row.get_string(1),
@@ -104,8 +105,8 @@ impl From<&MySqlRow> for TableQueryResult {
 }
 
 #[cfg(not(feature = "sqlx-mysql"))]
-impl From<&MySqlRow> for TableQueryResult {
-    fn from(_: &MySqlRow) -> Self {
+impl From<SqlxRow> for TableQueryResult {
+    fn from(_: SqlxRow) -> Self {
         Self::default()
     }
 }

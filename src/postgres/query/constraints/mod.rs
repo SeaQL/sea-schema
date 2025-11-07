@@ -9,7 +9,8 @@ pub use referential_constraints::*;
 pub use table_constraints::*;
 
 use super::{InformationSchema, SchemaQueryBuilder};
-use crate::{postgres::query::select_base_table_and_view, sqlx_types::postgres::PgRow};
+use crate::postgres::query::select_base_table_and_view;
+use crate::sqlx_types::SqlxRow;
 use sea_query::{
     Alias, Condition, DynIden, Expr, ExprTrait, JoinType, Order, Query, SelectStatement,
 };
@@ -222,9 +223,10 @@ impl SchemaQueryBuilder {
 }
 
 #[cfg(feature = "sqlx-postgres")]
-impl From<&PgRow> for TableConstraintsQueryResult {
-    fn from(row: &PgRow) -> Self {
+impl From<SqlxRow> for TableConstraintsQueryResult {
+    fn from(row: SqlxRow) -> Self {
         use crate::sqlx_types::Row;
+        let row = row.postgres();
         Self {
             constraint_schema: row.get(0),
             constraint_name: row.get(1),
@@ -253,8 +255,8 @@ impl From<&PgRow> for TableConstraintsQueryResult {
 }
 
 #[cfg(not(feature = "sqlx-postgres"))]
-impl From<&PgRow> for TableConstraintsQueryResult {
-    fn from(_: &PgRow) -> Self {
+impl From<SqlxRow> for TableConstraintsQueryResult {
+    fn from(_: SqlxRow) -> Self {
         Self::default()
     }
 }
