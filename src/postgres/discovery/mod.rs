@@ -59,21 +59,21 @@ impl SchemaDiscovery {
 
     #[doc(hidden)]
     pub async fn discover_with<C: Connection>(&self, conn: &C) -> Result<Schema, SqlxError> {
-        let enums: EnumVariantMap = self
-            .discover_enums_with(conn)
-            .await?
-            .into_iter()
-            .map(|enum_def| (enum_def.typename, enum_def.values))
+        let enums = self.discover_enums_with(conn).await?;
+        let enum_map: EnumVariantMap = enums
+            .iter()
+            .map(|enum_def| (enum_def.typename.clone(), enum_def.values.clone()))
             .collect();
 
         let mut tables = Vec::new();
         for table in self.discover_tables_with(conn).await? {
-            tables.push(self.discover_table_with(conn, table, &enums).await?);
+            tables.push(self.discover_table_with(conn, table, &enum_map).await?);
         }
 
         Ok(Schema {
             schema: self.schema.to_string(),
             tables,
+            enums,
         })
     }
 

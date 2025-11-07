@@ -8,6 +8,7 @@ use super::*;
 pub struct Schema {
     pub schema: String,
     pub tables: Vec<TableDef>,
+    pub enums: Vec<EnumDef>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
