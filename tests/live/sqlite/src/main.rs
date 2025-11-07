@@ -52,14 +52,14 @@ async fn test_001() -> DiscoveryResult<()> {
         .table("Programming_Langs")
         .col(
             ColumnDef::new("Name")
-                .integer()
+                .big_integer()
                 .not_null()
                 .auto_increment()
                 .primary_key(),
         )
         .col(
             ColumnDef::new("SLOC")
-                .custom("INT8")
+                .big_integer()
                 .not_null()
                 .default(100.45),
         )

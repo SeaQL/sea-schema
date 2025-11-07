@@ -25,7 +25,7 @@ pub fn parse_type(data_type: &str) -> Result<ColumnType, ParseIntError> {
         "text" => ColumnType::Text,
         "tinyint" => ColumnType::TinyInteger,
         "smallint" => ColumnType::SmallInteger,
-        "int" | "integer" => ColumnType::Integer,
+        "integer" => ColumnType::BigInteger,
         "bigint" => ColumnType::BigInteger,
         "float" => ColumnType::Float,
         "double" => ColumnType::Double,
@@ -61,7 +61,23 @@ pub fn parse_type(data_type: &str) -> Result<ColumnType, ParseIntError> {
         "json_text" => ColumnType::Json,
         "jsonb_text" => ColumnType::JsonBinary,
         "uuid_text" => ColumnType::Uuid,
-        _ => ColumnType::custom(data_type.to_owned()),
+        type_name => {
+            if type_name.contains("int") {
+                ColumnType::BigInteger
+            } else if type_name.contains("char")
+                || type_name.contains("clob")
+                || type_name.contains("text")
+            {
+                ColumnType::Text
+            } else if type_name.contains("real")
+                || type_name.contains("floa")
+                || type_name.contains("doub")
+            {
+                ColumnType::Double
+            } else {
+                ColumnType::custom(data_type.to_owned())
+            }
+        }
     })
 }
 
