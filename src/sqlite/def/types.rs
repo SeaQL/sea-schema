@@ -68,7 +68,7 @@ pub fn parse_type(data_type: &str) -> Result<ColumnType, ParseIntError> {
 /// The default types for an SQLite `dflt_value`
 #[derive(Debug, PartialEq, Clone)]
 pub enum DefaultType {
-    Integer(i32),
+    Integer(i64),
     Float(f32),
     String(String),
     Null,

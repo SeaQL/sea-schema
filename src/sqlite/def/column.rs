@@ -9,7 +9,7 @@ use std::num::ParseIntError;
 /// An SQLite column definition
 #[derive(Debug, PartialEq, Clone)]
 pub struct ColumnInfo {
-    pub cid: i32,
+    pub cid: i64,
     pub name: String,
     pub r#type: ColumnType,
     pub not_null: bool,
@@ -38,7 +38,7 @@ impl ColumnInfo {
             } else {
                 let value = default_value.to_owned().replace('\'', "");
 
-                if let Ok(is_int) = value.parse::<i32>() {
+                if let Ok(is_int) = value.parse::<i64>() {
                     DefaultType::Integer(is_int)
                 } else if let Ok(is_float) = value.parse::<f32>() {
                     DefaultType::Float(is_float)
@@ -71,7 +71,7 @@ pub struct IndexInfo {
     pub table_name: String,
     pub unique: bool,
     pub origin: String,
-    pub partial: i32,
+    pub partial: i64,
     pub columns: Vec<String>,
 }
 
@@ -102,11 +102,11 @@ impl IndexInfo {
 #[allow(dead_code)]
 #[derive(Debug, Default, Clone)]
 pub(crate) struct PartialIndexInfo {
-    pub(crate) seq: i32,
+    pub(crate) seq: i64,
     pub(crate) name: String,
     pub(crate) unique: bool,
     pub(crate) origin: String,
-    pub(crate) partial: i32,
+    pub(crate) partial: i64,
 }
 
 #[cfg(feature = "sqlx-sqlite")]
@@ -140,7 +140,7 @@ pub(crate) struct IndexedColumns {
     pub(crate) r#type: String,
     pub(crate) name: String,
     pub(crate) table: String,
-    pub(crate) root_page: i32,
+    pub(crate) root_page: i64,
     pub(crate) indexed_columns: Vec<String>,
 }
 
@@ -197,8 +197,8 @@ impl From<SqlxRow> for PrimaryKeyAutoincrement {
 #[derive(Debug, Default, Clone)]
 #[non_exhaustive]
 pub struct ForeignKeysInfo {
-    pub id: i32,
-    pub seq: i32,
+    pub id: i64,
+    pub seq: i64,
     pub table: String,
     pub from: Vec<String>,
     pub to: Vec<String>,

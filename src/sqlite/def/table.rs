@@ -243,7 +243,7 @@ impl TableDef {
 
             match &column_info.default_value {
                 DefaultType::Integer(integer_value) => {
-                    new_column.default(Value::Int(Some(*integer_value)));
+                    new_column.default(Value::BigInt(Some(*integer_value)));
                 }
                 DefaultType::Float(float_value) => {
                     new_column.default(Value::Float(Some(*float_value)));
