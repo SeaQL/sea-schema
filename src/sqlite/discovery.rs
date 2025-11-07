@@ -1,4 +1,4 @@
-use sea_query::{Alias, Expr, ExprTrait, SelectStatement};
+use sea_query::{Expr, ExprTrait, SelectStatement};
 
 use super::def::{IndexInfo, Schema, TableDef};
 pub use super::error::DiscoveryResult;
@@ -27,10 +27,10 @@ impl<C: Connection> SchemaDiscovery<C> {
     /// Discover all the tables in a SQLite database
     pub async fn discover(&self) -> DiscoveryResult<Schema> {
         let get_tables = SelectStatement::new()
-            .column(Alias::new("name"))
+            .column("name")
             .from(SqliteMaster)
-            .and_where(Expr::col(Alias::new("type")).eq("table"))
-            .and_where(Expr::col(Alias::new("name")).ne("sqlite_sequence"))
+            .and_where(Expr::col("type").eq("table"))
+            .and_where(Expr::col("name").ne("sqlite_sequence"))
             .to_owned();
 
         let mut tables = Vec::new();
@@ -51,10 +51,10 @@ impl<C: Connection> SchemaDiscovery<C> {
     /// Discover table indexes
     pub async fn discover_indexes(&self) -> DiscoveryResult<Vec<IndexInfo>> {
         let get_tables = SelectStatement::new()
-            .column(Alias::new("name"))
+            .column("name")
             .from(SqliteMaster)
-            .and_where(Expr::col(Alias::new("type")).eq("table"))
-            .and_where(Expr::col(Alias::new("name")).ne("sqlite_sequence"))
+            .and_where(Expr::col("type").eq("table"))
+            .and_where(Expr::col("name").ne("sqlite_sequence"))
             .to_owned();
 
         let mut discovered_indexes = Vec::new();

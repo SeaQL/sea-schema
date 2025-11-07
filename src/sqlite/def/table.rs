@@ -62,9 +62,9 @@ impl TableDef {
         let check_autoincrement = Query::select()
             .expr(Expr::val(1))
             .from(SqliteMaster)
-            .and_where(Expr::col(Alias::new("type")).eq("table"))
-            .and_where(Expr::col(Alias::new("name")).eq(self.name.as_str()))
-            .and_where(Expr::col(Alias::new("sql")).like("%AUTOINCREMENT%"))
+            .and_where(Expr::col("type").eq("table"))
+            .and_where(Expr::col("name").eq(self.name.as_str()))
+            .and_where(Expr::col("sql").like("%AUTOINCREMENT%"))
             .to_owned();
 
         if !conn.query_all(check_autoincrement).await?.is_empty() {
@@ -203,7 +203,7 @@ impl TableDef {
         let index_query = Query::select()
             .expr(Expr::cust("*"))
             .from(SqliteMaster)
-            .and_where(Expr::col(Alias::new("name")).eq(index_name))
+            .and_where(Expr::col("name").eq(index_name))
             .to_owned();
 
         let index_info = conn.query_all(index_query).await?;
