@@ -15,7 +15,7 @@ pub mod sqlite;
 pub use sea_query;
 
 pub(crate) mod parser;
-pub(crate) mod sqlx_types;
+pub mod sqlx_types;
 pub(crate) mod util;
 
 pub mod name;

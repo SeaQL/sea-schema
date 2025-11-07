@@ -16,35 +16,46 @@ use sea_query::{Alias, DynIden, IntoIden, SeaRc};
 mod executor;
 pub use executor::*;
 
-pub struct SchemaDiscovery<C: Connection> {
+pub struct SchemaDiscovery {
     pub query: SchemaQueryBuilder,
     pub schema: DynIden,
-    conn: C,
+    exec: Option<Executor>,
 }
 
-impl SchemaDiscovery<Executor> {
+impl SchemaDiscovery {
     /// Discover schema from a SQLx pool
     pub fn new(pool: MySqlPool, schema: &str) -> Self {
-        Self::conn(pool.into_executor(), schema)
-    }
-}
-
-impl<C: Connection> SchemaDiscovery<C> {
-    /// Discover schema from a generic SQLx connection
-    pub fn conn(conn: C, schema: &str) -> Self {
         SchemaDiscovery {
             query: SchemaQueryBuilder::default(),
             schema: Alias::new(schema).into_iden(),
-            conn,
+            exec: Some(pool.into_executor()),
+        }
+    }
+
+    #[doc(hidden)]
+    pub fn new_no_exec(schema: &str) -> Self {
+        Self {
+            query: SchemaQueryBuilder::default(),
+            schema: Alias::new(schema).into_iden(),
+            exec: None,
         }
     }
 
     pub async fn discover(mut self) -> Result<Schema, SqlxError> {
-        self.query = SchemaQueryBuilder::new(self.discover_system().await?);
+        let conn = match self.exec.take() {
+            Some(exec) => exec,
+            None => return Err(SqlxError::PoolClosed),
+        };
+        self.discover_with(&conn).await
+    }
+
+    #[doc(hidden)]
+    pub async fn discover_with<C: Connection>(mut self, conn: &C) -> Result<Schema, SqlxError> {
+        self.query = SchemaQueryBuilder::new(self.discover_system_with(conn).await?);
         let mut tables = Vec::new();
 
-        for table in self.discover_tables().await? {
-            tables.push(self.discover_table(table).await?);
+        for table in self.discover_tables_with(conn).await? {
+            tables.push(self.discover_table_with(conn, table).await?);
         }
 
         Ok(Schema {
@@ -54,8 +65,9 @@ impl<C: Connection> SchemaDiscovery<C> {
         })
     }
 
-    pub async fn discover_system(&mut self) -> Result<SystemInfo, SqlxError> {
-        let rows = self.conn.query_all(self.query.query_version()).await?;
+    #[doc(hidden)]
+    async fn discover_system_with<C: Connection>(&self, conn: &C) -> Result<SystemInfo, SqlxError> {
+        let rows = conn.query_all(self.query.query_version()).await?;
 
         #[allow(clippy::never_loop)]
         for row in rows {
@@ -68,9 +80,11 @@ impl<C: Connection> SchemaDiscovery<C> {
         Err(SqlxError::RowNotFound)
     }
 
-    pub async fn discover_tables(&mut self) -> Result<Vec<TableInfo>, SqlxError> {
-        let rows = self
-            .conn
+    async fn discover_tables_with<C: Connection>(
+        &self,
+        conn: &C,
+    ) -> Result<Vec<TableInfo>, SqlxError> {
+        let rows = conn
             .query_all(self.query.query_tables(self.schema.clone()))
             .await?;
 
@@ -88,16 +102,20 @@ impl<C: Connection> SchemaDiscovery<C> {
         Ok(tables)
     }
 
-    pub async fn discover_table(&self, info: TableInfo) -> Result<TableDef, SqlxError> {
+    async fn discover_table_with<C: Connection>(
+        &self,
+        conn: &C,
+        info: TableInfo,
+    ) -> Result<TableDef, SqlxError> {
         let table = SeaRc::new(Alias::new(info.name.as_str()));
         let columns = self
-            .discover_columns(self.schema.clone(), table.clone(), &self.query.system)
+            .discover_columns_with(conn, self.schema.clone(), table.clone(), &self.query.system)
             .await?;
         let indexes = self
-            .discover_indexes(self.schema.clone(), table.clone())
+            .discover_indexes_with(conn, self.schema.clone(), table.clone())
             .await?;
         let foreign_keys = self
-            .discover_foreign_keys(self.schema.clone(), table.clone())
+            .discover_foreign_keys_with(conn, self.schema.clone(), table.clone())
             .await?;
 
         Ok(TableDef {
@@ -108,14 +126,14 @@ impl<C: Connection> SchemaDiscovery<C> {
         })
     }
 
-    pub async fn discover_columns(
+    async fn discover_columns_with<C: Connection>(
         &self,
+        conn: &C,
         schema: DynIden,
         table: DynIden,
         system: &SystemInfo,
     ) -> Result<Vec<ColumnInfo>, SqlxError> {
-        let rows = self
-            .conn
+        let rows = conn
             .query_all(self.query.query_columns(schema.clone(), table.clone()))
             .await?;
 
@@ -133,13 +151,13 @@ impl<C: Connection> SchemaDiscovery<C> {
         Ok(columns)
     }
 
-    pub async fn discover_indexes(
+    async fn discover_indexes_with<C: Connection>(
         &self,
+        conn: &C,
         schema: DynIden,
         table: DynIden,
     ) -> Result<Vec<IndexInfo>, SqlxError> {
-        let rows = self
-            .conn
+        let rows = conn
             .query_all(self.query.query_indexes(schema.clone(), table.clone()))
             .await?;
 
@@ -156,13 +174,13 @@ impl<C: Connection> SchemaDiscovery<C> {
             .collect())
     }
 
-    pub async fn discover_foreign_keys(
+    async fn discover_foreign_keys_with<C: Connection>(
         &self,
+        conn: &C,
         schema: DynIden,
         table: DynIden,
     ) -> Result<Vec<ForeignKeyInfo>, SqlxError> {
-        let rows = self
-            .conn
+        let rows = conn
             .query_all(self.query.query_foreign_key(schema.clone(), table.clone()))
             .await?;
 

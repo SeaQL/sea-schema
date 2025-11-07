@@ -21,40 +21,54 @@ pub use executor::*;
 
 pub(crate) type EnumVariantMap = HashMap<String, Vec<String>>;
 
-pub struct SchemaDiscovery<C: Connection> {
+pub struct SchemaDiscovery {
     pub query: SchemaQueryBuilder,
     pub schema: DynIden,
-    conn: C,
+    exec: Option<Executor>,
 }
 
-impl SchemaDiscovery<Executor> {
+impl SchemaDiscovery {
     /// Discover schema from a SQLx pool
     pub fn new(pool: PgPool, schema: &str) -> Self {
-        Self::conn(pool.into_executor(), schema)
-    }
-}
-
-impl<C: Connection> SchemaDiscovery<C> {
-    /// Discover schema from a generic SQLx connection
-    pub fn conn(conn: C, schema: &str) -> Self {
         SchemaDiscovery {
             query: SchemaQueryBuilder::default(),
             schema: Alias::new(schema).into_iden(),
-            conn,
+            exec: Some(pool.into_executor()),
+        }
+    }
+
+    #[doc(hidden)]
+    pub fn new_no_exec(schema: &str) -> Self {
+        Self {
+            query: SchemaQueryBuilder::default(),
+            schema: Alias::new(schema).into_iden(),
+            exec: None,
+        }
+    }
+
+    fn conn(&self) -> Result<&Executor, SqlxError> {
+        match &self.exec {
+            Some(exec) => Ok(exec),
+            None => Err(SqlxError::PoolClosed),
         }
     }
 
     pub async fn discover(&self) -> Result<Schema, SqlxError> {
+        self.discover_with(self.conn()?).await
+    }
+
+    #[doc(hidden)]
+    pub async fn discover_with<C: Connection>(&self, conn: &C) -> Result<Schema, SqlxError> {
         let enums: EnumVariantMap = self
-            .discover_enums()
+            .discover_enums_with(conn)
             .await?
             .into_iter()
             .map(|enum_def| (enum_def.typename, enum_def.values))
             .collect();
 
         let mut tables = Vec::new();
-        for table in self.discover_tables().await? {
-            tables.push(self.discover_table(table, &enums).await?);
+        for table in self.discover_tables_with(conn).await? {
+            tables.push(self.discover_table_with(conn, table, &enums).await?);
         }
 
         Ok(Schema {
@@ -63,9 +77,11 @@ impl<C: Connection> SchemaDiscovery<C> {
         })
     }
 
-    pub async fn discover_tables(&self) -> Result<Vec<TableInfo>, SqlxError> {
-        let rows = self
-            .conn
+    async fn discover_tables_with<C: Connection>(
+        &self,
+        conn: &C,
+    ) -> Result<Vec<TableInfo>, SqlxError> {
+        let rows = conn
             .query_all(self.query.query_tables(self.schema.clone()))
             .await?;
 
@@ -83,17 +99,18 @@ impl<C: Connection> SchemaDiscovery<C> {
         Ok(tables)
     }
 
-    pub async fn discover_table(
+    async fn discover_table_with<C: Connection>(
         &self,
+        conn: &C,
         info: TableInfo,
         enums: &EnumVariantMap,
     ) -> Result<TableDef, SqlxError> {
         let table = SeaRc::new(Alias::new(info.name.as_str()));
         let columns = self
-            .discover_columns(self.schema.clone(), table.clone(), enums)
+            .discover_columns_with(conn, self.schema.clone(), table.clone(), enums)
             .await?;
         let constraints = self
-            .discover_constraints(self.schema.clone(), table.clone())
+            .discover_constraints_with(conn, self.schema.clone(), table.clone())
             .await?;
         let (
             check_constraints,
@@ -117,7 +134,7 @@ impl<C: Connection> SchemaDiscovery<C> {
         );
 
         let unique_constraints = self
-            .discover_unique_indexes(self.schema.clone(), table.clone())
+            .discover_unique_indexes_with(conn, self.schema.clone(), table.clone())
             .await?;
 
         Ok(TableDef {
@@ -132,14 +149,14 @@ impl<C: Connection> SchemaDiscovery<C> {
         })
     }
 
-    pub async fn discover_columns(
+    async fn discover_columns_with<C: Connection>(
         &self,
+        conn: &C,
         schema: DynIden,
         table: DynIden,
         enums: &EnumVariantMap,
     ) -> Result<Vec<ColumnInfo>, SqlxError> {
-        let rows = self
-            .conn
+        let rows = conn
             .query_all(self.query.query_columns(schema.clone(), table.clone()))
             .await?;
 
@@ -155,13 +172,13 @@ impl<C: Connection> SchemaDiscovery<C> {
             .collect())
     }
 
-    pub async fn discover_constraints(
+    async fn discover_constraints_with<C: Connection>(
         &self,
+        conn: &C,
         schema: DynIden,
         table: DynIden,
     ) -> Result<Vec<Constraint>, SqlxError> {
-        let rows = self
-            .conn
+        let rows = conn
             .query_all(
                 self.query
                     .query_table_constraints(schema.clone(), table.clone()),
@@ -181,13 +198,13 @@ impl<C: Connection> SchemaDiscovery<C> {
             .collect())
     }
 
-    pub async fn discover_unique_indexes(
+    async fn discover_unique_indexes_with<C: Connection>(
         &self,
+        conn: &C,
         schema: DynIden,
         table: DynIden,
     ) -> Result<Vec<Unique>, SqlxError> {
-        let rows = self
-            .conn
+        let rows = conn
             .query_all(
                 self.query
                     .query_table_unique_indexes(schema.clone(), table.clone()),
@@ -208,7 +225,15 @@ impl<C: Connection> SchemaDiscovery<C> {
     }
 
     pub async fn discover_enums(&self) -> Result<Vec<EnumDef>, SqlxError> {
-        let rows = self.conn.query_all(self.query.query_enums()).await?;
+        self.discover_enums_with(self.conn()?).await
+    }
+
+    #[doc(hidden)]
+    pub async fn discover_enums_with<C: Connection>(
+        &self,
+        conn: &C,
+    ) -> Result<Vec<EnumDef>, SqlxError> {
+        let rows = conn.query_all(self.query.query_enums()).await?;
 
         let enum_rows = rows.into_iter().map(|row| {
             let result: EnumQueryResult = row.into();

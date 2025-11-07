@@ -26,6 +26,7 @@ pub struct Error;
 #[derive(Debug)]
 pub enum SqlxError {
     RowNotFound,
+    PoolClosed,
 }
 
 pub enum SqlxRow {
