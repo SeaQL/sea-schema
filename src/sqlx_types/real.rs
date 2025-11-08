@@ -2,6 +2,15 @@ pub use sqlx::*;
 
 pub type SqlxError = sqlx::Error;
 
+#[cfg(not(feature = "sqlx-mysql"))]
+pub struct MySqlPool;
+
+#[cfg(not(feature = "sqlx-postgres"))]
+pub struct PgPool;
+
+#[cfg(not(feature = "sqlx-sqlite"))]
+pub struct SqlitePool;
+
 pub enum SqlxRow {
     #[cfg(feature = "sqlx-mysql")]
     MySql(sqlx::mysql::MySqlRow),
