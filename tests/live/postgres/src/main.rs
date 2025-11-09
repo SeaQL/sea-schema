@@ -2,8 +2,8 @@ use pretty_assertions::assert_eq;
 use sea_schema::postgres::{def::TableDef, discovery::SchemaDiscovery};
 use sea_schema::sea_query::TableRef;
 use sea_schema::sea_query::{
-    Alias, ColumnDef, ColumnType, Expr, ForeignKey, ForeignKeyAction, Index, PostgresQueryBuilder,
-    Table, TableCreateStatement, extension::postgres::Type,
+    ColumnDef, ColumnType, Expr, ForeignKey, ForeignKeyAction, Index, PostgresQueryBuilder, Table,
+    TableCreateStatement, TableName, extension::postgres::Type,
 };
 use sqlx::{PgPool, Pool, Postgres};
 use std::collections::HashMap;
@@ -28,13 +28,13 @@ async fn main() {
         .unwrap();
 
     let create_enum_stmt = Type::create()
-        .as_enum(Alias::new("crazy_enum"))
+        .as_enum("crazy_enum")
         .values(vec![
-            Alias::new("Astro0%00%8987,.!@#$%^&*()_-+=[]{}\\|.<>/? ``"),
-            Alias::new("Biology"),
-            Alias::new("Chemistry"),
-            Alias::new("Math"),
-            Alias::new("Physics"),
+            "Astro0%00%8987,.!@#$%^&*()_-+=[]{}\\|.<>/? ``",
+            "Biology",
+            "Chemistry",
+            "Math",
+            "Physics",
         ])
         .to_string(PostgresQueryBuilder);
 
@@ -84,7 +84,7 @@ async fn main() {
     for tbl_create_stmt in tbl_create_stmts.into_iter() {
         let expected_sql = tbl_create_stmt.to_string(PostgresQueryBuilder);
         let tbl_name = match tbl_create_stmt.get_table_name() {
-            Some(TableRef::Table(tbl)) => tbl.to_string(),
+            Some(TableRef::Table(TableName(_, tbl), _)) => tbl.to_string(),
             _ => unimplemented!(),
         };
         let table = map.get(&tbl_name).unwrap();
@@ -141,48 +141,28 @@ async fn setup(base_url: &str, db_name: &str) -> Pool<Postgres> {
 
 fn create_bakery_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("bakery"))
-        .col(
-            ColumnDef::new(Alias::new("id"))
-                .integer()
-                .not_null()
-                .auto_increment(),
-        )
-        .col(ColumnDef::new(Alias::new("name")).string())
-        .col(ColumnDef::new(Alias::new("profit_margin")).double())
-        .col(ColumnDef::new(Alias::new("crazy_enum_col")).custom(Alias::new("crazy_enum")))
-        .primary_key(
-            Index::create()
-                .primary()
-                .name("bakery_pkey")
-                .col(Alias::new("id")),
-        )
+        .table("bakery")
+        .col(ColumnDef::new("id").integer().not_null().auto_increment())
+        .col(ColumnDef::new("name").string())
+        .col(ColumnDef::new("profit_margin").double())
+        .col(ColumnDef::new("crazy_enum_col").custom("crazy_enum"))
+        .primary_key(Index::create().primary().name("bakery_pkey").col("id"))
         .to_owned()
 }
 
 fn create_baker_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("baker"))
-        .col(
-            ColumnDef::new(Alias::new("id"))
-                .integer()
-                .not_null()
-                .auto_increment(),
-        )
-        .col(ColumnDef::new(Alias::new("name")).string())
-        .col(ColumnDef::new(Alias::new("contact_details")).json())
-        .col(ColumnDef::new(Alias::new("bakery_id")).integer())
-        .primary_key(
-            Index::create()
-                .primary()
-                .name("baker_pkey")
-                .col(Alias::new("id")),
-        )
+        .table("baker")
+        .col(ColumnDef::new("id").integer().not_null().auto_increment())
+        .col(ColumnDef::new("name").string())
+        .col(ColumnDef::new("contact_details").json())
+        .col(ColumnDef::new("bakery_id").integer())
+        .primary_key(Index::create().primary().name("baker_pkey").col("id"))
         .foreign_key(
             ForeignKey::create()
                 .name("FK_baker_bakery")
-                .from(Alias::new("baker"), Alias::new("bakery_id"))
-                .to(Alias::new("bakery"), Alias::new("id"))
+                .from("baker", "bakery_id")
+                .to("bakery", "id")
                 .on_delete(ForeignKeyAction::Cascade)
                 .on_update(ForeignKeyAction::Cascade),
         )
@@ -191,83 +171,54 @@ fn create_baker_table() -> TableCreateStatement {
 
 fn create_customer_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("customer"))
-        .col(
-            ColumnDef::new(Alias::new("id"))
-                .integer()
-                .not_null()
-                .auto_increment(),
-        )
-        .col(ColumnDef::new(Alias::new("name")).string())
-        .col(ColumnDef::new(Alias::new("notes")).text())
-        .primary_key(
-            Index::create()
-                .primary()
-                .name("customer_pkey")
-                .col(Alias::new("id")),
-        )
+        .table("customer")
+        .col(ColumnDef::new("id").integer().not_null().auto_increment())
+        .col(ColumnDef::new("name").string())
+        .col(ColumnDef::new("notes").text())
+        .primary_key(Index::create().primary().name("customer_pkey").col("id"))
         .to_owned()
 }
 
 fn create_order_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("order"))
+        .table("order")
+        .col(ColumnDef::new("id").integer().not_null().auto_increment())
+        .col(ColumnDef::new("total").decimal_len(19, 4))
+        .col(ColumnDef::new("bakery_id").integer().not_null())
+        .col(ColumnDef::new("customer_id").integer().not_null())
         .col(
-            ColumnDef::new(Alias::new("id"))
-                .integer()
-                .not_null()
-                .auto_increment(),
-        )
-        .col(ColumnDef::new(Alias::new("total")).decimal_len(19, 4))
-        .col(ColumnDef::new(Alias::new("bakery_id")).integer().not_null())
-        .col(
-            ColumnDef::new(Alias::new("customer_id"))
-                .integer()
-                .not_null(),
-        )
-        .col(
-            ColumnDef::new(Alias::new("placed_at"))
+            ColumnDef::new("placed_at")
                 .date_time()
                 .not_null()
                 .default(Expr::current_timestamp()),
         )
         .col(
-            ColumnDef::new(Alias::new("updated"))
+            ColumnDef::new("updated")
                 .date_time()
                 .not_null()
                 .extra("DEFAULT '2023-06-07 16:24:00'::timestamp without time zone"),
         )
         .col(
-            ColumnDef::new(Alias::new("net_weight"))
+            ColumnDef::new("net_weight")
                 .double()
                 .not_null()
                 .default(10.05),
         )
-        .col(
-            ColumnDef::new(Alias::new("priority"))
-                .integer()
-                .not_null()
-                .default(5),
-        )
-        .primary_key(
-            Index::create()
-                .primary()
-                .name("order_pkey")
-                .col(Alias::new("id")),
-        )
+        .col(ColumnDef::new("priority").integer().not_null().default(5))
+        .primary_key(Index::create().primary().name("order_pkey").col("id"))
         .foreign_key(
             ForeignKey::create()
                 .name("FK_order_bakery")
-                .from(Alias::new("order"), Alias::new("bakery_id"))
-                .to(Alias::new("bakery"), Alias::new("id"))
+                .from("order", "bakery_id")
+                .to("bakery", "id")
                 .on_delete(ForeignKeyAction::Cascade)
                 .on_update(ForeignKeyAction::Cascade),
         )
         .foreign_key(
             ForeignKey::create()
                 .name("FK_order_customer")
-                .from(Alias::new("order"), Alias::new("customer_id"))
-                .to(Alias::new("customer"), Alias::new("id"))
+                .from("order", "customer_id")
+                .to("customer", "id")
                 .on_delete(ForeignKeyAction::Cascade)
                 .on_update(ForeignKeyAction::Cascade),
         )
@@ -276,49 +227,39 @@ fn create_order_table() -> TableCreateStatement {
 
 fn create_lineitem_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("lineitem"))
-        .col(
-            ColumnDef::new(Alias::new("id"))
-                .integer()
-                .not_null()
-                .auto_increment(),
-        )
-        .col(ColumnDef::new(Alias::new("price")).decimal_len(19, 4))
-        .col(ColumnDef::new(Alias::new("quantity")).integer())
-        .col(ColumnDef::new(Alias::new("order_id")).integer().not_null())
-        .col(ColumnDef::new(Alias::new("cake_id")).integer().not_null())
-        .primary_key(
-            Index::create()
-                .primary()
-                .name("lineitem_pkey")
-                .col(Alias::new("id")),
-        )
+        .table("lineitem")
+        .col(ColumnDef::new("id").integer().not_null().auto_increment())
+        .col(ColumnDef::new("price").decimal_len(19, 4))
+        .col(ColumnDef::new("quantity").integer())
+        .col(ColumnDef::new("order_id").integer().not_null())
+        .col(ColumnDef::new("cake_id").integer().not_null())
+        .primary_key(Index::create().primary().name("lineitem_pkey").col("id"))
         .index(
             Index::create()
                 .unique()
                 .name("UNI_lineitem_cake_id")
-                .col(Alias::new("cake_id")),
+                .col("cake_id"),
         )
         .index(
             Index::create()
                 .unique()
                 .name("UNI_lineitem_cake_id_order_id")
-                .col(Alias::new("cake_id"))
-                .col(Alias::new("order_id")),
+                .col("cake_id")
+                .col("order_id"),
         )
         .foreign_key(
             ForeignKey::create()
                 .name("FK_lineitem_cake")
-                .from(Alias::new("lineitem"), Alias::new("cake_id"))
-                .to(Alias::new("cake"), Alias::new("id"))
+                .from("lineitem", "cake_id")
+                .to("cake", "id")
                 .on_delete(ForeignKeyAction::Cascade)
                 .on_update(ForeignKeyAction::Cascade),
         )
         .foreign_key(
             ForeignKey::create()
                 .name("FK_lineitem_order")
-                .from(Alias::new("lineitem"), Alias::new("order_id"))
-                .to(Alias::new("order"), Alias::new("id"))
+                .from("lineitem", "order_id")
+                .to("order", "id")
                 .on_delete(ForeignKeyAction::Cascade)
                 .on_update(ForeignKeyAction::Cascade),
         )
@@ -327,43 +268,33 @@ fn create_lineitem_table() -> TableCreateStatement {
 
 fn create_cakes_bakers_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("cakes_bakers"))
-        .col(ColumnDef::new(Alias::new("cake_id")).integer().not_null())
-        .col(ColumnDef::new(Alias::new("baker_id")).integer().not_null())
+        .table("cakes_bakers")
+        .col(ColumnDef::new("cake_id").integer().not_null())
+        .col(ColumnDef::new("baker_id").integer().not_null())
         .primary_key(
             Index::create()
                 .name("cakes_bakers_pkey")
-                .col(Alias::new("cake_id"))
-                .col(Alias::new("baker_id")),
+                .col("cake_id")
+                .col("baker_id"),
         )
         .to_owned()
 }
 
 fn create_cake_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("cake"))
-        .col(
-            ColumnDef::new(Alias::new("id"))
-                .integer()
-                .not_null()
-                .auto_increment(),
-        )
-        .col(ColumnDef::new(Alias::new("name")).string())
-        .col(ColumnDef::new(Alias::new("price")).decimal_len(19, 4))
-        .col(ColumnDef::new(Alias::new("bakery_id")).integer().not_null())
-        .col(ColumnDef::new(Alias::new("gluten_free")).boolean())
-        .col(ColumnDef::new(Alias::new("serial")).uuid())
-        .primary_key(
-            Index::create()
-                .primary()
-                .name("cake_pkey")
-                .col(Alias::new("id")),
-        )
+        .table("cake")
+        .col(ColumnDef::new("id").integer().not_null().auto_increment())
+        .col(ColumnDef::new("name").string())
+        .col(ColumnDef::new("price").decimal_len(19, 4))
+        .col(ColumnDef::new("bakery_id").integer().not_null())
+        .col(ColumnDef::new("gluten_free").boolean())
+        .col(ColumnDef::new("serial").uuid())
+        .primary_key(Index::create().primary().name("cake_pkey").col("id"))
         .foreign_key(
             ForeignKey::create()
                 .name("FK_cake_bakery")
-                .from(Alias::new("cake"), Alias::new("bakery_id"))
-                .to(Alias::new("bakery"), Alias::new("id"))
+                .from("cake", "bakery_id")
+                .to("bakery", "id")
                 .on_delete(ForeignKeyAction::Cascade)
                 .on_update(ForeignKeyAction::Cascade),
         )
@@ -372,22 +303,17 @@ fn create_cake_table() -> TableCreateStatement {
 
 fn create_collection_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("collection"))
+        .table("collection")
+        .col(ColumnDef::new("id").integer().not_null().auto_increment())
         .col(
-            ColumnDef::new(Alias::new("id"))
-                .integer()
-                .not_null()
-                .auto_increment(),
-        )
-        .col(
-            ColumnDef::new(Alias::new("integers"))
+            ColumnDef::new("integers")
                 .array(ColumnType::Integer)
                 .not_null(),
         )
-        .col(ColumnDef::new(Alias::new("integers_opt")).array(ColumnType::Integer))
+        .col(ColumnDef::new("integers_opt").array(ColumnType::Integer))
         .col(
-            ColumnDef::new(Alias::new("case_insensitive_text"))
-                .custom(Alias::new("citext"))
+            ColumnDef::new("case_insensitive_text")
+                .custom("citext")
                 .not_null(),
         )
         .to_owned()
@@ -395,46 +321,30 @@ fn create_collection_table() -> TableCreateStatement {
 
 fn create_parent_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("parent"))
-        .col(ColumnDef::new(Alias::new("id1")).integer().not_null())
-        .col(ColumnDef::new(Alias::new("id2")).integer().not_null())
+        .table("parent")
+        .col(ColumnDef::new("id1").integer().not_null())
+        .col(ColumnDef::new("id2").integer().not_null())
         .primary_key(
             Index::create()
                 .primary()
                 .name("parent_pkey")
-                .col(Alias::new("id1"))
-                .col(Alias::new("id2")),
+                .col("id1")
+                .col("id2"),
         )
         .to_owned()
 }
 
 fn create_child_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("child"))
-        .col(
-            ColumnDef::new(Alias::new("id"))
-                .integer()
-                .not_null()
-                .auto_increment(),
-        )
-        .col(
-            ColumnDef::new(Alias::new("parent_id1"))
-                .integer()
-                .not_null(),
-        )
-        .col(
-            ColumnDef::new(Alias::new("parent_id2"))
-                .integer()
-                .not_null(),
-        )
+        .table("child")
+        .col(ColumnDef::new("id").integer().not_null().auto_increment())
+        .col(ColumnDef::new("parent_id1").integer().not_null())
+        .col(ColumnDef::new("parent_id2").integer().not_null())
         .foreign_key(
             ForeignKey::create()
                 .name("FK_child_parent")
-                .from(
-                    Alias::new("child"),
-                    (Alias::new("parent_id1"), Alias::new("parent_id2")),
-                )
-                .to(Alias::new("parent"), (Alias::new("id1"), Alias::new("id2")))
+                .from("child", ("parent_id1", "parent_id2"))
+                .to("parent", ("id1", "id2"))
                 .on_delete(ForeignKeyAction::Cascade)
                 .on_update(ForeignKeyAction::Cascade),
         )
@@ -443,68 +353,48 @@ fn create_child_table() -> TableCreateStatement {
 
 fn create_db_types_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("db_types"))
-        .col(
-            ColumnDef::new(Alias::new("id"))
-                .integer()
-                .not_null()
-                .auto_increment(),
-        )
-        .col(ColumnDef::new(Alias::new("binary_1")).binary())
-        .col(ColumnDef::new(Alias::new("binary_2")).binary_len(1))
-        .col(ColumnDef::new(Alias::new("binary_3")).binary_len(16))
-        .col(ColumnDef::new(Alias::new("var_binary_1")).var_binary(1))
-        .col(ColumnDef::new(Alias::new("var_binary_2")).var_binary(16))
-        .col(ColumnDef::new(Alias::new("var_binary_3")).var_binary(32))
-        .col(ColumnDef::new(Alias::new("bit_1")).bit(Some(1)))
-        .col(ColumnDef::new(Alias::new("bit_2")).bit(Some(16)))
-        .col(ColumnDef::new(Alias::new("bit_3")).bit(Some(32)))
-        .col(ColumnDef::new(Alias::new("var_bit_1")).varbit(1))
-        .col(ColumnDef::new(Alias::new("var_bit_2")).varbit(16))
-        .col(ColumnDef::new(Alias::new("var_bit_3")).varbit(32))
-        .col(ColumnDef::new(Alias::new("bool")).boolean())
-        .primary_key(
-            Index::create()
-                .primary()
-                .name("db_types_pkey")
-                .col(Alias::new("id")),
-        )
+        .table("db_types")
+        .col(ColumnDef::new("id").integer().not_null().auto_increment())
+        .col(ColumnDef::new("binary_1").binary())
+        .col(ColumnDef::new("binary_2").binary_len(1))
+        .col(ColumnDef::new("binary_3").binary_len(16))
+        .col(ColumnDef::new("var_binary_1").var_binary(1))
+        .col(ColumnDef::new("var_binary_2").var_binary(16))
+        .col(ColumnDef::new("var_binary_3").var_binary(32))
+        .col(ColumnDef::new("bit_1").bit(Some(1)))
+        .col(ColumnDef::new("bit_2").bit(Some(16)))
+        .col(ColumnDef::new("bit_3").bit(Some(32)))
+        .col(ColumnDef::new("var_bit_1").varbit(1))
+        .col(ColumnDef::new("var_bit_2").varbit(16))
+        .col(ColumnDef::new("var_bit_3").varbit(32))
+        .col(ColumnDef::new("bool").boolean())
+        .primary_key(Index::create().primary().name("db_types_pkey").col("id"))
         .to_owned()
 }
 
 fn create_fkey_parent_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("fkey_parent_table"))
-        .col(
-            ColumnDef::new(Alias::new("id"))
-                .integer()
-                .not_null()
-                .auto_increment(),
-        )
-        .col(ColumnDef::new(Alias::new("u")).integer().not_null())
+        .table("fkey_parent_table")
+        .col(ColumnDef::new("id").integer().not_null().auto_increment())
+        .col(ColumnDef::new("u").integer().not_null())
         .index(
             Index::create()
                 .unique()
                 .name("IDX_fkey_parent_table_unique_u")
-                .col(Alias::new("u")),
+                .col("u"),
         )
         .to_owned()
 }
 
 fn create_fkey_child_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("fkey_child_table"))
-        .col(
-            ColumnDef::new(Alias::new("fk_u"))
-                .integer()
-                .not_null()
-                .auto_increment(),
-        )
+        .table("fkey_child_table")
+        .col(ColumnDef::new("fk_u").integer().not_null().auto_increment())
         .foreign_key(
             ForeignKey::create()
                 .name("FK_tabl2_fkey_parent_table")
-                .from(Alias::new("fkey_child_table"), Alias::new("fk_u"))
-                .to(Alias::new("fkey_parent_table"), Alias::new("u"))
+                .from("fkey_child_table", "fk_u")
+                .to("fkey_parent_table", "u")
                 .on_delete(ForeignKeyAction::Cascade)
                 .on_update(ForeignKeyAction::Cascade),
         )

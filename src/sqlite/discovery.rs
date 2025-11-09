@@ -1,62 +1,68 @@
-use sea_query::{Alias, Expr, ExprTrait, SelectStatement};
+use sea_query::{Expr, ExprTrait, SelectStatement};
 
 use super::def::{IndexInfo, Schema, TableDef};
 pub use super::error::DiscoveryResult;
 use super::executor::{Executor, IntoExecutor};
 use super::query::SqliteMaster;
-use crate::sqlx_types::SqlitePool;
+use crate::{Connection, sqlx_types::SqlitePool};
 
 /// Performs all the methods for schema discovery of a SQLite database
 pub struct SchemaDiscovery {
-    pub executor: Executor,
+    exec: Executor,
 }
 
 impl SchemaDiscovery {
-    /// Instantiate a new database connection to the database specified
-    pub fn new(sqlite_pool: SqlitePool) -> Self {
-        SchemaDiscovery {
-            executor: sqlite_pool.into_executor(),
+    /// Discover schema from a SQLx pool
+    pub fn new(pool: SqlitePool) -> Self {
+        Self {
+            exec: pool.into_executor(),
         }
     }
 
-    /// Discover all the tables in a SQLite database
     pub async fn discover(&self) -> DiscoveryResult<Schema> {
+        Self::discover_with(&self.exec).await
+    }
+}
+
+impl SchemaDiscovery {
+    /// Discover all the tables in a SQLite database
+    pub async fn discover_with<C: Connection>(conn: &C) -> DiscoveryResult<Schema> {
         let get_tables = SelectStatement::new()
-            .column(Alias::new("name"))
+            .column("name")
             .from(SqliteMaster)
-            .and_where(Expr::col(Alias::new("type")).eq("table"))
-            .and_where(Expr::col(Alias::new("name")).ne("sqlite_sequence"))
+            .and_where(Expr::col("type").eq("table"))
+            .and_where(Expr::col("name").ne("sqlite_sequence"))
             .to_owned();
 
         let mut tables = Vec::new();
-        for row in self.executor.fetch_all(get_tables).await? {
-            let mut table: TableDef = (&row).into();
-            table.pk_is_autoincrement(&self.executor).await?;
-            table.get_foreign_keys(&self.executor).await?;
-            table.get_column_info(&self.executor).await?;
-            table.get_constraints(&self.executor).await?;
+        for row in conn.query_all(get_tables).await? {
+            let mut table: TableDef = row.into();
+            table.pk_is_autoincrement(conn).await?;
+            table.get_foreign_keys(conn).await?;
+            table.get_column_info(conn).await?;
+            table.get_constraints(conn).await?;
             tables.push(table);
         }
 
-        let indexes = self.discover_indexes().await?;
+        let indexes = Self::discover_indexes(conn).await?;
 
         Ok(Schema { tables, indexes })
     }
 
     /// Discover table indexes
-    pub async fn discover_indexes(&self) -> DiscoveryResult<Vec<IndexInfo>> {
+    async fn discover_indexes<C: Connection>(conn: &C) -> DiscoveryResult<Vec<IndexInfo>> {
         let get_tables = SelectStatement::new()
-            .column(Alias::new("name"))
+            .column("name")
             .from(SqliteMaster)
-            .and_where(Expr::col(Alias::new("type")).eq("table"))
-            .and_where(Expr::col(Alias::new("name")).ne("sqlite_sequence"))
+            .and_where(Expr::col("type").eq("table"))
+            .and_where(Expr::col("name").ne("sqlite_sequence"))
             .to_owned();
 
         let mut discovered_indexes = Vec::new();
-        let rows = self.executor.fetch_all(get_tables).await?;
+        let rows = conn.query_all(get_tables).await?;
         for row in rows {
-            let mut table: TableDef = (&row).into();
-            table.get_indexes(&self.executor).await?;
+            let mut table: TableDef = row.into();
+            table.get_indexes(conn).await?;
             discovered_indexes.append(&mut table.indexes);
         }
 

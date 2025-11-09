@@ -1,16 +1,16 @@
+use super::{
+    ColumnInfo, DefaultType, ForeignKeysInfo, IndexInfo, IndexedColumns, PartialIndexInfo,
+};
+use crate::Connection;
+use crate::sqlite::{
+    error::{DiscoveryResult, SqliteDiscoveryError},
+    query::SqliteMaster,
+};
+use crate::sqlx_types::SqlxRow;
 use sea_query::{
     Alias, ColumnDef, Expr, ExprTrait, ForeignKey, Index, Keyword, Query, Table,
     TableCreateStatement, Value,
 };
-
-use super::{
-    ColumnInfo, DefaultType, ForeignKeysInfo, IndexInfo, IndexedColumns, PartialIndexInfo,
-};
-use crate::sqlite::query::SqliteMaster;
-use crate::sqlite::{error::DiscoveryResult, executor::Executor};
-
-#[allow(unused_imports)]
-use crate::sqlx_types::{Row, sqlite::SqliteRow};
 
 /// Defines a table for SQLite
 #[derive(Debug, Default, Clone)]
@@ -30,12 +30,12 @@ pub struct TableDef {
 }
 
 #[cfg(feature = "sqlx-sqlite")]
-/// Gets the table name from a `SqliteRow` and maps it to the [TableDef]
-impl From<&SqliteRow> for TableDef {
-    fn from(row: &SqliteRow) -> Self {
-        let row: String = row.get(0);
+impl From<SqlxRow> for TableDef {
+    fn from(row: SqlxRow) -> Self {
+        use crate::sqlx_types::Row;
+        let row = row.sqlite();
         TableDef {
-            name: row,
+            name: row.get(0),
             foreign_keys: Vec::default(),
             indexes: Vec::default(),
             constraints: Vec::default(),
@@ -46,9 +46,8 @@ impl From<&SqliteRow> for TableDef {
 }
 
 #[cfg(not(feature = "sqlx-sqlite"))]
-/// Gets the table name from a `SqliteRow` and maps it to the [TableDef]
-impl From<&SqliteRow> for TableDef {
-    fn from(_: &SqliteRow) -> Self {
+impl From<SqlxRow> for TableDef {
+    fn from(_: SqlxRow) -> Self {
         Self::default()
     }
 }
@@ -56,16 +55,19 @@ impl From<&SqliteRow> for TableDef {
 impl TableDef {
     /// Check if the primary key in the table is set to autoincrement as a result of using query
     /// `SELECT COUNT(*) from sqlite_sequence where name = 'table_name';
-    pub async fn pk_is_autoincrement(&mut self, executor: &Executor) -> DiscoveryResult<&mut Self> {
+    pub async fn pk_is_autoincrement(
+        &mut self,
+        conn: &impl Connection,
+    ) -> DiscoveryResult<&mut Self> {
         let check_autoincrement = Query::select()
             .expr(Expr::val(1))
             .from(SqliteMaster)
-            .and_where(Expr::col(Alias::new("type")).eq("table"))
-            .and_where(Expr::col(Alias::new("name")).eq(self.name.as_str()))
-            .and_where(Expr::col(Alias::new("sql")).like("%AUTOINCREMENT%"))
+            .and_where(Expr::col("type").eq("table"))
+            .and_where(Expr::col("name").eq(self.name.as_str()))
+            .and_where(Expr::col("sql").like("%AUTOINCREMENT%"))
             .to_owned();
 
-        if !executor.fetch_all(check_autoincrement).await?.is_empty() {
+        if !conn.query_all(check_autoincrement).await?.is_empty() {
             self.auto_increment = true;
         }
 
@@ -76,16 +78,16 @@ impl TableDef {
     /// These are implemented by indexes in most cases. These indexes have type "u" or "pk".
     /// Note that this does not get the column name mapped by the index.
     /// To get the column name mapped by the index, the `self.get_single_indexinfo` method is invoked
-    pub async fn get_constraints(&mut self, executor: &Executor) -> DiscoveryResult<()> {
+    pub async fn get_constraints(&mut self, conn: &impl Connection) -> DiscoveryResult<()> {
         let mut index_query = String::default();
         index_query.push_str("PRAGMA index_list('");
         index_query.push_str(&self.name);
         index_query.push_str("')");
 
-        let partial_index_info_rows = executor.fetch_all_raw(index_query).await?;
+        let partial_index_info_rows = conn.query_all_raw(index_query).await?;
         let mut partial_indexes: Vec<PartialIndexInfo> = Vec::default();
 
-        partial_index_info_rows.iter().for_each(|info| {
+        partial_index_info_rows.into_iter().for_each(|info| {
             let partial_index_info: PartialIndexInfo = info.into();
 
             if partial_index_info.origin.as_str() == "u" {
@@ -94,9 +96,8 @@ impl TableDef {
         });
 
         for partial_index in partial_indexes {
-            let partial_index_column: IndexedColumns = self
-                .get_single_indexinfo(executor, &partial_index.name)
-                .await?;
+            let partial_index_column: IndexedColumns =
+                self.get_single_indexinfo(conn, &partial_index.name).await?;
 
             self.constraints.push(IndexInfo {
                 r#type: partial_index_column.r#type,
@@ -115,16 +116,16 @@ impl TableDef {
     /// Get a list of all the indexes in the table.
     /// Note that this does not get the column name mapped by the index.
     /// To get the column name mapped by the index, the `self.get_single_indexinfo` method is invoked
-    pub async fn get_indexes(&mut self, executor: &Executor) -> DiscoveryResult<()> {
+    pub async fn get_indexes(&mut self, conn: &impl Connection) -> DiscoveryResult<()> {
         let mut index_query = String::default();
         index_query.push_str("PRAGMA index_list('");
         index_query.push_str(&self.name);
         index_query.push_str("')");
 
-        let partial_index_info_rows = executor.fetch_all_raw(index_query).await?;
+        let partial_index_info_rows = conn.query_all_raw(index_query).await?;
         let mut partial_indexes: Vec<PartialIndexInfo> = Vec::default();
 
-        partial_index_info_rows.iter().for_each(|info| {
+        partial_index_info_rows.into_iter().for_each(|info| {
             let partial_index_info: PartialIndexInfo = info.into();
 
             if partial_index_info.origin.as_str() == "c" {
@@ -133,9 +134,8 @@ impl TableDef {
         });
 
         for partial_index in partial_indexes {
-            let partial_index_column: IndexedColumns = self
-                .get_single_indexinfo(executor, &partial_index.name)
-                .await?;
+            let partial_index_column: IndexedColumns =
+                self.get_single_indexinfo(conn, &partial_index.name).await?;
 
             self.indexes.push(IndexInfo {
                 r#type: partial_index_column.r#type,
@@ -152,16 +152,16 @@ impl TableDef {
     }
 
     /// Get a list of all the foreign keys in the table
-    pub async fn get_foreign_keys(&mut self, executor: &Executor) -> DiscoveryResult<&mut Self> {
+    pub async fn get_foreign_keys(&mut self, conn: &impl Connection) -> DiscoveryResult<&mut Self> {
         let mut index_query = String::default();
         index_query.push_str("PRAGMA foreign_key_list('");
         index_query.push_str(&self.name);
         index_query.push_str("')");
 
-        let index_info_rows = executor.fetch_all_raw(index_query).await?;
+        let index_info_rows = conn.query_all_raw(index_query).await?;
 
         let mut last_fk_id = None;
-        index_info_rows.iter().for_each(|info| {
+        index_info_rows.into_iter().for_each(|info| {
             let mut index_info: ForeignKeysInfo = info.into();
             let fk_id = index_info.id;
             if last_fk_id == Some(fk_id) {
@@ -178,16 +178,16 @@ impl TableDef {
     }
 
     /// Get a list of all the columns in the table mapped as [ColumnInfo]
-    pub async fn get_column_info(&mut self, executor: &Executor) -> DiscoveryResult<&TableDef> {
+    pub async fn get_column_info(&mut self, conn: &impl Connection) -> DiscoveryResult<&TableDef> {
         let mut index_query = String::default();
         index_query.push_str("PRAGMA table_info('");
         index_query.push_str(&self.name);
         index_query.push_str("')");
 
-        let index_info_rows = executor.fetch_all_raw(index_query).await?;
+        let index_info_rows = conn.query_all_raw(index_query).await?;
 
         for info in index_info_rows {
-            let column = ColumnInfo::to_column_def(&info)?;
+            let column = ColumnInfo::to_column_def(info)?;
             self.columns.push(column);
         }
 
@@ -197,25 +197,29 @@ impl TableDef {
     /// Gets the columns that are mapped to an index
     pub(crate) async fn get_single_indexinfo(
         &mut self,
-        executor: &Executor,
+        conn: &impl Connection,
         index_name: &str,
     ) -> DiscoveryResult<IndexedColumns> {
         let index_query = Query::select()
             .expr(Expr::cust("*"))
             .from(SqliteMaster)
-            .and_where(Expr::col(Alias::new("name")).eq(index_name))
+            .and_where(Expr::col("name").eq(index_name))
             .to_owned();
 
-        let index_info = executor.fetch_one(index_query).await?;
+        let index_info = conn.query_all(index_query).await?;
+        let index_info = index_info
+            .into_iter()
+            .next()
+            .ok_or_else(|| SqliteDiscoveryError::IndexNotFound(index_name.to_owned()))?;
 
         let mut index_column_query = String::default();
         index_column_query.push_str("PRAGMA index_info('");
         index_column_query.push_str(index_name);
         index_column_query.push_str("')");
 
-        let index_column_info_rows = executor.fetch_all_raw(index_column_query).await?;
+        let index_column_info_rows = conn.query_all_raw(index_column_query).await?;
 
-        Ok((&index_info, index_column_info_rows.as_slice()).into())
+        Ok((index_info, index_column_info_rows).into())
     }
 
     pub fn write(&self) -> TableCreateStatement {
@@ -239,13 +243,13 @@ impl TableDef {
 
             match &column_info.default_value {
                 DefaultType::Integer(integer_value) => {
-                    new_column.default(Value::Int(Some(*integer_value)));
+                    new_column.default(Value::BigInt(Some(*integer_value)));
                 }
                 DefaultType::Float(float_value) => {
                     new_column.default(Value::Float(Some(*float_value)));
                 }
                 DefaultType::String(string_value) => {
-                    new_column.default(Value::String(Some(Box::new(string_value.to_string()))));
+                    new_column.default(Value::String(Some(string_value.to_string())));
                 }
                 DefaultType::Null => (),
                 DefaultType::Unspecified => (),

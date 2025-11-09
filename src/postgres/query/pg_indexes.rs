@@ -1,7 +1,7 @@
 use super::SchemaQueryBuilder;
-use crate::sqlx_types::postgres::PgRow;
+use crate::sqlx_types::SqlxRow;
 use sea_query::{
-    Alias, Condition, DynIden, Expr, ExprTrait, Iden, JoinType, Order, Query, SelectStatement,
+    Condition, DynIden, Expr, ExprTrait, Iden, JoinType, Order, Query, SelectStatement,
 };
 
 #[derive(Debug, Iden)]
@@ -69,60 +69,55 @@ pub struct UniqueIndexQueryResult {
 
 impl SchemaQueryBuilder {
     pub fn query_table_unique_indexes(&self, schema: DynIden, table: DynIden) -> SelectStatement {
-        let idx = Alias::new("idx");
-        let insp = Alias::new("insp");
-        let tbl = Alias::new("tbl");
-        let tnsp = Alias::new("tnsp");
-        let col = Alias::new("col");
+        let idx = "idx";
+        let insp = "insp";
+        let tbl = "tbl";
+        let tnsp = "tnsp";
+        let col = "col";
         let partially = "partially";
 
         Query::select()
-            .column((idx.clone(), PgClass::RelName))
-            .column((insp.clone(), PgNamespace::NspName))
-            .column((tbl.clone(), PgClass::RelName))
-            .column((col.clone(), PgAttribute::AttName))
-            .expr_as(Expr::col(PgIndex::IndPred).is_not_null(), partially)
+            .column((idx, PgClass::RelName))
+            .column((insp, PgNamespace::NspName))
+            .column((tbl, PgClass::RelName))
+            .column((col, PgAttribute::AttName))
             .from(PgIndex::Table)
             .join_as(
                 JoinType::Join,
                 PgClass::Table,
-                idx.clone(),
-                Expr::col((idx.clone(), PgClass::Oid))
-                    .equals((PgIndex::Table, PgIndex::IndexRelId)),
+                idx,
+                Expr::col((idx, PgClass::Oid)).equals((PgIndex::Table, PgIndex::IndexRelId)),
             )
             .join_as(
                 JoinType::Join,
                 PgNamespace::Table,
-                insp.clone(),
-                Expr::col((insp.clone(), PgNamespace::Oid))
-                    .equals((idx.clone(), PgClass::RelNamespace)),
+                insp,
+                Expr::col((insp, PgNamespace::Oid)).equals((idx, PgClass::RelNamespace)),
             )
             .join_as(
                 JoinType::Join,
                 PgClass::Table,
-                tbl.clone(),
-                Expr::col((tbl.clone(), PgClass::Oid)).equals((PgIndex::Table, PgIndex::IndRelId)),
+                tbl,
+                Expr::col((tbl, PgClass::Oid)).equals((PgIndex::Table, PgIndex::IndRelId)),
             )
             .join_as(
                 JoinType::Join,
                 PgNamespace::Table,
-                tnsp.clone(),
-                Expr::col((tnsp.clone(), PgNamespace::Oid))
-                    .equals((tbl.clone(), PgClass::RelNamespace)),
+                tnsp,
+                Expr::col((tnsp, PgNamespace::Oid)).equals((tbl, PgClass::RelNamespace)),
             )
             .join_as(
                 JoinType::Join,
                 PgAttribute::Table,
-                col.clone(),
-                Expr::col((col.clone(), PgAttribute::AttRelId))
-                    .equals((idx.clone(), PgAttribute::Oid)),
+                col,
+                Expr::col((col, PgAttribute::AttRelId)).equals((idx, PgAttribute::Oid)),
             )
             .cond_where(
                 Condition::all()
                     .add(Expr::col((PgIndex::Table, PgIndex::IndIsUnique)).eq(true))
                     .add(Expr::col((PgIndex::Table, PgIndex::IndIsPrimary)).eq(false))
-                    .add(Expr::col((tbl.clone(), PgClass::RelName)).eq(table.to_string()))
-                    .add(Expr::col((tnsp.clone(), PgNamespace::NspName)).eq(schema.to_string())),
+                    .add(Expr::col((tbl, PgClass::RelName)).eq(table.to_string()))
+                    .add(Expr::col((tnsp, PgNamespace::NspName)).eq(schema.to_string())),
             )
             .order_by((PgIndex::Table, PgIndex::IndexRelId), Order::Asc)
             .take()
@@ -130,9 +125,10 @@ impl SchemaQueryBuilder {
 }
 
 #[cfg(feature = "sqlx-postgres")]
-impl From<&PgRow> for UniqueIndexQueryResult {
-    fn from(row: &PgRow) -> Self {
+impl From<SqlxRow> for UniqueIndexQueryResult {
+    fn from(row: SqlxRow) -> Self {
         use crate::sqlx_types::Row;
+        let row = row.postgres();
         Self {
             index_name: row.get(0),
             table_schema: row.get(1),
@@ -144,8 +140,8 @@ impl From<&PgRow> for UniqueIndexQueryResult {
 }
 
 #[cfg(not(feature = "sqlx-postgres"))]
-impl From<&PgRow> for UniqueIndexQueryResult {
-    fn from(_: &PgRow) -> Self {
+impl From<SqlxRow> for UniqueIndexQueryResult {
+    fn from(_: SqlxRow) -> Self {
         Self::default()
     }
 }

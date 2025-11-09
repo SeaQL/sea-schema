@@ -2,8 +2,8 @@ use pretty_assertions::assert_eq;
 use regex::Regex;
 use sea_schema::mysql::{def::TableDef, discovery::SchemaDiscovery};
 use sea_schema::sea_query::{
-    Alias, ColumnDef, Expr, ForeignKey, ForeignKeyAction, Index, MysqlQueryBuilder, Table,
-    TableCreateStatement, TableRef,
+    ColumnDef, Expr, ForeignKey, ForeignKeyAction, Index, MysqlQueryBuilder, Table,
+    TableCreateStatement, TableName, TableRef,
 };
 use sqlx::{MySql, MySqlPool, Pool};
 use std::collections::HashMap;
@@ -60,7 +60,7 @@ async fn main() {
     for tbl_create_stmt in tbl_create_stmts.into_iter() {
         let expected_sql = tbl_create_stmt.to_string(MysqlQueryBuilder);
         let tbl_name = match tbl_create_stmt.get_table_name() {
-            Some(TableRef::Table(tbl)) => tbl.to_string(),
+            Some(TableRef::Table(TableName(_, tbl), _)) => tbl.to_string(),
             _ => unimplemented!(),
         };
         let table = map.get(&tbl_name).unwrap();
@@ -76,7 +76,7 @@ async fn main() {
 }
 
 fn strip_generated_sql(mut sql: String) -> String {
-    for (pattern, replacement) in vec![
+    for (pattern, replacement) in [
         (Regex::new(r"(?i) DEFAULT NULL").unwrap(), ""),
         (Regex::new(r"(?i)TINYINT\(\d+\)").unwrap(), "tinyint"),
         (Regex::new(r"(?i)SMALLINT\(\d+\)").unwrap(), "smallint"),
@@ -116,20 +116,15 @@ async fn setup(base_url: &str, db_name: &str) -> Pool<MySql> {
 
 fn create_bakery_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("bakery"))
+        .table("bakery")
+        .col(ColumnDef::new("id").integer().not_null().auto_increment())
+        .col(ColumnDef::new("name").string())
         .col(
-            ColumnDef::new(Alias::new("id"))
-                .integer()
-                .not_null()
-                .auto_increment(),
-        )
-        .col(ColumnDef::new(Alias::new("name")).string())
-        .col(
-            ColumnDef::new(Alias::new("profit_margin"))
+            ColumnDef::new("profit_margin")
                 .double()
                 .extra("UNSIGNED".to_owned()),
         )
-        .primary_key(Index::create().col(Alias::new("id")))
+        .primary_key(Index::create().col("id"))
         .engine("InnoDB")
         .character_set("utf8mb4")
         .collate("utf8mb4_general_ci")
@@ -138,27 +133,18 @@ fn create_bakery_table() -> TableCreateStatement {
 
 fn create_baker_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("baker"))
-        .col(
-            ColumnDef::new(Alias::new("id"))
-                .integer()
-                .not_null()
-                .auto_increment(),
-        )
-        .col(ColumnDef::new(Alias::new("name")).string())
-        .col(ColumnDef::new(Alias::new("contact_details")).json())
-        .col(ColumnDef::new(Alias::new("bakery_id")).integer())
-        .index(
-            Index::create()
-                .name("FK_baker_bakery")
-                .col(Alias::new("bakery_id")),
-        )
-        .primary_key(Index::create().col(Alias::new("id")))
+        .table("baker")
+        .col(ColumnDef::new("id").integer().not_null().auto_increment())
+        .col(ColumnDef::new("name").string())
+        .col(ColumnDef::new("contact_details").json())
+        .col(ColumnDef::new("bakery_id").integer())
+        .index(Index::create().name("FK_baker_bakery").col("bakery_id"))
+        .primary_key(Index::create().col("id"))
         .foreign_key(
             ForeignKey::create()
                 .name("FK_baker_bakery")
-                .from(Alias::new("baker"), Alias::new("bakery_id"))
-                .to(Alias::new("bakery"), Alias::new("id"))
+                .from("baker", "bakery_id")
+                .to("bakery", "id")
                 .on_delete(ForeignKeyAction::Cascade)
                 .on_update(ForeignKeyAction::Cascade),
         )
@@ -170,16 +156,11 @@ fn create_baker_table() -> TableCreateStatement {
 
 fn create_customer_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("customer"))
-        .col(
-            ColumnDef::new(Alias::new("id"))
-                .integer()
-                .not_null()
-                .auto_increment(),
-        )
-        .col(ColumnDef::new(Alias::new("name")).string())
-        .col(ColumnDef::new(Alias::new("notes")).text())
-        .primary_key(Index::create().col(Alias::new("id")))
+        .table("customer")
+        .col(ColumnDef::new("id").integer().not_null().auto_increment())
+        .col(ColumnDef::new("name").string())
+        .col(ColumnDef::new("notes").text())
+        .primary_key(Index::create().col("id"))
         .engine("InnoDB")
         .character_set("utf8mb4")
         .collate("utf8mb4_general_ci")
@@ -188,72 +169,50 @@ fn create_customer_table() -> TableCreateStatement {
 
 fn create_order_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("order"))
+        .table("order")
+        .col(ColumnDef::new("id").integer().not_null().auto_increment())
         .col(
-            ColumnDef::new(Alias::new("id"))
-                .integer()
-                .not_null()
-                .auto_increment(),
-        )
-        .col(
-            ColumnDef::new(Alias::new("total"))
+            ColumnDef::new("total")
                 .decimal_len(19, 4)
                 .extra("UNSIGNED".to_owned()),
         )
-        .col(ColumnDef::new(Alias::new("bakery_id")).integer().not_null())
+        .col(ColumnDef::new("bakery_id").integer().not_null())
+        .col(ColumnDef::new("customer_id").integer().not_null())
         .col(
-            ColumnDef::new(Alias::new("customer_id"))
-                .integer()
-                .not_null(),
-        )
-        .col(
-            ColumnDef::new(Alias::new("placed_at"))
+            ColumnDef::new("placed_at")
                 .date_time()
                 .not_null()
                 .default(Expr::current_timestamp()),
         )
         .col(
-            ColumnDef::new(Alias::new("updated"))
+            ColumnDef::new("updated")
                 .date_time()
                 .not_null()
                 .default("2023-06-07 16:24:00"),
         )
         .col(
-            ColumnDef::new(Alias::new("net_weight"))
+            ColumnDef::new("net_weight")
                 .double()
                 .not_null()
                 .default(10.05),
         )
-        .col(
-            ColumnDef::new(Alias::new("priority"))
-                .integer()
-                .not_null()
-                .default(5),
-        )
-        .index(
-            Index::create()
-                .name("FK_order_bakery")
-                .col(Alias::new("bakery_id")),
-        )
-        .index(
-            Index::create()
-                .name("FK_order_customer")
-                .col(Alias::new("customer_id")),
-        )
-        .primary_key(Index::create().col(Alias::new("id")))
+        .col(ColumnDef::new("priority").integer().not_null().default(5))
+        .index(Index::create().name("FK_order_bakery").col("bakery_id"))
+        .index(Index::create().name("FK_order_customer").col("customer_id"))
+        .primary_key(Index::create().col("id"))
         .foreign_key(
             ForeignKey::create()
                 .name("FK_order_bakery")
-                .from(Alias::new("order"), Alias::new("bakery_id"))
-                .to(Alias::new("bakery"), Alias::new("id"))
+                .from("order", "bakery_id")
+                .to("bakery", "id")
                 .on_delete(ForeignKeyAction::Cascade)
                 .on_update(ForeignKeyAction::Cascade),
         )
         .foreign_key(
             ForeignKey::create()
                 .name("FK_order_customer")
-                .from(Alias::new("order"), Alias::new("customer_id"))
-                .to(Alias::new("customer"), Alias::new("id"))
+                .from("order", "customer_id")
+                .to("customer", "id")
                 .on_delete(ForeignKeyAction::Cascade)
                 .on_update(ForeignKeyAction::Cascade),
         )
@@ -265,54 +224,41 @@ fn create_order_table() -> TableCreateStatement {
 
 fn create_lineitem_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("lineitem"))
-        .col(
-            ColumnDef::new(Alias::new("id"))
-                .integer()
-                .not_null()
-                .auto_increment(),
-        )
-        .col(ColumnDef::new(Alias::new("price")).decimal_len(19, 4))
-        .col(ColumnDef::new(Alias::new("quantity")).unsigned().not_null())
-        .col(ColumnDef::new(Alias::new("order_id")).integer().not_null())
-        .col(ColumnDef::new(Alias::new("cake_id")).integer().not_null())
-        .index(
-            Index::create()
-                .name("FK_lineitem_cake")
-                .col(Alias::new("cake_id")),
-        )
-        .index(
-            Index::create()
-                .name("FK_lineitem_order")
-                .col(Alias::new("order_id")),
-        )
-        .primary_key(Index::create().col(Alias::new("id")))
+        .table("lineitem")
+        .col(ColumnDef::new("id").integer().not_null().auto_increment())
+        .col(ColumnDef::new("price").decimal_len(19, 4))
+        .col(ColumnDef::new("quantity").unsigned().not_null())
+        .col(ColumnDef::new("order_id").integer().not_null())
+        .col(ColumnDef::new("cake_id").integer().not_null())
+        .index(Index::create().name("FK_lineitem_cake").col("cake_id"))
+        .index(Index::create().name("FK_lineitem_order").col("order_id"))
+        .primary_key(Index::create().col("id"))
         .index(
             Index::create()
                 .unique()
                 .name("UNI_lineitem_cake_id")
-                .col(Alias::new("cake_id")),
+                .col("cake_id"),
         )
         .index(
             Index::create()
                 .unique()
                 .name("UNI_lineitem_order_id_cake_id")
-                .col(Alias::new("order_id"))
-                .col(Alias::new("cake_id")),
+                .col("order_id")
+                .col("cake_id"),
         )
         .foreign_key(
             ForeignKey::create()
                 .name("FK_lineitem_cake")
-                .from(Alias::new("lineitem"), Alias::new("cake_id"))
-                .to(Alias::new("cake"), Alias::new("id"))
+                .from("lineitem", "cake_id")
+                .to("cake", "id")
                 .on_delete(ForeignKeyAction::Cascade)
                 .on_update(ForeignKeyAction::Cascade),
         )
         .foreign_key(
             ForeignKey::create()
                 .name("FK_lineitem_order")
-                .from(Alias::new("lineitem"), Alias::new("order_id"))
-                .to(Alias::new("order"), Alias::new("id"))
+                .from("lineitem", "order_id")
+                .to("order", "id")
                 .on_delete(ForeignKeyAction::Cascade)
                 .on_update(ForeignKeyAction::Cascade),
         )
@@ -324,14 +270,10 @@ fn create_lineitem_table() -> TableCreateStatement {
 
 fn create_cakes_bakers_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("cakes_bakers"))
-        .col(ColumnDef::new(Alias::new("cake_id")).integer().not_null())
-        .col(ColumnDef::new(Alias::new("baker_id")).integer().not_null())
-        .primary_key(
-            Index::create()
-                .col(Alias::new("cake_id"))
-                .col(Alias::new("baker_id")),
-        )
+        .table("cakes_bakers")
+        .col(ColumnDef::new("cake_id").integer().not_null())
+        .col(ColumnDef::new("baker_id").integer().not_null())
+        .primary_key(Index::create().col("cake_id").col("baker_id"))
         .engine("InnoDB")
         .character_set("utf8mb4")
         .collate("utf8mb4_general_ci")
@@ -340,33 +282,20 @@ fn create_cakes_bakers_table() -> TableCreateStatement {
 
 fn create_cake_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("cake"))
-        .col(
-            ColumnDef::new(Alias::new("id"))
-                .integer()
-                .not_null()
-                .auto_increment(),
-        )
-        .col(ColumnDef::new(Alias::new("name")).string())
-        .col(ColumnDef::new(Alias::new("price")).decimal_len(19, 4))
-        .col(ColumnDef::new(Alias::new("bakery_id")).integer().not_null())
-        .col(
-            ColumnDef::new(Alias::new("gluten_free"))
-                .tiny_unsigned()
-                .not_null(),
-        )
-        .col(ColumnDef::new(Alias::new("serial")).uuid())
-        .index(
-            Index::create()
-                .name("FK_cake_bakery")
-                .col(Alias::new("bakery_id")),
-        )
-        .primary_key(Index::create().col(Alias::new("id")))
+        .table("cake")
+        .col(ColumnDef::new("id").integer().not_null().auto_increment())
+        .col(ColumnDef::new("name").string())
+        .col(ColumnDef::new("price").decimal_len(19, 4))
+        .col(ColumnDef::new("bakery_id").integer().not_null())
+        .col(ColumnDef::new("gluten_free").tiny_unsigned().not_null())
+        .col(ColumnDef::new("serial").uuid())
+        .index(Index::create().name("FK_cake_bakery").col("bakery_id"))
+        .primary_key(Index::create().col("id"))
         .foreign_key(
             ForeignKey::create()
                 .name("FK_cake_bakery")
-                .from(Alias::new("cake"), Alias::new("bakery_id"))
-                .to(Alias::new("bakery"), Alias::new("id"))
+                .from("cake", "bakery_id")
+                .to("bakery", "id")
                 .on_delete(ForeignKeyAction::Cascade)
                 .on_update(ForeignKeyAction::Cascade),
         )
@@ -378,15 +307,10 @@ fn create_cake_table() -> TableCreateStatement {
 
 fn create_parent_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("parent"))
-        .col(ColumnDef::new(Alias::new("id1")).integer().not_null())
-        .col(ColumnDef::new(Alias::new("id2")).integer().not_null())
-        .primary_key(
-            Index::create()
-                .primary()
-                .col(Alias::new("id1"))
-                .col(Alias::new("id2")),
-        )
+        .table("parent")
+        .col(ColumnDef::new("id1").integer().not_null())
+        .col(ColumnDef::new("id2").integer().not_null())
+        .primary_key(Index::create().primary().col("id1").col("id2"))
         .engine("InnoDB")
         .character_set("utf8mb4")
         .collate("utf8mb4_general_ci")
@@ -395,38 +319,22 @@ fn create_parent_table() -> TableCreateStatement {
 
 fn create_child_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("child"))
-        .col(
-            ColumnDef::new(Alias::new("id"))
-                .integer()
-                .not_null()
-                .auto_increment(),
-        )
-        .col(
-            ColumnDef::new(Alias::new("parent_id1"))
-                .integer()
-                .not_null(),
-        )
-        .col(
-            ColumnDef::new(Alias::new("parent_id2"))
-                .integer()
-                .not_null(),
-        )
+        .table("child")
+        .col(ColumnDef::new("id").integer().not_null().auto_increment())
+        .col(ColumnDef::new("parent_id1").integer().not_null())
+        .col(ColumnDef::new("parent_id2").integer().not_null())
         .index(
             Index::create()
                 .name("FK_child_parent")
-                .col(Alias::new("parent_id1"))
-                .col(Alias::new("parent_id2")),
+                .col("parent_id1")
+                .col("parent_id2"),
         )
-        .primary_key(Index::create().col(Alias::new("id")))
+        .primary_key(Index::create().col("id"))
         .foreign_key(
             ForeignKey::create()
                 .name("FK_child_parent")
-                .from(
-                    Alias::new("child"),
-                    (Alias::new("parent_id1"), Alias::new("parent_id2")),
-                )
-                .to(Alias::new("parent"), (Alias::new("id1"), Alias::new("id2")))
+                .from("child", ("parent_id1", "parent_id2"))
+                .to("parent", ("id1", "id2"))
                 .on_delete(ForeignKeyAction::Cascade)
                 .on_update(ForeignKeyAction::Cascade),
         )
@@ -438,18 +346,13 @@ fn create_child_table() -> TableCreateStatement {
 
 fn create_db_types_table() -> TableCreateStatement {
     Table::create()
-        .table(Alias::new("db_types"))
-        .col(
-            ColumnDef::new(Alias::new("id"))
-                .integer()
-                .not_null()
-                .auto_increment(),
-        )
-        .col(ColumnDef::new(Alias::new("bit_1")).bit(Some(1)))
-        .col(ColumnDef::new(Alias::new("bit_2")).bit(Some(16)))
-        .col(ColumnDef::new(Alias::new("bit_3")).bit(Some(32)))
-        .col(ColumnDef::new(Alias::new("year")).year())
-        .primary_key(Index::create().col(Alias::new("id")))
+        .table("db_types")
+        .col(ColumnDef::new("id").integer().not_null().auto_increment())
+        .col(ColumnDef::new("bit_1").bit(Some(1)))
+        .col(ColumnDef::new("bit_2").bit(Some(16)))
+        .col(ColumnDef::new("bit_3").bit(Some(32)))
+        .col(ColumnDef::new("year").year())
+        .primary_key(Index::create().col("id"))
         .engine("InnoDB")
         .character_set("utf8mb4")
         .collate("utf8mb4_general_ci")

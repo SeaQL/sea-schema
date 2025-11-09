@@ -11,15 +11,13 @@ async fn main() -> DiscoveryResult<()> {
 
     let schema_discovery = SchemaDiscovery::new(sqlite_pool);
 
-    let discover_tables = schema_discovery.discover().await?;
+    let schema = schema_discovery.discover().await?;
 
-    for table in discover_tables.tables.iter() {
+    for table in schema.tables.iter() {
         println!("{};", table.write().to_string(SqliteQueryBuilder));
     }
 
-    let discover_indexes = schema_discovery.discover_indexes().await?;
-
-    for index in discover_indexes.iter() {
+    for index in schema.indexes.iter() {
         println!("{};", index.write().to_string(SqliteQueryBuilder));
     }
 

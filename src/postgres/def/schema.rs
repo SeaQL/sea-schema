@@ -8,6 +8,7 @@ use super::*;
 pub struct Schema {
     pub schema: String,
     pub tables: Vec<TableDef>,
+    pub enums: Vec<EnumDef>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -22,8 +23,6 @@ pub struct TableDef {
     pub primary_key_constraints: Vec<PrimaryKey>,
     pub reference_constraints: Vec<References>,
     pub exclusion_constraints: Vec<Exclusion>,
-    // FIXME: Duplication? TableInfo also have of_type
-    // pub of_type: Option<Type>,
     // TODO:
     // pub inherets: Vec<String>,
 }

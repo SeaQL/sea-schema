@@ -22,7 +22,7 @@ impl ColumnInfo {
                 ColumnDefault::Int(int) => (*int).into(),
                 ColumnDefault::Real(double) => (*double).into(),
                 ColumnDefault::String(string) => string.into(),
-                ColumnDefault::CustomExpr(string) => Expr::cust(string),
+                ColumnDefault::CustomExpr(string) => Expr::cust(string.to_owned()),
                 ColumnDefault::CurrentTimestamp => Keyword::CurrentTimestamp.into(),
             };
             col_def.default(default_expr);

@@ -1,8 +1,11 @@
 use sea_query::{SelectStatement, SqliteQueryBuilder};
-use sea_query_binder::SqlxBinder;
-use sqlx::{SqlitePool, sqlite::SqliteRow};
+use sea_query_sqlx::SqlxBinder;
+use sqlx::SqlitePool;
 
-use crate::{debug_print, sqlx_types::SqlxError};
+use crate::{
+    Connection, debug_print,
+    sqlx_types::{SqlxError, SqlxRow},
+};
 
 pub struct Executor {
     pool: SqlitePool,
@@ -18,30 +21,28 @@ impl IntoExecutor for SqlitePool {
     }
 }
 
-impl Executor {
-    pub async fn fetch_all(&self, select: SelectStatement) -> Result<Vec<SqliteRow>, SqlxError> {
+#[async_trait::async_trait]
+impl Connection for Executor {
+    async fn query_all(&self, select: SelectStatement) -> Result<Vec<SqlxRow>, SqlxError> {
         let (sql, values) = select.build_sqlx(SqliteQueryBuilder);
         debug_print!("{}, {:?}", sql, values);
 
-        sqlx::query_with(&sql, values)
+        Ok(sqlx::query_with(&sql, values)
             .fetch_all(&mut *self.pool.acquire().await?)
-            .await
+            .await?
+            .into_iter()
+            .map(SqlxRow::Sqlite)
+            .collect())
     }
 
-    pub async fn fetch_one(&self, select: SelectStatement) -> Result<SqliteRow, SqlxError> {
-        let (sql, values) = select.build_sqlx(SqliteQueryBuilder);
-        debug_print!("{}, {:?}", sql, values);
-
-        sqlx::query_with(&sql, values)
-            .fetch_one(&mut *self.pool.acquire().await?)
-            .await
-    }
-
-    pub async fn fetch_all_raw(&self, sql: String) -> Result<Vec<SqliteRow>, SqlxError> {
+    async fn query_all_raw(&self, sql: String) -> Result<Vec<SqlxRow>, SqlxError> {
         debug_print!("{}", sql);
 
-        sqlx::query(&sql)
+        Ok(sqlx::query(&sql)
             .fetch_all(&mut *self.pool.acquire().await?)
-            .await
+            .await?
+            .into_iter()
+            .map(SqlxRow::Sqlite)
+            .collect())
     }
 }

@@ -2,14 +2,14 @@
 
 use sea_query::{Token, Tokenizer};
 
-pub struct Parser {
-    pub tokens: Tokenizer,
-    pub curr: Option<Token>,
-    pub last: Option<Token>,
+pub struct Parser<'a> {
+    pub tokens: Tokenizer<'a>,
+    pub curr: Option<Token<'a>>,
+    pub last: Option<Token<'a>>,
 }
 
-impl Parser {
-    pub fn new(string: &str) -> Self {
+impl<'a> Parser<'a> {
+    pub fn new(string: &'a str) -> Self {
         Self {
             tokens: Tokenizer::new(string),
             curr: None,
@@ -17,7 +17,7 @@ impl Parser {
         }
     }
 
-    pub fn curr(&mut self) -> Option<&Token> {
+    pub fn curr(&mut self) -> Option<&Token<'_>> {
         if self.curr.is_some() {
             self.curr.as_ref()
         } else {
@@ -25,12 +25,12 @@ impl Parser {
         }
     }
 
-    pub fn last(&mut self) -> Option<&Token> {
+    pub fn last(&mut self) -> Option<&Token<'_>> {
         self.last.as_ref()
     }
 
     #[allow(clippy::should_implement_trait)]
-    pub fn next(&mut self) -> Option<&Token> {
+    pub fn next(&mut self) -> Option<&Token<'_>> {
         if self.curr.is_some() {
             self.last = std::mem::take(&mut self.curr);
         }
@@ -57,7 +57,7 @@ impl Parser {
         false
     }
 
-    pub fn next_if_quoted_any(&mut self) -> Option<&Token> {
+    pub fn next_if_quoted_any(&mut self) -> Option<&Token<'_>> {
         if let Some(tok) = self.curr() {
             if tok.is_quoted() {
                 self.next();
@@ -67,7 +67,7 @@ impl Parser {
         None
     }
 
-    pub fn next_if_unquoted_any(&mut self) -> Option<&Token> {
+    pub fn next_if_unquoted_any(&mut self) -> Option<&Token<'_>> {
         if let Some(tok) = self.curr() {
             if tok.is_unquoted() {
                 self.next();

@@ -1,5 +1,5 @@
 use super::{InformationSchema, SchemaQueryBuilder, select_base_table_and_view};
-use crate::sqlx_types::postgres::PgRow;
+use crate::sqlx_types::SqlxRow;
 use sea_query::{DynIden, Expr, ExprTrait, Iden, Query, SelectStatement};
 
 #[derive(Debug, sea_query::Iden)]
@@ -54,9 +54,10 @@ impl SchemaQueryBuilder {
 }
 
 #[cfg(feature = "sqlx-postgres")]
-impl From<&PgRow> for TableQueryResult {
-    fn from(row: &PgRow) -> Self {
+impl From<SqlxRow> for TableQueryResult {
+    fn from(row: SqlxRow) -> Self {
         use crate::sqlx_types::Row;
+        let row = row.postgres();
         Self {
             table_name: row.get(0),
             user_defined_type_schema: row.get(1),
@@ -66,8 +67,8 @@ impl From<&PgRow> for TableQueryResult {
 }
 
 #[cfg(not(feature = "sqlx-postgres"))]
-impl From<&PgRow> for TableQueryResult {
-    fn from(_: &PgRow) -> Self {
+impl From<SqlxRow> for TableQueryResult {
+    fn from(_: SqlxRow) -> Self {
         Self::default()
     }
 }

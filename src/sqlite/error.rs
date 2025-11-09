@@ -12,11 +12,10 @@ pub enum SqliteDiscoveryError {
     ParseIntError,
     /// An error parsing a string from the result of an SQLite query into an rust-language float
     ParseFloatError,
+    /// The target index was not found
+    IndexNotFound(String),
     /// The error as defined in [SqlxError]
     SqlxError(SqlxError),
-    /// An operation to discover the indexes in a table was invoked
-    /// but the target table contains no indexes
-    NoIndexesFound,
 }
 
 impl From<ParseIntError> for SqliteDiscoveryError {
@@ -43,9 +42,9 @@ impl std::fmt::Display for SqliteDiscoveryError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             SqliteDiscoveryError::ParseIntError => write!(f, "Parse Integer Error"),
-            SqliteDiscoveryError::ParseFloatError => write!(f, "Parse Float Error Error"),
+            SqliteDiscoveryError::ParseFloatError => write!(f, "Parse Float Error"),
+            SqliteDiscoveryError::IndexNotFound(index) => write!(f, "Index Not Found: {index}"),
             SqliteDiscoveryError::SqlxError(e) => write!(f, "SQLx Error: {e:?}"),
-            SqliteDiscoveryError::NoIndexesFound => write!(f, "No Indexes Found Error"),
         }
     }
 }
