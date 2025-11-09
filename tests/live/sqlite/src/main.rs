@@ -138,6 +138,13 @@ async fn test_001() -> DiscoveryResult<()> {
         .primary_key(Index::create().col("group_id"))
         .to_owned();
 
+    let table_create_supplier_groups_expected = Table::create()
+        .table("supplier_groups")
+        .col(ColumnDef::new("group_id").integer().not_null())
+        .col(ColumnDef::new("group_name").text().not_null())
+        .primary_key(Index::create().col("group_id"))
+        .to_owned();
+
     let insert_into_supplier_groups = Query::insert()
         .into_table("supplier_groups")
         .columns(["group_name"])
@@ -197,7 +204,7 @@ async fn test_001() -> DiscoveryResult<()> {
     let expected_sql = [
         create_table.to_string(SqliteQueryBuilder),
         create_table_inventors.to_string(SqliteQueryBuilder),
-        table_create_supplier_groups.to_string(SqliteQueryBuilder),
+        table_create_supplier_groups_expected.to_string(SqliteQueryBuilder),
         table_create_suppliers.to_string(SqliteQueryBuilder),
     ]
     .into_iter()
