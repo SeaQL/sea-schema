@@ -81,6 +81,7 @@ impl SchemaQueryBuilder {
             .column((insp, PgNamespace::NspName))
             .column((tbl, PgClass::RelName))
             .column((col, PgAttribute::AttName))
+            .expr_as(Expr::col(PgIndex::IndPred).is_not_null(), partially)
             .from(PgIndex::Table)
             .join_as(
                 JoinType::Join,
