@@ -26,6 +26,8 @@ pub enum PgIndex {
     IndIsUnique,
     #[iden = "indisprimary"]
     IndIsPrimary,
+    #[iden = "indpred"]
+    IndPred,
 }
 
 #[derive(Debug, Iden)]
@@ -62,6 +64,7 @@ pub struct UniqueIndexQueryResult {
     pub table_schema: String,
     pub table_name: String,
     pub column_name: String,
+    pub is_partial: bool,
 }
 
 impl SchemaQueryBuilder {
@@ -71,6 +74,7 @@ impl SchemaQueryBuilder {
         let tbl = "tbl";
         let tnsp = "tnsp";
         let col = "col";
+        let partially = "partially";
 
         Query::select()
             .column((idx, PgClass::RelName))
@@ -130,6 +134,7 @@ impl From<SqlxRow> for UniqueIndexQueryResult {
             table_schema: row.get(1),
             table_name: row.get(2),
             column_name: row.get(3),
+            is_partial: row.get(4),
         }
     }
 }

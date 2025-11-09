@@ -26,6 +26,7 @@ impl Iterator for UniqueIndexQueryResultParser {
 
         let index_name = result.index_name;
         let mut columns = vec![result.column_name];
+        let is_partial = result.is_partial;
 
         for result in self.results.by_ref() {
             if result.index_name != index_name {
@@ -33,6 +34,7 @@ impl Iterator for UniqueIndexQueryResultParser {
                 return Some(Unique {
                     name: index_name,
                     columns,
+                    is_partial,
                 });
             }
 
@@ -42,6 +44,7 @@ impl Iterator for UniqueIndexQueryResultParser {
         Some(Unique {
             name: index_name,
             columns,
+            is_partial,
         })
     }
 }

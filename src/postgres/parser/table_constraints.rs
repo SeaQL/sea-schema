@@ -116,6 +116,7 @@ impl Iterator for TableConstraintsQueryResultParser {
                         return Some(Constraint::Unique(Unique {
                             name: constraint_name,
                             columns,
+                            is_partial: false,
                         }));
                     }
 
@@ -125,6 +126,7 @@ impl Iterator for TableConstraintsQueryResultParser {
                 Some(Constraint::Unique(Unique {
                     name: constraint_name,
                     columns,
+                    is_partial: false,
                 }))
             }
 
