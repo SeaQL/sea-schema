@@ -117,7 +117,7 @@ async fn test_001() -> DiscoveryResult<()> {
     // Tests foreign key discovery
     let table_create_suppliers = Table::create()
         .table("suppliers")
-        .col(ColumnDef::new("supplier_id").integer())
+        .col(ColumnDef::new("supplier_id").integer().not_null())
         .col(ColumnDef::new("supplier_name").text().not_null())
         .col(ColumnDef::new("group_id").integer().not_null())
         .primary_key(Index::create().col("supplier_id"))
@@ -133,7 +133,7 @@ async fn test_001() -> DiscoveryResult<()> {
 
     let table_create_supplier_groups = Table::create()
         .table("supplier_groups")
-        .col(ColumnDef::new("group_id").integer())
+        .col(ColumnDef::new("group_id").integer().not_null())
         .col(ColumnDef::new("group_name").text().not_null())
         .primary_key(Index::create().col("group_id"))
         .to_owned();
