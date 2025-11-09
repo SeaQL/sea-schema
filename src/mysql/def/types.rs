@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use super::{CharSet, Collation};
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 /// All built-in types of MySQL, excluding synonyms
 pub enum Type {
@@ -51,7 +51,7 @@ pub enum Type {
     Unknown(String),
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Debug, Clone, Default, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct NumericAttr {
     /// For integer types, M is the maximum display width (deprecated).
@@ -65,13 +65,13 @@ pub struct NumericAttr {
     pub zero_fill: Option<bool>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Debug, Clone, Default, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct TimeAttr {
     pub fractional: Option<u32>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Debug, Clone, Default, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct StringAttr {
     pub length: Option<u32>,
@@ -79,27 +79,27 @@ pub struct StringAttr {
     pub collation: Option<Collation>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Debug, Clone, Default, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct BlobAttr {
     pub length: Option<u32>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Debug, Clone, Default, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct EnumDef {
     pub values: Vec<String>,
     pub attr: StringAttr,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Debug, Clone, Default, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct SetDef {
     pub members: Vec<String>,
     pub attr: StringAttr,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Debug, Clone, Default, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct GeometryAttr {
     pub srid: Option<u32>,

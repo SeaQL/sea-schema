@@ -1,6 +1,6 @@
 use super::{IndexInfo, TableDef};
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Schema {
     pub tables: Vec<TableDef>,
     pub indexes: Vec<IndexInfo>,

@@ -2,7 +2,7 @@ use sea_query::RcOrArc;
 #[cfg(feature = "with-serde")]
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 /// All built-in types of PostgreSQL, excluding synonyms
 pub enum Type {
@@ -220,7 +220,7 @@ impl Type {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 /// The precision (number of significan digits) and scale (the number of digits in the fractional
 /// portion) of an arbitrary precision number (numeric or decimal). When both the precision and
@@ -232,33 +232,33 @@ pub struct ArbitraryPrecisionNumericAttr {
     pub scale: Option<u16>,
 }
 
-#[derive(Clone, Debug, PartialEq, Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct StringAttr {
     pub length: Option<u16>,
 }
 
-#[derive(Clone, Debug, PartialEq, Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct TimeAttr {
     pub precision: Option<u16>,
 }
 
-#[derive(Clone, Debug, PartialEq, Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct IntervalAttr {
     pub field: Option<String>,
     pub precision: Option<u16>,
 }
 
-#[derive(Clone, Debug, PartialEq, Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct BitAttr {
     pub length: Option<u16>,
 }
 
 /// Defines an enum for the PostgreSQL module
-#[derive(Clone, Debug, PartialEq, Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct EnumDef {
     /// Holds the fields of the `ENUM`
@@ -268,7 +268,7 @@ pub struct EnumDef {
 }
 
 /// Defines an enum for the PostgreSQL module
-#[derive(Clone, Debug, PartialEq, Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct ArrayDef {
     /// Array type
@@ -277,7 +277,7 @@ pub struct ArrayDef {
 
 #[cfg(feature = "postgres-vector")]
 /// Defines an enum for the PostgreSQL module
-#[derive(Clone, Debug, PartialEq, Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct VectorDef {
     pub length: Option<u32>,

@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use super::Type;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct ColumnInfo {
     /// The name of the column
@@ -26,7 +26,7 @@ pub struct ColumnInfo {
 
 pub type ColumnType = Type;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub enum ColumnKey {
     /// This column is not the first column of any key
@@ -39,7 +39,7 @@ pub enum ColumnKey {
     Multiple,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub enum ColumnDefault {
     Null,
@@ -50,14 +50,14 @@ pub enum ColumnDefault {
     CurrentTimestamp,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct ColumnExpression {
     /// generation expression
     pub expr: String,
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Debug, Clone, Default, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct ColumnExtra {
     /// Auto increment

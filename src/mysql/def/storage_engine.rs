@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate as sea_schema;
 
-#[derive(Clone, Debug, PartialEq, sea_query::Iden, sea_schema_derive::Name)]
+#[derive(Debug, Clone, PartialEq, sea_query::Iden, sea_schema_derive::Name)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 #[catch = "string_to_unknown"]
 pub enum StorageEngine {

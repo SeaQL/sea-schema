@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate as sea_schema;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct ForeignKeyInfo {
     /// The name of the foreign key
@@ -20,7 +20,7 @@ pub struct ForeignKeyInfo {
     pub on_delete: ForeignKeyAction,
 }
 
-#[derive(Clone, Debug, PartialEq, sea_schema_derive::Name)]
+#[derive(Debug, Clone, PartialEq, sea_schema_derive::Name)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub enum ForeignKeyAction {
     #[name = "CASCADE"]

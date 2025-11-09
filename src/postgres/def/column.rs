@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use super::{NotNull, Type};
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct ColumnInfo {
     /// The name of the column
@@ -34,7 +34,7 @@ pub struct ColumnInfo {
 
 pub type ColumnType = Type;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct ColumnExpression(pub String);
 

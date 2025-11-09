@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use super::{CharSet, Collation, StorageEngine};
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct TableInfo {
     /// The name of the table

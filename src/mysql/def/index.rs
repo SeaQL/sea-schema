@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate as sea_schema;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct IndexInfo {
     /// Does this index requires unique values
@@ -22,7 +22,7 @@ pub struct IndexInfo {
     pub functional: bool,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct IndexPart {
     /// Identifier for this column. If functional is true, may contain expression.
@@ -33,7 +33,7 @@ pub struct IndexPart {
     pub sub_part: Option<u32>,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub enum IndexOrder {
     Ascending,
@@ -41,7 +41,7 @@ pub enum IndexOrder {
     Unordered,
 }
 
-#[derive(Clone, Debug, PartialEq, sea_query::Iden, sea_schema_derive::Name)]
+#[derive(Debug, Clone, PartialEq, sea_query::Iden, sea_schema_derive::Name)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub enum IndexType {
     #[iden = "BTREE"]

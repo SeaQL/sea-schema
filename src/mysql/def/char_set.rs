@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use crate as sea_schema;
 
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/charset-charsets.html
-#[derive(Clone, Debug, PartialEq, sea_query::Iden, sea_schema_derive::Name)]
+#[derive(Debug, Clone, PartialEq, sea_query::Iden, sea_schema_derive::Name)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 #[catch = "string_to_unknown"]
 pub enum CharSet {
@@ -95,7 +95,7 @@ pub enum CharSet {
 }
 
 /// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-collation-character-set-applicability-table.html
-#[derive(Clone, Debug, PartialEq, sea_query::Iden, sea_schema_derive::Name)]
+#[derive(Debug, Clone, PartialEq, sea_query::Iden, sea_schema_derive::Name)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 #[catch = "string_to_unknown"]
 pub enum Collation {

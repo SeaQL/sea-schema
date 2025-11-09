@@ -1,7 +1,7 @@
 #[cfg(feature = "with-serde")]
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Default, PartialEq)]
+#[derive(Debug, Clone, Default, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
 pub struct SystemInfo {
     /// The version number converted to integer using the following formula:
