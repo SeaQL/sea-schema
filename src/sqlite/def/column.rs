@@ -63,7 +63,7 @@ impl ColumnInfo {
 /// Maps the index and all columns in the index which is the result of queries
 /// `PRAGMA index_list(table_name)` and
 /// `SELECT * FROM sqlite_master where name = 'index_name'`
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct IndexInfo {
     /// Is it a SQLindex
     pub r#type: String,
@@ -194,7 +194,7 @@ impl From<SqlxRow> for PrimaryKeyAutoincrement {
 }
 
 /// Indexes the foreign keys
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 #[non_exhaustive]
 pub struct ForeignKeysInfo {
     pub id: i64,

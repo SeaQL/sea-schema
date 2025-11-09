@@ -13,7 +13,7 @@ use sea_query::{
 };
 
 /// Defines a table for SQLite
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct TableDef {
     /// The table name
     pub name: String,
