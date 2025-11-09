@@ -30,7 +30,7 @@ impl ColumnInfo {
             cid: row.get(0),
             name: row.get(1),
             r#type: super::parse_type(row.get(2))?,
-            not_null: col_not_null != 0,
+            not_null: col_not_null != 0 || is_pk == 1,
             default_value: if default_value == "NULL" {
                 DefaultType::Null
             } else if default_value.is_empty() {
