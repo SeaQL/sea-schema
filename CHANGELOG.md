@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.17.0 - pending
+
+* Update to Rust Edition 2024 https://github.com/SeaQL/sea-schema/pull/147
+* Upgrade `sea-query` to 1.0
+* SQLite return all indexes
+* SQLite now writes all integers as `BigInteger`
+* Postgres support `is_partial` for index https://github.com/SeaQL/sea-schema/pull/150
+
+### Bug Fixes
+
+* Fix MariaDB schema discovery
+* Fix SQLite primary key to be not null
+* Postgres fix enum discovery by be schema-specific https://github.com/SeaQL/sea-schema/pull/156
+
 ## 0.16.2 - 2025-05-07
 
 ### Enhancements
