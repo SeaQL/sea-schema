@@ -233,7 +233,9 @@ impl SchemaDiscovery {
         &self,
         conn: &C,
     ) -> Result<Vec<EnumDef>, SqlxError> {
-        let rows = conn.query_all(self.query.query_enums()).await?;
+        let rows = conn
+            .query_all(self.query.query_enums(self.schema.clone()))
+            .await?;
 
         let enum_rows = rows.into_iter().map(|row| {
             let result: EnumQueryResult = row.into();

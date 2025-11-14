@@ -1,6 +1,12 @@
 use super::SchemaQueryBuilder;
-use crate::sqlx_types::SqlxRow;
-use sea_query::{Expr, ExprTrait, Order, Query, SelectStatement};
+use crate::{postgres::query::PgNamespace, sqlx_types::SqlxRow};
+use sea_query::{DynIden, Expr, ExprTrait, Order, Query, SelectStatement};
+
+#[derive(Debug, sea_query::Iden)]
+pub enum PgCatalog {
+    #[iden = "pg_catalog"]
+    Schema,
+}
 
 #[derive(Debug, sea_query::Iden)]
 pub enum PgType {
@@ -10,6 +16,8 @@ pub enum PgType {
     TypeName,
     #[iden = "oid"]
     Oid,
+    #[iden = "typnamespace"]
+    TypeNamespace,
 }
 
 #[derive(Debug, sea_query::Iden)]
@@ -31,15 +39,21 @@ pub struct EnumQueryResult {
 }
 
 impl SchemaQueryBuilder {
-    pub fn query_enums(&self) -> SelectStatement {
+    pub fn query_enums(&self, schema: DynIden) -> SelectStatement {
         Query::select()
             .column((PgType::Table, PgType::TypeName))
             .column((PgEnum::Table, PgEnum::EnumLabel))
-            .from(PgType::Table)
+            .from((PgCatalog::Schema, PgType::Table))
             .inner_join(
-                PgEnum::Table,
+                (PgCatalog::Schema, PgEnum::Table),
                 Expr::col((PgEnum::Table, PgEnum::EnumTypeId)).equals((PgType::Table, PgType::Oid)),
             )
+            .inner_join(
+                (PgCatalog::Schema, PgNamespace::Table),
+                Expr::col((PgNamespace::Table, PgNamespace::Oid))
+                    .equals((PgType::Table, PgType::TypeNamespace)),
+            )
+            .and_where(Expr::col((PgNamespace::Table, PgNamespace::NspName)).eq(schema.to_string()))
             .order_by((PgType::Table, PgType::TypeName), Order::Asc)
             .order_by((PgEnum::Table, PgEnum::EnumSortOrder), Order::Asc)
             .order_by((PgEnum::Table, PgEnum::EnumLabel), Order::Asc)
