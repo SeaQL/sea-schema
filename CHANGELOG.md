@@ -17,7 +17,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 * Fix MariaDB schema discovery
 * Fix SQLite primary key to be not null
-* Postgres fix enum discovery by be schema-specific https://github.com/SeaQL/sea-schema/pull/156
+* Postgres fix enum discovery to be schema-specific https://github.com/SeaQL/sea-schema/pull/156
+* Postgres fix foreign key discovery to be schema-specific https://github.com/SeaQL/sea-schema/pull/157
+* Postgres fix foreign key discovery where components may have duplicate columns
+* Postgres fix unique key discovery where components have wrong orders
 
 ## 0.16.2 - 2025-05-07
 

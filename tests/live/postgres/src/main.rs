@@ -17,7 +17,7 @@ async fn main() {
     //     .init();
 
     let url = std::env::var("DATABASE_URL_LIVE")
-        .unwrap_or_else(|_| "postgres://sea:sea@localhost".to_owned());
+        .unwrap_or_else(|_| "postgres://root:root@localhost".to_owned());
 
     let connection = setup(&url, "sea-schema").await;
     let mut executor = connection.acquire().await.unwrap();
