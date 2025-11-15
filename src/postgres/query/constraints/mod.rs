@@ -174,6 +174,7 @@ impl SchemaQueryBuilder {
                                 .equals((Schema::KeyColumnUsage, Kcuf::ConstraintSchema)),
                             ),
                     )
+                    .and_where(Expr::col((Schema::ReferentialConstraints, RefC::ConstraintSchema)).eq(schema.to_string()))
                     .take(),
                 rcsq,
                 Condition::all()
