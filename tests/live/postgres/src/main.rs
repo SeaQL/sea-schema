@@ -57,6 +57,10 @@ async fn main() {
         create_db_types_table(),
         create_fkey_parent_table(),
         create_fkey_child_table(),
+        create_fkey_parent_no_uniq_table(),
+        create_fkey_child_no_uniq_table(),
+        create_fkey_pair_parent_table(),
+        create_fkey_pair_child_table(),
     ];
 
     for tbl_create_stmt in tbl_create_stmts.iter() {
@@ -64,6 +68,17 @@ async fn main() {
         println!("{sql};");
         println!();
         sqlx::query(&sql).execute(&mut *executor).await.unwrap();
+
+        if sql.starts_with(r#"CREATE TABLE "fkey_parent_table_no_uniq""#) {
+            // add unique index, but not constraint
+            let sql = Index::create()
+                .table("fkey_parent_table_no_uniq")
+                .name("idx-fkey_parent_table_no_uniq-u")
+                .col("u")
+                .unique()
+                .to_string(PostgresQueryBuilder);
+            sqlx::query(&sql).execute(&mut *executor).await.unwrap();
+        }
     }
 
     let schema_discovery = SchemaDiscovery::new(connection, "public");
@@ -94,7 +109,15 @@ async fn main() {
         println!("Generated SQL:");
         println!("{sql};");
         println!();
-        assert_eq!(expected_sql, sql);
+
+        if sql.starts_with(r#"CREATE TABLE "fkey_parent_table_no_uniq""#) {
+            // the fk promoted the unique index into constraint
+            let expected_sql =
+                create_fkey_parent_no_uniq_table_rediscover().to_string(PostgresQueryBuilder);
+            assert_eq!(expected_sql, sql);
+        } else {
+            assert_eq!(expected_sql, sql);
+        }
     }
 
     let enum_defs = schema_discovery
@@ -380,7 +403,7 @@ fn create_fkey_parent_table() -> TableCreateStatement {
         .index(
             Index::create()
                 .unique()
-                .name("IDX_fkey_parent_table_unique_u")
+                .name("idx-fkey_parent_table-u")
                 .col("u"),
         )
         .to_owned()
@@ -395,6 +418,75 @@ fn create_fkey_child_table() -> TableCreateStatement {
                 .name("FK_tabl2_fkey_parent_table")
                 .from("fkey_child_table", "fk_u")
                 .to("fkey_parent_table", "u")
+                .on_delete(ForeignKeyAction::Cascade)
+                .on_update(ForeignKeyAction::Cascade),
+        )
+        .to_owned()
+}
+
+fn create_fkey_parent_no_uniq_table() -> TableCreateStatement {
+    Table::create()
+        .table("fkey_parent_table_no_uniq")
+        .col(ColumnDef::new("id").integer().not_null().auto_increment())
+        .col(ColumnDef::new("u").integer().not_null())
+        .to_owned()
+}
+
+fn create_fkey_parent_no_uniq_table_rediscover() -> TableCreateStatement {
+    Table::create()
+        .table("fkey_parent_table_no_uniq")
+        .col(ColumnDef::new("id").integer().not_null().auto_increment())
+        .col(ColumnDef::new("u").integer().not_null())
+        .index(
+            Index::create()
+                .unique()
+                .name("idx-fkey_parent_table_no_uniq-u")
+                .col("u"),
+        )
+        .to_owned()
+}
+
+fn create_fkey_child_no_uniq_table() -> TableCreateStatement {
+    Table::create()
+        .table("fkey_child_table_no_uniq")
+        .col(ColumnDef::new("fk_u").integer().not_null().auto_increment())
+        .foreign_key(
+            ForeignKey::create()
+                .name("fkey-fkey_child_table_no_uniq")
+                .from("fkey_child_table_no_uniq", "fk_u")
+                .to("fkey_parent_table_no_uniq", "u")
+                .on_delete(ForeignKeyAction::Cascade)
+                .on_update(ForeignKeyAction::Cascade),
+        )
+        .to_owned()
+}
+
+fn create_fkey_pair_parent_table() -> TableCreateStatement {
+    Table::create()
+        .table("fkey_pair_parent")
+        .col(ColumnDef::new("id").integer().not_null().auto_increment())
+        .col(ColumnDef::new("left").integer().not_null())
+        .col(ColumnDef::new("right").integer().not_null())
+        .index(
+            Index::create()
+                .unique()
+                .name("idx-fkey_pair_parent-unique")
+                .col("left")
+                .col("right"),
+        )
+        .to_owned()
+}
+
+fn create_fkey_pair_child_table() -> TableCreateStatement {
+    Table::create()
+        .table("fkey_pair_child")
+        .col(ColumnDef::new("left").integer().not_null())
+        .col(ColumnDef::new("right").integer().not_null())
+        .foreign_key(
+            ForeignKey::create()
+                .name("fkey-fkey_pair_child-pair")
+                .from("fkey_pair_child", ("left", "right"))
+                .to("fkey_pair_parent", ("left", "right"))
                 .on_delete(ForeignKeyAction::Cascade)
                 .on_update(ForeignKeyAction::Cascade),
         )

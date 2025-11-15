@@ -5,7 +5,6 @@ pub enum CharacterSetFields {
     CharacterSetCatalog,
     /// This column is null
     CharacterSetSchema,
-
     CharacterSetName,
     ChacterRepetoire,
     FormOfUse,

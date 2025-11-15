@@ -2,6 +2,7 @@ use super::SchemaQueryBuilder;
 use crate::sqlx_types::SqlxRow;
 use sea_query::{
     Condition, DynIden, Expr, ExprTrait, Iden, JoinType, Order, Query, SelectStatement,
+    extension::postgres::PgFunc,
 };
 
 #[derive(Debug, Iden)]
@@ -28,6 +29,8 @@ pub enum PgIndex {
     IndIsPrimary,
     #[iden = "indpred"]
     IndPred,
+    #[iden = "indkey"]
+    IndKey,
 }
 
 #[derive(Debug, Iden)]
@@ -56,6 +59,8 @@ pub enum PgAttribute {
     AttRelId,
     #[iden = "attname"]
     AttName,
+    #[iden = "attnum"]
+    AttNum,
 }
 
 #[derive(Debug, Default)]
@@ -111,7 +116,12 @@ impl SchemaQueryBuilder {
                 JoinType::Join,
                 PgAttribute::Table,
                 col,
-                Expr::col((col, PgAttribute::AttRelId)).equals((idx, PgAttribute::Oid)),
+                Expr::col((col, PgAttribute::AttRelId))
+                    .equals((tbl, PgAttribute::Oid))
+                    .and(
+                        Expr::col((col, PgAttribute::AttNum))
+                            .eq(PgFunc::any(Expr::col((PgIndex::Table, PgIndex::IndKey)))),
+                    ),
             )
             .cond_where(
                 Condition::all()
@@ -121,6 +131,7 @@ impl SchemaQueryBuilder {
                     .add(Expr::col((tnsp, PgNamespace::NspName)).eq(schema.to_string())),
             )
             .order_by((PgIndex::Table, PgIndex::IndexRelId), Order::Asc)
+            .order_by((col, PgAttribute::AttNum), Order::Asc)
             .take()
     }
 }

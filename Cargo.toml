@@ -37,7 +37,7 @@ path = "src/lib.rs"
 [dependencies]
 async-trait = { version = "0.1", default-features = false }
 sea-schema-derive = { version = "0.3.0", path = "sea-schema-derive", default-features = false }
-sea-query = { version = "1.0.0-rc.14", default-features = false, features = ["derive"] }
+sea-query = { version = "1.0.0-rc.18", default-features = false, features = ["derive"] }
 sea-query-sqlx = { version = "0.8.0-rc.1", default-features = false, optional = true }
 serde = { version = "1", default-features = false, optional = true, features = ["derive"] }
 sqlx = { version = "0.8", default-features = false, optional = true }
