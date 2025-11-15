@@ -185,17 +185,22 @@ impl SchemaDiscovery {
             )
             .await?;
 
-        let results = rows.into_iter().map(|row| {
-            let result: TableConstraintsQueryResult = row.into();
-            debug_print!("{:?}", result);
-            result
+        let results = rows
+            .into_iter()
+            .map(|row| {
+                let result: TableConstraintsQueryResult = row.into();
+                debug_print!("{:?}", result);
+                result
+            })
+            .collect();
+
+        let results = parse_table_constraint_query_results(results);
+
+        results.iter().for_each(|_index| {
+            debug_print!("{:?}", _index);
         });
 
-        Ok(parse_table_constraint_query_results(Box::new(results))
-            .inspect(|_index| {
-                debug_print!("{:?}", _index);
-            })
-            .collect())
+        Ok(results)
     }
 
     async fn discover_unique_indexes_with<C: Connection>(
