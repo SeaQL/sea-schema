@@ -2,7 +2,6 @@ use super::SchemaQueryBuilder;
 use crate::sqlx_types::SqlxRow;
 use sea_query::{
     Condition, DynIden, Expr, ExprTrait, Iden, JoinType, Order, Query, SelectStatement,
-    extension::postgres::PgFunc,
 };
 
 #[derive(Debug, Iden)]
@@ -116,12 +115,19 @@ impl SchemaQueryBuilder {
                 JoinType::Join,
                 PgAttribute::Table,
                 col,
-                Expr::col((col, PgAttribute::AttRelId))
-                    .equals((tbl, PgAttribute::Oid))
-                    .and(
-                        Expr::col((col, PgAttribute::AttNum))
-                            .eq(PgFunc::any(Expr::col((PgIndex::Table, PgIndex::IndKey)))),
-                    ),
+                Expr::col((col, PgAttribute::AttRelId)).equals((tbl, PgAttribute::Oid)),
+            )
+            .join_lateral(
+                JoinType::Join,
+                Query::select()
+                    .expr_as(
+                        Expr::cust("generate_subscripts(pg_index.indkey, 1)"),
+                        "subscript",
+                    )
+                    .take(),
+                "sub",
+                Expr::col((col, PgAttribute::AttNum))
+                    .eq(Expr::cust("pg_index.indkey[sub.subscript]")),
             )
             .cond_where(
                 Condition::all()
@@ -131,7 +137,7 @@ impl SchemaQueryBuilder {
                     .add(Expr::col((tnsp, PgNamespace::NspName)).eq(schema.to_string())),
             )
             .order_by((PgIndex::Table, PgIndex::IndexRelId), Order::Asc)
-            .order_by((col, PgAttribute::AttNum), Order::Asc)
+            .order_by(("sub", "subscript"), Order::Asc)
             .take()
     }
 }
