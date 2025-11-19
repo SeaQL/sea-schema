@@ -28,7 +28,14 @@ pub fn parse_type(data_type: &str) -> Result<ColumnType, ParseIntError> {
         "integer" => ColumnType::BigInteger,
         "bigint" => ColumnType::BigInteger,
         "float" => ColumnType::Float,
-        "double" | "real" => ColumnType::Double,
+        "double" => ColumnType::Double,
+        "real" => {
+            if parts.len() == 2 {
+                ColumnType::Decimal(Some((parts[0], parts[1])))
+            } else {
+                ColumnType::Double
+            }
+        }
         "decimal" => ColumnType::Decimal(if parts.len() == 2 {
             Some((parts[0], parts[1]))
         } else {
@@ -53,7 +60,7 @@ pub fn parse_type(data_type: &str) -> Result<ColumnType, ParseIntError> {
             })
         }
         "boolean" => ColumnType::Boolean,
-        "real_money" => ColumnType::Money(if parts.len() == 2 {
+        "money" | "real_money" => ColumnType::Money(if parts.len() == 2 {
             Some((parts[0], parts[1]))
         } else {
             None
