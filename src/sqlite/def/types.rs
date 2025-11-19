@@ -28,8 +28,8 @@ pub fn parse_type(data_type: &str) -> Result<ColumnType, ParseIntError> {
         "integer" => ColumnType::BigInteger,
         "bigint" => ColumnType::BigInteger,
         "float" => ColumnType::Float,
-        "double" => ColumnType::Double,
-        "decimal" | "real" => ColumnType::Decimal(if parts.len() == 2 {
+        "double" | "real" => ColumnType::Double,
+        "decimal" => ColumnType::Decimal(if parts.len() == 2 {
             Some((parts[0], parts[1]))
         } else {
             None
