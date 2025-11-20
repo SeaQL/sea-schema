@@ -280,7 +280,7 @@ async fn test_002() -> DiscoveryResult<()> {
             [
                 r#"CREATE TABLE "order" ("#,
                 r#""id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,"#,
-                r#""total" decimal,"#,
+                r#""total" real(16, 4),"#,
                 r#""bakery_id" integer NOT NULL,"#,
                 r#""customer_id" integer NOT NULL,"#,
                 r#""placed_at" datetime_text NOT NULL DEFAULT CURRENT_TIMESTAMP,"#,
@@ -295,7 +295,7 @@ async fn test_002() -> DiscoveryResult<()> {
             [
                 r#"CREATE TABLE "lineitem" ("#,
                 r#""id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,"#,
-                r#""price" decimal,"#,
+                r#""price" real(16, 4),"#,
                 r#""quantity" integer,"#,
                 r#""order_id" integer NOT NULL,"#,
                 r#""cake_id" integer NOT NULL,"#,
@@ -383,7 +383,7 @@ fn create_order_table() -> TableCreateStatement {
                 .auto_increment()
                 .primary_key(),
         )
-        .col(ColumnDef::new("total").decimal())
+        .col(ColumnDef::new("total").decimal_len(16, 4))
         .col(ColumnDef::new("bakery_id").integer().not_null())
         .col(ColumnDef::new("customer_id").integer().not_null())
         .col(
@@ -432,7 +432,7 @@ fn create_lineitem_table() -> TableCreateStatement {
                 .auto_increment()
                 .primary_key(),
         )
-        .col(ColumnDef::new("price").decimal())
+        .col(ColumnDef::new("price").decimal_len(16, 4))
         .col(ColumnDef::new("quantity").integer())
         .col(ColumnDef::new("order_id").integer().not_null())
         .col(ColumnDef::new("cake_id").integer().not_null())
