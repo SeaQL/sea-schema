@@ -36,7 +36,7 @@ pub fn parse_type(data_type: &str) -> Result<ColumnType, ParseIntError> {
                 ColumnType::Double
             }
         }
-        "decimal" => ColumnType::Decimal(if parts.len() == 2 {
+        "decimal" | "real_decimal" => ColumnType::Decimal(if parts.len() == 2 {
             Some((parts[0], parts[1]))
         } else {
             None
