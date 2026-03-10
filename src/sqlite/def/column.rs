@@ -73,6 +73,11 @@ impl ColumnInfo {
     pub fn to_column_def(_: SqlxRow) -> Result<ColumnInfo, ParseIntError> {
         unimplemented!()
     }
+
+    #[inline]
+    pub fn is_hidden(&self) -> bool {
+        unimplemented!()
+    }
 }
 
 /// Maps the index and all columns in the index which is the result of queries
