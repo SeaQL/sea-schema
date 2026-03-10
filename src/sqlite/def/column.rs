@@ -1,5 +1,5 @@
 use super::DefaultType;
-use crate::sqlx_types::SqlxRow;
+use crate::{sqlite::def::ColumnVisibility, sqlx_types::SqlxRow};
 use sea_query::{
     Alias, ColumnType, Index, IndexCreateStatement,
     foreign_key::ForeignKeyAction as SeaQueryForeignKeyAction,
@@ -20,12 +20,8 @@ pub struct ColumnInfo {
     pub default_value: DefaultType,
     /// Column is part of the PRIMARY KEY.
     pub primary_key: bool,
-    /// Hidden status:
-    /// `0` - ordinary column
-    /// `1` - hidden column in a virtual table
-    /// `2` - generated VIRTUAL column
-    /// `3` - generated STORED column
-    pub hidden: i32, 
+    /// Hidden status
+    pub hidden: ColumnVisibility,
 }
 
 #[cfg(feature = "sqlx-sqlite")]
@@ -61,13 +57,13 @@ impl ColumnInfo {
                 }
             },
             primary_key: is_pk != 0,
-            hidden: row.get(6),
+            hidden: row.get(6).into(),
         })
     }
 
     #[inline]
     pub fn is_hidden(&self) -> bool {
-        self.hidden == 1
+        self.hidden == ColumnVisibility::HiddenVirtual
     }
 }
 
