@@ -9,12 +9,23 @@ use std::num::ParseIntError;
 /// An SQLite column definition
 #[derive(Debug, PartialEq, Clone)]
 pub struct ColumnInfo {
+    /// Column id
     pub cid: i64,
+    /// Column name.
     pub name: String,
+    /// Declared type
     pub r#type: ColumnType,
+    /// Whether a NOT NULL constraint is present.
     pub not_null: bool,
     pub default_value: DefaultType,
+    /// Column is part of the PRIMARY KEY.
     pub primary_key: bool,
+    /// Hidden status:
+    /// `0` - ordinary column
+    /// `1` - hidden column in a virtual table
+    /// `2` - generated VIRTUAL column
+    /// `3` - generated STORED column
+    pub hidden: i32,
 }
 
 #[cfg(feature = "sqlx-sqlite")]
@@ -25,6 +36,7 @@ impl ColumnInfo {
         let row = row.sqlite();
         let col_not_null: i8 = row.get(3);
         let is_pk: i8 = row.get(5);
+        let hidden: i32 = row.get(6);
         let default_value: Option<String> = row.get(4);
         let default_value = default_value.unwrap_or_default();
         Ok(ColumnInfo {
@@ -50,7 +62,13 @@ impl ColumnInfo {
                 }
             },
             primary_key: is_pk != 0,
+            hidden: hidden,
         })
+    }
+
+    #[inline]
+    pub fn is_visible(&self) -> bool {
+        self.hidden != 1
     }
 }
 
