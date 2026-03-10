@@ -187,7 +187,7 @@ impl TableDef {
 
         for row in rows {
             let column = ColumnInfo::to_column_def(row)?;
-            if column.hidden == 1 {
+            if column.is_hidden() {
                 continue; // Skip hidden columns
             }
             self.columns.push(column);

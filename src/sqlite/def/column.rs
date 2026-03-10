@@ -25,7 +25,7 @@ pub struct ColumnInfo {
     /// `1` - hidden column in a virtual table
     /// `2` - generated VIRTUAL column
     /// `3` - generated STORED column
-    pub hidden: i32,
+    pub hidden: i32, 
 }
 
 #[cfg(feature = "sqlx-sqlite")]
@@ -36,7 +36,6 @@ impl ColumnInfo {
         let row = row.sqlite();
         let col_not_null: i8 = row.get(3);
         let is_pk: i8 = row.get(5);
-        let hidden: i32 = row.get(6);
         let default_value: Option<String> = row.get(4);
         let default_value = default_value.unwrap_or_default();
         Ok(ColumnInfo {
@@ -62,13 +61,13 @@ impl ColumnInfo {
                 }
             },
             primary_key: is_pk != 0,
-            hidden: hidden,
+            hidden: row.get(6),
         })
     }
 
     #[inline]
-    pub fn is_visible(&self) -> bool {
-        self.hidden != 1
+    pub fn is_hidden(&self) -> bool {
+        self.hidden == 1
     }
 }
 
