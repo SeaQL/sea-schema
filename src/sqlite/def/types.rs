@@ -103,7 +103,7 @@ pub enum ColumnVisibility {
 }
 
 impl ColumnVisibility {
-    pub fn from_hidden(value: i32) -> Self {
+    pub fn from_hidden(value: i8) -> Self {
         match value {
             1 => Self::HiddenVirtual,
             2 => Self::GeneratedVirtual,
@@ -111,6 +111,7 @@ impl ColumnVisibility {
             _ => Self::Visible,
         }
     }
+}
 
 /// The default types for an SQLite `dflt_value`
 #[derive(Debug, PartialEq, Clone)]

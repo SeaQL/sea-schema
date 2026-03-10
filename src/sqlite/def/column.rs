@@ -34,6 +34,7 @@ impl ColumnInfo {
         let is_pk: i8 = row.get(5);
         let default_value: Option<String> = row.get(4);
         let default_value = default_value.unwrap_or_default();
+        let hidden: i8 = row.get(6);
         Ok(ColumnInfo {
             cid: row.get(0),
             name: row.get(1),
@@ -57,7 +58,7 @@ impl ColumnInfo {
                 }
             },
             primary_key: is_pk != 0,
-            hidden: row.get(6).into(),
+            hidden: ColumnVisibility::from_hidden(hidden),
         })
     }
 
