@@ -1,5 +1,5 @@
 use super::DefaultType;
-use crate::sqlx_types::SqlxRow;
+use crate::{sqlite::def::ColumnVisibility, sqlx_types::SqlxRow};
 use sea_query::{
     Alias, ColumnType, Index, IndexCreateStatement,
     foreign_key::ForeignKeyAction as SeaQueryForeignKeyAction,
@@ -9,12 +9,19 @@ use std::num::ParseIntError;
 /// An SQLite column definition
 #[derive(Debug, PartialEq, Clone)]
 pub struct ColumnInfo {
+    /// Column id
     pub cid: i64,
+    /// Column name.
     pub name: String,
+    /// Declared type
     pub r#type: ColumnType,
+    /// Whether a NOT NULL constraint is present.
     pub not_null: bool,
     pub default_value: DefaultType,
+    /// Column is part of the PRIMARY KEY.
     pub primary_key: bool,
+    /// Hidden status
+    pub hidden: ColumnVisibility,
 }
 
 #[cfg(feature = "sqlx-sqlite")]
@@ -27,6 +34,7 @@ impl ColumnInfo {
         let is_pk: i8 = row.get(5);
         let default_value: Option<String> = row.get(4);
         let default_value = default_value.unwrap_or_default();
+        let hidden: i8 = row.get(6);
         Ok(ColumnInfo {
             cid: row.get(0),
             name: row.get(1),
@@ -50,13 +58,24 @@ impl ColumnInfo {
                 }
             },
             primary_key: is_pk != 0,
+            hidden: ColumnVisibility::from_hidden(hidden),
         })
+    }
+
+    #[inline]
+    pub fn is_hidden(&self) -> bool {
+        self.hidden == ColumnVisibility::HiddenVirtual
     }
 }
 
 #[cfg(not(feature = "sqlx-sqlite"))]
 impl ColumnInfo {
     pub fn to_column_def(_: SqlxRow) -> Result<ColumnInfo, ParseIntError> {
+        unimplemented!()
+    }
+
+    #[inline]
+    pub fn is_hidden(&self) -> bool {
         unimplemented!()
     }
 }

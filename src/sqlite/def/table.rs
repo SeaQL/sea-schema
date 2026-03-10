@@ -177,17 +177,19 @@ impl TableDef {
         Ok(self)
     }
 
-    /// Get a list of all the columns in the table mapped as [ColumnInfo]
     pub async fn get_column_info(&mut self, conn: &impl Connection) -> DiscoveryResult<&TableDef> {
-        let mut index_query = String::default();
-        index_query.push_str("PRAGMA table_info('");
-        index_query.push_str(&self.name);
-        index_query.push_str("')");
+        let mut query = String::with_capacity(64 + self.name.len());
+        query.push_str("PRAGMA table_xinfo('");
+        query.push_str(&self.name);
+        query.push_str("')");
 
-        let index_info_rows = conn.query_all_raw(index_query).await?;
+        let rows = conn.query_all_raw(query).await?;
 
-        for info in index_info_rows {
-            let column = ColumnInfo::to_column_def(info)?;
+        for row in rows {
+            let column = ColumnInfo::to_column_def(row)?;
+            if column.is_hidden() {
+                continue; // Skip hidden columns
+            }
             self.columns.push(column);
         }
 
