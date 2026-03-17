@@ -27,6 +27,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: true,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 1,
@@ -39,6 +40,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 2,
@@ -51,6 +53,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 3,
@@ -59,6 +62,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: CurrentTimestamp,
                     primary_key: false,
+                    hidden: Visible,
                 },
             ],
             auto_increment: true,
@@ -76,6 +80,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: true,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 1,
@@ -88,6 +93,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 2,
@@ -96,6 +102,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: false,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
             ],
             auto_increment: false,
@@ -128,6 +135,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: true,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 1,
@@ -140,6 +148,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 2,
@@ -148,6 +157,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 3,
@@ -156,6 +166,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
             ],
             auto_increment: false,
@@ -188,6 +199,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: true,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 1,
@@ -200,6 +212,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 2,
@@ -212,6 +225,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: false,
                     default_value: Null,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 3,
@@ -224,6 +238,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 4,
@@ -232,6 +247,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 5,
@@ -244,6 +260,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: false,
                     default_value: Null,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 6,
@@ -256,6 +273,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 7,
@@ -264,6 +282,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
             ],
             auto_increment: false,
@@ -281,6 +300,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: true,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 1,
@@ -293,6 +313,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 2,
@@ -301,6 +322,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
             ],
             auto_increment: false,
@@ -318,6 +340,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: true,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 1,
@@ -330,6 +353,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 2,
@@ -338,6 +362,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
             ],
             auto_increment: false,
@@ -384,6 +409,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: true,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 1,
@@ -392,6 +418,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 2,
@@ -404,6 +431,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 3,
@@ -416,6 +444,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 4,
@@ -428,6 +457,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: false,
                     default_value: Null,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 5,
@@ -436,6 +466,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 6,
@@ -450,6 +481,7 @@ fn main() -> DiscoveryResult<()> {
                         "Y",
                     ),
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 7,
@@ -458,6 +490,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 8,
@@ -466,6 +499,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
             ],
             auto_increment: false,
@@ -512,6 +546,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: true,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 1,
@@ -524,6 +559,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 2,
@@ -532,6 +568,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: false,
                     default_value: Null,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 3,
@@ -544,6 +581,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: false,
                     default_value: Null,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 4,
@@ -552,6 +590,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 5,
@@ -560,6 +599,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: false,
                     default_value: Null,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 6,
@@ -570,6 +610,7 @@ fn main() -> DiscoveryResult<()> {
                         3,
                     ),
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 7,
@@ -587,6 +628,7 @@ fn main() -> DiscoveryResult<()> {
                         4.99,
                     ),
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 8,
@@ -595,6 +637,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: false,
                     default_value: Null,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 9,
@@ -612,6 +655,7 @@ fn main() -> DiscoveryResult<()> {
                         19.99,
                     ),
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 10,
@@ -626,6 +670,7 @@ fn main() -> DiscoveryResult<()> {
                         "G",
                     ),
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 11,
@@ -638,6 +683,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: false,
                     default_value: Null,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 12,
@@ -646,6 +692,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
             ],
             auto_increment: false,
@@ -692,6 +739,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: true,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 1,
@@ -700,6 +748,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: true,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 2,
@@ -708,6 +757,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
             ],
             auto_increment: false,
@@ -754,6 +804,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: true,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 1,
@@ -762,6 +813,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: true,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 2,
@@ -770,6 +822,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
             ],
             auto_increment: false,
@@ -787,6 +840,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: true,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 1,
@@ -799,6 +853,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 2,
@@ -807,6 +862,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: false,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
             ],
             auto_increment: false,
@@ -853,6 +909,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: true,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 1,
@@ -861,6 +918,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 2,
@@ -869,6 +927,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 3,
@@ -877,6 +936,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
             ],
             auto_increment: false,
@@ -923,6 +983,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: true,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 1,
@@ -935,6 +996,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 2,
@@ -947,6 +1009,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 3,
@@ -955,6 +1018,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 4,
@@ -963,6 +1027,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: false,
                     default_value: Null,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 5,
@@ -975,6 +1040,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: false,
                     default_value: Null,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 6,
@@ -983,6 +1049,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 7,
@@ -993,6 +1060,7 @@ fn main() -> DiscoveryResult<()> {
                         1,
                     ),
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 8,
@@ -1005,6 +1073,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 9,
@@ -1017,6 +1086,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: false,
                     default_value: Null,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 10,
@@ -1025,6 +1095,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
             ],
             auto_increment: false,
@@ -1071,6 +1142,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: true,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 1,
@@ -1079,6 +1151,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 2,
@@ -1087,6 +1160,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 3,
@@ -1095,6 +1169,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
             ],
             auto_increment: false,
@@ -1155,6 +1230,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: true,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 1,
@@ -1163,6 +1239,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 2,
@@ -1171,6 +1248,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 3,
@@ -1179,6 +1257,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: false,
                     default_value: Null,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 4,
@@ -1194,6 +1273,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 5,
@@ -1202,6 +1282,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 6,
@@ -1210,6 +1291,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
             ],
             auto_increment: false,
@@ -1270,6 +1352,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: true,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 1,
@@ -1278,6 +1361,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 2,
@@ -1286,6 +1370,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 3,
@@ -1294,6 +1379,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 4,
@@ -1302,6 +1388,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: false,
                     default_value: Null,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 5,
@@ -1310,6 +1397,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
                 ColumnInfo {
                     cid: 6,
@@ -1318,6 +1406,7 @@ fn main() -> DiscoveryResult<()> {
                     not_null: true,
                     default_value: Unspecified,
                     primary_key: false,
+                    hidden: Visible,
                 },
             ],
             auto_increment: false,

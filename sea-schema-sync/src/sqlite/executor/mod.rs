@@ -1,3 +1,5 @@
+#![allow(clippy::non_minimal_cfg)]
+
 #[cfg(feature = "rusqlite")]
 mod rusqlite;
 #[cfg(feature = "rusqlite")]

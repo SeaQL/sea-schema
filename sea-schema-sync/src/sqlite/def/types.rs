@@ -89,6 +89,30 @@ pub fn parse_type(data_type: String) -> Result<ColumnType, ParseIntError> {
     })
 }
 
+/// The `hidden` field returned by `PRAGMA table_xinfo`.
+#[derive(Debug, PartialEq, Clone)]
+pub enum ColumnVisibility {
+    /// `0` - ordinary column
+    Visible,
+    /// `1` - hidden column in a virtual table
+    HiddenVirtual,
+    /// `2` - generated VIRTUAL column
+    GeneratedVirtual,
+    /// `3` - generated STORED column
+    GeneratedStored,
+}
+
+impl ColumnVisibility {
+    pub fn from_hidden(value: i8) -> Self {
+        match value {
+            1 => Self::HiddenVirtual,
+            2 => Self::GeneratedVirtual,
+            3 => Self::GeneratedStored,
+            _ => Self::Visible,
+        }
+    }
+}
+
 /// The default types for an SQLite `dflt_value`
 #[derive(Debug, PartialEq, Clone)]
 pub enum DefaultType {
