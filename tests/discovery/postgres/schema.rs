@@ -12,13 +12,14 @@ Schema {
                     col_type: Integer,
                     default: Some(
                         ColumnExpression(
-                            "nextval(\'actor_actor_id_seq\'::regclass)",
+                            "nextval('actor_actor_id_seq'::regclass)",
                         ),
                     ),
                     generated: None,
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "first_name",
@@ -34,6 +35,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "last_name",
@@ -49,6 +51,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "last_update",
@@ -68,26 +71,27 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
             ],
             check_constraints: [
                 Check {
-                    name: "2200_16388_1_not_null",
+                    name: "actor_actor_id_not_null",
                     expr: "actor_id IS NOT NULL",
                     no_inherit: false,
                 },
                 Check {
-                    name: "2200_16388_2_not_null",
+                    name: "actor_first_name_not_null",
                     expr: "first_name IS NOT NULL",
                     no_inherit: false,
                 },
                 Check {
-                    name: "2200_16388_3_not_null",
+                    name: "actor_last_name_not_null",
                     expr: "last_name IS NOT NULL",
                     no_inherit: false,
                 },
                 Check {
-                    name: "2200_16388_4_not_null",
+                    name: "actor_last_update_not_null",
                     expr: "last_update IS NOT NULL",
                     no_inherit: false,
                 },
@@ -107,6 +111,401 @@ Schema {
         },
         TableDef {
             info: TableInfo {
+                name: "address",
+                of_type: None,
+            },
+            columns: [
+                ColumnInfo {
+                    name: "address_id",
+                    col_type: Integer,
+                    default: Some(
+                        ColumnExpression(
+                            "nextval('address_address_id_seq'::regclass)",
+                        ),
+                    ),
+                    generated: None,
+                    not_null: Some(
+                        NotNull,
+                    ),
+                    is_identity: false,
+                },
+                ColumnInfo {
+                    name: "address",
+                    col_type: Varchar(
+                        StringAttr {
+                            length: Some(
+                                50,
+                            ),
+                        },
+                    ),
+                    default: None,
+                    generated: None,
+                    not_null: Some(
+                        NotNull,
+                    ),
+                    is_identity: false,
+                },
+                ColumnInfo {
+                    name: "address2",
+                    col_type: Varchar(
+                        StringAttr {
+                            length: Some(
+                                50,
+                            ),
+                        },
+                    ),
+                    default: None,
+                    generated: None,
+                    not_null: None,
+                    is_identity: false,
+                },
+                ColumnInfo {
+                    name: "district",
+                    col_type: Varchar(
+                        StringAttr {
+                            length: Some(
+                                20,
+                            ),
+                        },
+                    ),
+                    default: None,
+                    generated: None,
+                    not_null: Some(
+                        NotNull,
+                    ),
+                    is_identity: false,
+                },
+                ColumnInfo {
+                    name: "city_id",
+                    col_type: SmallInt,
+                    default: None,
+                    generated: None,
+                    not_null: Some(
+                        NotNull,
+                    ),
+                    is_identity: false,
+                },
+                ColumnInfo {
+                    name: "postal_code",
+                    col_type: Varchar(
+                        StringAttr {
+                            length: Some(
+                                10,
+                            ),
+                        },
+                    ),
+                    default: None,
+                    generated: None,
+                    not_null: None,
+                    is_identity: false,
+                },
+                ColumnInfo {
+                    name: "phone",
+                    col_type: Varchar(
+                        StringAttr {
+                            length: Some(
+                                20,
+                            ),
+                        },
+                    ),
+                    default: None,
+                    generated: None,
+                    not_null: Some(
+                        NotNull,
+                    ),
+                    is_identity: false,
+                },
+                ColumnInfo {
+                    name: "last_update",
+                    col_type: Timestamp(
+                        TimeAttr {
+                            precision: Some(
+                                6,
+                            ),
+                        },
+                    ),
+                    default: Some(
+                        ColumnExpression(
+                            "now()",
+                        ),
+                    ),
+                    generated: None,
+                    not_null: Some(
+                        NotNull,
+                    ),
+                    is_identity: false,
+                },
+            ],
+            check_constraints: [
+                Check {
+                    name: "address_address_id_not_null",
+                    expr: "address_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "address_address_not_null",
+                    expr: "address IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "address_city_id_not_null",
+                    expr: "city_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "address_district_not_null",
+                    expr: "district IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "address_last_update_not_null",
+                    expr: "last_update IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "address_phone_not_null",
+                    expr: "phone IS NOT NULL",
+                    no_inherit: false,
+                },
+            ],
+            not_null_constraints: [],
+            unique_constraints: [],
+            primary_key_constraints: [
+                PrimaryKey {
+                    name: "address_pkey",
+                    columns: [
+                        "address_id",
+                    ],
+                },
+            ],
+            reference_constraints: [
+                References {
+                    name: "address_city_id_fkey",
+                    columns: [
+                        "city_id",
+                    ],
+                    table: "city",
+                    foreign_columns: [
+                        "city_id",
+                    ],
+                    on_update: Some(
+                        Cascade,
+                    ),
+                    on_delete: Some(
+                        Restrict,
+                    ),
+                },
+            ],
+            exclusion_constraints: [],
+        },
+        TableDef {
+            info: TableInfo {
+                name: "category",
+                of_type: None,
+            },
+            columns: [
+                ColumnInfo {
+                    name: "category_id",
+                    col_type: Integer,
+                    default: Some(
+                        ColumnExpression(
+                            "nextval('category_category_id_seq'::regclass)",
+                        ),
+                    ),
+                    generated: None,
+                    not_null: Some(
+                        NotNull,
+                    ),
+                    is_identity: false,
+                },
+                ColumnInfo {
+                    name: "name",
+                    col_type: Varchar(
+                        StringAttr {
+                            length: Some(
+                                25,
+                            ),
+                        },
+                    ),
+                    default: None,
+                    generated: None,
+                    not_null: Some(
+                        NotNull,
+                    ),
+                    is_identity: false,
+                },
+                ColumnInfo {
+                    name: "last_update",
+                    col_type: Timestamp(
+                        TimeAttr {
+                            precision: Some(
+                                6,
+                            ),
+                        },
+                    ),
+                    default: Some(
+                        ColumnExpression(
+                            "now()",
+                        ),
+                    ),
+                    generated: None,
+                    not_null: Some(
+                        NotNull,
+                    ),
+                    is_identity: false,
+                },
+            ],
+            check_constraints: [
+                Check {
+                    name: "category_category_id_not_null",
+                    expr: "category_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "category_last_update_not_null",
+                    expr: "last_update IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "category_name_not_null",
+                    expr: "name IS NOT NULL",
+                    no_inherit: false,
+                },
+            ],
+            not_null_constraints: [],
+            unique_constraints: [],
+            primary_key_constraints: [
+                PrimaryKey {
+                    name: "category_pkey",
+                    columns: [
+                        "category_id",
+                    ],
+                },
+            ],
+            reference_constraints: [],
+            exclusion_constraints: [],
+        },
+        TableDef {
+            info: TableInfo {
+                name: "city",
+                of_type: None,
+            },
+            columns: [
+                ColumnInfo {
+                    name: "city_id",
+                    col_type: Integer,
+                    default: Some(
+                        ColumnExpression(
+                            "nextval('city_city_id_seq'::regclass)",
+                        ),
+                    ),
+                    generated: None,
+                    not_null: Some(
+                        NotNull,
+                    ),
+                    is_identity: false,
+                },
+                ColumnInfo {
+                    name: "city",
+                    col_type: Varchar(
+                        StringAttr {
+                            length: Some(
+                                50,
+                            ),
+                        },
+                    ),
+                    default: None,
+                    generated: None,
+                    not_null: Some(
+                        NotNull,
+                    ),
+                    is_identity: false,
+                },
+                ColumnInfo {
+                    name: "country_id",
+                    col_type: SmallInt,
+                    default: None,
+                    generated: None,
+                    not_null: Some(
+                        NotNull,
+                    ),
+                    is_identity: false,
+                },
+                ColumnInfo {
+                    name: "last_update",
+                    col_type: Timestamp(
+                        TimeAttr {
+                            precision: Some(
+                                6,
+                            ),
+                        },
+                    ),
+                    default: Some(
+                        ColumnExpression(
+                            "now()",
+                        ),
+                    ),
+                    generated: None,
+                    not_null: Some(
+                        NotNull,
+                    ),
+                    is_identity: false,
+                },
+            ],
+            check_constraints: [
+                Check {
+                    name: "city_city_id_not_null",
+                    expr: "city_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "city_city_not_null",
+                    expr: "city IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "city_country_id_not_null",
+                    expr: "country_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "city_last_update_not_null",
+                    expr: "last_update IS NOT NULL",
+                    no_inherit: false,
+                },
+            ],
+            not_null_constraints: [],
+            unique_constraints: [],
+            primary_key_constraints: [
+                PrimaryKey {
+                    name: "city_pkey",
+                    columns: [
+                        "city_id",
+                    ],
+                },
+            ],
+            reference_constraints: [
+                References {
+                    name: "city_country_id_fkey",
+                    columns: [
+                        "country_id",
+                    ],
+                    table: "country",
+                    foreign_columns: [
+                        "country_id",
+                    ],
+                    on_update: Some(
+                        Cascade,
+                    ),
+                    on_delete: Some(
+                        Restrict,
+                    ),
+                },
+            ],
+            exclusion_constraints: [],
+        },
+        TableDef {
+            info: TableInfo {
                 name: "film",
                 of_type: None,
             },
@@ -116,13 +515,14 @@ Schema {
                     col_type: Integer,
                     default: Some(
                         ColumnExpression(
-                            "nextval(\'film_film_id_seq\'::regclass)",
+                            "nextval('film_film_id_seq'::regclass)",
                         ),
                     ),
                     generated: None,
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "title",
@@ -138,6 +538,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "description",
@@ -145,6 +546,7 @@ Schema {
                     default: None,
                     generated: None,
                     not_null: None,
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "release_year",
@@ -152,6 +554,7 @@ Schema {
                     default: None,
                     generated: None,
                     not_null: None,
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "language_id",
@@ -161,6 +564,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "original_language_id",
@@ -168,6 +572,7 @@ Schema {
                     default: None,
                     generated: None,
                     not_null: None,
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "rental_duration",
@@ -181,6 +586,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "rental_rate",
@@ -203,6 +609,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "length",
@@ -210,6 +617,7 @@ Schema {
                     default: None,
                     generated: None,
                     not_null: None,
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "replacement_cost",
@@ -232,19 +640,31 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "rating",
-                    col_type: Unknown(
-                        "USER-DEFINED",
+                    col_type: Enum(
+                        EnumDef {
+                            values: [
+                                "G",
+                                "PG",
+                                "PG-13",
+                                "R",
+                                "NC-17",
+                            ],
+                            typename: "mpaa_rating",
+                            schema: "",
+                        },
                     ),
                     default: Some(
                         ColumnExpression(
-                            "\'G\'::mpaa_rating",
+                            "'G'::mpaa_rating",
                         ),
                     ),
                     generated: None,
                     not_null: None,
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "last_update",
@@ -264,13 +684,21 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "special_features",
-                    col_type: Array,
+                    col_type: Array(
+                        ArrayDef {
+                            col_type: Some(
+                                Text,
+                            ),
+                        },
+                    ),
                     default: None,
                     generated: None,
                     not_null: None,
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "fulltext",
@@ -280,47 +708,168 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
             ],
             check_constraints: [
                 Check {
-                    name: "2200_16419_10_not_null",
-                    expr: "replacement_cost IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16419_12_not_null",
-                    expr: "last_update IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16419_14_not_null",
-                    expr: "fulltext IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16419_1_not_null",
+                    name: "film_film_id_not_null",
                     expr: "film_id IS NOT NULL",
                     no_inherit: false,
                 },
                 Check {
-                    name: "2200_16419_2_not_null",
-                    expr: "title IS NOT NULL",
+                    name: "film_film_id_not_null",
+                    expr: "film_id IS NOT NULL",
                     no_inherit: false,
                 },
                 Check {
-                    name: "2200_16419_5_not_null",
+                    name: "film_film_id_not_null",
+                    expr: "film_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_film_id_not_null",
+                    expr: "film_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_fulltext_not_null",
+                    expr: "fulltext IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_fulltext_not_null",
+                    expr: "fulltext IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_fulltext_not_null",
+                    expr: "fulltext IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_fulltext_not_null",
+                    expr: "fulltext IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_language_id_not_null",
                     expr: "language_id IS NOT NULL",
                     no_inherit: false,
                 },
                 Check {
-                    name: "2200_16419_7_not_null",
+                    name: "film_language_id_not_null",
+                    expr: "language_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_language_id_not_null",
+                    expr: "language_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_language_id_not_null",
+                    expr: "language_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_last_update_not_null",
+                    expr: "last_update IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_last_update_not_null",
+                    expr: "last_update IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_last_update_not_null",
+                    expr: "last_update IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_last_update_not_null",
+                    expr: "last_update IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_rental_duration_not_null",
                     expr: "rental_duration IS NOT NULL",
                     no_inherit: false,
                 },
                 Check {
-                    name: "2200_16419_8_not_null",
+                    name: "film_rental_duration_not_null",
+                    expr: "rental_duration IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_rental_duration_not_null",
+                    expr: "rental_duration IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_rental_duration_not_null",
+                    expr: "rental_duration IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_rental_rate_not_null",
                     expr: "rental_rate IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_rental_rate_not_null",
+                    expr: "rental_rate IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_rental_rate_not_null",
+                    expr: "rental_rate IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_rental_rate_not_null",
+                    expr: "rental_rate IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_replacement_cost_not_null",
+                    expr: "replacement_cost IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_replacement_cost_not_null",
+                    expr: "replacement_cost IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_replacement_cost_not_null",
+                    expr: "replacement_cost IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_replacement_cost_not_null",
+                    expr: "replacement_cost IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_title_not_null",
+                    expr: "title IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_title_not_null",
+                    expr: "title IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_title_not_null",
+                    expr: "title IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_title_not_null",
+                    expr: "title IS NOT NULL",
                     no_inherit: false,
                 },
             ],
@@ -372,1418 +921,6 @@ Schema {
         },
         TableDef {
             info: TableInfo {
-                name: "payment_p2007_02",
-                of_type: None,
-            },
-            columns: [
-                ColumnInfo {
-                    name: "payment_id",
-                    col_type: Integer,
-                    default: Some(
-                        ColumnExpression(
-                            "nextval(\'payment_payment_id_seq\'::regclass)",
-                        ),
-                    ),
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "customer_id",
-                    col_type: SmallInt,
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "staff_id",
-                    col_type: SmallInt,
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "rental_id",
-                    col_type: Integer,
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "amount",
-                    col_type: Numeric(
-                        ArbitraryPrecisionNumericAttr {
-                            precision: Some(
-                                5,
-                            ),
-                            scale: Some(
-                                2,
-                            ),
-                        },
-                    ),
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "payment_date",
-                    col_type: Timestamp(
-                        TimeAttr {
-                            precision: Some(
-                                6,
-                            ),
-                        },
-                    ),
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-            ],
-            check_constraints: [
-                Check {
-                    name: "2200_16514_1_not_null",
-                    expr: "payment_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16514_2_not_null",
-                    expr: "customer_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16514_3_not_null",
-                    expr: "staff_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16514_4_not_null",
-                    expr: "rental_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16514_5_not_null",
-                    expr: "amount IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16514_6_not_null",
-                    expr: "payment_date IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "payment_p2007_02_payment_date_check",
-                    expr: "(((payment_date >= \'2007-02-01 00:00:00\'::timestamp without time zone) AND (payment_date < \'2007-03-01 00:00:00\'::timestamp without time zone)))",
-                    no_inherit: false,
-                },
-            ],
-            not_null_constraints: [],
-            unique_constraints: [],
-            primary_key_constraints: [],
-            reference_constraints: [
-                References {
-                    name: "payment_p2007_02_customer_id_fkey",
-                    columns: [
-                        "customer_id",
-                    ],
-                    table: "customer",
-                    foreign_columns: [
-                        "customer_id",
-                    ],
-                    on_update: Some(
-                        NoAction,
-                    ),
-                    on_delete: Some(
-                        NoAction,
-                    ),
-                },
-                References {
-                    name: "payment_p2007_02_rental_id_fkey",
-                    columns: [
-                        "rental_id",
-                    ],
-                    table: "rental",
-                    foreign_columns: [
-                        "rental_id",
-                    ],
-                    on_update: Some(
-                        NoAction,
-                    ),
-                    on_delete: Some(
-                        NoAction,
-                    ),
-                },
-                References {
-                    name: "payment_p2007_02_staff_id_fkey",
-                    columns: [
-                        "staff_id",
-                    ],
-                    table: "staff",
-                    foreign_columns: [
-                        "staff_id",
-                    ],
-                    on_update: Some(
-                        NoAction,
-                    ),
-                    on_delete: Some(
-                        NoAction,
-                    ),
-                },
-            ],
-            exclusion_constraints: [],
-        },
-        TableDef {
-            info: TableInfo {
-                name: "payment_p2007_03",
-                of_type: None,
-            },
-            columns: [
-                ColumnInfo {
-                    name: "payment_id",
-                    col_type: Integer,
-                    default: Some(
-                        ColumnExpression(
-                            "nextval(\'payment_payment_id_seq\'::regclass)",
-                        ),
-                    ),
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "customer_id",
-                    col_type: SmallInt,
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "staff_id",
-                    col_type: SmallInt,
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "rental_id",
-                    col_type: Integer,
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "amount",
-                    col_type: Numeric(
-                        ArbitraryPrecisionNumericAttr {
-                            precision: Some(
-                                5,
-                            ),
-                            scale: Some(
-                                2,
-                            ),
-                        },
-                    ),
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "payment_date",
-                    col_type: Timestamp(
-                        TimeAttr {
-                            precision: Some(
-                                6,
-                            ),
-                        },
-                    ),
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-            ],
-            check_constraints: [
-                Check {
-                    name: "2200_16519_1_not_null",
-                    expr: "payment_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16519_2_not_null",
-                    expr: "customer_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16519_3_not_null",
-                    expr: "staff_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16519_4_not_null",
-                    expr: "rental_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16519_5_not_null",
-                    expr: "amount IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16519_6_not_null",
-                    expr: "payment_date IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "payment_p2007_03_payment_date_check",
-                    expr: "(((payment_date >= \'2007-03-01 00:00:00\'::timestamp without time zone) AND (payment_date < \'2007-04-01 00:00:00\'::timestamp without time zone)))",
-                    no_inherit: false,
-                },
-            ],
-            not_null_constraints: [],
-            unique_constraints: [],
-            primary_key_constraints: [],
-            reference_constraints: [
-                References {
-                    name: "payment_p2007_03_customer_id_fkey",
-                    columns: [
-                        "customer_id",
-                    ],
-                    table: "customer",
-                    foreign_columns: [
-                        "customer_id",
-                    ],
-                    on_update: Some(
-                        NoAction,
-                    ),
-                    on_delete: Some(
-                        NoAction,
-                    ),
-                },
-                References {
-                    name: "payment_p2007_03_rental_id_fkey",
-                    columns: [
-                        "rental_id",
-                    ],
-                    table: "rental",
-                    foreign_columns: [
-                        "rental_id",
-                    ],
-                    on_update: Some(
-                        NoAction,
-                    ),
-                    on_delete: Some(
-                        NoAction,
-                    ),
-                },
-                References {
-                    name: "payment_p2007_03_staff_id_fkey",
-                    columns: [
-                        "staff_id",
-                    ],
-                    table: "staff",
-                    foreign_columns: [
-                        "staff_id",
-                    ],
-                    on_update: Some(
-                        NoAction,
-                    ),
-                    on_delete: Some(
-                        NoAction,
-                    ),
-                },
-            ],
-            exclusion_constraints: [],
-        },
-        TableDef {
-            info: TableInfo {
-                name: "payment_p2007_04",
-                of_type: None,
-            },
-            columns: [
-                ColumnInfo {
-                    name: "payment_id",
-                    col_type: Integer,
-                    default: Some(
-                        ColumnExpression(
-                            "nextval(\'payment_payment_id_seq\'::regclass)",
-                        ),
-                    ),
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "customer_id",
-                    col_type: SmallInt,
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "staff_id",
-                    col_type: SmallInt,
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "rental_id",
-                    col_type: Integer,
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "amount",
-                    col_type: Numeric(
-                        ArbitraryPrecisionNumericAttr {
-                            precision: Some(
-                                5,
-                            ),
-                            scale: Some(
-                                2,
-                            ),
-                        },
-                    ),
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "payment_date",
-                    col_type: Timestamp(
-                        TimeAttr {
-                            precision: Some(
-                                6,
-                            ),
-                        },
-                    ),
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-            ],
-            check_constraints: [
-                Check {
-                    name: "2200_16524_1_not_null",
-                    expr: "payment_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16524_2_not_null",
-                    expr: "customer_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16524_3_not_null",
-                    expr: "staff_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16524_4_not_null",
-                    expr: "rental_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16524_5_not_null",
-                    expr: "amount IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16524_6_not_null",
-                    expr: "payment_date IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "payment_p2007_04_payment_date_check",
-                    expr: "(((payment_date >= \'2007-04-01 00:00:00\'::timestamp without time zone) AND (payment_date < \'2007-05-01 00:00:00\'::timestamp without time zone)))",
-                    no_inherit: false,
-                },
-            ],
-            not_null_constraints: [],
-            unique_constraints: [],
-            primary_key_constraints: [],
-            reference_constraints: [
-                References {
-                    name: "payment_p2007_04_customer_id_fkey",
-                    columns: [
-                        "customer_id",
-                    ],
-                    table: "customer",
-                    foreign_columns: [
-                        "customer_id",
-                    ],
-                    on_update: Some(
-                        NoAction,
-                    ),
-                    on_delete: Some(
-                        NoAction,
-                    ),
-                },
-                References {
-                    name: "payment_p2007_04_rental_id_fkey",
-                    columns: [
-                        "rental_id",
-                    ],
-                    table: "rental",
-                    foreign_columns: [
-                        "rental_id",
-                    ],
-                    on_update: Some(
-                        NoAction,
-                    ),
-                    on_delete: Some(
-                        NoAction,
-                    ),
-                },
-                References {
-                    name: "payment_p2007_04_staff_id_fkey",
-                    columns: [
-                        "staff_id",
-                    ],
-                    table: "staff",
-                    foreign_columns: [
-                        "staff_id",
-                    ],
-                    on_update: Some(
-                        NoAction,
-                    ),
-                    on_delete: Some(
-                        NoAction,
-                    ),
-                },
-            ],
-            exclusion_constraints: [],
-        },
-        TableDef {
-            info: TableInfo {
-                name: "payment_p2007_05",
-                of_type: None,
-            },
-            columns: [
-                ColumnInfo {
-                    name: "payment_id",
-                    col_type: Integer,
-                    default: Some(
-                        ColumnExpression(
-                            "nextval(\'payment_payment_id_seq\'::regclass)",
-                        ),
-                    ),
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "customer_id",
-                    col_type: SmallInt,
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "staff_id",
-                    col_type: SmallInt,
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "rental_id",
-                    col_type: Integer,
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "amount",
-                    col_type: Numeric(
-                        ArbitraryPrecisionNumericAttr {
-                            precision: Some(
-                                5,
-                            ),
-                            scale: Some(
-                                2,
-                            ),
-                        },
-                    ),
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "payment_date",
-                    col_type: Timestamp(
-                        TimeAttr {
-                            precision: Some(
-                                6,
-                            ),
-                        },
-                    ),
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-            ],
-            check_constraints: [
-                Check {
-                    name: "2200_16529_1_not_null",
-                    expr: "payment_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16529_2_not_null",
-                    expr: "customer_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16529_3_not_null",
-                    expr: "staff_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16529_4_not_null",
-                    expr: "rental_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16529_5_not_null",
-                    expr: "amount IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16529_6_not_null",
-                    expr: "payment_date IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "payment_p2007_05_payment_date_check",
-                    expr: "(((payment_date >= \'2007-05-01 00:00:00\'::timestamp without time zone) AND (payment_date < \'2007-06-01 00:00:00\'::timestamp without time zone)))",
-                    no_inherit: false,
-                },
-            ],
-            not_null_constraints: [],
-            unique_constraints: [],
-            primary_key_constraints: [],
-            reference_constraints: [
-                References {
-                    name: "payment_p2007_05_customer_id_fkey",
-                    columns: [
-                        "customer_id",
-                    ],
-                    table: "customer",
-                    foreign_columns: [
-                        "customer_id",
-                    ],
-                    on_update: Some(
-                        NoAction,
-                    ),
-                    on_delete: Some(
-                        NoAction,
-                    ),
-                },
-                References {
-                    name: "payment_p2007_05_rental_id_fkey",
-                    columns: [
-                        "rental_id",
-                    ],
-                    table: "rental",
-                    foreign_columns: [
-                        "rental_id",
-                    ],
-                    on_update: Some(
-                        NoAction,
-                    ),
-                    on_delete: Some(
-                        NoAction,
-                    ),
-                },
-                References {
-                    name: "payment_p2007_05_staff_id_fkey",
-                    columns: [
-                        "staff_id",
-                    ],
-                    table: "staff",
-                    foreign_columns: [
-                        "staff_id",
-                    ],
-                    on_update: Some(
-                        NoAction,
-                    ),
-                    on_delete: Some(
-                        NoAction,
-                    ),
-                },
-            ],
-            exclusion_constraints: [],
-        },
-        TableDef {
-            info: TableInfo {
-                name: "payment_p2007_06",
-                of_type: None,
-            },
-            columns: [
-                ColumnInfo {
-                    name: "payment_id",
-                    col_type: Integer,
-                    default: Some(
-                        ColumnExpression(
-                            "nextval(\'payment_payment_id_seq\'::regclass)",
-                        ),
-                    ),
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "customer_id",
-                    col_type: SmallInt,
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "staff_id",
-                    col_type: SmallInt,
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "rental_id",
-                    col_type: Integer,
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "amount",
-                    col_type: Numeric(
-                        ArbitraryPrecisionNumericAttr {
-                            precision: Some(
-                                5,
-                            ),
-                            scale: Some(
-                                2,
-                            ),
-                        },
-                    ),
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "payment_date",
-                    col_type: Timestamp(
-                        TimeAttr {
-                            precision: Some(
-                                6,
-                            ),
-                        },
-                    ),
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-            ],
-            check_constraints: [
-                Check {
-                    name: "2200_16534_1_not_null",
-                    expr: "payment_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16534_2_not_null",
-                    expr: "customer_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16534_3_not_null",
-                    expr: "staff_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16534_4_not_null",
-                    expr: "rental_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16534_5_not_null",
-                    expr: "amount IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16534_6_not_null",
-                    expr: "payment_date IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "payment_p2007_06_payment_date_check",
-                    expr: "(((payment_date >= \'2007-06-01 00:00:00\'::timestamp without time zone) AND (payment_date < \'2007-07-01 00:00:00\'::timestamp without time zone)))",
-                    no_inherit: false,
-                },
-            ],
-            not_null_constraints: [],
-            unique_constraints: [],
-            primary_key_constraints: [],
-            reference_constraints: [
-                References {
-                    name: "payment_p2007_06_customer_id_fkey",
-                    columns: [
-                        "customer_id",
-                    ],
-                    table: "customer",
-                    foreign_columns: [
-                        "customer_id",
-                    ],
-                    on_update: Some(
-                        NoAction,
-                    ),
-                    on_delete: Some(
-                        NoAction,
-                    ),
-                },
-                References {
-                    name: "payment_p2007_06_rental_id_fkey",
-                    columns: [
-                        "rental_id",
-                    ],
-                    table: "rental",
-                    foreign_columns: [
-                        "rental_id",
-                    ],
-                    on_update: Some(
-                        NoAction,
-                    ),
-                    on_delete: Some(
-                        NoAction,
-                    ),
-                },
-                References {
-                    name: "payment_p2007_06_staff_id_fkey",
-                    columns: [
-                        "staff_id",
-                    ],
-                    table: "staff",
-                    foreign_columns: [
-                        "staff_id",
-                    ],
-                    on_update: Some(
-                        NoAction,
-                    ),
-                    on_delete: Some(
-                        NoAction,
-                    ),
-                },
-            ],
-            exclusion_constraints: [],
-        },
-        TableDef {
-            info: TableInfo {
-                name: "payment_p2007_01",
-                of_type: None,
-            },
-            columns: [
-                ColumnInfo {
-                    name: "payment_id",
-                    col_type: Integer,
-                    default: Some(
-                        ColumnExpression(
-                            "nextval(\'payment_payment_id_seq\'::regclass)",
-                        ),
-                    ),
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "customer_id",
-                    col_type: SmallInt,
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "staff_id",
-                    col_type: SmallInt,
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "rental_id",
-                    col_type: Integer,
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "amount",
-                    col_type: Numeric(
-                        ArbitraryPrecisionNumericAttr {
-                            precision: Some(
-                                5,
-                            ),
-                            scale: Some(
-                                2,
-                            ),
-                        },
-                    ),
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "payment_date",
-                    col_type: Timestamp(
-                        TimeAttr {
-                            precision: Some(
-                                6,
-                            ),
-                        },
-                    ),
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-            ],
-            check_constraints: [
-                Check {
-                    name: "2200_16509_1_not_null",
-                    expr: "payment_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16509_2_not_null",
-                    expr: "customer_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16509_3_not_null",
-                    expr: "staff_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16509_4_not_null",
-                    expr: "rental_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16509_5_not_null",
-                    expr: "amount IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16509_6_not_null",
-                    expr: "payment_date IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "payment_p2007_01_payment_date_check",
-                    expr: "(((payment_date >= \'2007-01-01 00:00:00\'::timestamp without time zone) AND (payment_date < \'2007-02-01 00:00:00\'::timestamp without time zone)))",
-                    no_inherit: false,
-                },
-            ],
-            not_null_constraints: [],
-            unique_constraints: [],
-            primary_key_constraints: [],
-            reference_constraints: [
-                References {
-                    name: "payment_p2007_01_customer_id_fkey",
-                    columns: [
-                        "customer_id",
-                    ],
-                    table: "customer",
-                    foreign_columns: [
-                        "customer_id",
-                    ],
-                    on_update: Some(
-                        NoAction,
-                    ),
-                    on_delete: Some(
-                        NoAction,
-                    ),
-                },
-                References {
-                    name: "payment_p2007_01_rental_id_fkey",
-                    columns: [
-                        "rental_id",
-                    ],
-                    table: "rental",
-                    foreign_columns: [
-                        "rental_id",
-                    ],
-                    on_update: Some(
-                        NoAction,
-                    ),
-                    on_delete: Some(
-                        NoAction,
-                    ),
-                },
-                References {
-                    name: "payment_p2007_01_staff_id_fkey",
-                    columns: [
-                        "staff_id",
-                    ],
-                    table: "staff",
-                    foreign_columns: [
-                        "staff_id",
-                    ],
-                    on_update: Some(
-                        NoAction,
-                    ),
-                    on_delete: Some(
-                        NoAction,
-                    ),
-                },
-            ],
-            exclusion_constraints: [],
-        },
-        TableDef {
-            info: TableInfo {
-                name: "address",
-                of_type: None,
-            },
-            columns: [
-                ColumnInfo {
-                    name: "address_id",
-                    col_type: Integer,
-                    default: Some(
-                        ColumnExpression(
-                            "nextval(\'address_address_id_seq\'::regclass)",
-                        ),
-                    ),
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "address",
-                    col_type: Varchar(
-                        StringAttr {
-                            length: Some(
-                                50,
-                            ),
-                        },
-                    ),
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "address2",
-                    col_type: Varchar(
-                        StringAttr {
-                            length: Some(
-                                50,
-                            ),
-                        },
-                    ),
-                    default: None,
-                    generated: None,
-                    not_null: None,
-                },
-                ColumnInfo {
-                    name: "district",
-                    col_type: Varchar(
-                        StringAttr {
-                            length: Some(
-                                20,
-                            ),
-                        },
-                    ),
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "city_id",
-                    col_type: SmallInt,
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "postal_code",
-                    col_type: Varchar(
-                        StringAttr {
-                            length: Some(
-                                10,
-                            ),
-                        },
-                    ),
-                    default: None,
-                    generated: None,
-                    not_null: None,
-                },
-                ColumnInfo {
-                    name: "phone",
-                    col_type: Varchar(
-                        StringAttr {
-                            length: Some(
-                                20,
-                            ),
-                        },
-                    ),
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "last_update",
-                    col_type: Timestamp(
-                        TimeAttr {
-                            precision: Some(
-                                6,
-                            ),
-                        },
-                    ),
-                    default: Some(
-                        ColumnExpression(
-                            "now()",
-                        ),
-                    ),
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-            ],
-            check_constraints: [
-                Check {
-                    name: "2200_16446_1_not_null",
-                    expr: "address_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16446_2_not_null",
-                    expr: "address IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16446_4_not_null",
-                    expr: "district IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16446_5_not_null",
-                    expr: "city_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16446_7_not_null",
-                    expr: "phone IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16446_8_not_null",
-                    expr: "last_update IS NOT NULL",
-                    no_inherit: false,
-                },
-            ],
-            not_null_constraints: [],
-            unique_constraints: [],
-            primary_key_constraints: [
-                PrimaryKey {
-                    name: "address_pkey",
-                    columns: [
-                        "address_id",
-                    ],
-                },
-            ],
-            reference_constraints: [
-                References {
-                    name: "address_city_id_fkey",
-                    columns: [
-                        "city_id",
-                    ],
-                    table: "city",
-                    foreign_columns: [
-                        "city_id",
-                    ],
-                    on_update: Some(
-                        Cascade,
-                    ),
-                    on_delete: Some(
-                        Restrict,
-                    ),
-                },
-            ],
-            exclusion_constraints: [],
-        },
-        TableDef {
-            info: TableInfo {
-                name: "category",
-                of_type: None,
-            },
-            columns: [
-                ColumnInfo {
-                    name: "category_id",
-                    col_type: Integer,
-                    default: Some(
-                        ColumnExpression(
-                            "nextval(\'category_category_id_seq\'::regclass)",
-                        ),
-                    ),
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "name",
-                    col_type: Varchar(
-                        StringAttr {
-                            length: Some(
-                                25,
-                            ),
-                        },
-                    ),
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "last_update",
-                    col_type: Timestamp(
-                        TimeAttr {
-                            precision: Some(
-                                6,
-                            ),
-                        },
-                    ),
-                    default: Some(
-                        ColumnExpression(
-                            "now()",
-                        ),
-                    ),
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-            ],
-            check_constraints: [
-                Check {
-                    name: "2200_16412_1_not_null",
-                    expr: "category_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16412_2_not_null",
-                    expr: "name IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16412_3_not_null",
-                    expr: "last_update IS NOT NULL",
-                    no_inherit: false,
-                },
-            ],
-            not_null_constraints: [],
-            unique_constraints: [],
-            primary_key_constraints: [
-                PrimaryKey {
-                    name: "category_pkey",
-                    columns: [
-                        "category_id",
-                    ],
-                },
-            ],
-            reference_constraints: [],
-            exclusion_constraints: [],
-        },
-        TableDef {
-            info: TableInfo {
-                name: "city",
-                of_type: None,
-            },
-            columns: [
-                ColumnInfo {
-                    name: "city_id",
-                    col_type: Integer,
-                    default: Some(
-                        ColumnExpression(
-                            "nextval(\'city_city_id_seq\'::regclass)",
-                        ),
-                    ),
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "city",
-                    col_type: Varchar(
-                        StringAttr {
-                            length: Some(
-                                50,
-                            ),
-                        },
-                    ),
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "country_id",
-                    col_type: SmallInt,
-                    default: None,
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-                ColumnInfo {
-                    name: "last_update",
-                    col_type: Timestamp(
-                        TimeAttr {
-                            precision: Some(
-                                6,
-                            ),
-                        },
-                    ),
-                    default: Some(
-                        ColumnExpression(
-                            "now()",
-                        ),
-                    ),
-                    generated: None,
-                    not_null: Some(
-                        NotNull,
-                    ),
-                },
-            ],
-            check_constraints: [
-                Check {
-                    name: "2200_16453_1_not_null",
-                    expr: "city_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16453_2_not_null",
-                    expr: "city IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16453_3_not_null",
-                    expr: "country_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16453_4_not_null",
-                    expr: "last_update IS NOT NULL",
-                    no_inherit: false,
-                },
-            ],
-            not_null_constraints: [],
-            unique_constraints: [],
-            primary_key_constraints: [
-                PrimaryKey {
-                    name: "city_pkey",
-                    columns: [
-                        "city_id",
-                    ],
-                },
-            ],
-            reference_constraints: [
-                References {
-                    name: "city_country_id_fkey",
-                    columns: [
-                        "country_id",
-                    ],
-                    table: "country",
-                    foreign_columns: [
-                        "country_id",
-                    ],
-                    on_update: Some(
-                        Cascade,
-                    ),
-                    on_delete: Some(
-                        Restrict,
-                    ),
-                },
-            ],
-            exclusion_constraints: [],
-        },
-        TableDef {
-            info: TableInfo {
                 name: "country",
                 of_type: None,
             },
@@ -1793,13 +930,14 @@ Schema {
                     col_type: Integer,
                     default: Some(
                         ColumnExpression(
-                            "nextval(\'country_country_id_seq\'::regclass)",
+                            "nextval('country_country_id_seq'::regclass)",
                         ),
                     ),
                     generated: None,
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "country",
@@ -1815,6 +953,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "last_update",
@@ -1834,21 +973,22 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
             ],
             check_constraints: [
                 Check {
-                    name: "2200_16460_1_not_null",
+                    name: "country_country_id_not_null",
                     expr: "country_id IS NOT NULL",
                     no_inherit: false,
                 },
                 Check {
-                    name: "2200_16460_2_not_null",
+                    name: "country_country_not_null",
                     expr: "country IS NOT NULL",
                     no_inherit: false,
                 },
                 Check {
-                    name: "2200_16460_3_not_null",
+                    name: "country_last_update_not_null",
                     expr: "last_update IS NOT NULL",
                     no_inherit: false,
                 },
@@ -1877,13 +1017,14 @@ Schema {
                     col_type: Integer,
                     default: Some(
                         ColumnExpression(
-                            "nextval(\'customer_customer_id_seq\'::regclass)",
+                            "nextval('customer_customer_id_seq'::regclass)",
                         ),
                     ),
                     generated: None,
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "store_id",
@@ -1893,6 +1034,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "first_name",
@@ -1908,6 +1050,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "last_name",
@@ -1923,6 +1066,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "email",
@@ -1936,6 +1080,7 @@ Schema {
                     default: None,
                     generated: None,
                     not_null: None,
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "address_id",
@@ -1945,6 +1090,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "activebool",
@@ -1958,19 +1104,21 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "create_date",
                     col_type: Date,
                     default: Some(
                         ColumnExpression(
-                            "(\'now\'::text)::date",
+                            "('now'::text)::date",
                         ),
                     ),
                     generated: None,
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "last_update",
@@ -1988,6 +1136,7 @@ Schema {
                     ),
                     generated: None,
                     not_null: None,
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "active",
@@ -1995,42 +1144,43 @@ Schema {
                     default: None,
                     generated: None,
                     not_null: None,
+                    is_identity: false,
                 },
             ],
             check_constraints: [
                 Check {
-                    name: "2200_16467_1_not_null",
-                    expr: "customer_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16467_2_not_null",
-                    expr: "store_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16467_3_not_null",
-                    expr: "first_name IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16467_4_not_null",
-                    expr: "last_name IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16467_6_not_null",
-                    expr: "address_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16467_7_not_null",
+                    name: "customer_activebool_not_null",
                     expr: "activebool IS NOT NULL",
                     no_inherit: false,
                 },
                 Check {
-                    name: "2200_16467_8_not_null",
+                    name: "customer_address_id_not_null",
+                    expr: "address_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "customer_create_date_not_null",
                     expr: "create_date IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "customer_customer_id_not_null",
+                    expr: "customer_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "customer_first_name_not_null",
+                    expr: "first_name IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "customer_last_name_not_null",
+                    expr: "last_name IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "customer_store_id_not_null",
+                    expr: "store_id IS NOT NULL",
                     no_inherit: false,
                 },
             ],
@@ -2094,6 +1244,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "film_id",
@@ -2103,6 +1254,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "last_update",
@@ -2122,21 +1274,22 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
             ],
             check_constraints: [
                 Check {
-                    name: "2200_16431_1_not_null",
+                    name: "film_actor_actor_id_not_null",
                     expr: "actor_id IS NOT NULL",
                     no_inherit: false,
                 },
                 Check {
-                    name: "2200_16431_2_not_null",
+                    name: "film_actor_film_id_not_null",
                     expr: "film_id IS NOT NULL",
                     no_inherit: false,
                 },
                 Check {
-                    name: "2200_16431_3_not_null",
+                    name: "film_actor_last_update_not_null",
                     expr: "last_update IS NOT NULL",
                     no_inherit: false,
                 },
@@ -2169,22 +1322,6 @@ Schema {
                         Restrict,
                     ),
                 },
-                References {
-                    name: "film_actor_film_id_fkey",
-                    columns: [
-                        "film_id",
-                    ],
-                    table: "film",
-                    foreign_columns: [
-                        "film_id",
-                    ],
-                    on_update: Some(
-                        Cascade,
-                    ),
-                    on_delete: Some(
-                        Restrict,
-                    ),
-                },
             ],
             exclusion_constraints: [],
         },
@@ -2202,6 +1339,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "category_id",
@@ -2211,6 +1349,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "last_update",
@@ -2230,21 +1369,22 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
             ],
             check_constraints: [
                 Check {
-                    name: "2200_16435_1_not_null",
-                    expr: "film_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16435_2_not_null",
+                    name: "film_category_category_id_not_null",
                     expr: "category_id IS NOT NULL",
                     no_inherit: false,
                 },
                 Check {
-                    name: "2200_16435_3_not_null",
+                    name: "film_category_film_id_not_null",
+                    expr: "film_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "film_category_last_update_not_null",
                     expr: "last_update IS NOT NULL",
                     no_inherit: false,
                 },
@@ -2277,22 +1417,6 @@ Schema {
                         Restrict,
                     ),
                 },
-                References {
-                    name: "film_category_film_id_fkey",
-                    columns: [
-                        "film_id",
-                    ],
-                    table: "film",
-                    foreign_columns: [
-                        "film_id",
-                    ],
-                    on_update: Some(
-                        Cascade,
-                    ),
-                    on_delete: Some(
-                        Restrict,
-                    ),
-                },
             ],
             exclusion_constraints: [],
         },
@@ -2307,13 +1431,14 @@ Schema {
                     col_type: Integer,
                     default: Some(
                         ColumnExpression(
-                            "nextval(\'inventory_inventory_id_seq\'::regclass)",
+                            "nextval('inventory_inventory_id_seq'::regclass)",
                         ),
                     ),
                     generated: None,
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "film_id",
@@ -2323,6 +1448,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "store_id",
@@ -2332,6 +1458,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "last_update",
@@ -2351,27 +1478,28 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
             ],
             check_constraints: [
                 Check {
-                    name: "2200_16486_1_not_null",
-                    expr: "inventory_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16486_2_not_null",
+                    name: "inventory_film_id_not_null",
                     expr: "film_id IS NOT NULL",
                     no_inherit: false,
                 },
                 Check {
-                    name: "2200_16486_3_not_null",
-                    expr: "store_id IS NOT NULL",
+                    name: "inventory_inventory_id_not_null",
+                    expr: "inventory_id IS NOT NULL",
                     no_inherit: false,
                 },
                 Check {
-                    name: "2200_16486_4_not_null",
+                    name: "inventory_last_update_not_null",
                     expr: "last_update IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "inventory_store_id_not_null",
+                    expr: "store_id IS NOT NULL",
                     no_inherit: false,
                 },
             ],
@@ -2386,22 +1514,6 @@ Schema {
                 },
             ],
             reference_constraints: [
-                References {
-                    name: "inventory_film_id_fkey",
-                    columns: [
-                        "film_id",
-                    ],
-                    table: "film",
-                    foreign_columns: [
-                        "film_id",
-                    ],
-                    on_update: Some(
-                        Cascade,
-                    ),
-                    on_delete: Some(
-                        Restrict,
-                    ),
-                },
                 References {
                     name: "inventory_store_id_fkey",
                     columns: [
@@ -2432,13 +1544,14 @@ Schema {
                     col_type: Integer,
                     default: Some(
                         ColumnExpression(
-                            "nextval(\'language_language_id_seq\'::regclass)",
+                            "nextval('language_language_id_seq'::regclass)",
                         ),
                     ),
                     generated: None,
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "name",
@@ -2454,6 +1567,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "last_update",
@@ -2473,22 +1587,23 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
             ],
             check_constraints: [
                 Check {
-                    name: "2200_16493_1_not_null",
+                    name: "language_language_id_not_null",
                     expr: "language_id IS NOT NULL",
                     no_inherit: false,
                 },
                 Check {
-                    name: "2200_16493_2_not_null",
-                    expr: "name IS NOT NULL",
+                    name: "language_last_update_not_null",
+                    expr: "last_update IS NOT NULL",
                     no_inherit: false,
                 },
                 Check {
-                    name: "2200_16493_3_not_null",
-                    expr: "last_update IS NOT NULL",
+                    name: "language_name_not_null",
+                    expr: "name IS NOT NULL",
                     no_inherit: false,
                 },
             ],
@@ -2516,13 +1631,14 @@ Schema {
                     col_type: Integer,
                     default: Some(
                         ColumnExpression(
-                            "nextval(\'rental_rental_id_seq\'::regclass)",
+                            "nextval('rental_rental_id_seq'::regclass)",
                         ),
                     ),
                     generated: None,
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "rental_date",
@@ -2538,6 +1654,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "inventory_id",
@@ -2547,6 +1664,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "customer_id",
@@ -2556,6 +1674,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "return_date",
@@ -2569,6 +1688,7 @@ Schema {
                     default: None,
                     generated: None,
                     not_null: None,
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "staff_id",
@@ -2578,6 +1698,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "last_update",
@@ -2597,42 +1718,53 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
             ],
             check_constraints: [
                 Check {
-                    name: "2200_16541_1_not_null",
-                    expr: "rental_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16541_2_not_null",
-                    expr: "rental_date IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16541_3_not_null",
-                    expr: "inventory_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16541_4_not_null",
+                    name: "rental_customer_id_not_null",
                     expr: "customer_id IS NOT NULL",
                     no_inherit: false,
                 },
                 Check {
-                    name: "2200_16541_6_not_null",
-                    expr: "staff_id IS NOT NULL",
+                    name: "rental_inventory_id_not_null",
+                    expr: "inventory_id IS NOT NULL",
                     no_inherit: false,
                 },
                 Check {
-                    name: "2200_16541_7_not_null",
+                    name: "rental_last_update_not_null",
                     expr: "last_update IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "rental_rental_date_not_null",
+                    expr: "rental_date IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "rental_rental_id_not_null",
+                    expr: "rental_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "rental_staff_id_not_null",
+                    expr: "staff_id IS NOT NULL",
                     no_inherit: false,
                 },
             ],
             not_null_constraints: [],
-            unique_constraints: [],
+            unique_constraints: [
+                Unique {
+                    name: "idx_unq_rental_rental_date_inventory_id_customer_id",
+                    columns: [
+                        "rental_date",
+                        "inventory_id",
+                        "customer_id",
+                    ],
+                    is_partial: false,
+                },
+            ],
             primary_key_constraints: [
                 PrimaryKey {
                     name: "rental_pkey",
@@ -2704,13 +1836,14 @@ Schema {
                     col_type: Integer,
                     default: Some(
                         ColumnExpression(
-                            "nextval(\'staff_staff_id_seq\'::regclass)",
+                            "nextval('staff_staff_id_seq'::regclass)",
                         ),
                     ),
                     generated: None,
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "first_name",
@@ -2726,6 +1859,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "last_name",
@@ -2741,6 +1875,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "address_id",
@@ -2750,6 +1885,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "email",
@@ -2763,6 +1899,7 @@ Schema {
                     default: None,
                     generated: None,
                     not_null: None,
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "store_id",
@@ -2772,6 +1909,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "active",
@@ -2785,6 +1923,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "username",
@@ -2800,6 +1939,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "password",
@@ -2813,6 +1953,7 @@ Schema {
                     default: None,
                     generated: None,
                     not_null: None,
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "last_update",
@@ -2832,6 +1973,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "picture",
@@ -2839,46 +1981,47 @@ Schema {
                     default: None,
                     generated: None,
                     not_null: None,
+                    is_identity: false,
                 },
             ],
             check_constraints: [
                 Check {
-                    name: "2200_16553_10_not_null",
-                    expr: "last_update IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16553_1_not_null",
-                    expr: "staff_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16553_2_not_null",
-                    expr: "first_name IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16553_3_not_null",
-                    expr: "last_name IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16553_4_not_null",
-                    expr: "address_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16553_6_not_null",
-                    expr: "store_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16553_7_not_null",
+                    name: "staff_active_not_null",
                     expr: "active IS NOT NULL",
                     no_inherit: false,
                 },
                 Check {
-                    name: "2200_16553_8_not_null",
+                    name: "staff_address_id_not_null",
+                    expr: "address_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "staff_first_name_not_null",
+                    expr: "first_name IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "staff_last_name_not_null",
+                    expr: "last_name IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "staff_last_update_not_null",
+                    expr: "last_update IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "staff_staff_id_not_null",
+                    expr: "staff_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "staff_store_id_not_null",
+                    expr: "store_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "staff_username_not_null",
                     expr: "username IS NOT NULL",
                     no_inherit: false,
                 },
@@ -2940,13 +2083,14 @@ Schema {
                     col_type: Integer,
                     default: Some(
                         ColumnExpression(
-                            "nextval(\'store_store_id_seq\'::regclass)",
+                            "nextval('store_store_id_seq'::regclass)",
                         ),
                     ),
                     generated: None,
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "manager_staff_id",
@@ -2956,6 +2100,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "address_id",
@@ -2965,6 +2110,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "last_update",
@@ -2984,32 +2130,41 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
             ],
             check_constraints: [
                 Check {
-                    name: "2200_16564_1_not_null",
-                    expr: "store_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16564_2_not_null",
-                    expr: "manager_staff_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16564_3_not_null",
+                    name: "store_address_id_not_null",
                     expr: "address_id IS NOT NULL",
                     no_inherit: false,
                 },
                 Check {
-                    name: "2200_16564_4_not_null",
+                    name: "store_last_update_not_null",
                     expr: "last_update IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "store_manager_staff_id_not_null",
+                    expr: "manager_staff_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "store_store_id_not_null",
+                    expr: "store_id IS NOT NULL",
                     no_inherit: false,
                 },
             ],
             not_null_constraints: [],
-            unique_constraints: [],
+            unique_constraints: [
+                Unique {
+                    name: "idx_unq_manager_staff_id",
+                    columns: [
+                        "manager_staff_id",
+                    ],
+                    is_partial: false,
+                },
+            ],
             primary_key_constraints: [
                 PrimaryKey {
                     name: "store_pkey",
@@ -3065,13 +2220,14 @@ Schema {
                     col_type: Integer,
                     default: Some(
                         ColumnExpression(
-                            "nextval(\'payment_payment_id_seq\'::regclass)",
+                            "nextval('payment_payment_id_seq'::regclass)",
                         ),
                     ),
                     generated: None,
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "customer_id",
@@ -3081,6 +2237,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "staff_id",
@@ -3090,6 +2247,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "rental_id",
@@ -3099,6 +2257,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "amount",
@@ -3117,6 +2276,7 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
                 ColumnInfo {
                     name: "payment_date",
@@ -3132,37 +2292,218 @@ Schema {
                     not_null: Some(
                         NotNull,
                     ),
+                    is_identity: false,
                 },
             ],
             check_constraints: [
                 Check {
-                    name: "2200_16505_1_not_null",
-                    expr: "payment_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16505_2_not_null",
-                    expr: "customer_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16505_3_not_null",
-                    expr: "staff_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16505_4_not_null",
-                    expr: "rental_id IS NOT NULL",
-                    no_inherit: false,
-                },
-                Check {
-                    name: "2200_16505_5_not_null",
+                    name: "payment_amount_not_null",
                     expr: "amount IS NOT NULL",
                     no_inherit: false,
                 },
                 Check {
-                    name: "2200_16505_6_not_null",
+                    name: "payment_amount_not_null",
+                    expr: "amount IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_amount_not_null",
+                    expr: "amount IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_amount_not_null",
+                    expr: "amount IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_amount_not_null",
+                    expr: "amount IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_amount_not_null",
+                    expr: "amount IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_amount_not_null",
+                    expr: "amount IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_customer_id_not_null",
+                    expr: "customer_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_customer_id_not_null",
+                    expr: "customer_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_customer_id_not_null",
+                    expr: "customer_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_customer_id_not_null",
+                    expr: "customer_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_customer_id_not_null",
+                    expr: "customer_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_customer_id_not_null",
+                    expr: "customer_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_customer_id_not_null",
+                    expr: "customer_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_payment_date_not_null",
                     expr: "payment_date IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_payment_date_not_null",
+                    expr: "payment_date IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_payment_date_not_null",
+                    expr: "payment_date IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_payment_date_not_null",
+                    expr: "payment_date IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_payment_date_not_null",
+                    expr: "payment_date IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_payment_date_not_null",
+                    expr: "payment_date IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_payment_date_not_null",
+                    expr: "payment_date IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_payment_id_not_null",
+                    expr: "payment_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_payment_id_not_null",
+                    expr: "payment_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_payment_id_not_null",
+                    expr: "payment_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_payment_id_not_null",
+                    expr: "payment_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_payment_id_not_null",
+                    expr: "payment_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_payment_id_not_null",
+                    expr: "payment_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_payment_id_not_null",
+                    expr: "payment_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_rental_id_not_null",
+                    expr: "rental_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_rental_id_not_null",
+                    expr: "rental_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_rental_id_not_null",
+                    expr: "rental_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_rental_id_not_null",
+                    expr: "rental_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_rental_id_not_null",
+                    expr: "rental_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_rental_id_not_null",
+                    expr: "rental_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_rental_id_not_null",
+                    expr: "rental_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_staff_id_not_null",
+                    expr: "staff_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_staff_id_not_null",
+                    expr: "staff_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_staff_id_not_null",
+                    expr: "staff_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_staff_id_not_null",
+                    expr: "staff_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_staff_id_not_null",
+                    expr: "staff_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_staff_id_not_null",
+                    expr: "staff_id IS NOT NULL",
+                    no_inherit: false,
+                },
+                Check {
+                    name: "payment_staff_id_not_null",
+                    expr: "staff_id IS NOT NULL",
                     no_inherit: false,
                 },
             ],
@@ -3227,6 +2568,19 @@ Schema {
                 },
             ],
             exclusion_constraints: [],
+        },
+    ],
+    enums: [
+        EnumDef {
+            values: [
+                "G",
+                "PG",
+                "PG-13",
+                "R",
+                "NC-17",
+            ],
+            typename: "mpaa_rating",
+            schema: "public",
         },
     ],
 }

@@ -182,7 +182,8 @@ pub fn parse_enum_attributes(
                 None => panic!("parse_enum_attributes(_) received an empty udt_name"),
                 Some(typename) => typename.to_string(),
             };
-            if let Some(variants) = enums.get(&def.typename) {
+            if let Some((schema, variants)) = enums.get(&def.typename) {
+                def.schema.clone_from(schema);
                 def.values.clone_from(variants);
             }
         }
@@ -201,12 +202,15 @@ pub fn parse_array_attributes(
         Type::Array(ref mut def) => {
             def.col_type = match udt_name_regtype {
                 None => panic!("parse_array_attributes(_) received an empty udt_name_regtype"),
-                Some(typename) => {
-                    let typename = &typename.replacen('"', "", 2).replacen("[]", "", 1);
-                    let arr_col_type = if let Some(variants) = enums.get(typename) {
+                Some(raw) => {
+                    // regtype may return "schema"."typename"[] or typename[]
+                    let cleaned = raw.replace('"', "").replacen("[]", "", 1);
+                    let typename = cleaned.rsplit('.').next().unwrap_or(&cleaned);
+                    let arr_col_type = if let Some((schema, variants)) = enums.get(typename) {
                         Type::Enum(EnumDef {
                             typename: typename.to_string(),
                             values: variants.clone(),
+                            schema: schema.clone(),
                         })
                     } else {
                         Type::from_str(typename, Some(typename), false)
