@@ -202,8 +202,10 @@ pub fn parse_array_attributes(
         Type::Array(ref mut def) => {
             def.col_type = match udt_name_regtype {
                 None => panic!("parse_array_attributes(_) received an empty udt_name_regtype"),
-                Some(typename) => {
-                    let typename = &typename.replacen('"', "", 2).replacen("[]", "", 1);
+                Some(raw) => {
+                    // regtype may return "schema"."typename"[] or typename[]
+                    let cleaned = raw.replace('"', "").replacen("[]", "", 1);
+                    let typename = cleaned.rsplit('.').next().unwrap_or(&cleaned);
                     let arr_col_type = if let Some((schema, variants)) = enums.get(typename) {
                         Type::Enum(EnumDef {
                             typename: typename.to_string(),
