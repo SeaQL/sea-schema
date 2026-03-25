@@ -152,7 +152,7 @@ impl ColumnDefault {
             ColumnDefault::Int(int) => Some((*int).into()),
             ColumnDefault::Real(real) => Some((*real).into()),
             ColumnDefault::String(string) => Some(string.into()),
-            ColumnDefault::Bool(val) => Some(Expr::val(*val).into()),
+            ColumnDefault::Bool(val) => Some(Expr::val(*val)),
             ColumnDefault::CurrentTimestamp => Some(Keyword::CurrentTimestamp.into()),
             ColumnDefault::AutoIncrement(_) => None,
             ColumnDefault::Expression(expr) => Some(Expr::cust(expr.to_owned())),
