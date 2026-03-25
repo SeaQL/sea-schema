@@ -11,7 +11,7 @@ Schema {
                     name: "actor_id",
                     col_type: Integer,
                     default: Some(
-                        ColumnExpression(
+                        AutoIncrement(
                             "nextval(\'actor_actor_id_seq\'::regclass)",
                         ),
                     ),
@@ -60,9 +60,7 @@ Schema {
                         },
                     ),
                     default: Some(
-                        ColumnExpression(
-                            "now()",
-                        ),
+                        CurrentTimestamp,
                     ),
                     generated: None,
                     not_null: Some(
@@ -115,7 +113,7 @@ Schema {
                     name: "film_id",
                     col_type: Integer,
                     default: Some(
-                        ColumnExpression(
+                        AutoIncrement(
                             "nextval(\'film_film_id_seq\'::regclass)",
                         ),
                     ),
@@ -173,8 +171,8 @@ Schema {
                     name: "rental_duration",
                     col_type: SmallInt,
                     default: Some(
-                        ColumnExpression(
-                            "3",
+                        Int(
+                            3,
                         ),
                     ),
                     generated: None,
@@ -195,8 +193,8 @@ Schema {
                         },
                     ),
                     default: Some(
-                        ColumnExpression(
-                            "4.99",
+                        Real(
+                            4.99,
                         ),
                     ),
                     generated: None,
@@ -224,8 +222,8 @@ Schema {
                         },
                     ),
                     default: Some(
-                        ColumnExpression(
-                            "19.99",
+                        Real(
+                            19.99,
                         ),
                     ),
                     generated: None,
@@ -239,7 +237,7 @@ Schema {
                         "USER-DEFINED",
                     ),
                     default: Some(
-                        ColumnExpression(
+                        Expression(
                             "\'G\'::mpaa_rating",
                         ),
                     ),
@@ -256,9 +254,7 @@ Schema {
                         },
                     ),
                     default: Some(
-                        ColumnExpression(
-                            "now()",
-                        ),
+                        CurrentTimestamp,
                     ),
                     generated: None,
                     not_null: Some(
@@ -380,7 +376,7 @@ Schema {
                     name: "payment_id",
                     col_type: Integer,
                     default: Some(
-                        ColumnExpression(
+                        AutoIncrement(
                             "nextval(\'payment_payment_id_seq\'::regclass)",
                         ),
                     ),
@@ -552,7 +548,7 @@ Schema {
                     name: "payment_id",
                     col_type: Integer,
                     default: Some(
-                        ColumnExpression(
+                        AutoIncrement(
                             "nextval(\'payment_payment_id_seq\'::regclass)",
                         ),
                     ),
@@ -724,7 +720,7 @@ Schema {
                     name: "payment_id",
                     col_type: Integer,
                     default: Some(
-                        ColumnExpression(
+                        AutoIncrement(
                             "nextval(\'payment_payment_id_seq\'::regclass)",
                         ),
                     ),
@@ -896,7 +892,7 @@ Schema {
                     name: "payment_id",
                     col_type: Integer,
                     default: Some(
-                        ColumnExpression(
+                        AutoIncrement(
                             "nextval(\'payment_payment_id_seq\'::regclass)",
                         ),
                     ),
@@ -1068,7 +1064,7 @@ Schema {
                     name: "payment_id",
                     col_type: Integer,
                     default: Some(
-                        ColumnExpression(
+                        AutoIncrement(
                             "nextval(\'payment_payment_id_seq\'::regclass)",
                         ),
                     ),
@@ -1240,7 +1236,7 @@ Schema {
                     name: "payment_id",
                     col_type: Integer,
                     default: Some(
-                        ColumnExpression(
+                        AutoIncrement(
                             "nextval(\'payment_payment_id_seq\'::regclass)",
                         ),
                     ),
@@ -1412,7 +1408,7 @@ Schema {
                     name: "address_id",
                     col_type: Integer,
                     default: Some(
-                        ColumnExpression(
+                        AutoIncrement(
                             "nextval(\'address_address_id_seq\'::regclass)",
                         ),
                     ),
@@ -1511,9 +1507,7 @@ Schema {
                         },
                     ),
                     default: Some(
-                        ColumnExpression(
-                            "now()",
-                        ),
+                        CurrentTimestamp,
                     ),
                     generated: None,
                     not_null: Some(
@@ -1593,7 +1587,7 @@ Schema {
                     name: "category_id",
                     col_type: Integer,
                     default: Some(
-                        ColumnExpression(
+                        AutoIncrement(
                             "nextval(\'category_category_id_seq\'::regclass)",
                         ),
                     ),
@@ -1627,9 +1621,7 @@ Schema {
                         },
                     ),
                     default: Some(
-                        ColumnExpression(
-                            "now()",
-                        ),
+                        CurrentTimestamp,
                     ),
                     generated: None,
                     not_null: Some(
@@ -1677,7 +1669,7 @@ Schema {
                     name: "city_id",
                     col_type: Integer,
                     default: Some(
-                        ColumnExpression(
+                        AutoIncrement(
                             "nextval(\'city_city_id_seq\'::regclass)",
                         ),
                     ),
@@ -1720,9 +1712,7 @@ Schema {
                         },
                     ),
                     default: Some(
-                        ColumnExpression(
-                            "now()",
-                        ),
+                        CurrentTimestamp,
                     ),
                     generated: None,
                     not_null: Some(
@@ -1792,7 +1782,7 @@ Schema {
                     name: "country_id",
                     col_type: Integer,
                     default: Some(
-                        ColumnExpression(
+                        AutoIncrement(
                             "nextval(\'country_country_id_seq\'::regclass)",
                         ),
                     ),
@@ -1826,9 +1816,7 @@ Schema {
                         },
                     ),
                     default: Some(
-                        ColumnExpression(
-                            "now()",
-                        ),
+                        CurrentTimestamp,
                     ),
                     generated: None,
                     not_null: Some(
@@ -1876,7 +1864,7 @@ Schema {
                     name: "customer_id",
                     col_type: Integer,
                     default: Some(
-                        ColumnExpression(
+                        AutoIncrement(
                             "nextval(\'customer_customer_id_seq\'::regclass)",
                         ),
                     ),
@@ -1950,8 +1938,8 @@ Schema {
                     name: "activebool",
                     col_type: Boolean,
                     default: Some(
-                        ColumnExpression(
-                            "true",
+                        Bool(
+                            true,
                         ),
                     ),
                     generated: None,
@@ -1963,7 +1951,7 @@ Schema {
                     name: "create_date",
                     col_type: Date,
                     default: Some(
-                        ColumnExpression(
+                        Expression(
                             "(\'now\'::text)::date",
                         ),
                     ),
@@ -1982,9 +1970,7 @@ Schema {
                         },
                     ),
                     default: Some(
-                        ColumnExpression(
-                            "now()",
-                        ),
+                        CurrentTimestamp,
                     ),
                     generated: None,
                     not_null: None,
@@ -2114,9 +2100,7 @@ Schema {
                         },
                     ),
                     default: Some(
-                        ColumnExpression(
-                            "now()",
-                        ),
+                        CurrentTimestamp,
                     ),
                     generated: None,
                     not_null: Some(
@@ -2222,9 +2206,7 @@ Schema {
                         },
                     ),
                     default: Some(
-                        ColumnExpression(
-                            "now()",
-                        ),
+                        CurrentTimestamp,
                     ),
                     generated: None,
                     not_null: Some(
@@ -2306,7 +2288,7 @@ Schema {
                     name: "inventory_id",
                     col_type: Integer,
                     default: Some(
-                        ColumnExpression(
+                        AutoIncrement(
                             "nextval(\'inventory_inventory_id_seq\'::regclass)",
                         ),
                     ),
@@ -2343,9 +2325,7 @@ Schema {
                         },
                     ),
                     default: Some(
-                        ColumnExpression(
-                            "now()",
-                        ),
+                        CurrentTimestamp,
                     ),
                     generated: None,
                     not_null: Some(
@@ -2431,7 +2411,7 @@ Schema {
                     name: "language_id",
                     col_type: Integer,
                     default: Some(
-                        ColumnExpression(
+                        AutoIncrement(
                             "nextval(\'language_language_id_seq\'::regclass)",
                         ),
                     ),
@@ -2465,9 +2445,7 @@ Schema {
                         },
                     ),
                     default: Some(
-                        ColumnExpression(
-                            "now()",
-                        ),
+                        CurrentTimestamp,
                     ),
                     generated: None,
                     not_null: Some(
@@ -2515,7 +2493,7 @@ Schema {
                     name: "rental_id",
                     col_type: Integer,
                     default: Some(
-                        ColumnExpression(
+                        AutoIncrement(
                             "nextval(\'rental_rental_id_seq\'::regclass)",
                         ),
                     ),
@@ -2589,9 +2567,7 @@ Schema {
                         },
                     ),
                     default: Some(
-                        ColumnExpression(
-                            "now()",
-                        ),
+                        CurrentTimestamp,
                     ),
                     generated: None,
                     not_null: Some(
@@ -2703,7 +2679,7 @@ Schema {
                     name: "staff_id",
                     col_type: Integer,
                     default: Some(
-                        ColumnExpression(
+                        AutoIncrement(
                             "nextval(\'staff_staff_id_seq\'::regclass)",
                         ),
                     ),
@@ -2777,8 +2753,8 @@ Schema {
                     name: "active",
                     col_type: Boolean,
                     default: Some(
-                        ColumnExpression(
-                            "true",
+                        Bool(
+                            true,
                         ),
                     ),
                     generated: None,
@@ -2824,9 +2800,7 @@ Schema {
                         },
                     ),
                     default: Some(
-                        ColumnExpression(
-                            "now()",
-                        ),
+                        CurrentTimestamp,
                     ),
                     generated: None,
                     not_null: Some(
@@ -2939,7 +2913,7 @@ Schema {
                     name: "store_id",
                     col_type: Integer,
                     default: Some(
-                        ColumnExpression(
+                        AutoIncrement(
                             "nextval(\'store_store_id_seq\'::regclass)",
                         ),
                     ),
@@ -2976,9 +2950,7 @@ Schema {
                         },
                     ),
                     default: Some(
-                        ColumnExpression(
-                            "now()",
-                        ),
+                        CurrentTimestamp,
                     ),
                     generated: None,
                     not_null: Some(
@@ -3064,7 +3036,7 @@ Schema {
                     name: "payment_id",
                     col_type: Integer,
                     default: Some(
-                        ColumnExpression(
+                        AutoIncrement(
                             "nextval(\'payment_payment_id_seq\'::regclass)",
                         ),
                     ),
