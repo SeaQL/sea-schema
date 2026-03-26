@@ -1,9 +1,13 @@
 use super::{CharacterSetFields, InformationSchema, SchemaQueryBuilder};
 use crate::sqlx_types::SqlxRow;
-use sea_query::{DynIden, Expr, ExprTrait, Iden, Order, Query, SelectStatement};
+use sea_query::{Condition, DynIden, Expr, ExprTrait, Iden, Order, Query, SelectStatement};
 
-#[derive(Debug, sea_query::Iden)]
-/// Ref: https://dev.mysql.com/doc/refman/8.0/en/information-schema-tables-table.html
+const MARIADB_FULL_COLLATION_NAME_SINCE: u32 = 101001;
+
+#[derive(Debug, Clone, Copy, sea_query::Iden)]
+/// Refs:
+/// - https://dev.mysql.com/doc/refman/8.0/en/information-schema-tables-table.html
+/// - https://mariadb.com/docs/server/reference/system-tables/information-schema/information-schema-tables
 pub enum TablesFields {
     TableCatalog,
     TableSchema,
@@ -54,6 +58,9 @@ pub struct TableQueryResult {
 impl SchemaQueryBuilder {
     pub fn query_tables(&self, schema: DynIden) -> SelectStatement {
         type Schema = InformationSchema;
+        let is_mariadb_and_ge_10_10_01 =
+            self.system.is_maria_db() && self.system.version >= MARIADB_FULL_COLLATION_NAME_SINCE;
+
         Query::select()
             .columns(vec![
                 TablesFields::TableName,
@@ -68,14 +75,24 @@ impl SchemaQueryBuilder {
                 CharacterSetFields::CharacterSetName,
             ))
             .from((Schema::Schema, Schema::Tables))
-            .left_join(
-                (Schema::Schema, Schema::CollationCharacterSet),
-                Expr::col((
-                    Schema::CollationCharacterSet,
-                    CharacterSetFields::CollationName,
-                ))
-                .equals((Schema::Tables, TablesFields::TableCollation)),
-            )
+            .left_join((Schema::Schema, Schema::CollationCharacterSet), {
+                let info_tables_collation = (Schema::Tables, TablesFields::TableCollation);
+                Condition::any()
+                    .add_option(is_mariadb_and_ge_10_10_01.then(|| {
+                        Expr::col((
+                            Schema::CollationCharacterSet,
+                            CharacterSetFields::FullCollationName,
+                        ))
+                        .equals(info_tables_collation)
+                    }))
+                    .add(
+                        Expr::col((
+                            Schema::CollationCharacterSet,
+                            CharacterSetFields::CollationName,
+                        ))
+                        .equals(info_tables_collation),
+                    )
+            })
             .and_where(Expr::col(TablesFields::TableSchema).eq(schema.to_string()))
             .and_where(Expr::col(TablesFields::TableType).is_in([
                 TableType::BaseTable.to_string(),
