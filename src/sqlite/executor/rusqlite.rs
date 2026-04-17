@@ -17,7 +17,7 @@ impl IntoExecutor for RusqliteConnection {
     }
 }
 
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl Connection for Executor {
     fn query_all(&self, select: SelectStatement) -> Result<Vec<RusqliteRow>, RusqliteError> {
         let (sql, values) = select.build_rusqlite(SqliteQueryBuilder);

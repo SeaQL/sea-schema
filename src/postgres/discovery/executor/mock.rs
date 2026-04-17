@@ -19,7 +19,7 @@ impl IntoExecutor for PgPool {
     }
 }
 
-#[async_trait::async_trait]
+#[async_trait::async_trait(?Send)]
 impl Connection for Executor {
     async fn query_all(&self, select: SelectStatement) -> Result<Vec<SqlxRow>, SqlxError> {
         let (_sql, _values) = select.build(PostgresQueryBuilder);

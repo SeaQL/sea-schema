@@ -174,14 +174,14 @@ impl Type {
         if num.maximum.is_some() || num.decimal.is_some() {
             write!(s, "(").unwrap();
         }
-        if num.maximum.is_some() {
-            write!(s, "{}", num.maximum.unwrap()).unwrap();
+        if let Some(maximum) = num.maximum {
+            write!(s, "{}", maximum).unwrap();
         }
         if num.maximum.is_some() && num.decimal.is_some() {
             write!(s, ", ").unwrap();
         }
-        if num.decimal.is_some() {
-            write!(s, "{}", num.decimal.unwrap()).unwrap();
+        if let Some(decimal) = num.decimal {
+            write!(s, "{}", decimal).unwrap();
         }
         if num.maximum.is_some() || num.decimal.is_some() {
             write!(s, ")").unwrap();
@@ -195,14 +195,14 @@ impl Type {
     }
 
     pub fn write_time_attr(s: &mut String, attr: &TimeAttr) {
-        if attr.fractional.is_some() {
-            write!(s, "({})", attr.fractional.unwrap()).unwrap();
+        if let Some(fractional) = attr.fractional {
+            write!(s, "({})", fractional).unwrap();
         }
     }
 
     pub fn write_string_attr(s: &mut String, attr: &StringAttr) {
-        if attr.length.is_some() {
-            write!(s, "({})", attr.length.unwrap()).unwrap();
+        if let Some(length) = attr.length {
+            write!(s, "({})", length).unwrap();
         }
         if let Some(charset) = &attr.charset {
             write!(s, " CHARACTER SET {}", charset.unquoted()).unwrap();
@@ -213,8 +213,8 @@ impl Type {
     }
 
     pub fn write_blob_attr(s: &mut String, attr: &BlobAttr) {
-        if attr.length.is_some() {
-            write!(s, "({})", attr.length.unwrap()).unwrap();
+        if let Some(length) = attr.length {
+            write!(s, "({})", length).unwrap();
         }
     }
 
@@ -243,8 +243,8 @@ impl Type {
     }
 
     pub fn write_geometry_attr(s: &mut String, attr: &GeometryAttr) {
-        if attr.srid.is_some() {
-            write!(s, " SRID {}", attr.srid.unwrap()).unwrap();
+        if let Some(srid) = attr.srid {
+            write!(s, " SRID {}", srid).unwrap();
         }
     }
 }
