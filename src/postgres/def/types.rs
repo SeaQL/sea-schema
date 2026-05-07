@@ -265,6 +265,8 @@ pub struct EnumDef {
     pub values: Vec<String>,
     /// Defines the name of the PostgreSQL enum identifier
     pub typename: String,
+    /// The schema where this enum is defined
+    pub schema: String,
 }
 
 /// Defines an enum for the PostgreSQL module

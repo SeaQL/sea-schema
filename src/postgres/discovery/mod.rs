@@ -6,8 +6,8 @@ use crate::postgres::parser::{
     parse_table_constraint_query_results, parse_unique_index_query_results,
 };
 use crate::postgres::query::{
-    ColumnQueryResult, EnumQueryResult, SchemaQueryBuilder, TableConstraintsQueryResult,
-    TableQueryResult, UniqueIndexQueryResult,
+    ColumnQueryResult, EnumQueryResult, SchemaQueryBuilder, SearchPathResult,
+    TableConstraintsQueryResult, TableQueryResult, UniqueIndexQueryResult,
 };
 use crate::{
     Connection,
@@ -19,7 +19,7 @@ use std::collections::HashMap;
 mod executor;
 pub use executor::*;
 
-pub(crate) type EnumVariantMap = HashMap<String, Vec<String>>;
+pub(crate) type EnumVariantMap = HashMap<String, (String, Vec<String>)>;
 
 pub struct SchemaDiscovery {
     pub query: SchemaQueryBuilder,
@@ -62,7 +62,7 @@ impl SchemaDiscovery {
         let enums = self.discover_enums_with(conn).await?;
         let enum_map: EnumVariantMap = enums
             .iter()
-            .map(|enum_def| (enum_def.typename.clone(), enum_def.values.clone()))
+            .map(|e| (e.typename.clone(), (e.schema.clone(), e.values.clone())))
             .collect();
 
         let mut tables = Vec::new();
@@ -229,6 +229,37 @@ impl SchemaDiscovery {
             .collect())
     }
 
+    pub async fn discover_search_path(&self) -> Result<Vec<String>, SqlxError> {
+        self.discover_search_path_with(self.conn()?).await
+    }
+
+    #[doc(hidden)]
+    pub async fn discover_search_path_with<C: Connection>(
+        &self,
+        conn: &C,
+    ) -> Result<Vec<String>, SqlxError> {
+        let rows = conn
+            .query_all(self.query.query_search_path())
+            .await?;
+
+        let schemas: Vec<String> = rows
+            .into_iter()
+            .flat_map(|row| {
+                let result: SearchPathResult = row.into();
+                debug_print!("{:?}", result);
+                // filter user-defined schemas (starting with $) and trim quotes
+                result
+                    .setting
+                    .split(',')
+                    .map(|s| s.trim().trim_matches('"').to_string()) 
+                    .filter(|s| !s.is_empty() && !s.starts_with('$')) 
+                    .collect::<Vec<_>>()
+            })
+            .collect();
+
+        Ok(schemas)
+    }
+
     pub async fn discover_enums(&self) -> Result<Vec<EnumDef>, SqlxError> {
         self.discover_enums_with(self.conn()?).await
     }
@@ -238,35 +269,42 @@ impl SchemaDiscovery {
         &self,
         conn: &C,
     ) -> Result<Vec<EnumDef>, SqlxError> {
-        let rows = conn
-            .query_all(self.query.query_enums(self.schema.clone()))
-            .await?;
+        let current_schema = self.schema.to_string();
+        let schemas_to_search = std::iter::once(current_schema.clone())
+            .chain(
+                self.discover_search_path_with(conn)
+                    .await?
+                    .into_iter()
+                    .filter(|s| s != &current_schema),
+            )
+            .collect::<Vec<_>>();
 
-        let enum_rows = rows.into_iter().map(|row| {
-            let result: EnumQueryResult = row.into();
-            debug_print!("{:?}", result);
-            result
-        });
+        let mut enums_by_typename: HashMap<String, (String, Vec<String>)> = HashMap::new();
 
-        let map = enum_rows.fold(
-            HashMap::new(),
-            |mut map: HashMap<String, Vec<String>>,
-             EnumQueryResult {
-                 typename,
-                 enumlabel,
-             }| {
-                if let Some(entry_exists) = map.get_mut(&typename) {
-                    entry_exists.push(enumlabel);
-                } else {
-                    map.insert(typename, vec![enumlabel]);
-                }
-                map
-            },
-        );
+        for schema_name in &schemas_to_search {
+            let rows = conn
+                .query_all(self.query.query_enums(Alias::new(schema_name).into_iden()))
+                .await?;
 
-        Ok(map
+            for row in rows {
+                let result: EnumQueryResult = row.into();
+                debug_print!("{:?}", result);
+                
+                enums_by_typename
+                    .entry(result.typename)
+                    .or_insert((schema_name.clone(), Vec::new()))
+                    .1
+                    .push(result.enumlabel);
+            }
+        }
+
+        Ok(enums_by_typename
             .into_iter()
-            .map(|(typename, values)| EnumDef { values, typename })
+            .map(|(typename, (schema, values))| EnumDef {
+                typename,
+                schema,
+                values,
+            })
             .collect())
     }
 }

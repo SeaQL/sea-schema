@@ -1,7 +1,14 @@
+use crate::sqlx_types::SqlxRow;
 use sea_query::{Condition, Expr, ExprTrait, Iden, JoinType, Query, SelectStatement};
 
 #[derive(Debug, Default)]
 pub struct SchemaQueryBuilder {}
+
+impl SchemaQueryBuilder {
+    pub fn query_search_path(&self) -> SelectStatement {
+        select_search_path()
+    }
+}
 
 #[derive(Debug, Iden)]
 /// Ref: https://www.postgresql.org/docs/13/information-schema.html
@@ -64,4 +71,45 @@ pub(crate) fn select_base_table_and_view() -> SelectStatement {
                 ),
         )
         .to_owned()
+}
+
+pub(crate) fn select_search_path() -> SelectStatement {
+    #[derive(Iden)]
+    pub enum PgSettings {
+        #[iden = "pg_settings"]
+        Table,
+        #[iden = "name"]
+        Name,
+        #[iden = "setting"]
+        Setting,
+    }
+
+    Query::select()
+        .column(PgSettings::Setting)
+        .from(PgSettings::Table)
+        .and_where(Expr::col(PgSettings::Name).eq("search_path"))
+        .to_owned()
+}
+
+#[derive(Debug, Default)]
+pub struct SearchPathResult {
+    pub setting: String,
+}
+
+#[cfg(feature = "sqlx-postgres")]
+impl From<SqlxRow> for SearchPathResult {
+    fn from(row: SqlxRow) -> Self {
+        use crate::sqlx_types::Row;
+        let row = row.postgres();
+        Self {
+            setting: row.get(0),
+        }
+    }
+}
+
+#[cfg(not(feature = "sqlx-postgres"))]
+impl From<SqlxRow> for SearchPathResult {
+    fn from(_: SqlxRow) -> Self {
+        Self::default()
+    }
 }
