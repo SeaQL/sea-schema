@@ -2,11 +2,11 @@
 name = "sea-schema-discovery-test-sqlite"
 version = "0.1.0"
 edition = "2024"
-rust-version = "1.85.0"
+rust-version = "1.94.0"
 publish = false
 
 [dependencies]
 async-std = { version = "1.8", features = [ "attributes", "tokio1" ] }
-sea-schema = { path = "../../../", default-features = false, features = [ "with-serde", "sqlx-sqlite", "runtime-async-std-native-tls", "discovery", "debug-print" ] }
+sea-schema = { path = "../../../", default-features = false, features = [ "with-serde", "sqlx-sqlite", "runtime-async-std", "tls-native-tls", "discovery", "debug-print" ] }
 serde_json = { version = "1" }
-sqlx = { version = "0.8" }
+sqlx = { version = "0.9" }

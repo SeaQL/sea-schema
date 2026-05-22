@@ -24,7 +24,7 @@ documentation = "https://docs.rs/sea-schema"
 repository = "https://github.com/SeaQL/sea-schema"
 categories = ["database"]
 keywords = ["database", "sql", "mysql", "postgres"]
-rust-version = "1.85.0"
+rust-version = "1.94.0"
 
 [package.metadata.docs.rs]
 features = ["default"]
@@ -40,7 +40,7 @@ sea-schema-derive = { version = "0.3.0", path = "sea-schema-derive", default-fea
 sea-query = { version = "1.0.0-rc.18", default-features = false, features = ["derive"] }
 sea-query-sqlx = { version = "0.8.0-rc.1", default-features = false, optional = true }
 serde = { version = "1", default-features = false, optional = true, features = ["derive"] }
-sqlx = { version = "0.8", default-features = false, optional = true }
+sqlx = { version = "0.9", default-features = false, optional = true }
 log = { version = "0.4", default-features = false, optional = true }
 
 [features]
@@ -90,30 +90,43 @@ runtime-tokio = [
     "sqlx?/runtime-tokio",
     "sea-query-sqlx?/runtime-tokio",
 ]
-runtime-actix-native-tls = [
-    "sqlx?/runtime-tokio-native-tls",
-    "sea-query-sqlx?/runtime-actix-native-tls",
+tls-none = [
+    "sqlx?/tls-none",
+    "sea-query-sqlx?/tls-none"
 ]
-runtime-async-std-native-tls = [
-    "sqlx?/runtime-async-std-native-tls",
-    "sea-query-sqlx?/runtime-async-std-native-tls",
+tls-native-tls = [
+    "sqlx?/tls-native-tls",
+    "sea-query-sqlx?/tls-native-tls"
 ]
-runtime-tokio-native-tls = [
-    "sqlx?/runtime-tokio-native-tls",
-    "sea-query-sqlx?/runtime-tokio-native-tls",
+tls-rustls = [
+    "sqlx?/tls-rustls",
+    "sea-query-sqlx?/tls-rustls"
 ]
-runtime-actix-rustls = [
-    "sqlx?/runtime-tokio-rustls",
-    "sea-query-sqlx?/runtime-actix-rustls",
+tls-rustls-aws-lc-rs = [
+    "sqlx?/tls-rustls-aws-lc-rs",
+    "sea-query-sqlx?/tls-rustls-aws-lc-rs"
 ]
-runtime-async-std-rustls = [
-    "sqlx?/runtime-async-std-rustls",
-    "sea-query-sqlx?/runtime-async-std-rustls",
+tls-rustls-ring = [
+    "sqlx?/tls-rustls-ring",
+    "sea-query-sqlx?/tls-rustls-ring"
 ]
-runtime-tokio-rustls = [
-    "sqlx?/runtime-tokio-rustls",
-    "sea-query-sqlx?/runtime-tokio-rustls",
+tls-rustls-ring-native-roots = [
+    "sqlx?/tls-rustls-ring-native-roots",
+    "sea-query-sqlx?/tls-rustls-ring-native-roots"
 ]
+tls-rustls-ring-webpki = [
+    "sqlx?/tls-rustls-ring-webpki",
+    "sea-query-sqlx?/tls-rustls-ring-webpki"
+]
+
+# TODO: Remove those as a breaking change.
+runtime-actix-native-tls = ["tls-native-tls", "runtime-actix"]
+runtime-async-std-native-tls = ["tls-native-tls", "runtime-async-std"]
+runtime-tokio-native-tls = ["tls-native-tls", "runtime-tokio"]
+runtime-actix-rustls = ["tls-rustls", "runtime-actix"]
+runtime-async-std-rustls = ["tls-rustls", "runtime-async-std"]
+runtime-tokio-rustls = ["tls-rustls", "runtime-tokio"]
+
 rusqlite = []
 with-serde = ["serde"]
 
