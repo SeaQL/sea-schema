@@ -13,11 +13,53 @@ pub fn parse_column_query_result(result: ColumnQueryResult, enums: &EnumVariantM
     ColumnInfo {
         name: result.column_name.clone(),
         col_type: parse_column_type(&result, enums),
-        default: ColumnExpression::from_option_string(result.column_default),
+        default: parse_column_default(result.column_default),
         generated: ColumnExpression::from_option_string(result.column_generated),
         not_null: NotNull::from_bool(!yes_or_no_to_bool(&result.is_nullable)),
         is_identity: yes_or_no_to_bool(&result.is_identity),
     }
+}
+
+pub fn parse_column_default(default: Option<String>) -> Option<ColumnDefault> {
+    let default = default?;
+    if default.is_empty() {
+        return None;
+    }
+    // Trim may be redundant
+    let def_trim = default.trim();
+
+    Some(if is_nextval_default(def_trim) {
+        ColumnDefault::AutoIncrement(default)
+    } else if def_trim == "now()" || def_trim == "CURRENT_TIMESTAMP" {
+        ColumnDefault::CurrentTimestamp
+    } else if def_trim == "true" {
+        ColumnDefault::Bool(true)
+    } else if def_trim == "false" {
+        ColumnDefault::Bool(false)
+    } else if let Ok(int) = def_trim.parse::<i64>() {
+        ColumnDefault::Int(int)
+    } else if let Ok(real) = def_trim.parse::<f64>() {
+        ColumnDefault::Real(real)
+    } else {
+        // Check for quoted string literals like 'value'::type or plain 'value'
+        if let Some(inner) = def_trim.strip_prefix('\'') {
+            // Find the closing quote — handles 'value'::type_cast
+            if let Some(end) = inner.find('\'') {
+                let string_value = inner[..end].to_owned();
+                let suffix = &inner[end + 1..];
+                if suffix.is_empty() {
+                    return Some(ColumnDefault::String(string_value));
+                }
+            }
+        }
+        ColumnDefault::Expression(default)
+    })
+}
+
+fn is_nextval_default(def_trim: &str) -> bool {
+    def_trim
+        .strip_prefix("nextval")
+        .is_some_and(|suffix| suffix.trim_start().starts_with('('))
 }
 
 pub fn parse_column_type(result: &ColumnQueryResult, enums: &EnumVariantMap) -> ColumnType {
@@ -240,4 +282,24 @@ pub fn parse_vector_attributes(
     };
 
     ctype
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_column_default_detects_only_nextval_calls_as_auto_increment() {
+        let sequence_default = "nextval('actor_actor_id_seq'::regclass)".to_owned();
+        assert_eq!(
+            parse_column_default(Some(sequence_default.clone())),
+            Some(ColumnDefault::AutoIncrement(sequence_default))
+        );
+
+        let custom_default = "nextval_custom('actor_actor_id_seq'::regclass)".to_owned();
+        assert_eq!(
+            parse_column_default(Some(custom_default.clone())),
+            Some(ColumnDefault::Expression(custom_default))
+        );
+    }
 }

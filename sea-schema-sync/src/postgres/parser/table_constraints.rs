@@ -52,10 +52,11 @@ pub fn parse_table_constraint_query_results(
                         break;
                     }
 
-                    if result.column_name.is_some() && result.referential_key_column_name.is_some()
+                    if let (Some(col), Some(ref_col)) =
+                        (result.column_name, result.referential_key_column_name)
                     {
-                        columns.push(result.column_name.unwrap());
-                        foreign_columns.push(result.referential_key_column_name.unwrap());
+                        columns.push(col);
+                        foreign_columns.push(ref_col);
                     }
                 }
 

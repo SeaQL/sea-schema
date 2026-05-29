@@ -26,7 +26,7 @@ impl Connection for Executor {
         let (sql, values) = select.build_sqlx(PostgresQueryBuilder);
         debug_print!("{}, {:?}", sql, values);
 
-        Ok(sqlx::query_with(&sql, values)
+        Ok(sqlx::query_with(sqlx::AssertSqlSafe(sql), values)
             .fetch_all(&mut *self.pool.acquire()?)?
             .into_iter()
             .map(RusqliteRow::Postgres)
@@ -36,7 +36,7 @@ impl Connection for Executor {
     fn query_all_raw(&self, sql: String) -> Result<Vec<RusqliteRow>, RusqliteError> {
         debug_print!("{}", sql);
 
-        Ok(sqlx::query(&sql)
+        Ok(sqlx::query(sqlx::AssertSqlSafe(sql))
             .fetch_all(&mut *self.pool.acquire()?)?
             .into_iter()
             .map(RusqliteRow::Postgres)

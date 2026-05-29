@@ -29,6 +29,6 @@ find src -type f -name '*.rs' -exec sed -i '' "s/SqlxRow/RusqliteRow/g" {} +
 find src -type f -name '*.rs' -exec sed -i '' 's/SqlxError/RusqliteError/g' {} +
 find src -type f -name '*.rs' -exec sed -i '' 's/SQLx/Rusqlite/' {} +
 find src -type f -name '*.rs' -exec sed -i '' 's/SqlitePool/RusqliteConnection/' {} +
-find src -type f -name '*.rs' -exec sed -i '' '/#\[async_trait::async_trait\]/d' {} +
+find src -type f -name '*.rs' -exec sed -i '' '/#\[async_trait::async_trait/d' {} +
 find src -type f -name '*.rs' -exec sed -i '' 's/ \+ Sync//' {} +
 cargo fmt

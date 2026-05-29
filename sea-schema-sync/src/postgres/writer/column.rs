@@ -1,19 +1,15 @@
-use crate::postgres::def::{ColumnInfo, Type};
-use sea_query::{Alias, ColumnDef, ColumnType, DynIden, IntoIden, PgInterval, RcOrArc, StringLen};
-use std::{convert::TryFrom, fmt::Write};
+use crate::postgres::def::{ColumnDefault, ColumnInfo, Type};
+use sea_query::{
+    Alias, ColumnDef, ColumnType, DynIden, Expr, IntoIden, Keyword, PgInterval, RcOrArc,
+    SimpleExpr, StringLen,
+};
+use std::convert::TryFrom;
 
 impl ColumnInfo {
     pub fn write(&self) -> ColumnDef {
         let mut col_info = self.clone();
-        let mut extras: Vec<String> = Vec::new();
-        if let Some(default) = self.default.as_ref() {
-            if default.0.starts_with("nextval") {
-                col_info = Self::convert_to_serial(col_info);
-            } else {
-                let mut string = "".to_owned();
-                write!(&mut string, "DEFAULT {}", default.0).unwrap();
-                extras.push(string);
-            }
+        if let Some(ColumnDefault::AutoIncrement(_)) = &self.default {
+            col_info = Self::convert_to_serial(col_info);
         }
         let col_type = col_info.write_col_type();
         let mut col_def = ColumnDef::new_with_type(Alias::new(self.name.as_str()), col_type);
@@ -29,8 +25,10 @@ impl ColumnInfo {
         if self.not_null.is_some() {
             col_def.not_null();
         }
-        if !extras.is_empty() {
-            col_def.extra(extras.join(" "));
+        if let Some(default) = &self.default {
+            if let Some(default_expr) = default.write() {
+                col_def.default(default_expr);
+            }
         }
         col_def
     }
@@ -142,5 +140,22 @@ impl ColumnInfo {
             }
         }
         write_type(&self.col_type)
+    }
+}
+
+impl ColumnDefault {
+    /// Convert to a [SimpleExpr] for use with `col_def.default()`.
+    /// Returns `None` for [ColumnDefault::AutoIncrement] since those are handled
+    /// via SERIAL type conversion instead.
+    pub fn write(&self) -> Option<SimpleExpr> {
+        match self {
+            ColumnDefault::Int(int) => Some((*int).into()),
+            ColumnDefault::Real(real) => Some((*real).into()),
+            ColumnDefault::String(string) => Some(string.into()),
+            ColumnDefault::Bool(val) => Some(Expr::val(*val)),
+            ColumnDefault::CurrentTimestamp => Some(Keyword::CurrentTimestamp.into()),
+            ColumnDefault::AutoIncrement(_) => None,
+            ColumnDefault::Expression(expr) => Some(Expr::cust(expr.to_owned())),
+        }
     }
 }

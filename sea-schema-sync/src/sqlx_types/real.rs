@@ -54,6 +54,6 @@ pub fn connect_sqlite(s: &str) -> Result<RusqliteConnection, RusqliteError> {
 
 #[cfg(feature = "rusqlite")]
 pub fn execute_sqlite(pool: &RusqliteConnection, sql: &str) -> Result<(), RusqliteError> {
-    sqlx::query(sql).execute(pool)?;
+    sqlx::query(sqlx::AssertSqlSafe(sql)).execute(pool)?;
     Ok(())
 }
