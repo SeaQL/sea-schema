@@ -28,7 +28,7 @@ pub fn parse_column_default(default: Option<String>) -> Option<ColumnDefault> {
     // Trim may be redundant
     let def_trim = default.trim();
 
-    Some(if def_trim.starts_with("nextval") {
+    Some(if is_nextval_default(def_trim) {
         ColumnDefault::AutoIncrement(default)
     } else if def_trim == "now()" || def_trim == "CURRENT_TIMESTAMP" {
         ColumnDefault::CurrentTimestamp
@@ -54,6 +54,12 @@ pub fn parse_column_default(default: Option<String>) -> Option<ColumnDefault> {
         }
         ColumnDefault::Expression(default)
     })
+}
+
+fn is_nextval_default(def_trim: &str) -> bool {
+    def_trim
+        .strip_prefix("nextval")
+        .is_some_and(|suffix| suffix.trim_start().starts_with('('))
 }
 
 pub fn parse_column_type(result: &ColumnQueryResult, enums: &EnumVariantMap) -> ColumnType {
@@ -276,4 +282,24 @@ pub fn parse_vector_attributes(
     };
 
     ctype
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_column_default_detects_only_nextval_calls_as_auto_increment() {
+        let sequence_default = "nextval('actor_actor_id_seq'::regclass)".to_owned();
+        assert_eq!(
+            parse_column_default(Some(sequence_default.clone())),
+            Some(ColumnDefault::AutoIncrement(sequence_default))
+        );
+
+        let custom_default = "nextval_custom('actor_actor_id_seq'::regclass)".to_owned();
+        assert_eq!(
+            parse_column_default(Some(custom_default.clone())),
+            Some(ColumnDefault::Expression(custom_default))
+        );
+    }
 }
