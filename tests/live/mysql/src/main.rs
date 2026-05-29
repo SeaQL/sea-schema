@@ -39,7 +39,10 @@ async fn main() {
         let sql = tbl_create_stmt.to_string(MysqlQueryBuilder);
         println!("{sql};");
         println!();
-        sqlx::query(&sql).execute(&mut *executor).await.unwrap();
+        sqlx::query(sqlx::AssertSqlSafe(sql))
+            .execute(&mut *executor)
+            .await
+            .unwrap();
     }
 
     let schema_discovery = SchemaDiscovery::new(connection, "sea-schema");
@@ -99,16 +102,19 @@ async fn setup(base_url: &str, db_name: &str) -> Pool<MySql> {
         .await
         .unwrap();
 
-    let _drop_db_result = sqlx::query(&format!("DROP DATABASE IF EXISTS `{db_name}`;"))
-        .bind(db_name)
-        .execute(&mut *connection)
-        .await
-        .unwrap();
+    let _drop_db_result = sqlx::query(sqlx::AssertSqlSafe(format!(
+        "DROP DATABASE IF EXISTS `{db_name}`;"
+    )))
+    .bind(db_name)
+    .execute(&mut *connection)
+    .await
+    .unwrap();
 
-    let _create_db_result = sqlx::query(&format!("CREATE DATABASE `{db_name}`;"))
-        .execute(&mut *connection)
-        .await
-        .unwrap();
+    let _create_db_result =
+        sqlx::query(sqlx::AssertSqlSafe(format!("CREATE DATABASE `{db_name}`;")))
+            .execute(&mut *connection)
+            .await
+            .unwrap();
 
     let url = format!("{base_url}/{db_name}");
     MySqlPool::connect(&url).await.unwrap()

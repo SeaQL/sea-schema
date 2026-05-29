@@ -27,7 +27,7 @@ impl Connection for Executor {
         let (sql, values) = select.build_sqlx(SqliteQueryBuilder);
         debug_print!("{}, {:?}", sql, values);
 
-        Ok(sqlx::query_with(&sql, values)
+        Ok(sqlx::query_with(sqlx::AssertSqlSafe(sql), values)
             .fetch_all(&mut *self.pool.acquire().await?)
             .await?
             .into_iter()
@@ -38,7 +38,7 @@ impl Connection for Executor {
     async fn query_all_raw(&self, sql: String) -> Result<Vec<SqlxRow>, SqlxError> {
         debug_print!("{}", sql);
 
-        Ok(sqlx::query(&sql)
+        Ok(sqlx::query(sqlx::AssertSqlSafe(sql))
             .fetch_all(&mut *self.pool.acquire().await?)
             .await?
             .into_iter()

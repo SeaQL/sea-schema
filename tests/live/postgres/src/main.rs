@@ -38,7 +38,7 @@ async fn main() {
         ])
         .to_string(PostgresQueryBuilder);
 
-    sqlx::query(&create_enum_stmt)
+    sqlx::query(sqlx::AssertSqlSafe(create_enum_stmt.clone()))
         .execute(&mut *executor)
         .await
         .unwrap();
@@ -67,7 +67,10 @@ async fn main() {
         let sql = tbl_create_stmt.to_string(PostgresQueryBuilder);
         println!("{sql};");
         println!();
-        sqlx::query(&sql).execute(&mut *executor).await.unwrap();
+        sqlx::query(sqlx::AssertSqlSafe(sql.clone()))
+            .execute(&mut *executor)
+            .await
+            .unwrap();
 
         if sql.starts_with(r#"CREATE TABLE "fkey_parent_table_no_uniq""#) {
             // add unique index, but not constraint
@@ -77,7 +80,10 @@ async fn main() {
                 .col("u")
                 .unique()
                 .to_string(PostgresQueryBuilder);
-            sqlx::query(&sql).execute(&mut *executor).await.unwrap();
+            sqlx::query(sqlx::AssertSqlSafe(sql))
+                .execute(&mut *executor)
+                .await
+                .unwrap();
         }
     }
 
@@ -147,16 +153,20 @@ async fn setup(base_url: &str, db_name: &str) -> Pool<Postgres> {
         .await
         .unwrap();
 
-    let _drop_db_result = sqlx::query(&format!("DROP DATABASE IF EXISTS \"{db_name}\";"))
-        .bind(db_name)
-        .execute(&mut *connection)
-        .await
-        .unwrap();
+    let _drop_db_result = sqlx::query(sqlx::AssertSqlSafe(format!(
+        "DROP DATABASE IF EXISTS \"{db_name}\";"
+    )))
+    .bind(db_name)
+    .execute(&mut *connection)
+    .await
+    .unwrap();
 
-    let _create_db_result = sqlx::query(&format!("CREATE DATABASE \"{db_name}\";"))
-        .execute(&mut *connection)
-        .await
-        .unwrap();
+    let _create_db_result = sqlx::query(sqlx::AssertSqlSafe(format!(
+        "CREATE DATABASE \"{db_name}\";"
+    )))
+    .execute(&mut *connection)
+    .await
+    .unwrap();
 
     let url = format!("{base_url}/{db_name}");
     PgPool::connect(&url).await.unwrap()
