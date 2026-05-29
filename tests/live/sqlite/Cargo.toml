@@ -2,14 +2,14 @@
 name = "sqlite"
 version = "0.1.0"
 edition = "2024"
-rust-version = "1.85.0"
+rust-version = "1.94.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 async-std = { version = "1.8", features = [ "attributes", "tokio1" ] }
 sea-schema = { path = "../../../", default-features = false, features = [
-    "runtime-async-std-native-tls",
+    "runtime-async-std", "tls-native-tls",
     "discovery",
     "writer",
     "debug-print",
@@ -18,7 +18,7 @@ sea-schema = { path = "../../../", default-features = false, features = [
     "sqlite",
 ] }
 serde_json = { version = "1" }
-sqlx = { version = "0.8", features = ["sqlite", "runtime-async-std-native-tls"] }
+sqlx = { version = "0.9", features = ["sqlite", "runtime-async-std", "tls-native-tls"] }
 pretty_assertions = { version = "0.7" }
 env_logger = { version = "0" }
 log = { version = "0" }

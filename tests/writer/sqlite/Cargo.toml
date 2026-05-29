@@ -2,10 +2,10 @@
 name = "sea-schema-writer-test-sqlite"
 version = "0.1.0"
 edition = "2024"
-rust-version = "1.85.0"
+rust-version = "1.94.0"
 publish = false
 
 [dependencies]
 async-std = { version = "1.8", features = [ "attributes", "tokio1" ] }
-sea-schema = { path = "../../../", default-features = false, features = [ "sqlx-sqlite", "runtime-async-std-native-tls", "discovery", "writer", "debug-print" ] }
+sea-schema = { path = "../../../", default-features = false, features = [ "sqlx-sqlite", "runtime-async-std", "tls-native-tls", "discovery", "writer", "debug-print" ] }
 serde_json = { version = "1" }

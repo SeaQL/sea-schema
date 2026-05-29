@@ -2,14 +2,14 @@
 name = "sea-schema-writer-test-postgres"
 version = "0.1.0"
 edition = "2024"
-rust-version = "1.85.0"
+rust-version = "1.94.0"
 publish = false
 
 [dependencies]
 pretty_assertions = { version = "0.7" }
 async-std = { version = "1.8", features = [ "attributes", "tokio1" ] }
-sea-schema = { path = "../../../", default-features = false, features = [ "sqlx-postgres", "runtime-async-std-native-tls", "discovery", "writer", "debug-print" ] }
+sea-schema = { path = "../../../", default-features = false, features = [ "sqlx-postgres", "runtime-async-std", "tls-native-tls", "discovery", "writer", "debug-print" ] }
 serde_json = { version = "1" }
-sqlx = { version = "0.8" }
+sqlx = { version = "0.9" }
 env_logger = { version = "0" }
 log = { version = "0" }

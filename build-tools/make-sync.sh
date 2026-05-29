@@ -18,7 +18,7 @@ find src -type f -name '*.rs' -exec sed -i '' 's/not(feature = "sqlx-sqlite")/al
 find src   -type f -name '*.rs' -exec sed -i '' 's/#\[cfg(feature = "sqlx-sqlite")\]/#\[cfg(feature = "rusqlite")\]/' {} +
 find tests -type f -name 'Cargo.toml' -exec sed -i '' 's/sea-schema/sea-schema-sync/' {} +
 find tests -type f -name 'Cargo.toml' -exec sed -i '' 's/sqlx-sqlite/rusqlite/' {} +
-find tests -type f -name 'Cargo.toml' -exec sed -i '' 's/, "runtime-async-std-native-tls"//' {} +
+find tests -type f -name 'Cargo.toml' -exec sed -i '' 's/, "runtime-async-std", "tls-native-tls",//' {} +
 find tests -type f -name 'Cargo.toml' -exec sed -i '' '/sqlx/d' {} +
 find tests -type f -name 'Cargo.toml' -exec sed -i '' '/async-std/d' {} +
 find tests -type f -name '*.rs' -exec sed -i '' '/async_std/d' {} +
