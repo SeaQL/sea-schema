@@ -219,7 +219,9 @@ fn create_order_table() -> TableCreateStatement {
             ColumnDef::new("updated")
                 .date_time()
                 .not_null()
-                .extra("DEFAULT '2023-06-07 16:24:00'::timestamp without time zone"),
+                .default(Expr::cust(
+                    "'2023-06-07 16:24:00'::timestamp without time zone",
+                )),
         )
         .col(
             ColumnDef::new("net_weight")

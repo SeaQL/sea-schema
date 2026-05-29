@@ -11,9 +11,9 @@ pub struct ColumnInfo {
     /// The type of the column with any additional definitions such as the precision or the character
     /// set
     pub col_type: ColumnType,
-    /// The default value experssion for this column, if any
-    pub default: Option<ColumnExpression>,
-    /// The generation expression for this column, if it is a generated colum
+    /// The default value for this column, if any
+    pub default: Option<ColumnDefault>,
+    /// The generation expression for this column, if it is a generated column
     pub generated: Option<ColumnExpression>,
     pub not_null: Option<NotNull>,
     pub is_identity: bool,
@@ -33,6 +33,20 @@ pub struct ColumnInfo {
 }
 
 pub type ColumnType = Type;
+
+#[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
+pub enum ColumnDefault {
+    Int(i64),
+    Real(f64),
+    String(String),
+    Bool(bool),
+    CurrentTimestamp,
+    /// A sequence default, e.g. `nextval('table_id_seq'::regclass)`
+    AutoIncrement(String),
+    /// Any other expression not covered by the above variants
+    Expression(String),
+}
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "with-serde", derive(Serialize, Deserialize))]
