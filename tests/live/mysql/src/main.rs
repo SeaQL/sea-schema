@@ -105,7 +105,6 @@ async fn setup(base_url: &str, db_name: &str) -> Pool<MySql> {
     let _drop_db_result = sqlx::query(sqlx::AssertSqlSafe(format!(
         "DROP DATABASE IF EXISTS `{db_name}`;"
     )))
-    .bind(db_name)
     .execute(&mut *connection)
     .await
     .unwrap();
