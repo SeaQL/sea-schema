@@ -3,11 +3,12 @@
 use crate::debug_print;
 use crate::postgres::def::*;
 use crate::postgres::parser::{
-    parse_table_constraint_query_results, parse_unique_index_query_results,
+    parse_foreign_key_query_results, parse_table_constraint_query_results,
+    parse_unique_index_query_results,
 };
 use crate::postgres::query::{
-    ColumnQueryResult, EnumQueryResult, SchemaQueryBuilder, TableConstraintsQueryResult,
-    TableQueryResult, UniqueIndexQueryResult,
+    ColumnQueryResult, EnumQueryResult, ForeignKeyQueryResult, SchemaQueryBuilder,
+    TableConstraintsQueryResult, TableQueryResult, UniqueIndexQueryResult,
 };
 use crate::{
     Connection,
@@ -116,18 +117,17 @@ impl SchemaDiscovery {
             check_constraints,
             not_null_constraints,
             primary_key_constraints,
-            reference_constraints,
             exclusion_constraints,
         ) = constraints.into_iter().fold(
-            (Vec::new(), Vec::new(), Vec::new(), Vec::new(), Vec::new()),
+            (Vec::new(), Vec::new(), Vec::new(), Vec::new()),
             |mut acc, constraint| {
                 match constraint {
                     Constraint::Check(check) => acc.0.push(check),
                     Constraint::NotNull(not_null) => acc.1.push(not_null),
                     Constraint::Unique(_) => (),
                     Constraint::PrimaryKey(primary_key) => acc.2.push(primary_key),
-                    Constraint::References(references) => acc.3.push(references),
-                    Constraint::Exclusion(exclusion) => acc.4.push(exclusion),
+                    Constraint::References(_) => (),
+                    Constraint::Exclusion(exclusion) => acc.3.push(exclusion),
                 }
                 acc
             },
@@ -135,6 +135,9 @@ impl SchemaDiscovery {
 
         let unique_constraints = self
             .discover_unique_indexes_with(conn, self.schema.clone(), table.clone())
+            .await?;
+        let reference_constraints = self
+            .discover_foreign_keys_with(conn, self.schema.clone(), table.clone())
             .await?;
 
         Ok(TableDef {
@@ -225,6 +228,36 @@ impl SchemaDiscovery {
         Ok(parse_unique_index_query_results(Box::new(results))
             .inspect(|_index| {
                 debug_print!("{:?}", _index);
+            })
+            .collect())
+    }
+
+    async fn discover_foreign_keys_with<C: Connection>(
+        &self,
+        conn: &C,
+        schema: DynIden,
+        table: DynIden,
+    ) -> Result<Vec<References>, SqlxError> {
+        let rows = conn
+            .query_all(
+                self.query
+                    .query_table_foreign_keys(schema.clone(), table.clone()),
+            )
+            .await?;
+
+        let results = rows
+            .into_iter()
+            .map(|row| {
+                let result: ForeignKeyQueryResult = row.into();
+                debug_print!("{:?}", result);
+                result
+            })
+            .collect();
+
+        Ok(parse_foreign_key_query_results(results)
+            .into_iter()
+            .inspect(|_references| {
+                debug_print!("{:?}", _references);
             })
             .collect())
     }

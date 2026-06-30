@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 * Postgres fix enum discovery to be schema-specific https://github.com/SeaQL/sea-schema/pull/156
 * Postgres fix foreign key discovery to be schema-specific https://github.com/SeaQL/sea-schema/pull/157
 * Postgres fix foreign key discovery where components may have duplicate columns
+* Postgres discover foreign keys from `pg_constraint` instead of `information_schema`, fixing duplicated columns for composite keys that reference a bare unique index https://github.com/SeaQL/sea-orm/issues/2662
 * Postgres fix unique key discovery where components have wrong orders
 
 ## 0.16.2 - 2025-05-07
