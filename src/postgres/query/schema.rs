@@ -11,10 +11,8 @@ pub enum InformationSchema {
     Columns,
     CheckConstraints,
     KeyColumnUsage,
-    ReferentialConstraints,
     Tables,
     TableConstraints,
-    ConstraintColumnUsage,
 }
 
 pub(crate) fn select_base_table_and_view() -> SelectStatement {
