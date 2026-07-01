@@ -5,7 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## 0.17.0 - pending
+## 0.18.1 - 2026-07-01
+
+### Bug Fixes
+
+* Restore `Send` on `Connection` discovery futures under sqlx backends, fixing `SchemaBuilder::sync()` in SeaORM (SeaORM #3100) https://github.com/SeaQL/sea-schema/pull/170
+
+## 0.18.0 - 2026-05-29
 
 * Update to Rust Edition 2024 https://github.com/SeaQL/sea-schema/pull/147
 * Upgrade `sea-query` to 1.0
