@@ -11,7 +11,7 @@ impl TableQueryResult {
 pub fn parse_table_query_result(result: TableQueryResult) -> TableInfo {
     TableInfo {
         name: result.table_name,
-        engine: StorageEngine::from_str(result.engine.as_str()).unwrap(),
+        engine: StorageEngine::from_str(result.engine.unwrap_or_default().as_str()).unwrap(),
         auto_increment: result.auto_increment,
         char_set: result.table_char_set.as_deref().and_then(CharSet::from_str),
         collation: result
