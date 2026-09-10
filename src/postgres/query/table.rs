@@ -45,7 +45,9 @@ impl SchemaQueryBuilder {
             ])
             .from((InformationSchema::Schema, InformationSchema::Tables))
             .and_where(Expr::col(TablesFields::TableSchema).eq(schema.to_string()))
-            .and_where(Expr::col(TablesFields::TableType).eq(TableType::BaseTable.to_string()))
+            .and_where(Expr::col(TablesFields::TableType).is_in(
+                [TableType::BaseTable.to_string(), TableType::View.to_string()]
+            ))
             .and_where(
                 Expr::col(TablesFields::TableName).not_in_subquery(select_base_table_and_view()),
             )
