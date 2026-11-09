@@ -23,6 +23,7 @@ async fn main() -> DiscoveryResult<()> {
 
     test_001().await?;
     test_002().await?;
+    test_003().await?;
 
     Ok(())
 }
@@ -307,6 +308,45 @@ async fn test_002() -> DiscoveryResult<()> {
         }
         assert_eq!(expected_sql, sql);
     }
+
+    Ok(())
+}
+
+async fn test_003() -> DiscoveryResult<()> {
+    let url = std::env::var("DATABASE_URL_LIVE").unwrap_or_else(|_| "sqlite::memory:".to_owned());
+
+    let connection = connect_sqlite(&url).await.unwrap();
+
+    // `REFERENCES <parent-table>` without columns maps to the parent's primary key
+    for sql in [
+        "DROP TABLE IF EXISTS fk_shorthand_child",
+        "DROP TABLE IF EXISTS fk_shorthand_parent",
+        "CREATE TABLE fk_shorthand_parent (a integer NOT NULL, b integer NOT NULL, PRIMARY KEY (b, a))",
+        "CREATE TABLE fk_shorthand_child (id integer NOT NULL PRIMARY KEY, x integer, y integer, FOREIGN KEY (x, y) REFERENCES fk_shorthand_parent)",
+    ] {
+        execute_sqlite(&connection, sql).await.unwrap();
+    }
+
+    let schema = SchemaDiscovery::new(connection).discover().await?;
+    let table = schema
+        .tables
+        .iter()
+        .find(|table| table.name == "fk_shorthand_child")
+        .unwrap();
+
+    assert_eq!(
+        table.write().to_string(SqliteQueryBuilder),
+        [
+            r#"CREATE TABLE "fk_shorthand_child" ("#,
+            r#""id" integer NOT NULL,"#,
+            r#""x" integer,"#,
+            r#""y" integer,"#,
+            r#"PRIMARY KEY ("id"),"#,
+            r#"FOREIGN KEY ("x", "y") REFERENCES "fk_shorthand_parent" ("b", "a") ON DELETE NO ACTION ON UPDATE NO ACTION"#,
+            r#")"#,
+        ]
+        .join(" ")
+    );
 
     Ok(())
 }

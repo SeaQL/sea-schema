@@ -237,7 +237,11 @@ impl From<SqlxRow> for ForeignKeysInfo {
             seq: row.get(1),
             table: row.get(2),
             from: vec![row.get(3)],
-            to: vec![row.get(4)],
+            to: {
+                // NULL when the foreign key refers to the parent's primary key implicitly
+                let to: Option<String> = row.get(4);
+                vec![to.unwrap_or_default()]
+            },
             on_update: {
                 let op: String = row.get(5);
                 op.as_str().into()

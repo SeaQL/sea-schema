@@ -174,6 +174,25 @@ impl TableDef {
             last_fk_id = Some(fk_id);
         });
 
+        // `REFERENCES <parent-table>` without a column list refers to the
+        // primary key of the parent table, and SQLite reports `to` as NULL
+        for foreign_key in self.foreign_keys.iter_mut() {
+            if foreign_key.to.iter().all(|column| column.is_empty()) {
+                let mut pk_query = String::default();
+                pk_query.push_str("SELECT * FROM pragma_table_xinfo('");
+                pk_query.push_str(&foreign_key.table);
+                pk_query.push_str("') WHERE pk > 0 ORDER BY pk");
+
+                let mut to = Vec::new();
+                for row in conn.query_all_raw(pk_query).await? {
+                    to.push(ColumnInfo::to_column_def(row)?.name);
+                }
+                if to.len() == foreign_key.from.len() {
+                    foreign_key.to = to;
+                }
+            }
+        }
+
         Ok(self)
     }
 
